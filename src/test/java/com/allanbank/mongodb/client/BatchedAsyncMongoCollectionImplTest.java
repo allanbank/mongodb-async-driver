@@ -166,7 +166,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseNoBatchDeleteCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
@@ -214,7 +214,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseNoBatchUpdateCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
                 .build();
@@ -264,7 +264,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseWithBatchDeleteCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
@@ -324,7 +324,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseWithBatchUpdateCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
                 .build();
@@ -385,7 +385,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testFlushNoBatchInsertCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
                 .build();
@@ -437,7 +437,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testFlushWithBatchInsertCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().add("_id", new ObjectId())
                 .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)

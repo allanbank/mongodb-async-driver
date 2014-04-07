@@ -25,7 +25,7 @@ import com.allanbank.mongodb.client.message.Reply;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyResultCallback extends
-AbstractReplyCallback<MongoIterator<Document>> {
+        AbstractReplyCallback<MongoIterator<Document>> {
 
     /** The field in the reply holding the results. */
     private final String myReplyField;

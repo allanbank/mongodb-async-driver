@@ -106,7 +106,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -195,7 +195,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(eq(message), anyObject(ReplyCallback.class));
@@ -378,7 +378,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(eq(message), anyObject(ReplyCallback.class));
@@ -555,7 +555,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, callback);
@@ -583,7 +583,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -640,7 +640,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -649,7 +649,7 @@ public class SerialClientImplTest {
         expect(mockConnection.isAvailable()).andReturn(false);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -683,7 +683,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -692,7 +692,7 @@ public class SerialClientImplTest {
         expect(mockConnection.isAvailable()).andReturn(false);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2.send(message, null);
         expectLastCall();
@@ -723,7 +723,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, lastError, callback);
@@ -752,7 +752,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -787,7 +787,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -826,7 +826,7 @@ public class SerialClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, callback);

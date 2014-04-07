@@ -66,11 +66,11 @@ public class UpdateTest {
                                 objs1.add(new Update(databaseName,
                                         collectionName, query, update,
                                         multiUpdate.booleanValue(), upsert
-                                        .booleanValue()));
+                                                .booleanValue()));
                                 objs2.add(new Update(databaseName,
                                         collectionName, query, update,
                                         multiUpdate.booleanValue(), upsert
-                                        .booleanValue()));
+                                                .booleanValue()));
                             }
                         }
                     }
@@ -132,7 +132,7 @@ public class UpdateTest {
                                 objs1.add(new Update(databaseName,
                                         collectionName, query, update,
                                         multiUpdate.booleanValue(), upsert
-                                        .booleanValue()));
+                                                .booleanValue()));
                             }
                         }
                     }

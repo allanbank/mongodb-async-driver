@@ -71,7 +71,7 @@ public class QueryTest {
                                                 .nextBoolean();
                                         final ReadPreference readPreference = random
                                                 .nextBoolean() ? ReadPreference.CLOSEST
-                                                        : ReadPreference.SECONDARY;
+                                                : ReadPreference.SECONDARY;
                                         final boolean noCursorTimeout = random
                                                 .nextBoolean();
                                         final boolean awaitData = random
@@ -471,7 +471,7 @@ public class QueryTest {
                                             .nextBoolean();
                                     final ReadPreference readPreference = random
                                             .nextBoolean() ? ReadPreference.PRIMARY
-                                                    : ReadPreference.SECONDARY;
+                                            : ReadPreference.SECONDARY;
                                     final boolean noCursorTimeout = random
                                             .nextBoolean();
                                     final boolean awaitData = random

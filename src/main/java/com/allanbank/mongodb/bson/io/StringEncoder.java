@@ -51,12 +51,12 @@ public class StringEncoder {
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
-     *
+     * 
      * 2    U+0080..U+07FF   2
-     *
+     * 
      * 3    U+0800..U+0FFF   3
      *      U+1000..U+FFFF
-     *
+     * 
      * 4   U+10000..U+3FFFF  4
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4
@@ -161,12 +161,12 @@ public class StringEncoder {
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
-     *
+     * 
      * 2    U+0080..U+07FF   2
-     *
+     * 
      * 3    U+0800..U+0FFF   3
      *      U+1000..U+FFFF
-     *
+     * 
      * 4   U+10000..U+3FFFF  4
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4

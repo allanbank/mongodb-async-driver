@@ -309,7 +309,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
                     || doc.contains("jnote")
                     || doc.contains("badGLE")
                     || errorMessage
-                    .startsWith("could not enforce write concern");
+                            .startsWith("could not enforce write concern");
         }
         return durabilityError;
     }

@@ -129,7 +129,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
      */
     @Test
     public void testSecondaryPreferredLoading() throws IOException,
-    InterruptedException, ExecutionException {
+            InterruptedException, ExecutionException {
 
         final int count = SMALL_COLLECTION_COUNT * 5;
 
@@ -249,10 +249,10 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
                             + index
                             + "]: "
                             + deltas[index]
-                                    + ", delta["
-                                    + i
-                                    + "]: "
-                                    + deltas[i]);
+                            + ", delta["
+                            + i
+                            + "]: "
+                            + deltas[i]);
                 }
             }
         }

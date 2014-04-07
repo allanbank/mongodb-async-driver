@@ -40,6 +40,29 @@ public class InsertOperation implements WriteOperation {
     }
 
     /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     *
+     * @param object
+     *            The object to compare to.
+     *
+     * @see Object#equals(Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final InsertOperation other = (InsertOperation) object;
+
+            result = myDocument.equals(other.myDocument);
+        }
+        return result;
+    }
+
+    /**
      * Returns the document to insert.
      *
      * @return The document to insert.
@@ -57,5 +80,26 @@ public class InsertOperation implements WriteOperation {
     @Override
     public final WriteOperationType getType() {
         return WriteOperationType.INSERT;
+    }
+
+    /**
+     * Computes a reasonable hash code.
+     *
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        return myDocument.hashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to returns a representation of the update.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        return "Insert[" + myDocument + "]";
     }
 }

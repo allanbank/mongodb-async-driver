@@ -45,6 +45,30 @@ public class DeleteOperation implements WriteOperation {
     }
 
     /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     *
+     * @param object
+     *            The object to compare to.
+     *
+     * @see Object#equals(Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final DeleteOperation other = (DeleteOperation) object;
+
+            result = (mySingleDelete == other.mySingleDelete)
+                    && myQuery.equals(other.myQuery);
+        }
+        return result;
+    }
+
+    /**
      * Returns the query to find the documents to delete.
      *
      * @return The query to find the documents to delete.
@@ -65,11 +89,36 @@ public class DeleteOperation implements WriteOperation {
     }
 
     /**
+     * Computes a reasonable hash code.
+     *
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (31 * result) + (mySingleDelete ? 31 : 11);
+        result = (31 * result) + myQuery.hashCode();
+        return result;
+    }
+
+    /**
      * Returns true if the operation should only delete at most one document.
      *
      * @return True if the operation should only delete at most one document.
      */
     public boolean isSingleDelete() {
         return mySingleDelete;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to returns a representation of the delete.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        return "Delete[singleDelete=" + mySingleDelete + ",query=" + myQuery
+                + "]";
     }
 }

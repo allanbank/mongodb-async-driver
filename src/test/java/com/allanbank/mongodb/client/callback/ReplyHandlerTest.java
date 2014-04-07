@@ -175,7 +175,7 @@ public class ReplyHandlerTest {
      */
     @Test
     public void testReplyWithLightWeightCallback() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Executor mockExecutor = createMock(Executor.class);
 
         final List<Document> docs = Collections.emptyList();

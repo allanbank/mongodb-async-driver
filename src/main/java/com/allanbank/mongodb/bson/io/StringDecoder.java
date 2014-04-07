@@ -440,17 +440,17 @@ public class StringDecoder {
         public void addChild(final Node child) {
             final int value = child.getValue();
             final int zone = (value & 0xF0) >> 4;
-        final int index = (value & 0x0F);
+            final int index = (value & 0x0F);
 
-        if (myChildren == null) {
-            myChildren = new Node[16][];
-            myChildren[zone] = new Node[16];
-        }
-        else if (myChildren[zone] == null) {
-            myChildren[zone] = new Node[16];
-        }
+            if (myChildren == null) {
+                myChildren = new Node[16][];
+                myChildren[zone] = new Node[16];
+            }
+            else if (myChildren[zone] == null) {
+                myChildren[zone] = new Node[16];
+            }
 
-        myChildren[zone][index] = child;
+            myChildren[zone][index] = child;
         }
 
         /**
@@ -463,12 +463,12 @@ public class StringDecoder {
          */
         public Node child(final byte value) {
             final int zone = (value & 0xF0) >> 4;
-        final int index = (value & 0x0F);
+            final int index = (value & 0x0F);
 
-        if ((myChildren != null) && (myChildren[zone] != null)) {
-            return myChildren[zone][index];
-        }
-        return null;
+            if ((myChildren != null) && (myChildren[zone] != null)) {
+                return myChildren[zone][index];
+            }
+            return null;
         }
 
         /**
@@ -568,11 +568,11 @@ public class StringDecoder {
         private void removeChild(final Node child) {
             final int value = child.getValue();
             final int zone = (value & 0xF0) >> 4;
-        final int index = (value & 0x0F);
+            final int index = (value & 0x0F);
 
-        if ((myChildren != null) && (myChildren[zone] != null)) {
-            myChildren[zone][index] = null;
-        }
+            if ((myChildren != null) && (myChildren[zone] != null)) {
+                myChildren[zone][index] = null;
+            }
         }
     }
 }

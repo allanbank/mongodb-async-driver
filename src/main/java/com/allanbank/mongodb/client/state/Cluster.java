@@ -640,8 +640,8 @@ public class Cluster implements ClusterStats {
                 if (Version.UNKNOWN.equals(old)
                         || (myServerVersionRange.getUpperBounds()
                                 .compareTo(old) <= 0)
-                                || (myServerVersionRange.getLowerBounds()
-                                        .compareTo(old) >= 0)) {
+                        || (myServerVersionRange.getLowerBounds()
+                                .compareTo(old) >= 0)) {
                     updateVersions();
                 }
             }

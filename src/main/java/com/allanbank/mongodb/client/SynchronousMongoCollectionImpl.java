@@ -48,7 +48,7 @@ import com.allanbank.mongodb.util.FutureUtils;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SynchronousMongoCollectionImpl extends
-AbstractAsyncMongoCollection implements MongoCollection {
+        AbstractAsyncMongoCollection implements MongoCollection {
 
     /**
      * Create a new MongoDatabaseClient.
@@ -246,7 +246,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public void createIndex(final String name,
             final DocumentAssignable options, final Element... keys)
-                    throws MongoDbException {
+            throws MongoDbException {
 
         String indexName = name;
         if ((name == null) || name.isEmpty()) {
@@ -325,7 +325,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public long delete(final DocumentAssignable query,
             final boolean singleDelete, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
 
         final ListenableFuture<Long> future = deleteAsync(query, singleDelete,
                 durability);
@@ -650,7 +650,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public int insert(final boolean continueOnError,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         final ListenableFuture<Integer> future = insertAsync(continueOnError,
                 durability, documents);
 
@@ -844,7 +844,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
             final com.allanbank.mongodb.builder.Text command)
-                    throws MongoDbException {
+            throws MongoDbException {
         return FutureUtils.unwrap(textSearchAsync(command));
     }
 
@@ -866,7 +866,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
             final com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException {
+            throws MongoDbException {
         return textSearch(command.build());
     }
 
@@ -922,7 +922,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     public long update(final DocumentAssignable query,
             final DocumentAssignable update, final boolean multiUpdate,
             final boolean upsert, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
 
         final ListenableFuture<Long> future = updateAsync(query, update,
                 multiUpdate, upsert, durability);
@@ -944,7 +944,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public long update(final DocumentAssignable query,
             final DocumentAssignable update, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         return update(query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, durability);
     }

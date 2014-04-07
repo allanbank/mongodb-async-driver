@@ -38,13 +38,13 @@ public class AggregationGroupIdTest {
         assertEquals(new DocumentElement("_id",
                 new StringElement("bar", "$bar"), new StringElement("baz",
                         "$baz")),
-                        id().addField("bar", "bar").addField("baz", "$baz").buildId()
+                id().addField("bar", "bar").addField("baz", "$baz").buildId()
                         .toElement());
 
         assertEquals(new DocumentElement("_id",
                 new StringElement("bar", "$bar"), new StringElement("baz",
                         "$baz")), id().addField("bar").addField("$baz")
-                        .buildId().toElement());
+                .buildId().toElement());
     }
 
     /**

@@ -42,7 +42,7 @@ import com.allanbank.mongodb.client.message.Update;
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImpl extends
-AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
+        AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
     /** The interfaces to implement via the proxy. */
     private static final Class<?>[] CLIENT_INTERFACE = new Class[] { Client.class };
@@ -238,8 +238,8 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
                 }
                 else if (lastArg instanceof Callback<?>) {
                     ((Callback<?>) lastArg)
-                    .exception(new CancellationException(
-                            "Batch request cancelled."));
+                            .exception(new CancellationException(
+                                    "Batch request cancelled."));
                 }
             }
         }

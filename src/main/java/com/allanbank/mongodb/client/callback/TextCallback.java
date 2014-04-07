@@ -89,8 +89,8 @@ public class TextCallback implements Callback<MongoIterator<Document>> {
         }
 
         myDelegate
-        .callback(new SimpleMongoIteratorImpl<com.allanbank.mongodb.builder.TextResult>(
-                results));
+                .callback(new SimpleMongoIteratorImpl<com.allanbank.mongodb.builder.TextResult>(
+                        results));
     }
 
     /**

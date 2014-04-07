@@ -642,7 +642,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected final class ClusterAndConnectionListener implements
-            PropertyChangeListener {
+    PropertyChangeListener {
         @Override
         public void propertyChange(final PropertyChangeEvent event) {
             final String propName = event.getPropertyName();

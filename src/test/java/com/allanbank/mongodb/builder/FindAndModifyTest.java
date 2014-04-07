@@ -77,7 +77,7 @@ public class FindAndModifyTest {
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.query(query).update(update).fields(fields).remove().returnNew()
-        .sort(sort).upsert();
+                .sort(sort).upsert();
 
         FindAndModify request = builder.build();
         assertSame(query, request.getQuery());

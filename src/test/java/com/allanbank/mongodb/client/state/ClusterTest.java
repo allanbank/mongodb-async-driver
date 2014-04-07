@@ -63,7 +63,7 @@ public class ClusterTest {
     /** Update document to mark servers as the secondary. */
     private static final Document SECONDARY_UPDATE = new ImmutableDocument(
             BuilderFactory.start().add("ismaster", false)
-            .add("secondary", true));
+                    .add("secondary", true));
 
     /** The builder for miscellaneous documents. */
     private final DocumentBuilder myBuilder = BuilderFactory.start();
@@ -156,7 +156,7 @@ public class ClusterTest {
         assertEquals(
                 ((1D / relativeSum) + (1D / relativeSum)
                         + ((1D / 2D) / relativeSum) + ((1D / 2D) / relativeSum) + ((1D / 10D) / relativeSum)),
-                        cdf[4], 0.00001);
+                cdf[4], 0.00001);
         assertEquals(1.0, cdf[4], 0.000001); // CDF should always end at 1.0
     }
 
@@ -187,7 +187,7 @@ public class ClusterTest {
             assertTrue(
                     "Latencies out of order: " + last + " !< "
                             + server.getAverageLatency(),
-                            last < server.getAverageLatency());
+                    last < server.getAverageLatency());
         }
 
         // Exclude on tags.
@@ -412,12 +412,12 @@ public class ClusterTest {
         myBuilder.reset().add("myState", Server.SECONDARY_STATE);
         final ArrayBuilder members = myBuilder.pushArray("members");
         members.push().add("name", s1.getCanonicalName())
-        .add("optimeDate", new Date(now - TimeUnit.HOURS.toMillis(1)));
+                .add("optimeDate", new Date(now - TimeUnit.HOURS.toMillis(1)));
         members.push().add("name", s2.getCanonicalName())
-        .add("optimeDate", new Date(now));
+                .add("optimeDate", new Date(now));
         members.push()
-        .add("name", s3.getCanonicalName())
-        .add("optimeDate", new Date(now - TimeUnit.SECONDS.toMillis(1)));
+                .add("name", s3.getCanonicalName())
+                .add("optimeDate", new Date(now - TimeUnit.SECONDS.toMillis(1)));
         s1.update(myBuilder.build());
 
         // And the rest.
@@ -791,7 +791,7 @@ public class ClusterTest {
                 assertTrue(
                         "Latencies out of order: " + last + " !< "
                                 + server.getAverageLatency(),
-                                last < server.getAverageLatency());
+                        last < server.getAverageLatency());
             }
         }
     }

@@ -413,7 +413,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          *             If these call is interrupted.
          */
         /* package */V get() throws CancellationException, ExecutionException,
-        InterruptedException {
+                InterruptedException {
 
             // Acquire the shared lock allowing interruption.
             acquireSharedInterruptibly(UNUSED);
@@ -438,7 +438,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
          *             If these call is interrupted.
          */
         /* package */V get(final long nanos) throws TimeoutException,
-        CancellationException, ExecutionException, InterruptedException {
+                CancellationException, ExecutionException, InterruptedException {
 
             // Attempt to acquire the shared lock with a timeout.
             if (!tryAcquireSharedNanos(UNUSED, nanos)) {
@@ -512,8 +512,8 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
                 this.myException = ((finalState & (CANCELED | INTERRUPTED)) != 0) ? new CancellationException(
                         "Future was canceled.") : thrown;
 
-                        // Release all of the waiting threads.
-                        releaseShared(finalState);
+                // Release all of the waiting threads.
+                releaseShared(finalState);
             }
             else if (getState() == COMPLETING) {
                 // Block until done.

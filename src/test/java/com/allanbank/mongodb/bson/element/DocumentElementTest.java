@@ -102,38 +102,38 @@ public class DocumentElementTest {
         final DocumentReference dcIdInt = new DocumentReference("d", "c", idInt);
 
         assertNull(new DocumentElement("e", cString, idString, dSymbol, other)
-        .asDocumentReference());
+                .asDocumentReference());
 
         assertEquals(cIdString,
                 new DocumentElement("e", cString, idString)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertEquals(cIdSymbol,
                 new DocumentElement("e", cString, idSymbol)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertEquals(cIdInt,
                 new DocumentElement("e", cString, idInt).asDocumentReference());
         assertNull(new DocumentElement("e", cString, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertEquals(cIdString,
                 new DocumentElement("e", cSymbol, idString)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertEquals(cIdSymbol,
                 new DocumentElement("e", cSymbol, idSymbol)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertEquals(cIdInt,
                 new DocumentElement("e", cSymbol, idInt).asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idInt).asDocumentReference());
         assertNull(new DocumentElement("e", cInt, other).asDocumentReference());
         assertNull(new DocumentElement("e", other, idString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idInt).asDocumentReference());
 
         assertEquals(dcIdString, new DocumentElement("e", cString, idString,
@@ -142,32 +142,32 @@ public class DocumentElementTest {
                 dString).asDocumentReference());
         assertEquals(dcIdInt,
                 new DocumentElement("e", cString, idInt, dString)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertNull(new DocumentElement("e", cString, other, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertEquals(dcIdString, new DocumentElement("e", cSymbol, idString,
                 dString).asDocumentReference());
         assertEquals(dcIdSymbol, new DocumentElement("e", cSymbol, idSymbol,
                 dString).asDocumentReference());
         assertEquals(dcIdInt,
                 new DocumentElement("e", cSymbol, idInt, dString)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, other, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idString, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idSymbol, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idInt, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, other, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idString, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idSymbol, dString)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idInt, dString)
-        .asDocumentReference());
+                .asDocumentReference());
 
         assertEquals(dcIdString, new DocumentElement("e", cString, idString,
                 dSymbol).asDocumentReference());
@@ -175,82 +175,82 @@ public class DocumentElementTest {
                 dSymbol).asDocumentReference());
         assertEquals(dcIdInt,
                 new DocumentElement("e", cString, idInt, dSymbol)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertNull(new DocumentElement("e", cString, other, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertEquals(dcIdString, new DocumentElement("e", cSymbol, idString,
                 dSymbol).asDocumentReference());
         assertEquals(dcIdSymbol, new DocumentElement("e", cSymbol, idSymbol,
                 dSymbol).asDocumentReference());
         assertEquals(dcIdInt,
                 new DocumentElement("e", cSymbol, idInt, dSymbol)
-        .asDocumentReference());
+                        .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, other, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idString, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idSymbol, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idInt, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, other, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idString, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idSymbol, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idInt, dSymbol)
-        .asDocumentReference());
+                .asDocumentReference());
 
         assertNull(new DocumentElement("e", cString, idString, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cString, idSymbol, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cString, idInt, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cString, other, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, idString, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, idSymbol, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, idInt, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, other, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idString, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idSymbol, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idInt, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, other, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idString, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idSymbol, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", other, idInt, dInt)
-        .asDocumentReference());
+                .asDocumentReference());
 
         assertNull(new DocumentElement("e", cString, idString, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cString, idSymbol, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cString, idInt, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, idString, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, idSymbol, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cSymbol, idInt, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idString, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idSymbol, other)
-        .asDocumentReference());
+                .asDocumentReference());
         assertNull(new DocumentElement("e", cInt, idInt, other)
-        .asDocumentReference());
+                .asDocumentReference());
 
     }
 
@@ -781,148 +781,148 @@ public class DocumentElementTest {
                 DocumentReference.DATABASE_FIELD_NAME, 1);
 
         assertFalse(new DocumentElement("e", cString, idString, dSymbol, other)
-        .isDocumentReference());
+                .isDocumentReference());
 
         assertTrue(new DocumentElement("e", cString, idString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cString, idSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cString, idInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idInt).isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, other).isDocumentReference());
         assertFalse(new DocumentElement("e", other, idString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idInt)
-        .isDocumentReference());
+                .isDocumentReference());
 
         assertTrue(new DocumentElement("e", cString, idString, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cString, idSymbol, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cString, idInt, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, other, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idString, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idSymbol, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idInt, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, other, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idString, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idSymbol, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idInt, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, other, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idString, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idSymbol, dString)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idInt, dString)
-        .isDocumentReference());
+                .isDocumentReference());
 
         assertTrue(new DocumentElement("e", cString, idString, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cString, idSymbol, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cString, idInt, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, other, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idString, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idSymbol, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertTrue(new DocumentElement("e", cSymbol, idInt, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, other, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idString, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idSymbol, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idInt, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, other, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idString, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idSymbol, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idInt, dSymbol)
-        .isDocumentReference());
+                .isDocumentReference());
 
         assertFalse(new DocumentElement("e", cString, idString, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, idSymbol, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, idInt, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, other, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, idString, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, idSymbol, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, idInt, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, other, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idString, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idSymbol, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idInt, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, other, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idString, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idSymbol, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", other, idInt, dInt)
-        .isDocumentReference());
+                .isDocumentReference());
 
         assertFalse(new DocumentElement("e", cString, idString, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, idSymbol, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cString, idInt, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, idString, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, idSymbol, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cSymbol, idInt, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idString, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idSymbol, other)
-        .isDocumentReference());
+                .isDocumentReference());
         assertFalse(new DocumentElement("e", cInt, idInt, other)
-        .isDocumentReference());
+                .isDocumentReference());
 
     }
 

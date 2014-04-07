@@ -92,7 +92,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(false);
@@ -139,7 +139,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 cbAndCloseWithConn(reply, state, mockConnection));
         expectLastCall();
@@ -186,7 +186,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(new MongoDbException(
                 "Error")));
         expectLastCall();
@@ -234,7 +234,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.send(anyObject(ReplicaSetStatus.class), cb(reply));
@@ -280,7 +280,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andThrow(
-                                new IOException("Injected- 4"));
+                new IOException("Injected- 4"));
 
         replay(mockFactory);
 
@@ -320,7 +320,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 anyObject(ServerUpdateCallback.class));
         expectLastCall().andThrow(new MongoDbException("Injected - 5"));
@@ -351,7 +351,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testInitialSweepWhenInterrupted() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -373,7 +373,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), capture(catureReply));
         expectLastCall();
         mockConnection.shutdown(false);
@@ -435,7 +435,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -474,7 +474,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose());
         expectLastCall();
         mockConnection.shutdown(true);
@@ -504,7 +504,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunCannotGiveConnectionBack() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -524,7 +524,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 cbAndCloseWithConn(reply, state, mockConnection));
         expectLastCall();
@@ -579,7 +579,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -625,7 +625,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
 
@@ -666,7 +666,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndCloseError());
         expectLastCall();
 
@@ -720,7 +720,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -730,7 +730,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -760,7 +760,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunSweepTwiceIdleConnection() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -780,7 +780,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cb(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -790,7 +790,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -820,7 +820,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunSweepTwiceNotGiveBackConnection() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -840,7 +840,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
                 cbWithConn(reply, state, mockConnection));
         expectLastCall();
@@ -851,7 +851,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndClose(reply));
         expectLastCall();
         mockConnection.shutdown(true);
@@ -889,7 +889,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andAnswer(
-                                a(new IOException("Injected - 1")));
+                a(new IOException("Injected - 1")));
 
         replay(mockFactory);
 
@@ -925,7 +925,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), cbAndCloseError());
         expectLastCall().andThrow(new MongoDbException("Injected - 2"));
         mockConnection.shutdown(true);
@@ -956,7 +956,7 @@ public class ClusterPingerTest {
      */
     @Test
     public void testRunWhenInterrupted() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final DocumentBuilder tags = BuilderFactory.start();
         tags.addInteger("f", 1).addInteger("b", 1);
@@ -979,7 +979,7 @@ public class ClusterPingerTest {
         expect(
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
-                                mockConnection);
+                mockConnection);
         mockConnection.send(anyObject(IsMaster.class), capture(catureReply));
         expectLastCall();
         mockConnection.shutdown(true);

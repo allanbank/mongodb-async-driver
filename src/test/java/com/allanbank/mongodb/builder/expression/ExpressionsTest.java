@@ -75,7 +75,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray(Expressions.ALL_ELEMENTS_TRUE).add(true)
-        .add(false);
+                .add(false);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\" + Expressions.ALL_ELEMENTS_TRUE)
                 .get(0), e.asElement());
@@ -113,7 +113,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray(Expressions.ANY_ELEMENT_TRUE).add(true)
-        .add(false);
+                .add(false);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\" + Expressions.ANY_ELEMENT_TRUE)
                 .get(0), e.asElement());
@@ -172,7 +172,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$cond").addInteger(1).addInteger(2)
-        .addInteger(3);
+                .addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$cond").get(0), e.asElement());
     }
@@ -214,7 +214,7 @@ public class ExpressionsTest {
     public void testConstantElement() {
         assertThat(Expressions.constant(BuilderFactory.a(true, false))
                 .toElement("f"), is((Element) new ArrayElement("f",
-                        new BooleanElement("0", true), new BooleanElement("1", false))));
+                new BooleanElement("0", true), new BooleanElement("1", false))));
     }
 
     /**
@@ -866,7 +866,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$substr").addInteger(1).addInteger(2)
-        .addInteger(3);
+                .addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$substr").get(0), e.asElement());
     }

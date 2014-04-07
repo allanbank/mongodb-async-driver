@@ -309,7 +309,7 @@ public class DocumentElement extends AbstractElement implements Document {
             if (DocumentReference.COLLECTION_FIELD_NAME.equals(element1Name)
                     && DocumentReference.ID_FIELD_NAME.equals(element2Name)
                     && DocumentReference.DATABASE_FIELD_NAME
-                    .equals(element3Name)) {
+                            .equals(element3Name)) {
                 if (element1Type == ElementType.STRING) {
                     if (element3Type == ElementType.STRING) {
                         return new DocumentReference(
@@ -641,7 +641,7 @@ public class DocumentElement extends AbstractElement implements Document {
                     && ((element1Type == ElementType.STRING) || (element1Type == ElementType.SYMBOL))
                     && DocumentReference.ID_FIELD_NAME.equals(element2Name)
                     && DocumentReference.DATABASE_FIELD_NAME
-                    .equals(element3Name)
+                            .equals(element3Name)
                     && ((element3Type == ElementType.STRING) || (element3Type == ElementType.SYMBOL));
 
         }

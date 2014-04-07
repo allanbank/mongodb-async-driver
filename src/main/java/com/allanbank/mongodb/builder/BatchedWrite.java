@@ -257,26 +257,27 @@ public class BatchedWrite implements Serializable {
             final WriteOperation operation, final int size,
             final int maxCommandSize) {
 
+        Document doc = EmptyDocument.INSTANCE;
+
         switch (operation.getType()) {
         case INSERT: {
             final InsertOperation insertOperation = (InsertOperation) operation;
-            return new DocumentToLargeException(size, maxCommandSize,
-                    insertOperation.getDocument());
+            doc = insertOperation.getDocument();
+            break;
         }
         case UPDATE: {
             final UpdateOperation updateOperation = (UpdateOperation) operation;
-            return new DocumentToLargeException(size, maxCommandSize,
-                    updateOperation.getQuery());
+            doc = updateOperation.getQuery();
+            break;
         }
         case DELETE: {
             final DeleteOperation deleteOperation = (DeleteOperation) operation;
-            return new DocumentToLargeException(size, maxCommandSize,
-                    deleteOperation.getQuery());
+            doc = deleteOperation.getQuery();
+            break;
         }
         }
 
-        return new DocumentToLargeException(size, maxCommandSize,
-                EmptyDocument.INSTANCE);
+        return new DocumentToLargeException(size, maxCommandSize, doc);
     }
 
     /**
@@ -529,6 +530,9 @@ public class BatchedWrite implements Serializable {
      * @return The length of the encoded index.
      */
     private long sizeOfIndex(final int index) {
+        // For 2.6 the number of items in the array is capped at 1000. This
+        // allows up to 99,999 without resorting to turning the value into
+        // a string which seems like safe enough padding.
         if (index < 0) {
             return 0; // For estimating operation sizes.
         }
@@ -543,12 +547,6 @@ public class BatchedWrite implements Serializable {
         }
         else if (index < 10000) {
             return 6; // four characters plus a null plus a type.
-        }
-        else if (index < 100000) {
-            return 7; // five characters plus a null plus a type.
-        }
-        else if (index < 1000000) {
-            return 8; // size characters plus a null plus a type.
         }
 
         return Integer.toString(index).length() + 2;
@@ -676,7 +674,7 @@ public class BatchedWrite implements Serializable {
          */
         public Builder delete(final DocumentAssignable query,
                 final boolean singleDelete) {
-            return write(new DeleteOperation(query, false));
+            return write(new DeleteOperation(query, singleDelete));
         }
 
         /**

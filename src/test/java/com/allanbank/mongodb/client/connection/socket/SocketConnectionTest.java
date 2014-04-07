@@ -146,7 +146,7 @@ public class SocketConnectionTest {
     @Before
     public void setUp() {
         myTestServer = new Cluster(new MongoClientConfiguration())
-        .add(ourServer.getInetSocketAddress());
+                .add(ourServer.getInetSocketAddress());
 
         // Disable the re-request of build information.
         myTestServer.update(BUILD_INFO);
@@ -182,7 +182,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testAutoClose() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
@@ -714,8 +714,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -1424,8 +1424,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -1503,7 +1503,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testRead() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1569,7 +1569,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testRead2() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1631,7 +1631,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadDelete() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1679,7 +1679,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadGarbage() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1753,7 +1753,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadGetMore() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1802,7 +1802,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadInsert() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1851,7 +1851,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadKillCursors() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1902,7 +1902,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadQuery() throws IOException, InterruptedException,
-    TimeoutException, ExecutionException {
+            TimeoutException, ExecutionException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1951,7 +1951,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadStuff() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -2013,7 +2013,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadTimeout() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         ourServer.setReplies(Arrays.asList(new byte[] { 1 }));
 
@@ -2056,7 +2056,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadUpdate() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -2107,7 +2107,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadWhenPendingQueueIsCorrupt() throws IOException,
-    InterruptedException, ExecutionException, TimeoutException {
+            InterruptedException, ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -2203,7 +2203,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReplyWithLatency() throws IOException,
-    InterruptedException, TimeoutException {
+            InterruptedException, TimeoutException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         myTestConnection = new SocketConnection(myTestServer, config);
@@ -2232,7 +2232,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReplyWithoutLatency() throws IOException,
-    InterruptedException, TimeoutException {
+            InterruptedException, TimeoutException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         myTestConnection = new SocketConnection(myTestServer, config);
@@ -2383,7 +2383,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testSendRuntimeException() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
@@ -2519,7 +2519,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testShutdownWhenClosed() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
@@ -3016,8 +3016,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -3080,8 +3080,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -3144,8 +3144,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -3162,7 +3162,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testWaitForClosedWhenInterrupted() throws IOException,
-    InterruptedException {
+            InterruptedException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -3245,7 +3245,7 @@ public class SocketConnectionTest {
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public abstract class SocketFactoryWithConnectionListener extends
-    SocketFactory implements SocketConnectionListener {
+            SocketFactory implements SocketConnectionListener {
         // Nothing.
     }
 }

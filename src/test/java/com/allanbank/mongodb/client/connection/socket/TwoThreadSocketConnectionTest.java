@@ -132,7 +132,7 @@ public class TwoThreadSocketConnectionTest {
     @Before
     public void setUp() {
         myTestServer = new Cluster(new MongoClientConfiguration())
-        .add(ourServer.getInetSocketAddress());
+                .add(ourServer.getInetSocketAddress());
 
         // Disable the re-request of build information.
         myTestServer.update(BUILD_INFO);
@@ -607,8 +607,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -1276,8 +1276,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -1356,7 +1356,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testRead() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1420,7 +1420,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testRead2() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1554,7 +1554,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testReadNonReply() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1618,7 +1618,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testReadStuff() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1762,7 +1762,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testSendRuntimeException() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
@@ -2184,8 +2184,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -2248,8 +2248,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -2312,8 +2312,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length

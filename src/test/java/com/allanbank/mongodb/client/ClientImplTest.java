@@ -160,7 +160,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -203,7 +203,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -220,7 +220,7 @@ public class ClientImplTest {
         mockConnection.close();
         expectLastCall();
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         myMockConnectionFactory.close();
@@ -251,7 +251,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -268,7 +268,7 @@ public class ClientImplTest {
         mockConnection.close();
         expectLastCall().andThrow(new IOException("This is a test."));
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         myMockConnectionFactory.close();
@@ -330,7 +330,7 @@ public class ClientImplTest {
         // First request - start at sequence zero.
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection1);
         mockConnection1
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection1.send(message, null);
         expectLastCall();
@@ -351,7 +351,7 @@ public class ClientImplTest {
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2.send(message, null);
         expectLastCall();
@@ -374,7 +374,7 @@ public class ClientImplTest {
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection3);
         mockConnection3
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection3.send(message, null);
         expectLastCall();
@@ -399,7 +399,7 @@ public class ClientImplTest {
         expect(mockConnection3.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection4);
         mockConnection4
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection4.send(message, null);
         expectLastCall();
@@ -426,7 +426,7 @@ public class ClientImplTest {
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection5);
         mockConnection5
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection5.send(message, null);
         expectLastCall();
@@ -455,7 +455,7 @@ public class ClientImplTest {
         expect(mockConnection5.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection6);
         mockConnection6
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection6.send(message, null);
         expectLastCall();
@@ -484,7 +484,7 @@ public class ClientImplTest {
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection7);
         mockConnection7
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection7.send(message, null);
         expectLastCall();
@@ -584,7 +584,7 @@ public class ClientImplTest {
 
         // Response to the handleConnextionClosed.
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         replay(mockConnection);
@@ -625,14 +625,14 @@ public class ClientImplTest {
                         Connection.OPEN_PROP_NAME + "g", Boolean.TRUE,
                         Boolean.FALSE));
         propListenerCapture.getValue()
-        .propertyChange(
-                new PropertyChangeEvent(mockConnection,
-                        Connection.OPEN_PROP_NAME, Boolean.FALSE,
-                        Boolean.TRUE));
+                .propertyChange(
+                        new PropertyChangeEvent(mockConnection,
+                                Connection.OPEN_PROP_NAME, Boolean.FALSE,
+                                Boolean.TRUE));
         propListenerCapture.getValue().propertyChange(
                 new PropertyChangeEvent(mockConnection,
                         Connection.OPEN_PROP_NAME, Boolean.TRUE, Integer
-                        .valueOf(1)));
+                                .valueOf(1)));
 
         // Verify that the connection is not removed.
         assertEquals(1, myTestInstance.getConnectionCount());
@@ -656,33 +656,33 @@ public class ClientImplTest {
                 reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
                         serverName), BuilderFactory.start(PRIMARY_UPDATE)
                         .addString("_id", "localhost:1234")),
-                        reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                .addString("_id", "localhost:1234")),
-                                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                        .addString("_id", "localhost:1234")),
-                                        reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                                serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                                .addString("_id", "localhost:1234")),
-                                                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                                        .addString("_id", "localhost:1234")),
-                                                        reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                                                serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                                                .addString("_id", "localhost:1234")),
-                                                                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                                                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                                                        .addString("_id", "localhost:1234")),
-                                                                        reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                                                                serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                                                                .addString("_id", "localhost:1234")),
-                                                                                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                                                                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                                                                        .addString("_id", "localhost:1234")),
-                                                                                        reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
-                                                                                                serverName), BuilderFactory.start(PRIMARY_UPDATE)
-                                                                                                .addString("_id", "localhost:1234")));
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")),
+                reply(BuilderFactory.start(PRIMARY_UPDATE).addString("_id",
+                        serverName), BuilderFactory.start(PRIMARY_UPDATE)
+                        .addString("_id", "localhost:1234")));
 
         final GetLastError message = new GetLastError("testDb", Durability.ACK);
         final MongoClientConfiguration config = new MongoClientConfiguration(
@@ -772,7 +772,7 @@ public class ClientImplTest {
 
         // The ping! -- Fail.
         mockConnection2
-        .send(eq(new IsMaster()), anyObject(ReplyCallback.class));
+                .send(eq(new IsMaster()), anyObject(ReplyCallback.class));
         expectLastCall().andThrow(new MongoDbException("synthetic ping error"));
         mockConnection2.close();
         expectLastCall();
@@ -780,7 +780,7 @@ public class ClientImplTest {
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -788,10 +788,10 @@ public class ClientImplTest {
         myTestInstance.send(message, null);
 
         propListenerCapture.getValue()
-        .propertyChange(
-                new PropertyChangeEvent(mockConnection,
-                        Connection.OPEN_PROP_NAME, Boolean.TRUE,
-                        Boolean.FALSE));
+                .propertyChange(
+                        new PropertyChangeEvent(mockConnection,
+                                Connection.OPEN_PROP_NAME, Boolean.TRUE,
+                                Boolean.FALSE));
 
         // Verify that the connection is removed.
         assertEquals(0, myTestInstance.getConnectionCount());
@@ -810,7 +810,7 @@ public class ClientImplTest {
      */
     @Test
     public void testReconnectOnShutdownConnection() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final Message message = new Command("db", BuilderFactory.start()
                 .build());
 
@@ -821,7 +821,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -829,7 +829,7 @@ public class ClientImplTest {
         // Reconnect.
         expect(mockConnection.isShuttingDown()).andReturn(true);
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
@@ -852,7 +852,7 @@ public class ClientImplTest {
      */
     @Test
     public void testReconnectThatFails() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final Message message = new Command("db", BuilderFactory.start()
                 .build());
 
@@ -863,7 +863,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -874,7 +874,7 @@ public class ClientImplTest {
                 mockStrategy);
         expect(mockStrategy.reconnect(mockConnection)).andReturn(null);
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
@@ -910,7 +910,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(eq(message), anyObject(ReplyCallback.class));
@@ -1093,7 +1093,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(eq(message), anyObject(ReplyCallback.class));
@@ -1270,7 +1270,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, callback);
@@ -1298,7 +1298,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -1358,7 +1358,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -1367,7 +1367,7 @@ public class ClientImplTest {
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2.send(message, null);
         expectLastCall();
@@ -1389,7 +1389,7 @@ public class ClientImplTest {
 
         // Response to the handleConnextionClosed.
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         replay(mockConnection, mockConnection2);
@@ -1425,7 +1425,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -1434,7 +1434,7 @@ public class ClientImplTest {
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2.send(message, null);
         expectLastCall();
@@ -1486,7 +1486,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -1495,7 +1495,7 @@ public class ClientImplTest {
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2.send(message, null);
         expectLastCall();
@@ -1527,7 +1527,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -1536,7 +1536,7 @@ public class ClientImplTest {
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2.send(message, null);
         expectLastCall();
@@ -1584,7 +1584,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, lastError, callback);
@@ -1613,7 +1613,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, null);
@@ -1651,7 +1651,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -1660,7 +1660,7 @@ public class ClientImplTest {
         expect(mockConnection.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection2);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2.send(message, null);
         expectLastCall();
@@ -1698,7 +1698,7 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessageWaitsForReconnect() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final Message message = new Command("db", BuilderFactory.start()
                 .build());
 
@@ -1723,7 +1723,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
@@ -1733,10 +1733,10 @@ public class ClientImplTest {
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 pauseStrategy);
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.raiseErrors(anyObject(ConnectionLostException.class));
         expectLastCall();
@@ -1780,7 +1780,7 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessageWaitsForReconnectTimesOut() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         myConfig.setReconnectTimeout(250);
 
@@ -1808,14 +1808,14 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(message, null);
         expectLastCall();
 
         // Reconnect.
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.raiseErrors(anyObject(MongoDbException.class));
         expectLastCall();
@@ -1824,7 +1824,7 @@ public class ClientImplTest {
         expect(myMockConnectionFactory.getReconnectStrategy()).andReturn(
                 pauseStrategy);
         mockConnection2
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         // Second message.
@@ -1878,7 +1878,7 @@ public class ClientImplTest {
 
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
 
         mockConnection.send(message, callback);

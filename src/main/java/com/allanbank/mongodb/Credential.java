@@ -392,7 +392,7 @@ public final class Credential implements Serializable {
      *             If the authenticator cannot be accessed.
      */
     /* package */void loadAuthenticator() throws ClassNotFoundException,
-    InstantiationException, IllegalAccessException {
+            InstantiationException, IllegalAccessException {
         if (myAuthenticator == null) {
             myAuthenticator = (Authenticator) Class.forName(
                     getAuthenticationType()).newInstance();

@@ -269,7 +269,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.pushArray("writeErrors").push().add("index", 0)
-                .add("code", 1234).add("errmsg", "Write Error");
+        .add("code", 1234).add("errmsg", "Write Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -367,7 +367,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.pushArray("writeErrors").push().add("index", 0)
-                .add("code", 1234).add("errmsg", "Write Error");
+        .add("code", 1234).add("errmsg", "Write Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -510,7 +510,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.push("writeConcernError").add("code", 1234)
-                .add("errmsg", "Durabilty Error");
+        .add("errmsg", "Durabilty Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -842,7 +842,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.push("writeConcernError").add("code", 1234)
-                .add("errmsg", "Durabilty Error");
+        .add("errmsg", "Durabilty Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -1069,7 +1069,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.pushArray("writeErrors").push().add("index", 0)
-                .add("code", 1234).add("errmsg", "Write Error");
+        .add("code", 1234).add("errmsg", "Write Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -1150,7 +1150,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.pushArray("writeErrors").push().add("index", 0)
-                .add("code", 1234).add("errmsg", "Write Error");
+        .add("code", 1234).add("errmsg", "Write Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -1230,7 +1230,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.pushArray("writeErrors").push().add("index", 0)
-                .add("code", 1234).add("errmsg", "Write Error");
+        .add("code", 1234).add("errmsg", "Write Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -1318,7 +1318,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.pushArray("writeErrors").push().add("index", 10)
-                .add("code", 1234).add("errmsg", "Write Error");
+        .add("code", 1234).add("errmsg", "Write Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);
@@ -1393,7 +1393,7 @@ public class BatchedWriteCallbackTest {
         final DocumentBuilder replyErrorDoc = BuilderFactory.start()
                 .add("ok", 1).add("n", 0);
         replyErrorDoc.pushArray("writeErrors").push().add("index", -1)
-                .add("code", 1234).add("errmsg", "Write Error");
+        .add("code", 1234).add("errmsg", "Write Error");
         final Reply replyError = new Reply(0, 0, 0,
                 Collections.singletonList(replyErrorDoc.build()), false, false,
                 false, false);

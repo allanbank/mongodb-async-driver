@@ -123,9 +123,9 @@ public class MapReduce {
                 "A mapReduce must have a reduce function.");
         assertThat(
                 (builder.myOutputType == OutputType.INLINE)
-                || ((builder.myOutputName != null) && !builder.myOutputName
-                        .isEmpty()),
-                        "A mapReduce output type must be INLINE or an output collection must be specified.");
+                        || ((builder.myOutputName != null) && !builder.myOutputName
+                                .isEmpty()),
+                "A mapReduce output type must be INLINE or an output collection must be specified.");
 
         myMapFunction = builder.myMapFunction;
         myReduceFunction = builder.myReduceFunction;
@@ -900,9 +900,9 @@ public class MapReduce {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         *
+         * 
          * MapReduce.Builder builder = new Find.Builder();
-         *
+         * 
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>
@@ -968,9 +968,9 @@ public class MapReduce {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         *
+         * 
          * MapReduce.Builder builder = new Find.Builder();
-         *
+         * 
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>

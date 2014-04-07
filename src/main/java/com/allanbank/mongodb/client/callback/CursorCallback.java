@@ -26,7 +26,7 @@ import com.allanbank.mongodb.client.message.Reply;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class CursorCallback extends
-AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
+        AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;

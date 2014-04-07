@@ -497,7 +497,7 @@ public class BsonInputStream extends InputStream {
             final int anotherLength = readInt();
 
             assert (anotherLength == (length - 4)) : "Binary Element Subtye 2 "
-            + "length should be outer length - 4.";
+                    + "length should be outer length - 4.";
 
             length -= 4;
         }
@@ -653,7 +653,7 @@ public class BsonInputStream extends InputStream {
      */
     @SuppressWarnings("deprecation")
     protected Element readElement(final byte token) throws EOFException,
-    IOException {
+            IOException {
         final ElementType type = ElementType.valueOf(token);
         if (type == null) {
             throw new StreamCorruptedException("Unknown element type: 0x"

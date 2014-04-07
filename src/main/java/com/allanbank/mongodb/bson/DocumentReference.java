@@ -90,7 +90,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
      */
     public DocumentReference(final String databaseName,
             final String collectionName, final Element id)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         assertNotNull(collectionName,
                 "The collection name of a Document Reference (DBRef) cannot be null.");
@@ -141,7 +141,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
             result = myCollectionName.equals(other.myCollectionName)
                     && myId.withName(ID_FIELD_NAME).equals(
                             other.myId.withName(ID_FIELD_NAME))
-                            && nullSafeEquals(myDatabaseName, other.myDatabaseName);
+                    && nullSafeEquals(myDatabaseName, other.myDatabaseName);
         }
         return result;
     }

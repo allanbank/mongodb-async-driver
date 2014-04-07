@@ -212,7 +212,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Deprecated
     public ArrayBuilder add(final String databaseName,
             final String collectionName, final ObjectId id)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         return addDBPointer(databaseName, collectionName, id);
     }
 
@@ -263,7 +263,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Deprecated
     public ArrayBuilder addDBPointer(final String databaseName,
             final String collectionName, final ObjectId id)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
                 nextIndex(), databaseName, collectionName, id));
         return this;

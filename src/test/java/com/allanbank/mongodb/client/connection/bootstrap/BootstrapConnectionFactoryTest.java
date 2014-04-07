@@ -148,7 +148,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod");
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -186,7 +186,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod").add("ok", 0);
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -263,7 +263,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod");
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -291,7 +291,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod");
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 fails, ourServer.getInetSocketAddress());

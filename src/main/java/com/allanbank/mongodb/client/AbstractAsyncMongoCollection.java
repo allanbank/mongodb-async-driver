@@ -49,7 +49,7 @@ import com.allanbank.mongodb.builder.ParallelScan;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractAsyncMongoCollection extends
-AbstractMongoOperations implements AsyncMongoCollection {
+        AbstractMongoOperations implements AsyncMongoCollection {
 
     /**
      * Create a new AbstractAsyncMongoCollection.
@@ -208,10 +208,10 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void countAsync(final Callback<Long> results,
             final DocumentAssignable query, final ReadPreference readPreference)
-                    throws MongoDbException {
+            throws MongoDbException {
         countAsync(results,
                 Count.builder().query(query).readPreference(readPreference)
-                .build());
+                        .build());
     }
 
     /**
@@ -368,7 +368,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void countAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final ReadPreference readPreference)
-                    throws MongoDbException {
+            throws MongoDbException {
         countAsync(new LambdaCallbackAdapter<Long>(results), query,
                 readPreference);
     }
@@ -431,7 +431,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void deleteAsync(final Callback<Long> results,
             final DocumentAssignable query, final boolean singleDelete)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(results, query, singleDelete, getDurability());
     }
 
@@ -448,7 +448,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void deleteAsync(final Callback<Long> results,
             final DocumentAssignable query, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT, durability);
     }
 
@@ -508,7 +508,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<Long> deleteAsync(final DocumentAssignable query,
             final boolean singleDelete, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>(
                 getLockType());
 
@@ -561,7 +561,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void deleteAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final boolean singleDelete)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(new LambdaCallbackAdapter<Long>(results), query,
                 singleDelete);
     }
@@ -593,7 +593,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void deleteAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(new LambdaCallbackAdapter<Long>(results), query, durability);
     }
 
@@ -1234,7 +1234,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<Integer> insertAsync(final boolean continueOnError,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>(
                 getLockType());
 
@@ -1294,7 +1294,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void insertAsync(final Callback<Integer> results,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         insertAsync(results, INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
                 documents);
     }
@@ -1403,7 +1403,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void insertAsync(final LambdaCallback<Integer> results,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         insertAsync(new LambdaCallbackAdapter<Integer>(results), durability,
                 documents);
     }
@@ -1603,7 +1603,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<Integer> saveAsync(
             final DocumentAssignable document, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>(
                 getLockType());
 
@@ -1636,7 +1636,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void saveAsync(final LambdaCallback<Integer> results,
             final DocumentAssignable document, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         saveAsync(new LambdaCallbackAdapter<Integer>(results), document,
                 durability);
     }
@@ -1794,7 +1794,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public MongoCursorControl streamingFind(
             final StreamCallback<Document> results, final Find query)
-                    throws MongoDbException {
+            throws MongoDbException {
         return stream(results, query);
     }
 
@@ -1809,7 +1809,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public MongoCursorControl streamingFind(
             final StreamCallback<Document> results, final Find.Builder query)
-                    throws MongoDbException {
+            throws MongoDbException {
         return streamingFind(results, query.build());
     }
 
@@ -1832,7 +1832,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public void textSearchAsync(
             final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
             final com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException {
+            throws MongoDbException {
         textSearchAsync(results, command.build());
     }
 
@@ -1855,7 +1855,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             final com.allanbank.mongodb.builder.Text command)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> future;
         future = new FutureCallback<MongoIterator<com.allanbank.mongodb.builder.TextResult>>(
                 getLockType());
@@ -1883,7 +1883,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             final com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException {
+            throws MongoDbException {
         return textSearchAsync(command.build());
     }
 
@@ -1902,7 +1902,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void updateAsync(final Callback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(results, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, getDurability());
     }
@@ -1922,7 +1922,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public void updateAsync(final Callback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(results, query, update, multiUpdate, upsert,
                 getDurability());
     }
@@ -2008,7 +2008,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update, final boolean multiUpdate,
             final boolean upsert, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>(
                 getLockType());
 
@@ -2031,7 +2031,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>(
                 getLockType());
 
@@ -2052,7 +2052,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void updateAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(new LambdaCallbackAdapter<Long>(results), query, update);
     }
 
@@ -2068,7 +2068,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public void updateAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(new LambdaCallbackAdapter<Long>(results), query, update,
                 multiUpdate, upsert);
     }

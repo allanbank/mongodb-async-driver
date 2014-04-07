@@ -21,7 +21,7 @@ import com.allanbank.mongodb.error.ReplyException;
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SingleDocumentReplyCallback extends
-AbstractReplyCallback<Document> {
+        AbstractReplyCallback<Document> {
 
     /**
      * Create a new SingleDocumentReplyCallback.

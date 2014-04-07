@@ -390,7 +390,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
         expectedCommand.push("cursor").add("batchSize", 10)
-                .add("allowDiskUsage", true);
+        .add("allowDiskUsage", true);
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
                 "test", "test", expectedCommand.build(),
@@ -528,7 +528,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
         myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
         expectLastCall();
         replay(mockCallback);
@@ -955,7 +955,7 @@ public class MongoCollectionImplTest {
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.push("$query").addString("count", "test")
-                .addDocument("query", doc);
+        .addDocument("query", doc);
         commandDoc.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_SECONDARY);
         final Command command = new Command("test", commandDoc.build(),
@@ -970,7 +970,7 @@ public class MongoCollectionImplTest {
 
         assertEquals(Long.valueOf(1),
                 myTestInstance.countAsync(ReadPreference.PREFER_SECONDARY)
-                        .get());
+                .get());
 
         verify();
     }
@@ -1125,7 +1125,7 @@ public class MongoCollectionImplTest {
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.push("$query").addString("count", "test")
-                .addDocument("query", doc);
+        .addDocument("query", doc);
         commandDoc.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_SECONDARY);
         final Command command = new Command("test", commandDoc.build(),
@@ -1159,7 +1159,7 @@ public class MongoCollectionImplTest {
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.push("$query").addString("count", "test")
-                .addDocument("query", doc);
+        .addDocument("query", doc);
         commandDoc.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_SECONDARY);
         final Command command = new Command("test", commandDoc.build(),
@@ -1174,7 +1174,7 @@ public class MongoCollectionImplTest {
 
         assertEquals(Long.valueOf(1),
                 myTestInstance.countAsync(doc, ReadPreference.PREFER_SECONDARY)
-                        .get());
+                .get());
 
         verify();
     }
@@ -1200,7 +1200,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
         myMockClient.send(eq(command), callback(reply(replyDoc)));
         expectLastCall();
 
@@ -1208,7 +1208,7 @@ public class MongoCollectionImplTest {
 
         assertEquals(Long.valueOf(1),
                 myTestInstance.countAsync(doc, ReadPreference.PREFER_SECONDARY)
-                        .get());
+                .get());
 
         verify();
     }
@@ -1429,7 +1429,7 @@ public class MongoCollectionImplTest {
         replay();
 
         myTestInstance
-                .createIndex(null, false, Index.asc("k"), Index.desc("l"));
+        .createIndex(null, false, Index.asc("k"), Index.desc("l"));
 
         verify();
     }
@@ -1745,7 +1745,7 @@ public class MongoCollectionImplTest {
         replay(mockCountCallback);
 
         myTestInstance
-                .deleteAsync(mockCountCallback, doc, true, Durability.ACK);
+        .deleteAsync(mockCountCallback, doc, true, Durability.ACK);
 
         verify(mockCountCallback);
     }
@@ -1985,7 +1985,7 @@ public class MongoCollectionImplTest {
         replay(mockCountCallback);
 
         myTestInstance
-                .deleteAsync(mockCountCallback, doc, true, Durability.ACK);
+        .deleteAsync(mockCountCallback, doc, true, Durability.ACK);
 
         verify(mockCountCallback);
     }
@@ -2399,7 +2399,7 @@ public class MongoCollectionImplTest {
         final Callback<MongoIterator<Element>> mockCountCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.push("$query").addString("distinct", "test")
-                .addString("key", "foo");
+        .addString("key", "foo");
         expectedCommand.add(ReadPreference.FIELD_NAME, ReadPreference.CLOSEST);
 
         final Command message = new Command("test", expectedCommand.build(),
@@ -2439,7 +2439,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.STAND_ALONE);
+        .andReturn(ClusterType.STAND_ALONE);
 
         myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
         expectLastCall();
@@ -2494,16 +2494,16 @@ public class MongoCollectionImplTest {
                 .addString("index", "foo").build();
 
         expect(myMockDatabase.runCommand("deleteIndexes", "test", options))
-                .andReturn(goodResult);
+        .andReturn(goodResult);
         expect(myMockDatabase.runCommand("deleteIndexes", "test", options))
-                .andReturn(badResult);
+        .andReturn(badResult);
         expect(myMockDatabase.runCommand("deleteIndexes", "test", options))
-                .andReturn(missingOkResult);
+        .andReturn(missingOkResult);
 
         expect(
                 myMockDatabase.runCommand("deleteIndexes", "test",
                         BuilderFactory.start().addString("index", "f_1")
-                                .build())).andReturn(goodResult);
+                        .build())).andReturn(goodResult);
 
         replay();
 
@@ -2985,7 +2985,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.STAND_ALONE);
+        .andReturn(ClusterType.STAND_ALONE);
 
         myMockClient.send(eq(message), callback(reply(result1, result2)));
         expectLastCall();
@@ -3999,7 +3999,7 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
 
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PREFER_SECONDARY);
         myMockClient.send(eq(message), callback(reply(replyDoc)));
@@ -4103,7 +4103,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
         myMockClient.send(eq(message), callback(reply(result1)));
         expectLastCall();
 
@@ -4146,7 +4146,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
         myMockClient.send(eq(message), callback(reply(result1)));
         expectLastCall();
 
@@ -4261,7 +4261,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         myMockClient.send(eq(message), callback(reply(result1, result2)));
         expectLastCall();
@@ -4312,7 +4312,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         myMockClient.send(eq(message), callback(reply(result1, result2)));
         expectLastCall();
@@ -4704,7 +4704,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         myMockClient.send(eq(message), anyObject(ReplyArrayCallback.class));
         expectLastCall();
@@ -4838,7 +4838,7 @@ public class MongoCollectionImplTest {
         replay(mockCountCallback);
 
         myTestInstance
-                .insertAsync(mockCountCallback, true, Durability.ACK, doc);
+        .insertAsync(mockCountCallback, true, Durability.ACK, doc);
 
         verify(mockCountCallback);
     }
@@ -5013,7 +5013,7 @@ public class MongoCollectionImplTest {
         replay(mockCountCallback);
 
         myTestInstance
-                .insertAsync(mockCountCallback, true, Durability.ACK, doc);
+        .insertAsync(mockCountCallback, true, Durability.ACK, doc);
 
         verify(mockCountCallback);
     }
@@ -5558,7 +5558,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("merge", "out")
-                .addString("db", "out_db");
+        .addString("db", "out_db");
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -5636,7 +5636,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("reduce", "out")
-                .addString("db", "out_db");
+        .addString("db", "out_db");
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -5714,7 +5714,7 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("replace", "out")
-                .addString("db", "out_db");
+        .addString("db", "out_db");
 
         final Command message = new Command("test", expectedCommand.build());
 
@@ -5752,9 +5752,9 @@ public class MongoCollectionImplTest {
         final Callback<MongoIterator<Document>> mockCallback = createMock(Callback.class);
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.push("$query").addString("mapreduce", "test")
-                .addJavaScript("map", "map").addJavaScript("reduce", "reduce")
-                .push("out").addString("replace", "out")
-                .addString("db", "out_db");
+        .addJavaScript("map", "map").addJavaScript("reduce", "reduce")
+        .push("out").addString("replace", "out")
+        .addString("db", "out_db");
         expectedCommand.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_PRIMARY);
 
@@ -5797,14 +5797,14 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("map", "map");
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("replace", "out")
-                .addString("db", "out_db");
+        .addString("db", "out_db");
 
         final Command message = new Command("test", expectedCommand.build(),
                 ReadPreference.PREFER_PRIMARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         myMockClient.send(eq(message), anyObject(ReplyResultCallback.class));
         expectLastCall();
@@ -5831,7 +5831,7 @@ public class MongoCollectionImplTest {
         final DocumentBuilder replyDoc = BuilderFactory.start();
         replyDoc.add("ok", 1);
         replyDoc.pushArray("cursors").push().push("cursor").add("id", 1234)
-                .pushArray("firstBatch");
+        .pushArray("firstBatch");
 
         final ParallelScan.Builder scan = ParallelScan.builder()
                 .requestedIteratorCount(2)
@@ -5842,7 +5842,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY);
 
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -5875,7 +5875,7 @@ public class MongoCollectionImplTest {
         final DocumentBuilder replyDoc = BuilderFactory.start();
         replyDoc.add("ok", 1);
         replyDoc.pushArray("cursors").push().push("cursor").add("id", 1234)
-                .pushArray("firstBatch");
+        .pushArray("firstBatch");
 
         final ParallelScan.Builder scan = ParallelScan.builder()
                 .requestedIteratorCount(2)
@@ -5886,7 +5886,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY);
 
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -5925,7 +5925,7 @@ public class MongoCollectionImplTest {
         final DocumentBuilder replyDoc = BuilderFactory.start();
         replyDoc.add("ok", 1);
         replyDoc.pushArray("cursors").push().push("cursor").add("id", 1234)
-                .pushArray("firstBatch");
+        .pushArray("firstBatch");
 
         final ParallelScan.Builder scan = ParallelScan.builder()
                 .requestedIteratorCount(2)
@@ -5936,7 +5936,7 @@ public class MongoCollectionImplTest {
                 ReadPreference.PREFER_SECONDARY);
 
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -6244,7 +6244,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         myMockClient.send(eq(message), callback(reply(result1, result2)));
         expectLastCall();
@@ -6529,7 +6529,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         myMockClient.send(eq(message), callback(reply(result1, result2)));
         expectLastCall();
@@ -6964,7 +6964,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
 
         myMockClient.send(eq(message), callback(reply(result1, result2)));
         expectLastCall();
@@ -7025,7 +7025,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
-                .andReturn(ClusterType.REPLICA_SET);
+        .andReturn(ClusterType.REPLICA_SET);
         myMockClient.send(eq(message), callback(reply(result.build())));
         expectLastCall();
 
@@ -7639,9 +7639,9 @@ public class MongoCollectionImplTest {
         final Document result = BuilderFactory.start().build();
 
         expect(myMockDatabase.runCommand("validate", "test", indexOnly))
-                .andReturn(result);
+        .andReturn(result);
         expect(myMockDatabase.runCommand("validate", "test", normal))
-                .andReturn(result);
+        .andReturn(result);
         expect(myMockDatabase.runCommand("validate", "test", full)).andReturn(
                 result);
 
@@ -7649,7 +7649,7 @@ public class MongoCollectionImplTest {
 
         assertSame(result,
                 myTestInstance
-                        .validate(MongoCollection.ValidateMode.INDEX_ONLY));
+                .validate(MongoCollection.ValidateMode.INDEX_ONLY));
         assertSame(result,
                 myTestInstance.validate(MongoCollection.ValidateMode.NORMAL));
         assertSame(result,
@@ -7681,14 +7681,14 @@ public class MongoCollectionImplTest {
         expect(mockStats.getServerVersionRange()).andReturn(
                 VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
         expect(mockStats.getSmallestMaxBatchedWriteOperations())
-                .andReturn(1000);
+        .andReturn(1000);
         expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
 
         expect(myMockDatabase.getName()).andReturn("test");
 
         myMockClient
-                .send(eq(commandMsg), anyObject(BatchedWriteCallback.class));
+        .send(eq(commandMsg), anyObject(BatchedWriteCallback.class));
         expectLastCall();
 
         replay(mockCallback, mockStats);
@@ -7774,7 +7774,7 @@ public class MongoCollectionImplTest {
         expect(mockStats.getServerVersionRange()).andReturn(
                 VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
         expect(mockStats.getSmallestMaxBatchedWriteOperations())
-                .andReturn(1000);
+        .andReturn(1000);
         expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
 
@@ -7804,7 +7804,7 @@ public class MongoCollectionImplTest {
         expect(mockStats.getServerVersionRange()).andReturn(
                 VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
         expect(mockStats.getSmallestMaxBatchedWriteOperations())
-                .andReturn(1000);
+        .andReturn(1000);
         expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
 
@@ -7828,7 +7828,7 @@ public class MongoCollectionImplTest {
         expect(mockStats.getServerVersionRange()).andReturn(
                 VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
         expect(mockStats.getSmallestMaxBatchedWriteOperations())
-                .andReturn(1000);
+        .andReturn(1000);
         expect(mockStats.getSmallestMaxBsonObjectSize()).andReturn(
                 (long) Client.MAX_DOCUMENT_SIZE);
 

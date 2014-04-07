@@ -72,7 +72,7 @@ public class SimpleReconnectStrategyTest {
                 Collections.singletonList(server));
 
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
 
         mockNewConnection.send(anyObject(IsMaster.class),
                 cb(BuilderFactory.start(PRIMARY_UPDATE)));
@@ -102,7 +102,7 @@ public class SimpleReconnectStrategyTest {
      */
     @Test
     public void testReconnectBackWorks() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         final Cluster cluster = new Cluster(config);
         final Server server = cluster.add("foo:27017");
@@ -114,7 +114,7 @@ public class SimpleReconnectStrategyTest {
 
         expect(mockOldConnection.getServerName()).andReturn("foo:27017");
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
         mockNewConnection.send(anyObject(IsMaster.class),
                 cb(BuilderFactory.start(PRIMARY_UPDATE)));
         expectLastCall();
@@ -180,7 +180,7 @@ public class SimpleReconnectStrategyTest {
      */
     @Test
     public void testReconnectFirstFails() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         final Cluster cluster = new Cluster(config);
         final Server server = cluster.add(new InetSocketAddress("foo", 27017));
@@ -200,7 +200,7 @@ public class SimpleReconnectStrategyTest {
 
         expect(mockFactory.connect(server, config)).andThrow(new IOException());
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
 
         mockNewConnection.send(anyObject(ServerStatus.class),
                 cb(BuilderFactory.start(PRIMARY_UPDATE)));
@@ -249,7 +249,7 @@ public class SimpleReconnectStrategyTest {
         expect(mockSelector.pickServers()).andReturn(
                 Collections.singletonList(server));
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
         mockNewConnection.send(anyObject(ServerStatus.class),
                 cb(new MongoDbException("Injected")));
         expectLastCall();

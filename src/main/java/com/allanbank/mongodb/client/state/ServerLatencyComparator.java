@@ -15,7 +15,7 @@ import java.util.Comparator;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerLatencyComparator implements Comparator<Server>,
-Serializable {
+        Serializable {
 
     /** A singleton instance of the comparator. No need to multiple instances. */
     public static final Comparator<Server> COMPARATOR = new ServerLatencyComparator();

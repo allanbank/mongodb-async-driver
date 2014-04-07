@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ProfilingStatus implements Comparable<ProfilingStatus>,
-Serializable {
+        Serializable {
 
     /**
      * The default threshold ({@value} )for the number of milliseconds beyond

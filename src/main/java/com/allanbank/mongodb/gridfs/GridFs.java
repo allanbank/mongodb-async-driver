@@ -915,8 +915,8 @@ public class GridFs {
         if (!ok) {
             doAddFault(faults, idElement,
                     "MD5 sums do not match. File document contains '" + md5
-                    + "' and the filemd5 command produced '"
-                    + commandMd5 + "'.");
+                            + "' and the filemd5 command produced '"
+                            + commandMd5 + "'.");
         }
 
         return ok;

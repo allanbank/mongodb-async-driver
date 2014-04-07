@@ -207,7 +207,7 @@ public class RegularExpressionElement extends AbstractElement {
                 else {
                     throw new IllegalArgumentException(
                             "Invalid regular expression option '" + c
-                            + "' in options '" + options + "'.");
+                                    + "' in options '" + options + "'.");
                 }
             }
         }

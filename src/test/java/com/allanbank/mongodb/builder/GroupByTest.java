@@ -111,7 +111,7 @@ public class GroupByTest {
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.keys(keys).finalize("finalize").initialValue(initial)
-        .query(query).reduce("reduce");
+                .query(query).reduce("reduce");
 
         GroupBy g = builder.build();
         assertNull(g.getKeyFunction());

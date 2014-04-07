@@ -27,7 +27,7 @@ import com.allanbank.mongodb.error.ReplyException;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyArrayCallback extends
-AbstractReplyCallback<MongoIterator<Element>> {
+        AbstractReplyCallback<MongoIterator<Element>> {
 
     /** The default name for the values array. */
     public static final String DEFAULT_NAME = "values";

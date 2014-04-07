@@ -48,9 +48,9 @@ public class ReadPreferenceTest {
                 new Document[0],
                 new Document[] { BuilderFactory.start().addInteger("a", 1)
                         .build() },
-                        new Document[] {
+                new Document[] {
                         BuilderFactory.start().addInteger("a", 1)
-                        .addInteger("b", 2).build(),
+                                .addInteger("b", 2).build(),
                         BuilderFactory.start().addInteger("b", 1).build() });
     }
 
@@ -131,7 +131,7 @@ public class ReadPreferenceTest {
 
         Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build(),
                 BuilderFactory.start().build() }; // Empty document matches all.
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
@@ -141,7 +141,7 @@ public class ReadPreferenceTest {
 
         tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -173,7 +173,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -191,7 +191,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -208,7 +208,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -225,7 +225,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -242,7 +242,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -259,7 +259,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -276,7 +276,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addString("c", "1").build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -294,7 +294,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -309,7 +309,7 @@ public class ReadPreferenceTest {
     public void testMatchesNull() {
         Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build(),
                 BuilderFactory.start().build() }; // Empty document matches all.
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
@@ -319,7 +319,7 @@ public class ReadPreferenceTest {
 
         tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -337,7 +337,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);
@@ -354,7 +354,7 @@ public class ReadPreferenceTest {
 
         final Document[] tags = new Document[] {
                 BuilderFactory.start().addInteger("a", 1).addInteger("b", 2)
-                .build(),
+                        .build(),
                 BuilderFactory.start().addInteger("c", 1).build() };
         for (final ReadPreference.Mode mode : ReadPreference.Mode.values()) {
             final ReadPreference prefs = new ReadPreference(mode, tags);

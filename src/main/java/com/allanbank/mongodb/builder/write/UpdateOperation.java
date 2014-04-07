@@ -58,6 +58,32 @@ public class UpdateOperation implements WriteOperation {
     }
 
     /**
+     * Determines if the passed object is of this same type as this object and
+     * if so that its fields are equal.
+     *
+     * @param object
+     *            The object to compare to.
+     *
+     * @see Object#equals(Object)
+     */
+    @Override
+    public boolean equals(final Object object) {
+        boolean result = false;
+        if (this == object) {
+            result = true;
+        }
+        else if ((object != null) && (getClass() == object.getClass())) {
+            final UpdateOperation other = (UpdateOperation) object;
+
+            result = (myUpsert == other.myUpsert)
+                    && (myMultiUpdate == other.myMultiUpdate)
+                    && myQuery.equals(other.myQuery)
+                    && myUpdate.equals(other.myUpdate);
+        }
+        return result;
+    }
+
+    /**
      * Returns the query to find the documents to update.
      *
      * @return The query to find the documents to update.
@@ -87,6 +113,21 @@ public class UpdateOperation implements WriteOperation {
     }
 
     /**
+     * Computes a reasonable hash code.
+     *
+     * @return The hash code value.
+     */
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = (31 * result) + (myUpsert ? 31 : 11);
+        result = (31 * result) + (myMultiUpdate ? 31 : 11);
+        result = (31 * result) + myQuery.hashCode();
+        result = (31 * result) + myUpdate.hashCode();
+        return result;
+    }
+
+    /**
      * Returns true if the update can modify multiple documents.
      *
      * @return True if the update can modify multiple documents.
@@ -102,5 +143,17 @@ public class UpdateOperation implements WriteOperation {
      */
     public boolean isUpsert() {
         return myUpsert;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to returns a representation of the update.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        return "Update[upsert=" + myUpsert + ",multi=" + myMultiUpdate
+                + ",query=" + myQuery + ",update=" + myUpdate + "]";
     }
 }
