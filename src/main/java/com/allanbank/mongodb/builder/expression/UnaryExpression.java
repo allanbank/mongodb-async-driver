@@ -4,9 +4,12 @@
  */
 package com.allanbank.mongodb.builder.expression;
 
+import java.io.StringWriter;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.DocumentElement;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 
 /**
  * UnaryExpression provides an implementation of an {@link Expression} with 1
@@ -46,7 +49,7 @@ public class UnaryExpression implements Expression, ElementAssignable {
      *
      * <pre>
      * <code>
-     * { "$op" : ??? }
+     * "$op" : expression
      * </code>
      * </pre>
      *
@@ -67,7 +70,7 @@ public class UnaryExpression implements Expression, ElementAssignable {
      *
      * <pre>
      * <code>
-     * { &lt;name&gt; : { "$op" : ??? } }
+     * { &lt;name&gt; : { "$op" : expression } }
      * </code>
      * </pre>
      *
@@ -78,4 +81,29 @@ public class UnaryExpression implements Expression, ElementAssignable {
         return new DocumentElement(name, myExpression.toElement(myOperator));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the expression in JSON format.
+     * </p>
+     * <blockquote>
+     *
+     * <pre>
+     * <code>
+     * "$op" : expression
+     * </code>
+     * </pre>
+     *
+     * </blockquote>
+     */
+    @Override
+    public String toString() {
+        final StringWriter sink = new StringWriter();
+        final JsonSerializationVisitor json = new JsonSerializationVisitor(
+                sink, true);
+
+        asElement().accept(json);
+
+        return sink.toString();
+    }
 }

@@ -47,7 +47,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * <code>
  * import static com.allanbank.mongodb.builder.GeoJson.polygon;
  * import static com.allanbank.mongodb.builder.GeoJson.p;
- *
+ * 
  * Document geoJsonPolygon = polygon(
  *      Arrays.asList( p(100.0, 0.0), p(101.0, 0.0), p(101.0, 1.0), p(100.0, 1.0), p(100.0, 0.0) ),
  *      Arrays.asList( p(100.2, 0.2), p(100.8, 0.2), p(100.8, 0.8), p(100.2, 0.8), p(100.2, 0.2) ) );

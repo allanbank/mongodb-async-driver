@@ -172,9 +172,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     *
+     * 
      * MongoCollection collection = ...;
-     *
+     * 
      * collection.createIndex( true, asc("f"), desc("g") );
      * ...
      * </code>
@@ -206,9 +206,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     *
+     * 
      * MongoCollection collection = ...;
-     *
+     * 
      * collection.createIndex(start().add("sparse", true), asc("f") );
      * ...
      * </code>
@@ -241,9 +241,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     *
+     * 
      * MongoCollection collection = ...;
-     *
+     * 
      * collection.createIndex( asc("f"), desc("g") );
      * ...
      * </code>
@@ -270,9 +270,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     *
+     * 
      * MongoCollection collection = ...;
-     *
+     * 
      * collection.createIndex( "f_and_g", false, asc("f"), desc("g") );
      * ...
      * </code>
@@ -307,9 +307,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     *
+     * 
      * MongoCollection collection = ...;
-     *
+     * 
      * collection.createIndex("sparse_f", start().add("sparse", true), asc("f") );
      * ...
      * </code>
@@ -440,9 +440,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
      * import static {@link com.allanbank.mongodb.builder.Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-     *
+     * 
      * MongoCollection collection = ...;
-     *
+     * 
      * collection.dropIndex( asc("f"), desc("g") );
      * ...
      * </code>
@@ -1165,7 +1165,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <pre>
      * <code>
      * MongoCollection collection = ...;
-     *
+     * 
      * collection.updateOptions( BuilderFactory.start().add( "usePowerOf2Sizes", true ) );
      * </code>
      * </pre>

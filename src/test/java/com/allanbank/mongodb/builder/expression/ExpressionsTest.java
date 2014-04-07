@@ -75,7 +75,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray(Expressions.ALL_ELEMENTS_TRUE).add(true)
-        .add(false);
+                .add(false);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\" + Expressions.ALL_ELEMENTS_TRUE)
                 .get(0), e.asElement());
@@ -113,7 +113,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray(Expressions.ANY_ELEMENT_TRUE).add(true)
-        .add(false);
+                .add(false);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\" + Expressions.ANY_ELEMENT_TRUE)
                 .get(0), e.asElement());
@@ -172,7 +172,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$cond").addInteger(1).addInteger(2)
-        .addInteger(3);
+                .addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$cond").get(0), e.asElement());
     }
@@ -214,7 +214,7 @@ public class ExpressionsTest {
     public void testConstantElement() {
         assertThat(Expressions.constant(BuilderFactory.a(true, false))
                 .toElement("f"), is((Element) new ArrayElement("f",
-                        new BooleanElement("0", true), new BooleanElement("1", false))));
+                new BooleanElement("0", true), new BooleanElement("1", false))));
     }
 
     /**
@@ -505,6 +505,36 @@ public class ExpressionsTest {
         b.push("f").pushArray("$lte").addInteger(1).addInteger(2);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$lte").get(0), e.asElement());
+    }
+
+    /**
+     * Test method for {@link Expressions#map(String)}.
+     */
+    @Test
+    public void testMapString() {
+        assertEquals(
+                new DocumentElement("f", BuilderFactory.d(
+                        BuilderFactory.e("$map", BuilderFactory.d(
+                                BuilderFactory.e("input", "$foo"),
+                                BuilderFactory.e("as", "bar"),
+                                BuilderFactory.e("in", 3)))).build()),
+                Expressions.map("foo").as("bar").in(Expressions.constant(3))
+                        .toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#map(String,String,Expression)}.
+     */
+    @Test
+    public void testMapStringStringExpression() {
+        assertEquals(
+                new DocumentElement("f", BuilderFactory.d(
+                        BuilderFactory.e("$map", BuilderFactory.d(
+                                BuilderFactory.e("input", "$foo"),
+                                BuilderFactory.e("as", "bar"),
+                                BuilderFactory.e("in", 3)))).build()),
+                Expressions.map("foo", "bar", Expressions.constant(3))
+                        .toElement("f"));
     }
 
     /**
@@ -866,7 +896,7 @@ public class ExpressionsTest {
 
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").pushArray("$substr").addInteger(1).addInteger(2)
-        .addInteger(3);
+                .addInteger(3);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
         assertEquals(b.build().find("f", "\\$substr").get(0), e.asElement());
     }
@@ -919,6 +949,33 @@ public class ExpressionsTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.push("f").addTimestamp("$toUpper", 1);
         assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#var(String)}.
+     */
+    @Test
+    public void testVarWithOneDollar() {
+        assertEquals(new StringElement("f", "$$foo"), Expressions.var("$foo")
+                .toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#var(String)}.
+     */
+    @Test
+    public void testVarWithoutDollar() {
+        assertEquals(new StringElement("f", "$$foo"), Expressions.var("foo")
+                .toElement("f"));
+    }
+
+    /**
+     * Test method for {@link Expressions#var(String)}.
+     */
+    @Test
+    public void testVarWithTwoDollars() {
+        assertEquals(new StringElement("f", "$$foo"), Expressions.var("$$foo")
+                .toElement("f"));
     }
 
     /**

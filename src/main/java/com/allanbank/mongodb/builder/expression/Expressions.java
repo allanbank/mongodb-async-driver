@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.builder.expression;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.d;
+
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -291,7 +293,7 @@ public final class Expressions {
      * <code>
      * import static {@link BuilderFactory#a com.allanbank.mongodb.bson.builder.BuilderFactory.a}
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant}
-     *
+     * 
      * constant( a( "This", "is", "an", "array" ) );
      * </code>
      * </pre>
@@ -444,17 +446,34 @@ public final class Expressions {
     }
 
     /**
-     * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     *
-     * @param value
-     *            The constants value.
+     * Returns a {@link Constant} expression with the provided
+     * <tt>fieldName</tt>.
+     * <p>
+     * Prepends a {@code $} to the field name if not already present.
+     * </p>
+     * <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * Constant field = Expressions.field("field");
+     * 
+     * // Produces output: 
+     * //      $field
+     * System.out.println(field);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     * 
+     * @param fieldName
+     *            The name of the field.
      * @return The {@link Constant} expression.
      */
-    public static Constant field(final String value) {
-        if (value.startsWith("$")) {
-            return new Constant(new StringElement("", value));
+    public static Constant field(final String fieldName) {
+        if (fieldName.startsWith("$")) {
+            return new Constant(new StringElement("", fieldName));
         }
-        return new Constant(new StringElement("", "$" + value));
+        return new Constant(new StringElement("", "$" + fieldName));
     }
 
     /**
@@ -547,6 +566,153 @@ public final class Expressions {
      */
     public static NaryExpression lte(final Expression lhs, final Expression rhs) {
         return new NaryExpression(LESS_THAN_OR_EQUAL, lhs, rhs);
+    }
+
+    /**
+     * Returns a {@link UnaryExpression} expression for the {@code $map}
+     * operation.
+     * <p>
+     * Prepends a {@code $} to the {@code inputField} name if not already
+     * present.
+     * </p>
+     * <p>
+     * Here is the <a href=
+     * "http://docs.mongodb.org/master/reference/operator/aggregation/map/">
+     * <code>map</code> expression's documentation</a> aggregation pipe line
+     * using this helper class. <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
+     * import static {@link Expressions#map(String,String,Expression) com.allanbank.mongodb.builder.expression.Expressions.map};
+     * import static {@link Expressions#set(String,Expression) com.allanbank.mongodb.builder.expression.Expressions.set};
+     * import static {@link Expressions#add(Expression...) com.allanbank.mongodb.builder.expression.Expressions.add};
+     * import static {@link Expressions#var(String) com.allanbank.mongodb.builder.expression.Expressions.var};
+     * import static {@link Expressions#constant(int) com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * 
+     * Aggregate.Builder aggregate = Aggregate.builder();
+     * 
+     * // { $project: { adjustments: { $map: { input: "$skews",
+     * //                            as: "adj",
+     * //                            in: { $add: [ "$$adj", 12 ] } } } } }
+     * aggregate.project(
+     *     include(),
+     *     set( "adjustments", 
+     *         map("skews").as("adj").in( add( var("adj"), constant(12) ) ) ) );
+     * 
+     * // Produces output: 
+     * //    {
+     * //       '$project' : {
+     * //          adjustments : {
+     * //             '$map' {
+     * //                input : '$skews',
+     * //                as : 'adj',
+     * //                in : {
+     * //                   '$add' : [
+     * //                      '$$adj',
+     * //                      12
+     * //                   ]
+     * //                }
+     * //             }
+     * //          }
+     * //       }
+     * //    }
+     * System.out.println(aggregate);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     *
+     * @param inputField
+     *            The name of the {@code input} field. The map operation
+     *            expression.
+     * @return The first stage of the {@code $map} expression construction.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/master/reference/operator/aggregation/map/"><code>map</code>
+     *      expression documentation</a>
+     */
+    public static MapStage1 map(final String inputField) {
+        return new MapStage1(inputField);
+    }
+
+    /**
+     * Returns a {@link UnaryExpression} expression for the {@code $map}
+     * operation.
+     * <p>
+     * Prepends a {@code $} to the {@code inputField} name if not already
+     * present.
+     * </p>
+     * <p>
+     * Here is the <a href=
+     * "http://docs.mongodb.org/master/reference/operator/aggregation/map/">
+     * <code>map</code> expression's documentation</a> aggregation pipe line
+     * using this helper class. <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
+     * import static {@link Expressions#map(String,String,Expression) com.allanbank.mongodb.builder.expression.Expressions.map};
+     * import static {@link Expressions#set(String,Expression) com.allanbank.mongodb.builder.expression.Expressions.set};
+     * import static {@link Expressions#add(Expression...) com.allanbank.mongodb.builder.expression.Expressions.add};
+     * import static {@link Expressions#var(String) com.allanbank.mongodb.builder.expression.Expressions.var};
+     * import static {@link Expressions#constant(int) com.allanbank.mongodb.builder.expression.Expressions.constant};
+     * 
+     * Aggregate.Builder aggregate = Aggregate.builder();
+     * 
+     * // { $project: { adjustments: { $map: { input: "$skews",
+     * //                            as: "adj",
+     * //                            in: { $add: [ "$$adj", 12 ] } } } } }
+     * aggregate.project(
+     *     include(),
+     *     set( "adjustments", 
+     *         map( "skews", "adj",
+     *            add( var("adj"), constant(12) ) ) ) );
+     * 
+     * // Produces output: 
+     * //    {
+     * //       '$project' : {
+     * //          adjustments : {
+     * //             '$map' {
+     * //                input : '$skews',
+     * //                as : 'adj',
+     * //                in : {
+     * //                   '$add' : [
+     * //                      '$$adj',
+     * //                      12
+     * //                   ]
+     * //                }
+     * //             }
+     * //          }
+     * //       }
+     * //    }
+     * System.out.println(aggregate);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     *
+     * @param inputField
+     *            The name of the {@code input} field.
+     * @param variableName
+     *            The name of the {@code as} variable.
+     * @param mapOperation
+     *            The map operation expression.
+     * @return The {@link UnaryExpression} expression.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/master/reference/operator/aggregation/map/"><code>map</code>
+     *      expression documentation</a>
+     */
+    public static UnaryExpression map(final String inputField,
+            final String variableName, final Expression mapOperation) {
+
+        final DocumentAssignable mapDocument = d(
+                field(inputField).toElement("input"), constant(variableName)
+                        .toElement("as"), mapOperation.toElement("in"));
+
+        return new UnaryExpression("$map", new Constant(new DocumentElement(
+                "$map", mapDocument.asDocument())));
     }
 
     /**
@@ -846,6 +1012,46 @@ public final class Expressions {
      */
     public static UnaryExpression toUpper(final Expression string) {
         return new UnaryExpression(TO_UPPER, string);
+    }
+
+    /**
+     * Returns a {@link Constant} expression with the provided
+     * <tt>variableName</tt>. See the {@link #let $let} and {@link #map $map}
+     * expressions for example usage.
+     * <p>
+     * Prepends a {@code $$} to the variable name if not already present.
+     * </p>
+     * <blockquote>
+     * 
+     * <pre>
+     * <code>
+     * Constant variable = Expressions.var("variable");
+     * 
+     * // Produces output: 
+     * //      $$variable
+     * System.out.println(variable);
+     * </code>
+     * </pre>
+     * 
+     * </blockquote>
+     *
+     * @param variableName
+     *            The name of the field.
+     * @return The {@link Constant} expression.
+     */
+    public static Constant var(final String variableName) {
+
+        Constant result;
+        if (variableName.startsWith("$$")) {
+            result = new Constant(new StringElement("", variableName));
+        }
+        else if (variableName.startsWith("$")) {
+            result = new Constant(new StringElement("", "$" + variableName));
+        }
+        else {
+            result = new Constant(new StringElement("", "$$" + variableName));
+        }
+        return result;
     }
 
     /**

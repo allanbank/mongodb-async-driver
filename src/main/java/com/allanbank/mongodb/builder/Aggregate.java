@@ -44,11 +44,11 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  *  import static {@link Sort#desc com.allanbank.mongodb.builder.Sort.desc};
  *  import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
  *  import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
- *
+ * 
  *  DocumentBuilder b1 = BuilderFactory.start();
  *  DocumentBuilder b2 = BuilderFactory.start();
  *  Aggregate.Builder builder = new Aggregate.Builder();
- *
+ * 
  *  builder.match(where("state").notEqualTo("NZ"))
  *          .group(id().addField("state")
  *                     .addField("city"),
@@ -257,11 +257,11 @@ public class Aggregate {
      *  import static {@link Sort#desc com.allanbank.mongodb.builder.Sort.desc};
      *  import static {@link Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
      *  import static {@link Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
-     *
+     * 
      *  DocumentBuilder b1 = BuilderFactory.start();
      *  DocumentBuilder b2 = BuilderFactory.start();
      *  Aggregation.Builder builder = new Aggregation.Builder();
-     *
+     * 
      *  builder.match(where("state").notEqualTo("NZ"))
      *          .group(id().addField("state")
      *                     .addField("city"),
@@ -424,7 +424,7 @@ public class Aggregate {
          * <pre>
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
-         *
+         * 
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.geoNear( AggregationGeoNear.builder()
          *           .location( new Point( 1, 2 ) )
@@ -454,7 +454,7 @@ public class Aggregate {
          * <pre>
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
-         *
+         * 
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.geoNear( AggregationGeoNear.builder()
          *           .location( new Point( 1, 2 ) )
@@ -489,7 +489,7 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
-         *
+         * 
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id("$field1"),
@@ -537,7 +537,7 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
-         *
+         * 
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id().addField("$field1").addField("$field2"),
@@ -592,7 +592,7 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
          * import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
-         *
+         * 
          * {@link Aggregate.Builder} builder = new Aggregation.Builder();
          * builder.group(
          *           id().addInteger("i", 1),
@@ -663,9 +663,9 @@ public class Aggregate {
          * <pre>
          * <code>
          * import static {@link QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where}
-         *
+         * 
          * Aggregation.Builder builder = new Aggregation.Builder();
-         *
+         * 
          * builder.match( where("f").greaterThan(23).lessThan(42).and("g").lessThan(3) );
          * ...
          * </code>
@@ -747,8 +747,8 @@ public class Aggregate {
          * <code>
          * import static {@link AggregationProjectFields#include com.allanbank.mongodb.builder.AggregationProjectFields.include};
          * import static {@link com.allanbank.mongodb.builder.expression.Expressions com.allanbank.mongodb.builder.expression.Expressions.*};
-         *
-         *
+         * 
+         * 
          * Aggregation.Builder builder = new Aggregation.Builder();
          * ...
          * builder.project(
@@ -1012,9 +1012,9 @@ public class Aggregate {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         *
+         * 
          * Aggregation.Builder builder = new Aggregation.Builder();
-         *
+         * 
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>

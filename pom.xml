@@ -364,6 +364,28 @@
                         </script>
                     ]]>
 					</header>
+					<groups>
+						<group>
+							<title>Core Packages</title>
+							<packages>com.allanbank.mongodb:com.allanbank.mongodb.error*:com.allanbank.mongodb.util*</packages>
+						</group>
+						<group>
+							<title>BSON Support Packages</title>
+							<packages>com.allanbank.mongodb.bson*</packages>
+						</group>
+						<group>
+							<title>Request Creation Support Packages</title>
+							<packages>com.allanbank.mongodb.builder*</packages>
+						</group>
+						<group>
+							<title>GridFS Support Package</title>
+							<packages>com.allanbank.mongodb.gridfs*</packages>
+						</group>
+						<group>
+							<title>Driver Internal Packages</title>
+							<packages>com.allanbank.mongodb.client*</packages>
+						</group>
+					</groups>
 				</configuration>
 				<reportSets>
 					<reportSet>

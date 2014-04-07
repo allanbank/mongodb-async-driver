@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.builder.expression;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 
 /**
  * NaryExpression provides an implementation of an {@link Expression} with 2-N
@@ -53,7 +55,7 @@ public class NaryExpression implements Expression, ElementAssignable {
      *
      * <pre>
      * <code>
-     * { "$op" : [ &lt;e1&gt;, &lt;e2&gt;, &lt;e2&gt;, ... ] }
+     * "$op" : [ &lt;e1&gt;, &lt;e2&gt;, &lt;e2&gt;, ... ]
      * </code>
      * </pre>
      *
@@ -85,4 +87,29 @@ public class NaryExpression implements Expression, ElementAssignable {
         return new DocumentElement(name, myExpressions);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the expression in JSON format.
+     * </p>
+     * <blockquote>
+     *
+     * <pre>
+     * <code>
+     * "$op" : [ &lt;e1&gt;, &lt;e2&gt;, &lt;e2&gt;, ... ]
+     * </code>
+     * </pre>
+     *
+     * </blockquote>
+     */
+    @Override
+    public String toString() {
+        final StringWriter sink = new StringWriter();
+        final JsonSerializationVisitor json = new JsonSerializationVisitor(
+                sink, true);
+
+        myExpressions.accept(json);
+
+        return sink.toString();
+    }
 }

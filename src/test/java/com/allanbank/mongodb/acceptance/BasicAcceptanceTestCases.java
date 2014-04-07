@@ -349,11 +349,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * import static {@link com.allanbank.mongodb.builder.expression.Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
      * import static {@link com.allanbank.mongodb.builder.expression.Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
      * import static {@link com.allanbank.mongodb.builder.expression.Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
-     *
+     * 
      * DocumentBuilder b1 = BuilderFactory.start();
      * DocumentBuilder b2 = BuilderFactory.start();
      * Aggregate.Builder builder = new Aggregate.Builder();
-     *
+     * 
      * builder.match(where("state").notEqualTo("NZ"))
      *         .group(id().addField("state").addField("city"),
      *                 set("pop").sum("pop"))
@@ -1375,7 +1375,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 99701})
-     *
+     * 
      * db.addresses.distinct("zip-code");
      * [ 10010, 99701 ]
      * </code>
@@ -2041,7 +2041,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * , response_time: 0.05
      * , http_action: "GET /display/DOCS/Aggregate"
      * }
-     *
+     * 
      * db.test.group(
      *    { cond: {"invoked_at.d": {$gte: "2009-11", $lt: "2009-12"}}
      *    , key: {http_action: true}
@@ -2049,7 +2049,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *    , reduce: function(doc, out){ out.count++; out.total_time+=doc.response_time }
      *    , finalize: function(out){ out.avg_time = out.total_time / out.count }
      *    } );
-     *
+     * 
      * [
      *   {
      *     "http_action" : "GET /display/DOCS/Aggregate",
@@ -2058,7 +2058,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *     "avg_time" : 0.05
      *   }
      * ]
-     *
+     * 
      * </code>
      * </pre>
      *
@@ -2348,7 +2348,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * > db.things.insert( { _id : 2, tags : ['cat'] } );
      * > db.things.insert( { _id : 3, tags : ['mouse', 'cat', 'dog'] } );
      * > db.things.insert( { _id : 4, tags : []  } );
-     *
+     * 
      * > // map function
      * > m = function(){
      * ...    this.tags.forEach(
@@ -2357,7 +2357,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * ...        }
      * ...    );
      * ...};
-     *
+     * 
      * > // reduce function
      * > r = function( key , values ){
      * ...    var total = 0;
@@ -2365,7 +2365,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * ...        total += values[i].count;
      * ...    return { count : total };
      * ...};
-     *
+     * 
      * > res = db.things.mapReduce(m, r, { out : "myoutput" } );
      * > res
      * {

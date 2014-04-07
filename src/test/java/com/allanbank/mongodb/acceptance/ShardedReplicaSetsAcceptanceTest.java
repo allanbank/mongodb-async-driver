@@ -304,7 +304,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 99701})
-     *
+     * 
      * db.addresses.distinct("zip-code");
      * [ 10010, 99701 ]
      * </code>
@@ -444,7 +444,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * , response_time: 0.05
      * , http_action: "GET /display/DOCS/Aggregate"
      * }
-     *
+     * 
      * db.test.group(
      *    { cond: {"invoked_at.d": {$gte: "2009-11", $lt: "2009-12"}}
      *    , key: {http_action: true}
@@ -452,7 +452,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      *    , reduce: function(doc, out){ out.count++; out.total_time+=doc.response_time }
      *    , finalize: function(out){ out.avg_time = out.total_time / out.count }
      *    } );
-     *
+     * 
      * [
      *   {
      *     "http_action" : "GET /display/DOCS/Aggregate",
@@ -461,7 +461,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      *     "avg_time" : 0.05
      *   }
      * ]
-     *
+     * 
      * </code>
      * </pre>
      *
@@ -512,7 +512,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * > db.things.insert( { _id : 2, tags : ['cat'] } );
      * > db.things.insert( { _id : 3, tags : ['mouse', 'cat', 'dog'] } );
      * > db.things.insert( { _id : 4, tags : []  } );
-     *
+     * 
      * > // map function
      * > m = function(){
      * ...    this.tags.forEach(
@@ -521,7 +521,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * ...        }
      * ...    );
      * ...};
-     *
+     * 
      * > // reduce function
      * > r = function( key , values ){
      * ...    var total = 0;
@@ -529,7 +529,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * ...        total += values[i].count;
      * ...    return { count : total };
      * ...};
-     *
+     * 
      * > res = db.things.mapReduce(m, r, { out : "inline" } );
      * > res
      * {

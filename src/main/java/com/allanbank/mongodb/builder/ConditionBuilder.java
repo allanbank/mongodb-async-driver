@@ -210,7 +210,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
-     *
+     * 
      * DocumentAssignable query = QueryBuilder.where("f").all(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
@@ -1863,7 +1863,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
-     *
+     * 
      * DocumentAssignable query = QueryBuilder.where("f").in(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
@@ -4079,7 +4079,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
-     *
+     * 
      * DocumentAssignable query = QueryBuilder.where("f").notIn(constant(1), constant(2), constant(3));
      * </code>
      * </pre>

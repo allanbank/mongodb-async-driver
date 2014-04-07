@@ -40,4 +40,24 @@ public class Constant implements Expression {
     public Element toElement(final String name) {
         return myConstant.withName(name);
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the constant value.
+     * </p>
+     * <blockquote>
+     *
+     * <pre>
+     * <code>
+     * value
+     * </code>
+     * </pre>
+     *
+     * </blockquote>
+     */
+    @Override
+    public String toString() {
+        return myConstant.getValueAsString();
+    }
 }

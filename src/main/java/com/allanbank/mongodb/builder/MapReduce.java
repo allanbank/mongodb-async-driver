@@ -900,9 +900,9 @@ public class MapReduce {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         *
+         * 
          * MapReduce.Builder builder = new Find.Builder();
-         *
+         * 
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>
@@ -968,9 +968,9 @@ public class MapReduce {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         *
+         * 
          * MapReduce.Builder builder = new Find.Builder();
-         *
+         * 
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>

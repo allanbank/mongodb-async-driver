@@ -51,12 +51,12 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
  * <pre>
  * <code>
  * PendingMessage pm = new {@link PendingMessage}();
- *
+ * 
  * queue.take(pm); // Blocks.
  * // Handle the message.
- *
+ * 
  * // or
- *
+ * 
  * if( queue.poll(pm) ) { // Non-blocking.
  *    // Handle The Message.
  * }
