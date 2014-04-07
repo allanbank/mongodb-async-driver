@@ -257,6 +257,9 @@
 								<include>**/*AcceptanceTest.java</include>
 							</includes>
 							<summaryFile>target/failsafe-reports/failsafe-summary.xml</summaryFile>
+							<systemProperties>
+								<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
+							</systemProperties>
 						</configuration>
 					</execution>
 				</executions>
