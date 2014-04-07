@@ -89,7 +89,7 @@ public class BuilderFactoryTest {
     }
 
     /**
-     * Test method for {@link BuilderFactory#a(double...)}.
+     * Test method for {@link BuilderFactory#a(Double...)}.
      */
     @Test
     public void testADoubleArray() {

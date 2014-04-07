@@ -162,7 +162,7 @@ public class SimpleMongoIteratorImplTest {
     }
 
     /**
-     * Test method for {@link SimpleMongoIteratorImpl#toArray(S[])}.
+     * Test method for {@link SimpleMongoIteratorImpl#toArray}.
      */
     @Test
     public void testToArraySArray() {

@@ -30,6 +30,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.proxy.AbstractProxyMultipleConnection;
 import com.allanbank.mongodb.client.connection.proxy.ConnectionInfo;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.Command;
@@ -551,7 +552,7 @@ public class ShardedConnectionTest {
     }
 
     /**
-     * Test method for {@link ShardedConnection#raiseErrors(Throwable)}.
+     * Test method for {@link AbstractProxyMultipleConnection#raiseErrors}.
      *
      * @throws IOException
      *             On a test failure.

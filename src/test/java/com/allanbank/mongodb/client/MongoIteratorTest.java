@@ -980,7 +980,7 @@ public class MongoIteratorTest {
     }
 
     /**
-     * Test method for {@link MongoIteratorImpl#toArray(T[])} .
+     * Test method for {@link MongoIteratorImpl#toArray} .
      */
     @Test
     public void testToArrayTyped() {
