@@ -6,12 +6,10 @@
 package com.allanbank.mongodb.client.message;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +20,12 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.io.BsonOutputStream;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
+import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.VersionRange;
+import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * CommandTest provides tests for the {@link Command} class.
@@ -97,5 +99,136 @@ public class CommandTest {
                 .build());
 
         assertThat(command.getOperationName(), is("command"));
+    }
+
+    /**
+     * Test the stringify of a command.
+     */
+    @Test
+    public void testToString() throws IOException {
+        final Command command = new Command("db", BuilderFactory.start()
+                .add("foo", 1).build());
+
+        assertThat(command.toString(),
+                is("Command[foo, db=db, collection=$cmd, "
+                        + "readPreference=PRIMARY_ONLY]: { foo : 1 }"));
+    }
+
+    /**
+     * Test the stringify of a command.
+     */
+    @Test
+    public void testToStringNoReadPreference() throws IOException {
+        final Command command = new Command("db", BuilderFactory.start()
+                .add("foo", 1).build(), null);
+
+        assertThat(command.toString(),
+                is("Command[foo, db=db, collection=$cmd]: { foo : 1 }"));
+    }
+
+    /**
+     * Test the stringify of a command.
+     */
+    @Test
+    public void testToStringWithVersionRange() throws IOException {
+        final Command command = new Command("db", BuilderFactory.start()
+                .add("foo", 1).build(), ReadPreference.PRIMARY,
+                VersionRange.range(Version.VERSION_2_2, Version.VERSION_2_4));
+
+        assertThat(command.toString(),
+                is("Command[foo, db=db, collection=$cmd, "
+                        + "readPreference=PRIMARY_ONLY, "
+                        + "requiredVersionRange=[2.2, 2.4)]: { foo : 1 }"));
+    }
+
+    /**
+     * Test the validation of the size of the command.
+     */
+    @Test
+    public void testValidateSize() throws IOException {
+        SizeOfVisitor visitor = new SizeOfVisitor();
+
+        final Command command = new Command("db", BuilderFactory.start()
+                .add("foo", 1).build(), ReadPreference.PRIMARY,
+                VersionRange.range(Version.VERSION_2_2, Version.VERSION_2_4));
+
+        try {
+            command.validateSize(visitor, 1);
+            fail("Should have thrown a DocumentToLargeException.");
+        }
+        catch (DocumentToLargeException error) {
+            assertThat(error.getDocument(), is(command.getCommand()));
+            assertThat(error.getMaximumSize(), is(1));
+            assertThat(error.getSize(), is((int) command.getCommand().size()));
+        }
+
+        // Should not throw.
+        command.validateSize(visitor, 1000000);
+
+        // Should not throw if Jumbo either
+        command.setAllowJumbo(true);
+        command.validateSize(visitor, 1);
+
+        final Command bigCommand = new Command("db", BuilderFactory.start()
+                .add("foo", new byte[16 * 1024]).build(),
+                ReadPreference.PRIMARY, VersionRange.range(Version.VERSION_2_2,
+                        Version.VERSION_2_4));
+        // Should throw if Jumbo still too big
+        try {
+            bigCommand.setAllowJumbo(true);
+            bigCommand.validateSize(visitor, 1);
+            fail("Should have thrown a DocumentToLargeException.");
+        }
+        catch (DocumentToLargeException error) {
+            assertThat(error.getDocument(), is(bigCommand.getCommand()));
+            assertThat(error.getMaximumSize(), is((16 * 1024) + 1));
+            assertThat(error.getSize(),
+                    is((int) bigCommand.getCommand().size() + 4));
+        }
+
+    }
+
+    /**
+     * Test the streaming of Commands.
+     * 
+     * @throws IOException
+     *             On a test failure.
+     */
+    @Test
+    public void testBsonWrite() throws IOException {
+        final Command command = new Command("db", BuilderFactory.start()
+                .build());
+
+        ByteArrayOutputStream out1 = new ByteArrayOutputStream();
+        BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
+        command.write(1000, bsonOut1);
+
+        ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+        BufferingBsonOutputStream bsonOut2 = new BufferingBsonOutputStream(out2);
+        command.write(1000, bsonOut2);
+
+        assertArrayEquals(out1.toByteArray(), out2.toByteArray());
+    }
+
+    /**
+     * Test the streaming of Commands.
+     * 
+     * @throws IOException
+     *             On a test failure.
+     */
+    @Test
+    public void testBsonWriteWithSecondaryOkReadPreference() throws IOException {
+        final Command command = new Command("db", BuilderFactory.start()
+                .build(), ReadPreference.PREFER_SECONDARY);
+
+        ByteArrayOutputStream out1 = new ByteArrayOutputStream();
+        BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
+        command.write(1000, bsonOut1);
+
+        ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+        BufferingBsonOutputStream bsonOut2 = new BufferingBsonOutputStream(out2);
+        command.write(1000, bsonOut2);
+
+        assertArrayEquals(out1.toByteArray(), out2.toByteArray());
     }
 }

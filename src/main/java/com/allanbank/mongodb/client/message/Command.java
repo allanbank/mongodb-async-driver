@@ -32,7 +32,7 @@ public class Command extends AbstractMessage {
     /** The collection to use when issuing commands to the database. */
     public static final String COMMAND_COLLECTION = "$cmd";
 
-    /** The amount of headroom for jumbo documents. */
+    /** The amount of head room for jumbo documents. */
     private static final int HEADROOM = 16 * 1024;
 
     /**

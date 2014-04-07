@@ -157,7 +157,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
      */
     public void send() {
 
-        List<BatchedWrite.Bundle> toSendBundles = Collections.emptyList();
+        List<BatchedWrite.Bundle> toSendBundles;
         synchronized (this) {
             List<BatchedWrite.Bundle> toSend = myPendingBundles;
             if (BatchedWriteMode.SERIALIZE_AND_STOP.equals(myWrite.getMode())) {

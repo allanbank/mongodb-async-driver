@@ -67,12 +67,35 @@ public final class Credential implements Serializable {
     /** An empty password array. */
     public static final char[] NO_PASSWORD = new char[0];
 
-    /** Constant for PLAIN SASL. */
+    /**
+     * Constant for authentication using plain SASL (LDAP/PAM) client
+     * certificates passed at connection establishment.
+     * <p>
+     * <em>Note:</em> Use of Plain SASL for authentication requires the driver's
+     * extensions. See the <a href=
+     * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
+     * >Plain SASL Usage Guide</a> for details.
+     * </p>
+     *
+     * @see <a
+     *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
+     *      SASL Usage Guide</a>
+     */
     public static final String PLAIN_SASL;
 
     /**
      * Constant for authentication using X.509 client certificates passed at
      * connection establishment.
+     * <p>
+     * <em>Note:</em> Use of the X.509 for authentication requires the driver's
+     * extensions. See the <a href=
+     * "http://www.allanbank.com/mongodb-async-driver/userguide/tls.html"
+     * >TSL/SSL Usage Guide</a> for details.
+     * </p>
+     *
+     * @see <a
+     *      href="http://www.allanbank.com/mongodb-async-driver/userguide/tls.html">TSL/SSL
+     *      Usage Guide</a>
      */
     public static final String X509;
 
@@ -362,6 +385,12 @@ public final class Credential implements Serializable {
         if (KERBEROS.equals(myAuthenticationType)) {
             builder.append("KERBEROS");
         }
+        else if (PLAIN_SASL.equals(myAuthenticationType)) {
+            builder.append("PLAIN SASL");
+        }
+        else if (X509.equals(myAuthenticationType)) {
+            builder.append("X.509");
+        }
         else if (MONGODB_CR.equals(myAuthenticationType)) {
             builder.append("MONGODB-CR");
         }
@@ -372,7 +401,7 @@ public final class Credential implements Serializable {
         for (final Map.Entry<String, String> option : myOptions.entrySet()) {
             builder.append("', '");
             builder.append(option.getKey());
-            builder.append("' : '");
+            builder.append("': '");
             builder.append(option.getValue());
         }
 
@@ -658,6 +687,54 @@ public final class Credential implements Serializable {
          * @return This {@link Builder} for method chaining.
          */
         public Builder plainSasl() {
+            return setAuthenticationType(PLAIN_SASL);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with LDAP via PLAIN SASL.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(PLAIN_SASL)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of Plain SASL for authentication requires the
+         * driver's extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
+         * >Plain SASL Usage Guide</a> for details.
+         * </p>
+         *
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
+         *      SASL Usage Guide</a>
+         *
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder ldap() {
+            return setAuthenticationType(PLAIN_SASL);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with PAM via PLAIN SASL.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(PLAIN_SASL)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of Plain SASL for authentication requires the
+         * driver's extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
+         * >Plain SASL Usage Guide</a> for details.
+         * </p>
+         *
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
+         *      SASL Usage Guide</a>
+         *
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder pam() {
             return setAuthenticationType(PLAIN_SASL);
         }
 

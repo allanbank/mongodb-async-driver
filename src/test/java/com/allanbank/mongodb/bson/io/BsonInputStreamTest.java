@@ -4,6 +4,7 @@
  */
 package com.allanbank.mongodb.bson.io;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -459,7 +460,16 @@ public class BsonInputStreamTest {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream writer = new BsonOutputStream(out);
 
+        final ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+        final BufferingBsonOutputStream writer2 = new BufferingBsonOutputStream(
+                out2);
+
         writer.writeDocument(doc);
+        writer2.writeDocument(doc);
+        writer2.flushBuffer();
+        writer2.close();
+
+        assertArrayEquals(out.toByteArray(), out2.toByteArray());
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         BsonInputStream reader = new BsonInputStream(in);

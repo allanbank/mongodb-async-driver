@@ -294,6 +294,12 @@ public class CredentialTest {
                 is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR' }"));
 
         c = Credential.builder().userName("user").password(new char[1])
+                .database("foo").mongodbCR().addOption("f", "true").build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', password : '<redacted>', type: 'MONGODB-CR', 'f': 'true' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
                 .database("foo").authenticationType("bar").build();
         assertThat(
                 c.toString(),
@@ -304,5 +310,29 @@ public class CredentialTest {
         assertThat(
                 c.toString(),
                 is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'KERBEROS' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .file(new File("a")).database("foo").x509().build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'X.509' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .file(new File("a")).database("foo").plainSasl().build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'PLAIN SASL' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .file(new File("a")).database("foo").ldap().build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'PLAIN SASL' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .file(new File("a")).database("foo").pam().build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'PLAIN SASL' }"));
     }
 }

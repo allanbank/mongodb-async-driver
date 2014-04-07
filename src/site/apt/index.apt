@@ -100,7 +100,7 @@ limits regressions.
 * Unit Tests
 
   The driver has an extensive set of over 1,000 {{{./surefire-report.html}unit}} tests. The unit tests provide 
-96% line and 95% branch {{{./cobertura/index.html}coverage}} and are designed to verify the behavior of each 
+96% line and 93% branch {{{./cobertura/index.html}coverage}} and are designed to verify the behavior of each 
 class and method.  To make sure that developers run the unit tests often it is important that they run quickly.  
 To achieve this goal the tests make extensive use of the {{{http://www.easymock.org/}EasyMock}} mocking support 
 library.  The result is a unit test suite with 96% coverage (as measured by 

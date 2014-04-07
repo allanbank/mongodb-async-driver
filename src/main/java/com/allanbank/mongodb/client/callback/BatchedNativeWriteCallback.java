@@ -90,7 +90,7 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
      */
     public void send() {
 
-        List<WriteOperation> toSendOperations = Collections.emptyList();
+        List<WriteOperation> toSendOperations;
         Durability durability = null;
 
         synchronized (this) {
