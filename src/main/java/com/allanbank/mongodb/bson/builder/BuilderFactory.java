@@ -81,12 +81,12 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * <code>
  * DocumentBuilder movie = BuilderFactory.start();
  * movie.add("title", "Gone with the Wind");
- * 
+ *
  * ArrayBuilder directorsArray = movie.pushArray("directors");
  * directorsArray.add("Victor Fleming")
  *               .add("George Cukor")
  *               .add("Sam Wood");
- * 
+ *
  * ArrayBuilder starsArray = movie.pushArray("stars");
  * starsArray.add("Clark Gable")
  *           .add("Vivien Leigh")

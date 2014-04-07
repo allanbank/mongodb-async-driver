@@ -325,7 +325,7 @@ public class ReadPreference implements Serializable, DocumentAssignable {
 
             result = myMode.equals(other.myMode)
                     && myTagMatchingDocuments
-                            .equals(other.myTagMatchingDocuments)
+                    .equals(other.myTagMatchingDocuments)
                     && nullSafeEquals(myServer, other.myServer);
         }
         return result;

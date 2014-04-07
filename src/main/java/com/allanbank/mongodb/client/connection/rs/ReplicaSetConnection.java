@@ -31,7 +31,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetConnection extends
-        AbstractProxyMultipleConnection<Server> {
+AbstractProxyMultipleConnection<Server> {
 
     /** The logger for the {@link ReplicaSetConnection}. */
     private static final Log LOG = LogFactory

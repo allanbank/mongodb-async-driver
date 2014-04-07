@@ -328,25 +328,25 @@ public class RegularExpressionElementTest {
     public void testValueAsObject() {
         RegularExpressionElement element = new RegularExpressionElement("foo",
                 "func code", RegularExpressionElement.OPTION_I
-                        | RegularExpressionElement.OPTION_L
-                        | RegularExpressionElement.OPTION_M
-                        | RegularExpressionElement.OPTION_S
-                        | RegularExpressionElement.OPTION_U
-                        | RegularExpressionElement.OPTION_X);
+                | RegularExpressionElement.OPTION_L
+                | RegularExpressionElement.OPTION_M
+                | RegularExpressionElement.OPTION_S
+                | RegularExpressionElement.OPTION_U
+                | RegularExpressionElement.OPTION_X);
 
         assertEquals(
                 Pattern.compile(
                         "func code",
                         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
-                                | Pattern.DOTALL
-                                | RegularExpressionElement.PATTERN_UNICODE)
+                        | Pattern.DOTALL
+                        | RegularExpressionElement.PATTERN_UNICODE)
                         .pattern(), element.getValueAsObject().pattern());
         assertEquals(
                 Pattern.compile(
                         "func code",
                         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE
-                                | Pattern.DOTALL
-                                | RegularExpressionElement.PATTERN_UNICODE)
+                        | Pattern.DOTALL
+                        | RegularExpressionElement.PATTERN_UNICODE)
                         .flags(), element.getValueAsObject().flags());
 
         element = new RegularExpressionElement("foo", "func code", "");
@@ -364,11 +364,11 @@ public class RegularExpressionElementTest {
     public void testValueAsString() {
         RegularExpressionElement element = new RegularExpressionElement("foo",
                 "func code", RegularExpressionElement.OPTION_I
-                        | RegularExpressionElement.OPTION_L
-                        | RegularExpressionElement.OPTION_M
-                        | RegularExpressionElement.OPTION_S
-                        | RegularExpressionElement.OPTION_U
-                        | RegularExpressionElement.OPTION_X);
+                | RegularExpressionElement.OPTION_L
+                | RegularExpressionElement.OPTION_M
+                | RegularExpressionElement.OPTION_S
+                | RegularExpressionElement.OPTION_U
+                | RegularExpressionElement.OPTION_X);
 
         assertEquals("{ $regex : 'func code', $options : 'ilmsux' }",
                 element.getValueAsString());

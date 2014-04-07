@@ -887,7 +887,7 @@ public class AbstractProxyConnectionTest {
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static final class TestProxiedConnection extends
-            AbstractProxyConnection {
+    AbstractProxyConnection {
 
         /**
          * Creates a new TestProxiedConnection.

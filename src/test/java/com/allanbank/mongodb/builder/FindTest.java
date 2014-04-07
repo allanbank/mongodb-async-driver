@@ -120,11 +120,11 @@ public class FindTest {
         assertEquals(request.getQuery(), request.toQueryRequest(false));
         assertEquals(
                 BuilderFactory
-                        .start()
-                        .add("$query", request.getQuery())
-                        .add(ReadPreference.FIELD_NAME,
-                                ReadPreference.CLOSEST.asDocument()).build(),
-                request.toQueryRequest(false, ReadPreference.CLOSEST));
+                .start()
+                .add("$query", request.getQuery())
+                .add(ReadPreference.FIELD_NAME,
+                        ReadPreference.CLOSEST.asDocument()).build(),
+                        request.toQueryRequest(false, ReadPreference.CLOSEST));
 
     }
 
@@ -226,12 +226,12 @@ public class FindTest {
 
         assertEquals(
                 BuilderFactory
-                        .start()
-                        .add("$query", request.getQuery())
-                        .add("$hint",
-                                BuilderFactory.start().addInteger("f", 1)
-                                        .build()).build(),
-                request.toQueryRequest(false));
+                .start()
+                .add("$query", request.getQuery())
+                .add("$hint",
+                        BuilderFactory.start().addInteger("f", 1)
+                        .build()).build(),
+                        request.toQueryRequest(false));
 
         builder.reset();
         builder.setQuery(query);
@@ -259,12 +259,12 @@ public class FindTest {
 
         assertEquals(
                 BuilderFactory
-                        .start()
-                        .add("$query", request.getQuery())
-                        .add("$hint",
-                                BuilderFactory.start().addInteger("f", 1)
-                                        .build()).build(),
-                request.toQueryRequest(false));
+                .start()
+                .add("$query", request.getQuery())
+                .add("$hint",
+                        BuilderFactory.start().addInteger("f", 1)
+                        .build()).build(),
+                        request.toQueryRequest(false));
 
         builder.reset();
         builder.setQuery(query);

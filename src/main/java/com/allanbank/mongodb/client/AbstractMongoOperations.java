@@ -705,7 +705,7 @@ public abstract class AbstractMongoOperations {
      */
     public void saveAsync(final Callback<Integer> results,
             final DocumentAssignable document, final Durability durability)
-            throws MongoDbException {
+                    throws MongoDbException {
         final Document doc = document.asDocument();
 
         if (doc.contains(ID_FIELD_NAME)) {
@@ -825,7 +825,7 @@ public abstract class AbstractMongoOperations {
     public void textSearchAsync(
             final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
             final com.allanbank.mongodb.builder.Text command)
-            throws MongoDbException {
+                    throws MongoDbException {
         final Version minVersion = com.allanbank.mongodb.builder.Text.REQUIRED_VERSION;
         final DocumentBuilder builder = BuilderFactory.start();
 

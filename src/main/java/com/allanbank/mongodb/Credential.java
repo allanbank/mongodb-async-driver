@@ -421,7 +421,7 @@ public final class Credential implements Serializable {
      *             If the authenticator cannot be accessed.
      */
     /* package */void loadAuthenticator() throws ClassNotFoundException,
-            InstantiationException, IllegalAccessException {
+    InstantiationException, IllegalAccessException {
         if (myAuthenticator == null) {
             myAuthenticator = (Authenticator) Class.forName(
                     getAuthenticationType()).newInstance();
@@ -640,6 +640,30 @@ public final class Credential implements Serializable {
 
         /**
          * Sets the value of the authentication type or mode that the credential
+         * should be used with LDAP via PLAIN SASL.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(PLAIN_SASL)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of Plain SASL for authentication requires the
+         * driver's extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
+         * >Plain SASL Usage Guide</a> for details.
+         * </p>
+         *
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
+         *      SASL Usage Guide</a>
+         *
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder ldap() {
+            return setAuthenticationType(PLAIN_SASL);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
          * should be used with to MongoDB Challenge/Response.
          * <p>
          * This method delegates to {@link #setAuthenticationType(String)
@@ -650,6 +674,30 @@ public final class Credential implements Serializable {
          */
         public Builder mongodbCR() {
             return setAuthenticationType(MONGODB_CR);
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with PAM via PLAIN SASL.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(PLAIN_SASL)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of Plain SASL for authentication requires the
+         * driver's extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
+         * >Plain SASL Usage Guide</a> for details.
+         * </p>
+         *
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
+         *      SASL Usage Guide</a>
+         *
+         * @return This {@link Builder} for method chaining.
+         */
+        public Builder pam() {
+            return setAuthenticationType(PLAIN_SASL);
         }
 
         /**
@@ -687,54 +735,6 @@ public final class Credential implements Serializable {
          * @return This {@link Builder} for method chaining.
          */
         public Builder plainSasl() {
-            return setAuthenticationType(PLAIN_SASL);
-        }
-
-        /**
-         * Sets the value of the authentication type or mode that the credential
-         * should be used with LDAP via PLAIN SASL.
-         * <p>
-         * This method delegates to {@link #setAuthenticationType(String)
-         * setAuthenticationType(PLAIN_SASL)}.
-         * </p>
-         * <p>
-         * <em>Note:</em> Use of Plain SASL for authentication requires the
-         * driver's extensions. See the <a href=
-         * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
-         * >Plain SASL Usage Guide</a> for details.
-         * </p>
-         *
-         * @see <a
-         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
-         *      SASL Usage Guide</a>
-         *
-         * @return This {@link Builder} for method chaining.
-         */
-        public Builder ldap() {
-            return setAuthenticationType(PLAIN_SASL);
-        }
-
-        /**
-         * Sets the value of the authentication type or mode that the credential
-         * should be used with PAM via PLAIN SASL.
-         * <p>
-         * This method delegates to {@link #setAuthenticationType(String)
-         * setAuthenticationType(PLAIN_SASL)}.
-         * </p>
-         * <p>
-         * <em>Note:</em> Use of Plain SASL for authentication requires the
-         * driver's extensions. See the <a href=
-         * "http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html"
-         * >Plain SASL Usage Guide</a> for details.
-         * </p>
-         *
-         * @see <a
-         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/plain_sasl.html">Plain
-         *      SASL Usage Guide</a>
-         *
-         * @return This {@link Builder} for method chaining.
-         */
-        public Builder pam() {
             return setAuthenticationType(PLAIN_SASL);
         }
 

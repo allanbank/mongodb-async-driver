@@ -369,18 +369,18 @@ public class DurabilityTest {
         assertEquals(
                 Durability.replicaDurable(true, "bar", 128),
                 Durability
-                        .valueOf("{ getlasterror : 1, j : true, wtimeout : 128, w : 'bar' }"));
+                .valueOf("{ getlasterror : 1, j : true, wtimeout : 128, w : 'bar' }"));
         assertEquals(
                 Durability.replicaDurable(true, "bar", 128),
                 Durability
-                        .valueOf("{ getlasterror : 1, j : 1, wtimeout : 128, w : bar }"));
+                .valueOf("{ getlasterror : 1, j : 1, wtimeout : 128, w : bar }"));
         assertEquals(
                 Durability.replicaDurable("foo", 127),
                 Durability
-                        .valueOf("{ getlasterror : 1, wtimeout : 127, w : 'foo' }"));
+                .valueOf("{ getlasterror : 1, wtimeout : 127, w : 'foo' }"));
         assertEquals(Durability.replicaDurable(3, 126),
                 Durability
-                        .valueOf("{ getlasterror : 1, wtimeout : 126, w : 3 }"));
+                .valueOf("{ getlasterror : 1, wtimeout : 126, w : 3 }"));
         assertEquals(Durability.replicaDurable(125),
                 Durability.valueOf("{ wtimeout : 125, w : 1 }"));
         assertEquals(Durability.journalDurable(124),

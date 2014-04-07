@@ -291,7 +291,7 @@ public final class Expressions {
      * <code>
      * import static {@link BuilderFactory#a com.allanbank.mongodb.bson.builder.BuilderFactory.a}
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant}
-     * 
+     *
      * constant( a( "This", "is", "an", "array" ) );
      * </code>
      * </pre>

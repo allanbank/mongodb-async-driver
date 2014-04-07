@@ -358,7 +358,7 @@ public interface AsyncMongoCollection {
      */
     public void countAsync(LambdaCallback<Long> results,
             DocumentAssignable query, ReadPreference readPreference)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Counts the set of documents in the collection.
@@ -446,7 +446,7 @@ public interface AsyncMongoCollection {
      */
     public void deleteAsync(Callback<Long> results, DocumentAssignable query,
             boolean singleDelete, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -515,7 +515,7 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
             boolean singleDelete, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -564,7 +564,7 @@ public interface AsyncMongoCollection {
      */
     public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query, boolean singleDelete)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
@@ -602,7 +602,7 @@ public interface AsyncMongoCollection {
      */
     public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Invokes a distinct command on the server.
@@ -1323,7 +1323,7 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Integer> insertAsync(boolean continueOnError,
             Durability durability, DocumentAssignable... documents)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -1368,7 +1368,7 @@ public interface AsyncMongoCollection {
      */
     public void insertAsync(Callback<Integer> results, boolean continueOnError,
             Durability durability, DocumentAssignable... documents)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -1462,7 +1462,7 @@ public interface AsyncMongoCollection {
      */
     public void insertAsync(LambdaCallback<Integer> results,
             boolean continueOnError, DocumentAssignable... documents)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -1525,7 +1525,7 @@ public interface AsyncMongoCollection {
      */
     public void insertAsync(LambdaCallback<Integer> results,
             Durability durability, DocumentAssignable... documents)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
@@ -1788,7 +1788,7 @@ public interface AsyncMongoCollection {
      */
     public void saveAsync(Callback<Integer> results,
             DocumentAssignable document, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.
@@ -1902,7 +1902,7 @@ public interface AsyncMongoCollection {
      */
     public void saveAsync(LambdaCallback<Integer> results,
             DocumentAssignable document, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Performs an aggregation and streams them to the provided callback one at
@@ -2529,7 +2529,7 @@ public interface AsyncMongoCollection {
     public void textSearchAsync(
             Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
             com.allanbank.mongodb.builder.Text.Builder command)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
@@ -2576,7 +2576,7 @@ public interface AsyncMongoCollection {
     @Deprecated
     public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             com.allanbank.mongodb.builder.Text.Builder command)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2621,7 +2621,7 @@ public interface AsyncMongoCollection {
      */
     public void updateAsync(Callback<Long> results, DocumentAssignable query,
             DocumentAssignable update, boolean multiUpdate, boolean upsert)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2671,7 +2671,7 @@ public interface AsyncMongoCollection {
      */
     public void updateAsync(Callback<Long> results, DocumentAssignable query,
             DocumentAssignable update, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2714,7 +2714,7 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, boolean multiUpdate, boolean upsert)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2762,7 +2762,7 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2782,7 +2782,7 @@ public interface AsyncMongoCollection {
      */
     public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
@@ -2837,7 +2837,7 @@ public interface AsyncMongoCollection {
     public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update,
             boolean multiUpdate, boolean upsert, Durability durability)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The

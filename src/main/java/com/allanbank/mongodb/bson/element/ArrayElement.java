@@ -38,7 +38,7 @@ public class ArrayElement extends AbstractElement {
     /** Serialization version for the class. */
     private static final long serialVersionUID = -7363294574214059703L;
     static {
-        ourIndexes = new String[256];
+        ourIndexes = new String[1000];
 
         for (int i = 0; i < ourIndexes.length; ++i) {
             ourIndexes[i] = Integer.toString(i).intern();

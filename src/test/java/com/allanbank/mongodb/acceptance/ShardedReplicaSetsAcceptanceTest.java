@@ -127,7 +127,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
         // > db.things.insert( { state : "NZ", city : "big", pop : 1000 } );
         doc.addString("state", "NZ").addString("city", "big")
-                .addInteger("pop", 1000);
+        .addInteger("pop", 1000);
         aggregate.insert(doc);
         doc.reset();
 
@@ -135,15 +135,15 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         // > db.things.insert( { state : "MD", city : "medium", pop : 10 } );
         // > db.things.insert( { state : "MD", city : "small", pop : 1 } );
         doc.addString("state", "MD").addString("city", "big")
-                .addInteger("pop", 1000);
+        .addInteger("pop", 1000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "MD").addString("city", "medium")
-                .addInteger("pop", 10);
+        .addInteger("pop", 10);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "MD").addString("city", "small")
-                .addInteger("pop", 1);
+        .addInteger("pop", 1);
         aggregate.insert(doc);
         doc.reset();
 
@@ -151,15 +151,15 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         // > db.things.insert( { state : "CA", city : "medium", pop : 11 } );
         // > db.things.insert( { state : "CA", city : "small", pop : 10 } );
         doc.addString("state", "CA").addString("city", "big")
-                .addInteger("pop", 10000);
+        .addInteger("pop", 10000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "CA").addString("city", "small")
-                .addInteger("pop", 11);
+        .addInteger("pop", 11);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "CA").addString("city", "small")
-                .addInteger("pop", 10);
+        .addInteger("pop", 10);
         aggregate.insert(doc);
         doc.reset();
 
@@ -167,15 +167,15 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         // > db.things.insert( { state : "NY", city : "small", pop : 20 } );
         // > db.things.insert( { state : "NY", city : "small", pop : 5 } );
         doc.addString("state", "NY").addString("city", "big")
-                .addInteger("pop", 100000);
+        .addInteger("pop", 100000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "NY").addString("city", "small")
-                .addInteger("pop", 20);
+        .addInteger("pop", 20);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "NY").addString("city", "small")
-                .addInteger("pop", 5);
+        .addInteger("pop", 5);
         aggregate.insert(doc);
         doc.reset();
 
@@ -185,44 +185,44 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
         builder.setReadPreference(ReadPreference.SECONDARY);
         builder.match(where("state").notEqualTo("NZ"))
-                .group(id().addField("state").addField("city"),
-                        set("pop").sum("pop"))
+        .group(id().addField("state").addField("city"),
+                set("pop").sum("pop"))
                 .sort(asc("pop"))
                 .group(id("_id.state"), set("biggestcity").last("_id.city"),
                         set("biggestpop").last("pop"),
                         set("smallestcity").first("_id.city"),
                         set("smallestpop").first("pop"))
-                .project(
-                        includeWithoutId(),
-                        set("state", field("_id")),
-                        set("biggestCity",
-                                b1.add(set("name", field("biggestcity"))).add(
-                                        set("pop", field("biggestpop")))),
-                        set("smallestCity",
-                                b2.add(set("name", field("smallestcity"))).add(
-                                        set("pop", field("smallestpop")))))
-                .sort(desc("biggestCity.pop"));
+                        .project(
+                                includeWithoutId(),
+                                set("state", field("_id")),
+                                set("biggestCity",
+                                        b1.add(set("name", field("biggestcity"))).add(
+                                                set("pop", field("biggestpop")))),
+                                                set("smallestCity",
+                                                        b2.add(set("name", field("smallestcity"))).add(
+                                                                set("pop", field("smallestpop")))))
+                                                                .sort(desc("biggestCity.pop"));
 
         final DocumentBuilder expected1 = BuilderFactory.start();
         expected1.addString("state", "NY");
         expected1.push("biggestCity").addString("name", "big")
-                .addInteger("pop", 100000);
+        .addInteger("pop", 100000);
         expected1.push("smallestCity").addString("name", "small")
-                .addInteger("pop", 25);
+        .addInteger("pop", 25);
 
         final DocumentBuilder expected2 = BuilderFactory.start();
         expected2.addString("state", "CA");
         expected2.push("biggestCity").addString("name", "big")
-                .addInteger("pop", 10000);
+        .addInteger("pop", 10000);
         expected2.push("smallestCity").addString("name", "small")
-                .addInteger("pop", 21);
+        .addInteger("pop", 21);
 
         final DocumentBuilder expected3 = BuilderFactory.start();
         expected3.addString("state", "MD");
         expected3.push("biggestCity").addString("name", "big")
-                .addInteger("pop", 1000);
+        .addInteger("pop", 1000);
         expected3.push("smallestCity").addString("name", "small")
-                .addInteger("pop", 1);
+        .addInteger("pop", 1);
 
         final List<Document> expected = new ArrayList<Document>();
         expected.add(expected1.build());
@@ -304,7 +304,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 99701})
-     * 
+     *
      * db.addresses.distinct("zip-code");
      * [ 10010, 99701 ]
      * </code>
@@ -405,7 +405,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         final DocumentBuilder doc = BuilderFactory.start();
         doc.addString("domain", "www.mongodb.org");
         doc.push("invoked_at").addString("d", "2009-11-03")
-                .addString("t", "17:14:05");
+        .addString("t", "17:14:05");
         doc.addDouble("response_time", 0.05);
         doc.addString("http_action", "GET /display/DOCS/Aggregate");
 
@@ -413,7 +413,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
         final DocumentBuilder query = BuilderFactory.start();
         query.push("invoked_at.d").addString("$gte", "2009-11")
-                .addString("$lt", "2009-12");
+        .addString("$lt", "2009-12");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("http_action"));
@@ -444,7 +444,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * , response_time: 0.05
      * , http_action: "GET /display/DOCS/Aggregate"
      * }
-     * 
+     *
      * db.test.group(
      *    { cond: {"invoked_at.d": {$gte: "2009-11", $lt: "2009-12"}}
      *    , key: {http_action: true}
@@ -452,7 +452,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      *    , reduce: function(doc, out){ out.count++; out.total_time+=doc.response_time }
      *    , finalize: function(out){ out.avg_time = out.total_time / out.count }
      *    } );
-     * 
+     *
      * [
      *   {
      *     "http_action" : "GET /display/DOCS/Aggregate",
@@ -461,7 +461,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      *     "avg_time" : 0.05
      *   }
      * ]
-     * 
+     *
      * </code>
      * </pre>
      *
@@ -473,7 +473,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         final DocumentBuilder doc = BuilderFactory.start();
         doc.addString("domain", "www.mongodb.org");
         doc.push("invoked_at").addString("d", "2009-11-03")
-                .addString("t", "17:14:05");
+        .addString("t", "17:14:05");
         doc.addDouble("response_time", 0.05);
         doc.addString("http_action", "GET /display/DOCS/Aggregate");
 
@@ -481,7 +481,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
 
         final DocumentBuilder query = BuilderFactory.start();
         query.push("invoked_at.d").addString("$gte", "2009-11")
-                .addString("$lt", "2009-12");
+        .addString("$lt", "2009-12");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setReadPreference(ReadPreference.PREFER_SECONDARY);
@@ -512,7 +512,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * > db.things.insert( { _id : 2, tags : ['cat'] } );
      * > db.things.insert( { _id : 3, tags : ['mouse', 'cat', 'dog'] } );
      * > db.things.insert( { _id : 4, tags : []  } );
-     * 
+     *
      * > // map function
      * > m = function(){
      * ...    this.tags.forEach(
@@ -521,7 +521,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * ...        }
      * ...    );
      * ...};
-     * 
+     *
      * > // reduce function
      * > r = function( key , values ){
      * ...    var total = 0;
@@ -529,7 +529,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      * ...        total += values[i].count;
      * ...    return { count : total };
      * ...};
-     * 
+     *
      * > res = db.things.mapReduce(m, r, { out : "inline" } );
      * > res
      * {
@@ -567,7 +567,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addInteger("_id", 3);
         doc3.pushArray("tags").addString("mouse").addString("dog")
-                .addString("cat");
+        .addString("cat");
 
         final DocumentBuilder doc4 = BuilderFactory.start();
         doc4.addInteger("_id", 4);

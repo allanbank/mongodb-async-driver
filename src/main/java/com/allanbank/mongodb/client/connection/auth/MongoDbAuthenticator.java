@@ -171,7 +171,7 @@ public class MongoDbAuthenticator implements Authenticator {
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     private static class AuthenticateReplyCallback extends
-            AbstractReplyCallback<Boolean> {
+    AbstractReplyCallback<Boolean> {
         /**
          * Creates a new AuthenticateReplyCallback.
          *
@@ -308,7 +308,7 @@ public class MongoDbAuthenticator implements Authenticator {
 
                 myConnection.send(new Command(myCredential.getDatabase(),
                         builder.build()), new AuthenticateReplyCallback(
-                        myResults));
+                                myResults));
             }
             catch (final NoSuchAlgorithmException e) {
                 exception(new MongoDbAuthenticationException(e));

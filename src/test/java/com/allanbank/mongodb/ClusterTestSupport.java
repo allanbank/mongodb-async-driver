@@ -110,7 +110,7 @@ public class ClusterTestSupport {
      */
     public ManagedProcess run(final File workingDirectory,
             final String executable, final String... args)
-            throws AssertionError {
+                    throws AssertionError {
 
         // Need a parameter to turn on text search in 2.4.
         final List<String> origArgs = Arrays.asList(args);
@@ -130,15 +130,15 @@ public class ClusterTestSupport {
             final File mongodbHomeDir = new File(mongodbHome);
             if ("mongod".equals(executable)) {
                 app = new File(new File(mongodbHomeDir, "bin"), executable)
-                        .getAbsolutePath();
+                .getAbsolutePath();
             }
             else if ("mongos".equals(executable)) {
                 app = new File(new File(mongodbHomeDir, "bin"), executable)
-                        .getAbsolutePath();
+                .getAbsolutePath();
             }
             else if ("mongo".equals(executable)) {
                 app = new File(new File(mongodbHomeDir, "bin"), executable)
-                        .getAbsolutePath();
+                .getAbsolutePath();
             }
         }
 
@@ -477,8 +477,8 @@ public class ClusterTestSupport {
                     "--smallfiles", "--replSet", "rs-" + startPort,
                     "--noprealloc", "--nojournal", "--oplogSize", "512");
             reconfigWriter
-                    .write("config.members.push({ _id: 0, host: \"localhost:"
-                            + port + "\", arbiterOnly:true })\n");
+            .write("config.members.push({ _id: 0, host: \"localhost:"
+                    + port + "\", arbiterOnly:true })\n");
             myProcesses.add(arbiter);
 
             final List<ManagedProcess> members = new ArrayList<ManagedProcess>(
@@ -522,7 +522,7 @@ public class ClusterTestSupport {
                     final ManagedProcess config = run(workingDirectory,
                             "mongo",
                             "localhost:" + String.valueOf(startPort + 1)
-                                    + "/admin", initialConfig.getAbsolutePath());
+                            + "/admin", initialConfig.getAbsolutePath());
                     config.waitFor();
                 }
             }
@@ -570,7 +570,7 @@ public class ClusterTestSupport {
      */
     protected void startSharded(final File workingDirectory,
             final int startPort, final int mongos, final int shards)
-            throws AssertionError {
+                    throws AssertionError {
 
         final File shardsConfig = new File(workingDirectory, "shards-"
                 + startPort + ".js");
@@ -650,7 +650,7 @@ public class ClusterTestSupport {
      */
     protected void startShardedReplicaSets(final File workingDirectory,
             final int startPort, final int mongos, final int shards)
-            throws AssertionError {
+                    throws AssertionError {
 
         final File shardsConfig = new File(workingDirectory, "shards-"
                 + startPort + ".js");
@@ -826,13 +826,13 @@ public class ClusterTestSupport {
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected final static class TestDirectoryFilenameFilter implements
-            FilenameFilter {
+    FilenameFilter {
         @Override
         public boolean accept(final File dir, final String name) {
             return name.endsWith(DIR_SUFFIX)
                     && (name.startsWith(STANDALONE_ROOT)
                             || name.startsWith(REPLICA_SET_ROOT) || name
-                                .startsWith(SHARDED_ROOT));
+                            .startsWith(SHARDED_ROOT));
         }
     }
 }

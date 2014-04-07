@@ -118,7 +118,7 @@ public class AuthenticationConnectionFactoryTest {
         myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-                .andReturn(mockConnection);
+        .andReturn(mockConnection);
 
         replay(mockFactory, mockConnection);
 

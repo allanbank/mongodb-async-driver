@@ -21,7 +21,7 @@ import com.allanbank.mongodb.client.message.Reply;
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractReplyCallback<F> extends
-        AbstractValidatingReplyCallback {
+AbstractValidatingReplyCallback {
 
     /** The callback for the converted type. */
     final Callback<F> myForwardCallback;

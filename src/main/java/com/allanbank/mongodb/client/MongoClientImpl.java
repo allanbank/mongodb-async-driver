@@ -206,7 +206,7 @@ public class MongoClientImpl implements MongoClient {
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myClient.restart(cursorDocument);
     }
 
@@ -220,7 +220,7 @@ public class MongoClientImpl implements MongoClient {
     @Override
     public MongoCursorControl restart(final LambdaCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return restart(new LambdaCallbackAdapter<Document>(results),
                 cursorDocument);
     }
@@ -238,7 +238,7 @@ public class MongoClientImpl implements MongoClient {
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myClient.restart(results, cursorDocument);
     }
 }

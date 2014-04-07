@@ -88,10 +88,10 @@ public class GetLastError extends Query {
             final boolean waitForJournal, final int w, final int wtimeout) {
         super(dbName, Connection.COMMAND_COLLECTION, createQuery(fsync,
                 waitForJournal, w, wtimeout), /* fields= */null,
-                /* batchSize= */1, /* limit= */1, /* numberToSkip= */0,
-                /* tailable= */false, ReadPreference.PRIMARY,
-                /* noCursorTimeout= */false, /* awaitData= */false,
-                /* exhaust= */false, /* partial= */false);
+        /* batchSize= */1, /* limit= */1, /* numberToSkip= */0,
+        /* tailable= */false, ReadPreference.PRIMARY,
+        /* noCursorTimeout= */false, /* awaitData= */false,
+        /* exhaust= */false, /* partial= */false);
     }
 
     /**
@@ -104,10 +104,10 @@ public class GetLastError extends Query {
      */
     public GetLastError(final String dbName, final Durability durability) {
         super(dbName, Connection.COMMAND_COLLECTION, durability.asDocument(),
-                /* fields= */null, /* batchSize= */1, /* limit= */1,
-                /* numberToSkip= */0, /* tailable= */false, ReadPreference.PRIMARY,
-                /* noCursorTimeout= */false, /* awaitData= */false,
-                /* exhaust= */false, /* partial= */false);
+        /* fields= */null, /* batchSize= */1, /* limit= */1,
+        /* numberToSkip= */0, /* tailable= */false, ReadPreference.PRIMARY,
+        /* noCursorTimeout= */false, /* awaitData= */false,
+        /* exhaust= */false, /* partial= */false);
     }
 
     /**

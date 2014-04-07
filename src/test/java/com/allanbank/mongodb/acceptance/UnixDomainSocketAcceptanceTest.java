@@ -213,7 +213,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
         @Override
         public Socket createSocket(final InetAddress address, final int port,
                 final InetAddress localAddress, final int localPort)
-                throws SocketException {
+                        throws SocketException {
             throw new SocketException(
                     "AFUNIX socket does not support connections to a host/port");
         }
@@ -234,7 +234,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
         @Override
         public Socket createSocket(final String host, final int port,
                 final InetAddress localHost, final int localPort)
-                throws SocketException {
+                        throws SocketException {
             throw new SocketException(
                     "AFUNIX socket does not support connections to a host/port");
         }

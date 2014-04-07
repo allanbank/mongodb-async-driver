@@ -34,8 +34,8 @@ import com.allanbank.mongodb.error.ReplyException;
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class CursorStreamingCallback extends
-        AbstractValidatingReplyCallback implements MongoCursorControl,
-        AddressAware {
+AbstractValidatingReplyCallback implements MongoCursorControl,
+AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;

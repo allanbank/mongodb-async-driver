@@ -17,7 +17,7 @@ import java.util.List;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Document extends Iterable<Element>, DocumentAssignable,
-        Serializable {
+Serializable {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based

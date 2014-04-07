@@ -308,7 +308,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         // config database.
         final Query query = new Query("config", "mongos", BuilderFactory
                 .start().build(), /* fields= */null, /* batchSize= */0,
-        /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
+                /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
                 ReadPreference.PRIMARY, /* noCursorTimeout= */false,
                 /* awaitData= */false, /* exhaust= */false, /* partial= */
                 false);

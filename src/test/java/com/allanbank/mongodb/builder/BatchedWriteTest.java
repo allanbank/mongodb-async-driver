@@ -23,6 +23,8 @@ import org.junit.Test;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.builder.write.DeleteOperation;
 import com.allanbank.mongodb.builder.write.InsertOperation;
 import com.allanbank.mongodb.builder.write.UpdateOperation;
@@ -945,6 +947,37 @@ public class BatchedWriteTest {
             assertThat(error.getMaximumSize(), is((int) doc.size() - 10));
             assertThat(error.getSize(), is((int) doc.size()));
         }
+    }
+
+    /**
+     * Test method for {@link BatchedWrite#toBundles(String, long, int)}.
+     */
+    @Test
+    public void testToBundlesOptimizedWithLotsAndLotsOfOperations() {
+        final int count = 100000;
+
+        final Document query = d(e("a", 1)).build();
+        final Document update = d(e("b", 1)).build();
+        final DocumentBuilder doc = BuilderFactory.start();
+
+        final BatchedWrite.Builder builder = BatchedWrite.builder();
+        for (int i = 0; i < count; ++i) {
+            builder.insert(doc);
+            builder.update(query, update);
+            builder.update(query, update, false, false);
+            builder.update(query, update, true, false);
+            builder.update(query, update, false, true);
+            builder.delete(query);
+            builder.delete(query, false);
+            builder.delete(query, true);
+        }
+        builder.mode(BatchedWriteMode.REORDERED);
+
+        final BatchedWrite write = builder.build();
+        final List<BatchedWrite.Bundle> bundles = write.toBundles("foo",
+                Client.MAX_DOCUMENT_SIZE, 1000);
+
+        assertThat(bundles, hasSize(8 * (count / 1000)));
     }
 
     /**

@@ -44,7 +44,7 @@ import com.allanbank.mongodb.builder.BatchedWriteMode;
  * @see MongoCollection
  */
 public interface BatchedAsyncMongoCollection extends AsyncMongoCollection,
-        Closeable {
+Closeable {
     /**
      * Cancels the pending batch of operations without sending them to the
      * server.

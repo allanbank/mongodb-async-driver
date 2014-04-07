@@ -30,14 +30,14 @@ import com.allanbank.mongodb.bson.Element;
  * <pre>
  * <code>
  * public static final Document QUERY;
- * 
+ *
  * ...
  * static {
  *    DocumentBuilder builder = BuilderFactory.start();
- * 
+ *
  *    builder.add(...);
  *    ...
- * 
+ *
  *    QUERY = new ImmutableDocument(builder);
  * }
  * </code>

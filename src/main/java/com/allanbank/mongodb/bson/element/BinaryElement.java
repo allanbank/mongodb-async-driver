@@ -111,7 +111,7 @@ public class BinaryElement extends AbstractElement {
      */
     public BinaryElement(final String name, final byte subType,
             final BsonInputStream input, final int length, final long size)
-            throws IOException {
+                    throws IOException {
         super(name, size);
 
         mySubType = subType;

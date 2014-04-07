@@ -148,8 +148,8 @@ public class BatchedWriteCallback extends ReplyLongCallback {
         Assertions.assertThat(
                 myRealCallbacks.size() == count,
                 "There nust be an operation (" + count
-                + ") in a bundle for each callback ("
-                + myRealCallbacks.size() + ").");
+                        + ") in a bundle for each callback ("
+                        + myRealCallbacks.size() + ").");
     }
 
     /**
@@ -435,7 +435,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
                             if (thrown != null) {
                                 cb.exception(new BatchedWriteException(myWrite,
                                         myN, emptySkipped, Collections
-                                        .singletonMap(op, thrown)));
+                                                .singletonMap(op, thrown)));
                             }
                             else if (skipped.contains(op)) {
                                 // Skipped the write.

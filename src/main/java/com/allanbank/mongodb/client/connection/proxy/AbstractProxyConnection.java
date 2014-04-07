@@ -50,8 +50,8 @@ public abstract class AbstractProxyConnection implements Connection {
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         try {
             myProxiedConnection
-                    .addPropertyChangeListener(new ProxiedChangeListener(this,
-                            listener));
+            .addPropertyChangeListener(new ProxiedChangeListener(this,
+                    listener));
         }
         catch (final MongoDbException error) {
             onExceptin(error);
@@ -201,8 +201,8 @@ public abstract class AbstractProxyConnection implements Connection {
     public void removePropertyChangeListener(
             final PropertyChangeListener listener) {
         myProxiedConnection
-                .removePropertyChangeListener(new ProxiedChangeListener(this,
-                        listener));
+        .removePropertyChangeListener(new ProxiedChangeListener(this,
+                listener));
     }
 
     /**
@@ -300,7 +300,7 @@ public abstract class AbstractProxyConnection implements Connection {
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected static class ProxiedChangeListener implements
-            PropertyChangeListener {
+    PropertyChangeListener {
 
         /** The delegate listener. */
         private final PropertyChangeListener myDelegate;

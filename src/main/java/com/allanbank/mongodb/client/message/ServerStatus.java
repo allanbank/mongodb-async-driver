@@ -67,7 +67,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  *         }
  *     },
  *     "shardCursorType" : {
- * 
+ *
  *     },
  *     "asserts" : {
  *         "regular" : 0,

@@ -300,7 +300,7 @@ public class MongoDatabaseImplTest {
         final Durability defaultDurability = Durability.journalDurable(1234);
 
         expect(myMockClient.getDefaultDurability())
-                .andReturn(defaultDurability);
+        .andReturn(defaultDurability);
 
         replay();
 
@@ -319,7 +319,7 @@ public class MongoDatabaseImplTest {
         final Durability setDurability = Durability.journalDurable(4321);
 
         expect(myMockClient.getDefaultDurability())
-                .andReturn(defaultDurability);
+        .andReturn(defaultDurability);
 
         replay();
 
@@ -518,9 +518,9 @@ public class MongoDatabaseImplTest {
         final Command message = new Command("admin", commandDoc.build());
 
         expect(myMockMongoClient.getDatabase("admin"))
-                .andReturn(
-                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
-                                "admin"));
+        .andReturn(
+                new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                        "admin"));
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -552,9 +552,9 @@ public class MongoDatabaseImplTest {
         final Command message = new Command("admin", commandDoc.build());
 
         expect(myMockMongoClient.getDatabase("admin"))
-                .andReturn(
-                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
-                                "admin"));
+        .andReturn(
+                new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                        "admin"));
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
 
@@ -617,7 +617,7 @@ public class MongoDatabaseImplTest {
         replay(mockCallback);
 
         myTestInstance
-                .runCommandAsync(mockCallback, "command", options.build());
+        .runCommandAsync(mockCallback, "command", options.build());
 
         verify(mockCallback);
     }
@@ -733,7 +733,7 @@ public class MongoDatabaseImplTest {
 
         assertSame(reply,
                 myTestInstance.runCommandAsync("command", options.build())
-                        .get());
+                .get());
 
         verify();
     }

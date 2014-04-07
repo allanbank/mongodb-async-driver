@@ -6,7 +6,13 @@
 package com.allanbank.mongodb.client.message;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,6 +39,52 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CommandTest {
+
+    /**
+     * Test the streaming of Commands.
+     *
+     * @throws IOException
+     *             On a test failure.
+     */
+    @Test
+    public void testBsonWrite() throws IOException {
+        final Command command = new Command("db", BuilderFactory.start()
+                .build());
+
+        final ByteArrayOutputStream out1 = new ByteArrayOutputStream();
+        final BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
+        command.write(1000, bsonOut1);
+
+        final ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+        final BufferingBsonOutputStream bsonOut2 = new BufferingBsonOutputStream(
+                out2);
+        command.write(1000, bsonOut2);
+
+        assertArrayEquals(out1.toByteArray(), out2.toByteArray());
+    }
+
+    /**
+     * Test the streaming of Commands.
+     *
+     * @throws IOException
+     *             On a test failure.
+     */
+    @Test
+    public void testBsonWriteWithSecondaryOkReadPreference() throws IOException {
+        final Command command = new Command("db", BuilderFactory.start()
+                .build(), ReadPreference.PREFER_SECONDARY);
+
+        final ByteArrayOutputStream out1 = new ByteArrayOutputStream();
+        final BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
+        command.write(1000, bsonOut1);
+
+        final ByteArrayOutputStream out2 = new ByteArrayOutputStream();
+        final BufferingBsonOutputStream bsonOut2 = new BufferingBsonOutputStream(
+                out2);
+        command.write(1000, bsonOut2);
+
+        assertArrayEquals(out1.toByteArray(), out2.toByteArray());
+    }
 
     /**
      * Test method for {@link AggregateCommand#equals(Object)} and
@@ -146,7 +198,7 @@ public class CommandTest {
      */
     @Test
     public void testValidateSize() throws IOException {
-        SizeOfVisitor visitor = new SizeOfVisitor();
+        final SizeOfVisitor visitor = new SizeOfVisitor();
 
         final Command command = new Command("db", BuilderFactory.start()
                 .add("foo", 1).build(), ReadPreference.PRIMARY,
@@ -156,7 +208,7 @@ public class CommandTest {
             command.validateSize(visitor, 1);
             fail("Should have thrown a DocumentToLargeException.");
         }
-        catch (DocumentToLargeException error) {
+        catch (final DocumentToLargeException error) {
             assertThat(error.getDocument(), is(command.getCommand()));
             assertThat(error.getMaximumSize(), is(1));
             assertThat(error.getSize(), is((int) command.getCommand().size()));
@@ -179,56 +231,12 @@ public class CommandTest {
             bigCommand.validateSize(visitor, 1);
             fail("Should have thrown a DocumentToLargeException.");
         }
-        catch (DocumentToLargeException error) {
+        catch (final DocumentToLargeException error) {
             assertThat(error.getDocument(), is(bigCommand.getCommand()));
             assertThat(error.getMaximumSize(), is((16 * 1024) + 1));
             assertThat(error.getSize(),
                     is((int) bigCommand.getCommand().size() + 4));
         }
 
-    }
-
-    /**
-     * Test the streaming of Commands.
-     * 
-     * @throws IOException
-     *             On a test failure.
-     */
-    @Test
-    public void testBsonWrite() throws IOException {
-        final Command command = new Command("db", BuilderFactory.start()
-                .build());
-
-        ByteArrayOutputStream out1 = new ByteArrayOutputStream();
-        BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
-        command.write(1000, bsonOut1);
-
-        ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-        BufferingBsonOutputStream bsonOut2 = new BufferingBsonOutputStream(out2);
-        command.write(1000, bsonOut2);
-
-        assertArrayEquals(out1.toByteArray(), out2.toByteArray());
-    }
-
-    /**
-     * Test the streaming of Commands.
-     * 
-     * @throws IOException
-     *             On a test failure.
-     */
-    @Test
-    public void testBsonWriteWithSecondaryOkReadPreference() throws IOException {
-        final Command command = new Command("db", BuilderFactory.start()
-                .build(), ReadPreference.PREFER_SECONDARY);
-
-        ByteArrayOutputStream out1 = new ByteArrayOutputStream();
-        BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
-        command.write(1000, bsonOut1);
-
-        ByteArrayOutputStream out2 = new ByteArrayOutputStream();
-        BufferingBsonOutputStream bsonOut2 = new BufferingBsonOutputStream(out2);
-        command.write(1000, bsonOut2);
-
-        assertArrayEquals(out1.toByteArray(), out2.toByteArray());
     }
 }

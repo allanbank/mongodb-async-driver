@@ -203,7 +203,7 @@ public class BatchedWrite implements Serializable {
         case DELETE: {
             final DeleteOperation deleteOperation = (DeleteOperation) operation;
             array.push().add("q", deleteOperation.getQuery())
-            .add("limit", deleteOperation.isSingleDelete() ? 1 : 0);
+                    .add("limit", deleteOperation.isSingleDelete() ? 1 : 0);
             break;
         }
         }

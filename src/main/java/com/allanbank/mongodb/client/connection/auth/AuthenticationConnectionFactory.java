@@ -25,7 +25,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticationConnectionFactory implements
-        ProxiedConnectionFactory {
+ProxiedConnectionFactory {
 
     /** The default config. */
     private final MongoClientConfiguration myConfig;

@@ -138,7 +138,7 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myDelegate.restart(cursorDocument);
     }
 
@@ -153,7 +153,7 @@ public class SerialClientImpl extends AbstractClient {
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         return myDelegate.restart(results, cursorDocument);
     }
 

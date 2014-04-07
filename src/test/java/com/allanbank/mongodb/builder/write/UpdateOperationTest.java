@@ -84,15 +84,15 @@ public class UpdateOperationTest {
     public void testToString() {
         assertThat(
                 new UpdateOperation(d(e("a", 1)), d(e("b", 1)), false, false)
-                .toString(),
+                        .toString(),
                 is("Update[upsert=false,multi=false,query={ a : 1 },update={ b : 1 }]"));
         assertThat(
                 new UpdateOperation(d(e("a", 1)), d(e("b", 1)), true, false)
-                .toString(),
+                        .toString(),
                 is("Update[upsert=false,multi=true,query={ a : 1 },update={ b : 1 }]"));
         assertThat(
                 new UpdateOperation(d(e("a", 1)), d(e("b", 1)), false, true)
-                .toString(),
+                        .toString(),
                 is("Update[upsert=true,multi=false,query={ a : 1 },update={ b : 1 }]"));
     }
 }

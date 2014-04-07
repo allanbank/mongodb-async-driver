@@ -26,7 +26,7 @@ import java.util.List;
  */
 @SuppressWarnings({ "deprecation", "unused" })
 public interface MongoIterator<T> extends Iterator<T>, Iterable<T>,
-        MongoCursorControl, ClosableIterator<T> {
+MongoCursorControl, ClosableIterator<T> {
     /**
      * Consumes all of the elements in the iterator and returns them in a single
      * array.

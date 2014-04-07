@@ -153,8 +153,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
                 }
             }
 
-            // Update the stale state.
-            writableServers = locatePrimary();
+        // Update the stale state.
+        writableServers = locatePrimary();
         }
 
         // Don't throw an error here.

@@ -550,7 +550,7 @@ public abstract class AbstractSocketConnection implements Connection {
      *             On a failure reading the integer.
      */
     protected int readIntSuppressTimeoutOnNonFirstByte() throws EOFException,
-            IOException {
+    IOException {
         int read = 0;
         int eofCheck = 0;
         int result = 0;

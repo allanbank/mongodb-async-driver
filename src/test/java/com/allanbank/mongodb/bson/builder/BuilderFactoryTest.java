@@ -192,17 +192,17 @@ public class BuilderFactoryTest {
                 "title", "Gone with the Wind"),
                 BuilderFactory.e("directors", BuilderFactory.a(
                         "Victor Fleming", "George Cukor", "Sam Wood")),
-                BuilderFactory.e("stars", BuilderFactory.a("Clark Gable",
-                        "Vivien Leigh", "Thomas Mitchell")));
+                        BuilderFactory.e("stars", BuilderFactory.a("Clark Gable",
+                                "Vivien Leigh", "Thomas Mitchell")));
 
         final DocumentBuilder expected = BuilderFactory.start();
         expected.add("title", "Gone with the Wind");
         final ArrayBuilder directorsArray = expected.pushArray("directors");
         directorsArray.add("Victor Fleming").add("George Cukor")
-                .add("Sam Wood");
+        .add("Sam Wood");
         final ArrayBuilder starsArray = expected.pushArray("stars");
         starsArray.add("Clark Gable").add("Vivien Leigh")
-                .add("Thomas Mitchell");
+        .add("Thomas Mitchell");
 
         assertThat(movie.asDocument(), is(expected.asDocument()));
 

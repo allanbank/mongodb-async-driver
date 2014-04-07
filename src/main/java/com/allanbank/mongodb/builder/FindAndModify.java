@@ -462,9 +462,9 @@ public class FindAndModify {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         * 
+         *
          * FindAndModify.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>
@@ -540,9 +540,9 @@ public class FindAndModify {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         * 
+         *
          * FindAndModify.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.sort( asc("f"), desc("g") );
          * ...
          * </code>

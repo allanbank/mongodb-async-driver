@@ -100,7 +100,7 @@ public class JsonSerializationVisitorITest {
             collection.delete(BuilderFactory.start(), Durability.ACK);
             mp = ourTestSupport.run(null, "mongo", "localhost:27017/test",
                     "-eval", "db.test.insert( { '_id' : Timestamp(" + seconds
-                            + ", " + offset + ") } );");
+                    + ", " + offset + ") } );");
             mp.waitFor();
 
             result = collection.findOne(BuilderFactory.start());

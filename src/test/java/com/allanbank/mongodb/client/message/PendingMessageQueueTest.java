@@ -1372,7 +1372,7 @@ public class PendingMessageQueueTest {
      */
     protected void waitForDone(final int count,
             final PendingMessageQueue queue, final FastConsumer consumer)
-            throws InterruptedException {
+                    throws InterruptedException {
         final long start = System.currentTimeMillis();
         final long deadline = start + TimeUnit.SECONDS.toMillis(30);
         while ((start < deadline) && !queue.isEmpty()
@@ -1395,7 +1395,7 @@ public class PendingMessageQueueTest {
      */
     protected void waitForDone(final int count,
             final PendingMessageQueue queue, final SlowConsumer consumer)
-            throws InterruptedException {
+                    throws InterruptedException {
         final long start = System.currentTimeMillis();
         final long deadline = start + TimeUnit.SECONDS.toMillis(30);
         while ((start < deadline) && !queue.isEmpty()

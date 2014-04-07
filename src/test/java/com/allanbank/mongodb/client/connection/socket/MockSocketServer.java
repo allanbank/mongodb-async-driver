@@ -361,7 +361,7 @@ public class MockSocketServer extends Thread {
                         // Make sure backed by an array.
                         final ByteBuffer completeMessage = ByteBuffer
                                 .wrap(new byte[header.capacity()
-                                        + body.capacity()]);
+                                               + body.capacity()]);
 
                         completeMessage.put(header);
                         completeMessage.put(body);

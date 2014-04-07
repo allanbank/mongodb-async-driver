@@ -210,7 +210,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
-     * 
+     *
      * DocumentAssignable query = QueryBuilder.where("f").all(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
@@ -1250,12 +1250,12 @@ public class ConditionBuilder implements DocumentAssignable {
         myEqualsComparison = null;
 
         myOtherComparisons
-                .put(GeospatialOperator.GEO_WITHIN,
+        .put(GeospatialOperator.GEO_WITHIN,
+                new DocumentElement(
+                        GeospatialOperator.GEO_WITHIN.getToken(),
                         new DocumentElement(
-                                GeospatialOperator.GEO_WITHIN.getToken(),
-                                new DocumentElement(
-                                        GeospatialOperator.GEOMETRY, geoJsonDoc
-                                                .asDocument()),
+                                GeospatialOperator.GEOMETRY, geoJsonDoc
+                                .asDocument()),
                                 new BooleanElement(
                                         GeospatialOperator.UNIQUE_DOCS_MODIFIER,
                                         unique)));
@@ -1863,7 +1863,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
-     * 
+     *
      * DocumentAssignable query = QueryBuilder.where("f").in(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
@@ -2948,7 +2948,7 @@ public class ConditionBuilder implements DocumentAssignable {
                 new DocumentElement(GeospatialOperator.NEAR.getToken(),
                         new DocumentElement(GeospatialOperator.GEOMETRY,
                                 geoJsonDoc.asDocument()), new DoubleElement(
-                                GeospatialOperator.MAX_DISTANCE_MODIFIER
+                                        GeospatialOperator.MAX_DISTANCE_MODIFIER
                                         .getToken(), maxDistance)));
         myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
@@ -3269,7 +3269,7 @@ public class ConditionBuilder implements DocumentAssignable {
                 new DocumentElement(GeospatialOperator.NEAR_SPHERE.getToken(),
                         new DocumentElement(GeospatialOperator.GEOMETRY,
                                 geoJsonDoc.asDocument()), new DoubleElement(
-                                GeospatialOperator.MAX_DISTANCE_MODIFIER
+                                        GeospatialOperator.MAX_DISTANCE_MODIFIER
                                         .getToken(), maxDistance)));
         myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
@@ -3381,9 +3381,9 @@ public class ConditionBuilder implements DocumentAssignable {
     public ConditionBuilder nearSphere(final int x, final int y) {
         myEqualsComparison = null;
         myOtherComparisons
-                .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
-                        GeospatialOperator.NEAR_SPHERE.getToken(),
-                        new IntegerElement("0", x), new IntegerElement("1", y)));
+        .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
+                GeospatialOperator.NEAR_SPHERE.getToken(),
+                new IntegerElement("0", x), new IntegerElement("1", y)));
         myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
         return this;
@@ -3421,9 +3421,9 @@ public class ConditionBuilder implements DocumentAssignable {
             final int maxDistance) {
         myEqualsComparison = null;
         myOtherComparisons
-                .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
-                        GeospatialOperator.NEAR_SPHERE.getToken(),
-                        new IntegerElement("0", x), new IntegerElement("1", y)));
+        .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
+                GeospatialOperator.NEAR_SPHERE.getToken(),
+                new IntegerElement("0", x), new IntegerElement("1", y)));
         myOtherComparisons.put(
                 GeospatialOperator.MAX_DISTANCE_MODIFIER,
                 new IntegerElement(GeospatialOperator.MAX_DISTANCE_MODIFIER
@@ -3821,7 +3821,7 @@ public class ConditionBuilder implements DocumentAssignable {
                 ComparisonOperator.NE,
                 new JavaScriptWithScopeElement(
                         ComparisonOperator.NE.getToken(), value, scope
-                                .asDocument()));
+                        .asDocument()));
         return this;
     }
 
@@ -4079,7 +4079,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
-     * 
+     *
      * DocumentAssignable query = QueryBuilder.where("f").notIn(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
@@ -4699,8 +4699,8 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
                 GeospatialOperator.WITHIN.getToken(), new DocumentElement(
                         GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument()),
-                new BooleanElement(GeospatialOperator.UNIQUE_DOCS_MODIFIER,
-                        uniqueDocs)));
+                        new BooleanElement(GeospatialOperator.UNIQUE_DOCS_MODIFIER,
+                                uniqueDocs)));
 
         return this;
     }
@@ -4985,9 +4985,9 @@ public class ConditionBuilder implements DocumentAssignable {
         final DocumentBuilder builder = BuilderFactory.start();
         final ArrayBuilder box = builder.pushArray(GeospatialOperator.BOX);
         box.pushArray().addInteger(Math.min(x1, x2))
-                .addInteger(Math.min(y1, y2));
+        .addInteger(Math.min(y1, y2));
         box.pushArray().addInteger(Math.max(x1, x2))
-                .addInteger(Math.max(y1, y2));
+        .addInteger(Math.max(y1, y2));
 
         myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
                 GeospatialOperator.WITHIN.getToken(), builder.build()));
@@ -5033,9 +5033,9 @@ public class ConditionBuilder implements DocumentAssignable {
         final DocumentBuilder builder = BuilderFactory.start();
         final ArrayBuilder box = builder.pushArray(GeospatialOperator.BOX);
         box.pushArray().addInteger(Math.min(x1, x2))
-                .addInteger(Math.min(y1, y2));
+        .addInteger(Math.min(y1, y2));
         box.pushArray().addInteger(Math.max(x1, x2))
-                .addInteger(Math.max(y1, y2));
+        .addInteger(Math.max(y1, y2));
         builder.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, uniqueDocs);
 
         myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(

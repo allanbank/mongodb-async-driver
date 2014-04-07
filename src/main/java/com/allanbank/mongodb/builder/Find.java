@@ -672,9 +672,9 @@ public class Find {
          * <code>
          * import static {@link Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
          * import static {@link Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-         * 
+         *
          * Find.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.setHint( asc("f"), desc("g") );
          * ...
          * </code>
@@ -1079,9 +1079,9 @@ public class Find {
          * <code>
          * import static {@link Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
          * import static {@link Index#desc(String) com.allanbank.mongodb.builder.Index.desc};
-         * 
+         *
          * Find.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.setHint( asc("f"), desc("g") );
          * ...
          * </code>
@@ -1426,9 +1426,9 @@ public class Find {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         * 
+         *
          * Find.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.setSort( asc("f"), desc("g") );
          * ...
          * </code>
@@ -1589,9 +1589,9 @@ public class Find {
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
          * import static {@link Sort#desc(String) com.allanbank.mongodb.builder.Sort.desc};
-         * 
+         *
          * Find.Builder builder = new Find.Builder();
-         * 
+         *
          * builder.sort( asc("f"), desc("g") );
          * ...
          * </code>

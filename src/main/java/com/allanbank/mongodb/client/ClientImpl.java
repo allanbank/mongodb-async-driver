@@ -235,14 +235,14 @@ public class ClientImpl extends AbstractClient {
         return (doc.getElements().size() == 5)
                 && (doc.get(StringElement.class,
                         MongoCursorControl.NAME_SPACE_FIELD) != null)
-                && (doc.get(NumericElement.class,
-                        MongoCursorControl.CURSOR_ID_FIELD) != null)
-                && (doc.get(StringElement.class,
-                        MongoCursorControl.SERVER_FIELD) != null)
-                && (doc.get(NumericElement.class,
-                        MongoCursorControl.BATCH_SIZE_FIELD) != null)
-                && (doc.get(NumericElement.class,
-                        MongoCursorControl.LIMIT_FIELD) != null);
+                        && (doc.get(NumericElement.class,
+                                MongoCursorControl.CURSOR_ID_FIELD) != null)
+                                && (doc.get(StringElement.class,
+                                        MongoCursorControl.SERVER_FIELD) != null)
+                                        && (doc.get(NumericElement.class,
+                                                MongoCursorControl.BATCH_SIZE_FIELD) != null)
+                                                && (doc.get(NumericElement.class,
+                                                        MongoCursorControl.LIMIT_FIELD) != null);
     }
 
     /**
@@ -251,7 +251,7 @@ public class ClientImpl extends AbstractClient {
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         final Document cursorDoc = cursorDocument.asDocument();
 
         if (isCursorDocument(cursorDoc)) {
@@ -273,7 +273,7 @@ public class ClientImpl extends AbstractClient {
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-            throws IllegalArgumentException {
+                    throws IllegalArgumentException {
         final Document cursorDoc = cursorDocument.asDocument();
 
         if (isCursorDocument(cursorDoc)) {
@@ -363,7 +363,7 @@ public class ClientImpl extends AbstractClient {
                 else {
                     LOG.info("MongoDB Connection closed: {}", connection);
                     connection
-                            .removePropertyChangeListener(myConnectionListener);
+                    .removePropertyChangeListener(myConnectionListener);
                     connection.raiseErrors(new ConnectionLostException(
                             "Connection shutdown."));
                 }
@@ -461,7 +461,7 @@ public class ClientImpl extends AbstractClient {
      */
     protected Connection searchConnection(final Message message1,
             final Message message2, final boolean waitForReconnect)
-            throws MongoDbException {
+                    throws MongoDbException {
         // Locate a connection to use.
         Connection conn = findIdleConnection();
         if (conn == null) {
