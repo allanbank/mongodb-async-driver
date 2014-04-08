@@ -505,6 +505,47 @@ public class ShardedConnectionTest {
     }
 
     /**
+     * Test method for {@link ShardedConnection#connection(Server)}.
+     *
+     * @throws IOException
+     *             On a test failure.
+     */
+    @Test
+    public void testConnection() throws IOException {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        final Cluster cluster = new Cluster(config);
+        final Server server = cluster.add("localhost:27017");
+
+        final Connection mockConnection = createMock(Connection.class);
+        final ServerSelector mockSelector = createMock(ServerSelector.class);
+        final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
+
+        final Capture<PropertyChangeListener> listener = new Capture<PropertyChangeListener>();
+
+        mockConnection.addPropertyChangeListener(capture(listener));
+        expectLastCall();
+
+        replay(mockConnection, mockSelector, mockFactory);
+
+        final ShardedConnection conn = new ShardedConnection(mockConnection,
+                server, cluster, mockSelector, mockFactory, config);
+
+        assertThat(conn.connection(server), is(mockConnection));
+
+        verify(mockConnection, mockSelector, mockFactory);
+
+        // For close.
+        reset(mockConnection, mockSelector, mockFactory);
+        mockConnection.removePropertyChangeListener(listener.getValue());
+        expectLastCall();
+        mockConnection.close();
+
+        replay(mockConnection, mockSelector, mockFactory);
+        conn.close();
+        verify(mockConnection, mockSelector, mockFactory);
+    }
+
+    /**
      * Test method for
      * {@link ShardedConnection#addPropertyChangeListener(PropertyChangeListener)}
      * and

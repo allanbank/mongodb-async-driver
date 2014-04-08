@@ -169,7 +169,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
             }
         }
     }
-
+    
     /**
      * {@inheritDoc}
      * <p>
@@ -370,6 +370,18 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * @return The connection to the server.
      */
     protected abstract Connection connect(final K server);
+
+    /**
+     * Returns the cached connection for the specified key. This method may
+     * return {@code null}.
+     *
+     * @param server
+     *            The server connected to.
+     * @return The connection in the cache.
+     */
+    protected Connection connection(final K server) {
+        return myConnections.get(server);
+    }
 
     /**
      * Creates a exception for a reconnect failure.

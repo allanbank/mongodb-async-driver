@@ -176,6 +176,17 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden for testing.
+     * </p>
+     */
+    @Override
+    protected Connection connection(final Server server) {
+        return super.connection(server);
+    }
+
+    /**
      * Locates the set of servers that can be used to send the specified
      * messages.
      *
