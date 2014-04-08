@@ -111,13 +111,11 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
                         if (isMongos(doc)) {
                             LOG.debug("Sharded bootstrap to {}.", addr);
-                            myDelegate = new ShardedConnectionFactory(factory,
-                                    myConfig);
+                            myDelegate = bootstrapSharded(factory);
                         }
                         else if (isReplicationSet(doc)) {
                             LOG.debug("Replica-set bootstrap to {}.", addr);
-                            myDelegate = new ReplicaSetConnectionFactory(
-                                    factory, myConfig);
+                            myDelegate = bootstrapReplicaSet(factory);
                         }
                         else {
                             LOG.debug("Simple MongoDB bootstrap to {}.", addr);
@@ -203,6 +201,39 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public ReconnectStrategy getReconnectStrategy() {
         return getDelegate().getReconnectStrategy();
+    }
+
+    /**
+     * Initializes the factory for connecting to the replica set.
+     * 
+     * @param factory
+     *            The factory for connecting to the servers directly.
+     * @return The connection factory for connecting to the replica set.
+     */
+    protected ConnectionFactory bootstrapReplicaSet(
+            final ProxiedConnectionFactory factory) {
+        return new ReplicaSetConnectionFactory(factory, getConfig());
+    }
+
+    /**
+     * Initializes the factory for connecting to the sharded cluster.
+     * 
+     * @param factory
+     *            The factory for connecting to the servers directly.
+     * @return The connection factory for connecting to the sharded cluster.
+     */
+    protected ConnectionFactory bootstrapSharded(
+            final ProxiedConnectionFactory factory) {
+        return new ShardedConnectionFactory(factory, getConfig());
+    }
+
+    /**
+     * The configuration for the client.
+     * 
+     * @return The configuration for the client.
+     */
+    protected MongoClientConfiguration getConfig() {
+        return myConfig;
     }
 
     /**

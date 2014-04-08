@@ -9,6 +9,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
@@ -89,7 +90,32 @@ public class ClientImpl extends AbstractClient {
      *            The configuration for interacting with MongoDB.
      */
     public ClientImpl(final MongoClientConfiguration config) {
-        this(config, new BootstrapConnectionFactory(config));
+        this(config, resolveBootstrap(config));
+    }
+
+    /**
+     * Resolves the bootstrap connection factory to use.
+     * 
+     * @param config
+     *            The client's configuration.
+     * @return The connection factory for connecting to the cluster.
+     */
+    protected static ConnectionFactory resolveBootstrap(
+            final MongoClientConfiguration config) {
+        ConnectionFactory result;
+        try {
+            String name = "com.allanbank.mongodb.extensions.bootstrap.ExtensionsBootstrapConnectionFactory";
+            Class<?> clazz = Class.forName(name);
+            Constructor<?> constructor = clazz
+                    .getConstructor(MongoClientConfiguration.class);
+
+            result = (ConnectionFactory) constructor.newInstance(config);
+        }
+        catch (Exception e) {
+            result = new BootstrapConnectionFactory(config);
+        }
+
+        return result;
     }
 
     /**
@@ -235,14 +261,14 @@ public class ClientImpl extends AbstractClient {
         return (doc.getElements().size() == 5)
                 && (doc.get(StringElement.class,
                         MongoCursorControl.NAME_SPACE_FIELD) != null)
-                        && (doc.get(NumericElement.class,
-                                MongoCursorControl.CURSOR_ID_FIELD) != null)
-                                && (doc.get(StringElement.class,
-                                        MongoCursorControl.SERVER_FIELD) != null)
-                                        && (doc.get(NumericElement.class,
-                                                MongoCursorControl.BATCH_SIZE_FIELD) != null)
-                                                && (doc.get(NumericElement.class,
-                                                        MongoCursorControl.LIMIT_FIELD) != null);
+                && (doc.get(NumericElement.class,
+                        MongoCursorControl.CURSOR_ID_FIELD) != null)
+                && (doc.get(StringElement.class,
+                        MongoCursorControl.SERVER_FIELD) != null)
+                && (doc.get(NumericElement.class,
+                        MongoCursorControl.BATCH_SIZE_FIELD) != null)
+                && (doc.get(NumericElement.class,
+                        MongoCursorControl.LIMIT_FIELD) != null);
     }
 
     /**
@@ -251,7 +277,7 @@ public class ClientImpl extends AbstractClient {
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         final Document cursorDoc = cursorDocument.asDocument();
 
         if (isCursorDocument(cursorDoc)) {
@@ -273,7 +299,7 @@ public class ClientImpl extends AbstractClient {
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         final Document cursorDoc = cursorDocument.asDocument();
 
         if (isCursorDocument(cursorDoc)) {
@@ -363,7 +389,7 @@ public class ClientImpl extends AbstractClient {
                 else {
                     LOG.info("MongoDB Connection closed: {}", connection);
                     connection
-                    .removePropertyChangeListener(myConnectionListener);
+                            .removePropertyChangeListener(myConnectionListener);
                     connection.raiseErrors(new ConnectionLostException(
                             "Connection shutdown."));
                 }
@@ -461,7 +487,7 @@ public class ClientImpl extends AbstractClient {
      */
     protected Connection searchConnection(final Message message1,
             final Message message2, final boolean waitForReconnect)
-                    throws MongoDbException {
+            throws MongoDbException {
         // Locate a connection to use.
         Connection conn = findIdleConnection();
         if (conn == null) {
