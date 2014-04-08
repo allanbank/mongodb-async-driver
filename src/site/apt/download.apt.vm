@@ -15,6 +15,14 @@ Download
 
 Past Releases
 
+* 1.2.3 - June 12, 2013
+
+  [Release Notes] {{{./release-notes/1.2.3_changes.html}1.2.3 Changes}}
+
+  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.2.3/mongodb-async-driver-1.2.3.jar}mongodb-async-driver-1.2.3.jar}}
+  
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/1.2.3/mongodb-async-driver-1.2.3-javadoc.jar}mongodb-async-driver-1.2.3-javadoc.jar}} and {{{http://www.allanbank.com/mongodb-async-driver/apidocs-1.2.3/index.html}online}}.
+
 * 1.2.2 - May 4, 2013
 
   [Release Notes] {{{./release-notes/1.2.2_changes.html}1.2.2 Changes}}

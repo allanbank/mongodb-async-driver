@@ -1,0 +1,128 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 2.0.0
+            ------
+            ------
+            2014-04-12
+
+Upgrading
+
+  This version is not binary compatible with the 1.2.3 version of the driver. 
+
+  To fully support the aggregation command cursors the return type for all methods
+of a collection that had returned a List now return a 
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}}.  
+To make porting applications easier the '''MongoIterator''' now has a '''toList()''' 
+method that will consume any remaining results for the iterator and return it as
+a List.
+
+Updates and Improvements:
+
+* Enhancements
+  
+  * Fully support for all MongoDB 2.6 features including:
+  
+    * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Aggregate.html}Aggregation}} 
+      command enhancements: cursors, '''$out''' pipeline stage, explain.
+    
+    * Expanded 
+      {{{../apidocs/index.html?com/allanbank/mongodb/builder/expression/Expressions.html}expression}}
+      support: '''$map''', '''$let''', '''$redact''', '''$setXXX''', etc.
+    
+    * {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$text}}
+      query operator support.
+    
+    * Maximum Time support for all commands and operations implemented by the server.
+    
+    * {{{../apidocs/index.html?com/allanbank/mongodb/builder/ParallelScan.html}Parallel collection scan}}
+      support.
+    
+    * Write Command Support
+    
+      * See the 
+        {{{../apidocs/index.html?com/allanbank/mongodb/BatchedAsyncMongoCollection.html}BatchedAsyncMongoCollection}}
+        interface for how to create batches of inserts, updates, deletes, 
+        queries and commands. Also see the 
+        {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}}.
+        
+      * See the 
+        {{{../apidocs/index.html?com/allanbank/mongodb/builder/BatchedWrite.html}BatchedWrite}}
+        class for information on batching inserts, updates, and deletes.
+    
+  * Extension Enhancements
+  
+    * Custom TLS/SSL connection factory with server host name verification and 
+      configurable trust models.
+      
+    * Plain SASL authentication support for use with LDAP or PAM.
+    
+    * X.509 authentication support.
+    
+    * Support for a custom service name with Kerberos and Plan SASL authentication.
+    
+    * Initial support for removing the '''mongos''' bottleneck in a sharded cluster. 
+  
+  * Other Notable Changes
+    
+    * Lambdas! The driver now provides a single method callback that can be used
+      with Java 8 lambdas. See the 
+      {{{../apidocs/index.html?com/allanbank/mongodb/LambdaCallback.html}LambdaCallback}} interface.
+      
+    * The Future returned from asynchronous methods is now a 
+      {{{../apidocs/index.html?com/allanbank/mongodb/ListenableFuture.html}ListenableFuture}}.
+      The '''ListenableFuture''' interface support '''addListener(Runnable,Executor)'''
+      inspired by the Google Guava Library.
+      
+    * The driver will now detect some incompatible operations (both too new and 
+      too old) before sending them to the server and throw a 
+      {{{../apidocs/index.html?com/allanbank/mongodb/error/ServerVersionException.html}ServerVersionException}}
+      describing the problem. We hope to improve this 
+      feature over time.
+      
+    * Thanks to the {{{http://mongolab.org/flip-flop/}Flip/Flop}} replica set 
+      provided by {{{https://mongolab.com/}MongoLab}} the drivers fail-over 
+      handling has been greatly enhanced.  The driver will now block operations
+      once the primary is down and release the operations once the primary is 
+      successfully determined. Users can configure the maximum amount of time 
+      an operation will block via the configuration.
+ 
+    * The driver will detect the existence of SLF4J logging framework and use it
+      instead of (JUL) (Java Util Logging). See the 
+      {{{../apidocs/index.html?com/allanbank/mongodb/util/log/package-summary.html}Micro-logging framework Package}}
+      The framework uses reflection and the driver does not have a dependency on SLF4J.
+      
+    * Support for RFC-2732 IPv6 addresses.
+    
+    * Performance:
+    
+      * We have cut BSON encoding and decoding times in half. Part of the improvement
+        is due to using an intelligent cache for encoding an decoding strings.
+      
+      * The driver now, by default, uses a single read thread per connection 
+        instead of 2 threads (read/write) per connection.  This further reduced
+        the latency of operations.
+
+* Documentation
+
+  * {{{../userguide/tls.html}SSL/TLS Users Guide}}
+  
+  * {{{../userguide/plain_sasl.html}Plain SASL Authentication Users Guide}}
+  
+  * {{{../userguide/x509.html}X.509 Authentication Users Guide}}
+  
+  * {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}}
+  
+Deprecations
+
+  * Text, Text.Builder, TextResult have been deprecated since the MongoDB 
+    '''text''' command is now deprecated. Use the 
+    {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$text}}
+    query operator instead.
+    
+  * {{{../apidocs/index.html?com/allanbank/mongodb/builder/GeospatialOperator.html}GeospatialOperator.UNIQUE_DOCS_MODIFIER}}
+    is now deprecated as MongoDB 2.6 no longer supports the option. This change 
+    also deprecated a number of methods within the 
+    {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}ConditionBuilder}} 
+    which provided support for setting '''UNIQUE_DOCS_MODIFIER'''.
+    
+    
+    

@@ -94,8 +94,11 @@ public final class Credential implements Serializable {
      * </p>
      *
      * @see <a
-     *      href="http://www.allanbank.com/mongodb-async-driver/userguide/tls.html">TSL/SSL
+     *      href="http://www.allanbank.com/mongodb-async-driver/userguide/tls.html">TLS/SSL
      *      Usage Guide</a>
+     * @see <a
+     *      href="http://www.allanbank.com/mongodb-async-driver/userguide/x509.html">X.509
+     *      Authetication Usage Guide</a>
      */
     public static final String X509;
 
@@ -421,7 +424,7 @@ public final class Credential implements Serializable {
      *             If the authenticator cannot be accessed.
      */
     /* package */void loadAuthenticator() throws ClassNotFoundException,
-    InstantiationException, IllegalAccessException {
+            InstantiationException, IllegalAccessException {
         if (myAuthenticator == null) {
             myAuthenticator = (Authenticator) Class.forName(
                     getAuthenticationType()).newInstance();
@@ -879,9 +882,12 @@ public final class Credential implements Serializable {
          *
          * @return This {@link Builder} for method chaining.
          *
-         * @see <a href=
-         *      "http://www.allanbank.com/mongodb-async-driver/userguide/tls.html">
-         *      TLS Usage Guide</a>
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/tls.html">TLS/SSL
+         *      Usage Guide</a>
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/x509.html">X.509
+         *      Authetication Usage Guide</a>
          */
         public Builder x509() {
             return setAuthenticationType(X509);
