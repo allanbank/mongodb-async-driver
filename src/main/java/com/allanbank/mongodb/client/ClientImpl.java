@@ -62,6 +62,32 @@ public class ClientImpl extends AbstractClient {
     /** The logger for the {@link ClientImpl}. */
     protected static final Log LOG = LogFactory.getLog(ClientImpl.class);
 
+    /**
+     * Resolves the bootstrap connection factory to use.
+     * 
+     * @param config
+     *            The client's configuration.
+     * @return The connection factory for connecting to the cluster.
+     */
+    protected static ConnectionFactory resolveBootstrap(
+            final MongoClientConfiguration config) {
+        ConnectionFactory result;
+        try {
+            String name = "com.allanbank.mongodb.extensions.bootstrap.ExtensionsBootstrapConnectionFactory";
+            Class<?> clazz = Class.forName(name);
+            Constructor<?> constructor = clazz
+                    .getConstructor(MongoClientConfiguration.class);
+
+            result = (ConnectionFactory) constructor.newInstance(config);
+        }
+        // Too many exceptions.
+        catch (Exception e) {
+            result = new BootstrapConnectionFactory(config);
+        }
+
+        return result;
+    }
+
     /** Counter for the number of reconnects currently being attempted. */
     private int myActiveReconnects;
 
@@ -91,31 +117,6 @@ public class ClientImpl extends AbstractClient {
      */
     public ClientImpl(final MongoClientConfiguration config) {
         this(config, resolveBootstrap(config));
-    }
-
-    /**
-     * Resolves the bootstrap connection factory to use.
-     * 
-     * @param config
-     *            The client's configuration.
-     * @return The connection factory for connecting to the cluster.
-     */
-    protected static ConnectionFactory resolveBootstrap(
-            final MongoClientConfiguration config) {
-        ConnectionFactory result;
-        try {
-            String name = "com.allanbank.mongodb.extensions.bootstrap.ExtensionsBootstrapConnectionFactory";
-            Class<?> clazz = Class.forName(name);
-            Constructor<?> constructor = clazz
-                    .getConstructor(MongoClientConfiguration.class);
-
-            result = (ConnectionFactory) constructor.newInstance(config);
-        }
-        catch (Exception e) {
-            result = new BootstrapConnectionFactory(config);
-        }
-
-        return result;
     }
 
     /**
