@@ -11,7 +11,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * Exception raised when a request to the server exceeds the maximum allowed
  * time.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -25,7 +25,7 @@ public class MaximumTimeLimitExceededException extends ReplyException {
 
     /**
      * Create a new MaximumTimeLimitExceededException.
-     *
+     * 
      * @param okValue
      *            The value of the "ok" field in the reply document.
      * @param errorNumber

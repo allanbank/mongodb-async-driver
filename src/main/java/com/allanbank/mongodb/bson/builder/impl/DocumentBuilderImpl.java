@@ -41,13 +41,13 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * A builder for BSON documents.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DocumentBuilderImpl extends AbstractBuilder implements
-DocumentBuilder {
+        DocumentBuilder {
 
     /** Tracks if an _id element is present. */
     private boolean myIdPresent;
@@ -61,7 +61,7 @@ DocumentBuilder {
 
     /**
      * Creates a new builder.
-     *
+     * 
      * @param outerScope
      *            The outer document scope.
      */
@@ -71,7 +71,7 @@ DocumentBuilder {
 
     /**
      * Creates a new builder.
-     *
+     * 
      * @param seedDocument
      *            The document to seed the builder with. The builder will
      *            contain the seed document elements plus any added/appended
@@ -232,7 +232,7 @@ DocumentBuilder {
     @Deprecated
     public DocumentBuilder add(final String name, final String databaseName,
             final String collectionName, final ObjectId id)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         return addDBPointer(name, databaseName, collectionName, id);
     }
 
@@ -411,7 +411,7 @@ DocumentBuilder {
     @Override
     public DocumentBuilder addRegularExpression(final String name,
             final String pattern, final String options)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         return add(new RegularExpressionElement(name, pattern, options));
     }
 
@@ -456,7 +456,7 @@ DocumentBuilder {
      * <p>
      * Returns the result of {@link #build()}.
      * </p>
-     *
+     * 
      * @see #build()
      */
     @Override

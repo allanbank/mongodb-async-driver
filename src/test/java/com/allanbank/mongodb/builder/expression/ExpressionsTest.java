@@ -41,7 +41,7 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
 /**
  * ExpressionsTest provides tests for the {@link Expressions} class and
  * associated {@link Expression} implementations.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ExpressionsTest {
@@ -486,7 +486,7 @@ public class ExpressionsTest {
     }
 
     /**
-     * Test method for {@link Expressions#let(List,Expression)}.
+     * Test method for {@link Expressions#let(java.util.List,Expression)}.
      */
     @Test
     public void testLetListElementsExpression() {

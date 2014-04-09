@@ -42,7 +42,7 @@ import com.allanbank.mongodb.error.BatchedWriteException;
 /**
  * BatchedWriteCallbackTest provides tests for the {@link BatchedWriteCallback}
  * class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedWriteCallbackTest {

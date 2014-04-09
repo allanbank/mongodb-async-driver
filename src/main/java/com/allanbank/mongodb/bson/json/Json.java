@@ -127,7 +127,7 @@ import com.allanbank.mongodb.error.JsonParseException;
  * JavaScriptWithScopeElement}</li>
  * </ul>
  * </p>
- *
+ * 
  * @see <a
  *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
  *      Extended JSON</a>
@@ -145,7 +145,7 @@ public class Json {
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     *
+     * 
      * @param input
      *            The source of the document to read.
      * @return The {@link Document} representation of the JSON document.
@@ -180,20 +180,20 @@ public class Json {
      * Parses the document from the reader into a BSON {@link Document}.
      * <p>
      * This method is equivalent to: <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * parse(new StringReader(input));
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     *
+     * 
      * @param input
      *            The source of the document to read.
      * @return The {@link Document} representation of the JSON document.
@@ -210,7 +210,7 @@ public class Json {
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     *
+     * 
      * @param document
      *            The document to conver to a JSON document.
      * @return The JSON document text.
@@ -232,7 +232,7 @@ public class Json {
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     *
+     * 
      * @param document
      *            The document to conver to a JSON document.
      * @param sink

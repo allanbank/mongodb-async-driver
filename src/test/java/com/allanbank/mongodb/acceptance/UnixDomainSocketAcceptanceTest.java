@@ -34,7 +34,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * These are not meant to be exhaustive tests of the driver but instead attempt
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
@@ -173,7 +173,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
     /**
      * UnixDomainSocketFactory provides a {@link SocketFactory} implementation
      * based on reflection into the junixsocket library.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class UnixDomainSocketFactory extends SocketFactory {
@@ -213,7 +213,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
         @Override
         public Socket createSocket(final InetAddress address, final int port,
                 final InetAddress localAddress, final int localPort)
-                        throws SocketException {
+                throws SocketException {
             throw new SocketException(
                     "AFUNIX socket does not support connections to a host/port");
         }
@@ -234,7 +234,7 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
         @Override
         public Socket createSocket(final String host, final int port,
                 final InetAddress localHost, final int localPort)
-                        throws SocketException {
+                throws SocketException {
             throw new SocketException(
                     "AFUNIX socket does not support connections to a host/port");
         }

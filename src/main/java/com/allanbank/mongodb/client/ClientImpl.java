@@ -46,7 +46,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * Implementation of the internal {@link Client} interface which all requests to
  * the MongoDB servers pass.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -73,15 +73,15 @@ public class ClientImpl extends AbstractClient {
             final MongoClientConfiguration config) {
         ConnectionFactory result;
         try {
-            String name = "com.allanbank.mongodb.extensions.bootstrap.ExtensionsBootstrapConnectionFactory";
-            Class<?> clazz = Class.forName(name);
-            Constructor<?> constructor = clazz
+            final String name = "com.allanbank.mongodb.extensions.bootstrap.ExtensionsBootstrapConnectionFactory";
+            final Class<?> clazz = Class.forName(name);
+            final Constructor<?> constructor = clazz
                     .getConstructor(MongoClientConfiguration.class);
 
             result = (ConnectionFactory) constructor.newInstance(config);
         }
         // Too many exceptions.
-        catch (Exception e) {
+        catch (final Exception e) {
             result = new BootstrapConnectionFactory(config);
         }
 
@@ -111,7 +111,7 @@ public class ClientImpl extends AbstractClient {
 
     /**
      * Create a new ClientImpl.
-     *
+     * 
      * @param config
      *            The configuration for interacting with MongoDB.
      */
@@ -121,7 +121,7 @@ public class ClientImpl extends AbstractClient {
 
     /**
      * Create a new ClientImpl.
-     *
+     * 
      * @param config
      *            The configuration for interacting with MongoDB.
      * @param connectionFactory
@@ -142,7 +142,7 @@ public class ClientImpl extends AbstractClient {
      * <p>
      * Overridden to close all of the open connections.
      * </p>
-     *
+     * 
      * @see Closeable#close()
      */
     @Override
@@ -216,7 +216,7 @@ public class ClientImpl extends AbstractClient {
 
     /**
      * Returns the current number of open connections.
-     *
+     * 
      * @return The current number of open connections.
      */
     public int getConnectionCount() {
@@ -228,7 +228,7 @@ public class ClientImpl extends AbstractClient {
      * <p>
      * Overridden to return the configurations default durability.
      * </p>
-     *
+     * 
      * @see Client#getDefaultDurability()
      */
     @Override
@@ -241,7 +241,7 @@ public class ClientImpl extends AbstractClient {
      * <p>
      * Overridden to return the configurations default read preference.
      * </p>
-     *
+     * 
      * @see Client#getDefaultReadPreference()
      */
     @Override
@@ -252,7 +252,7 @@ public class ClientImpl extends AbstractClient {
     /**
      * Returns true if the document looks like a cursor restart document. e.g.,
      * one that is created by {@link MongoIteratorImpl#asDocument()}.
-     *
+     * 
      * @param doc
      *            The potential cursor document.
      * @return True if the document looks like it was created by
@@ -371,7 +371,7 @@ public class ClientImpl extends AbstractClient {
     /**
      * Tries to reconnect previously open {@link Connection}s. If a connection
      * was being closed then cleans up the remaining state.
-     *
+     * 
      * @param connection
      *            The connection that was closed.
      */
@@ -414,7 +414,7 @@ public class ClientImpl extends AbstractClient {
 
     /**
      * Runs the reconnect logic for the connection.
-     *
+     * 
      * @param connection
      *            The connection to reconnect.
      */
@@ -469,7 +469,7 @@ public class ClientImpl extends AbstractClient {
      * based on a snapshot of pending messages and use the connection with the
      * least messages.</li>
      * <ul>
-     *
+     * 
      * @param message1
      *            The first message that will be sent. The connection return
      *            should be compatible with all of the messages
@@ -481,7 +481,7 @@ public class ClientImpl extends AbstractClient {
      * @param waitForReconnect
      *            If true then the search will block while there is an active
      *            reconnect attempt.
-     *
+     * 
      * @return The {@link Connection} to send a message on.
      * @throws MongoDbException
      *             In the case of an error finding a {@link Connection}.
@@ -506,7 +506,7 @@ public class ClientImpl extends AbstractClient {
 
     /**
      * Silently closes the connection.
-     *
+     * 
      * @param conn
      *            The connection to close.
      */
@@ -528,7 +528,7 @@ public class ClientImpl extends AbstractClient {
     /**
      * Tries to find an idle connection to use from up to the next
      * {@value #MAX_CONNECTION_SCAN} items.
-     *
+     * 
      * @return The idle connection, if found.
      */
     private Connection findIdleConnection() {
@@ -569,7 +569,7 @@ public class ClientImpl extends AbstractClient {
     /**
      * Locates the most idle connection to use from up to the next
      * {@value #MAX_CONNECTION_SCAN} items.
-     *
+     * 
      * @return The most idle connection.
      */
     private Connection findMostIdleConnection() {
@@ -607,7 +607,7 @@ public class ClientImpl extends AbstractClient {
 
     /**
      * Tries to create a new connection.
-     *
+     * 
      * @return The created connection or null if a connection could not be
      *         created by policy or error.
      */
@@ -639,7 +639,7 @@ public class ClientImpl extends AbstractClient {
     /**
      * Checks if there is an active reconnect attempt on-going. If so waits for
      * it to finish (with a timeout) and then searches for a connection again.
-     *
+     * 
      * @param message1
      *            The first message that will be sent. The connection return
      *            should be compatible with all of the messages
@@ -686,7 +686,7 @@ public class ClientImpl extends AbstractClient {
     /**
      * ConnectionListener provides the call back for events occurring on a
      * connection.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected class ConnectionListener implements PropertyChangeListener {

@@ -21,7 +21,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * MaximumTimeLimitExceededExceptionTest provides tests for the
  * {@link MaximumTimeLimitExceededException}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MaximumTimeLimitExceededExceptionTest {

@@ -22,7 +22,7 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 /**
  * Represents the state of a single {@link MongoCollection#mapReduce} command.
  * Objects of this class are created using the nested {@link Builder}.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -38,7 +38,7 @@ public class MapReduce {
 
     /**
      * Creates a new builder for a {@link MapReduce}.
-     *
+     * 
      * @return The builder to construct a {@link MapReduce}.
      */
     public static Builder builder() {
@@ -112,7 +112,7 @@ public class MapReduce {
 
     /**
      * Create a new MapReduce.
-     *
+     * 
      * @param builder
      *            The builder to copy state from.
      */
@@ -123,9 +123,9 @@ public class MapReduce {
                 "A mapReduce must have a reduce function.");
         assertThat(
                 (builder.myOutputType == OutputType.INLINE)
-                || ((builder.myOutputName != null) && !builder.myOutputName
-                        .isEmpty()),
-                        "A mapReduce output type must be INLINE or an output collection must be specified.");
+                        || ((builder.myOutputName != null) && !builder.myOutputName
+                                .isEmpty()),
+                "A mapReduce output type must be INLINE or an output collection must be specified.");
 
         myMapFunction = builder.myMapFunction;
         myReduceFunction = builder.myReduceFunction;
@@ -147,7 +147,7 @@ public class MapReduce {
     /**
      * Returns the finalize function to apply to the final results of the reduce
      * function.
-     *
+     * 
      * @return The finalize function to apply to the final results of the reduce
      *         function.
      */
@@ -158,7 +158,7 @@ public class MapReduce {
     /**
      * Returns the limit for the number of objects to be used as input to the
      * map/reduce.
-     *
+     * 
      * @return The limit for the number of objects to be used as input to the
      *         map/reduce.
      */
@@ -168,7 +168,7 @@ public class MapReduce {
 
     /**
      * Returns the map functions to apply to each selected document.
-     *
+     * 
      * @return The map functions to apply to each selected document.
      */
     public String getMapFunction() {
@@ -178,10 +178,10 @@ public class MapReduce {
     /**
      * Returns the maximum amount of time to allow the command to run on the
      * Server before it is aborted.
-     *
+     * 
      * @return The maximum amount of time to allow the command to run on the
      *         Server before it is aborted.
-     *
+     * 
      * @since MongoDB 2.6
      */
     public long getMaximumTimeMilliseconds() {
@@ -192,7 +192,7 @@ public class MapReduce {
      * Returns the name of the output database if the output type is One of
      * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
      * {@link OutputType#REDUCE}.
-     *
+     * 
      * @return The name of the output database if the output type is One of
      *         {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
      *         {@link OutputType#REDUCE}.
@@ -205,7 +205,7 @@ public class MapReduce {
      * Returns the name of the output collection if the output type is One of
      * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
      * {@link OutputType#REDUCE}.
-     *
+     * 
      * @return The name of the output collection if the output type is One of
      *         {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
      *         {@link OutputType#REDUCE}.
@@ -216,7 +216,7 @@ public class MapReduce {
 
     /**
      * Returns the handling for the output of the map/reduce.
-     *
+     * 
      * @return The handling for the output of the map/reduce.
      */
     public OutputType getOutputType() {
@@ -225,7 +225,7 @@ public class MapReduce {
 
     /**
      * Returns the query to select the documents to run the map/reduce against.
-     *
+     * 
      * @return The query to select the documents to run the map/reduce against.
      */
     public Document getQuery() {
@@ -244,9 +244,9 @@ public class MapReduce {
      * work in a sharded configuration. The query will always be run on the
      * primary members of all shards.
      * </p>
-     *
+     * 
      * @return The read preference to use.
-     *
+     * 
      * @see MongoCollection#getReadPreference()
      */
     public ReadPreference getReadPreference() {
@@ -256,7 +256,7 @@ public class MapReduce {
     /**
      * Returns the reduce function to apply to the emitted output of the map
      * function.
-     *
+     * 
      * @return The reduce function to apply to the emitted output of the map
      *         function.
      */
@@ -266,7 +266,7 @@ public class MapReduce {
 
     /**
      * Returns the scoped values to expose to the map/reduce/finalize functions.
-     *
+     * 
      * @return The scoped values to expose to the map/reduce/finalize functions.
      */
     public Document getScope() {
@@ -276,7 +276,7 @@ public class MapReduce {
     /**
      * Returns the sort to apply to the input objects. Useful for optimization,
      * like sorting by the emit key for fewer reduces.
-     *
+     * 
      * @return The sort to apply to the input objects. Useful for optimization,
      *         like sorting by the emit key for fewer reduces.
      */
@@ -287,7 +287,7 @@ public class MapReduce {
     /**
      * Returns true to limit the translation of the documents to an from
      * BSON/JavaScript.
-     *
+     * 
      * @return True to limit the translation of the documents to an from
      *         BSON/JavaScript.
      */
@@ -298,7 +298,7 @@ public class MapReduce {
     /**
      * Returns true to drop the temporary collections created during the
      * map/reduce.
-     *
+     * 
      * @return True to drop the temporary collections created during the
      *         map/reduce.
      */
@@ -308,7 +308,7 @@ public class MapReduce {
 
     /**
      * Returns true to emit progress messages in the server logs.
-     *
+     * 
      * @return True to emit progress messages in the server logs.
      */
     public boolean isVerbose() {
@@ -317,7 +317,7 @@ public class MapReduce {
 
     /**
      * Helper for creating immutable {@link MapReduce} commands.
-     *
+     * 
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -403,7 +403,7 @@ public class MapReduce {
         /**
          * Constructs a new {@link FindAndModify} object from the state of the
          * builder.
-         *
+         * 
          * @return The new {@link FindAndModify} object.
          */
         public MapReduce build() {
@@ -416,7 +416,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setFinalizeFunction(String)}.
          * </p>
-         *
+         * 
          * @param finalize
          *            The finalize function to apply to the final results of the
          *            reduce function.
@@ -432,7 +432,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setJsMode(boolean) setJsMode(true)}.
          * </p>
-         *
+         * 
          * @return This builder for chaining method calls.
          */
         public Builder jsMode() {
@@ -445,7 +445,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setJsMode(boolean)}.
          * </p>
-         *
+         * 
          * @param jsMode
          *            True to limit the translation of the documents to an from
          *            BSON/JavaScript.
@@ -462,7 +462,7 @@ public class MapReduce {
          * This method delegates to {@link #setKeepTemp(boolean)
          * setKeepTemp(true)}.
          * </p>
-         *
+         * 
          * @return This builder for chaining method calls.
          */
         public Builder keepTemp() {
@@ -475,7 +475,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #keepTemp(boolean)}.
          * </p>
-         *
+         * 
          * @param keepTemp
          *            True to drop the temporary collections created during the
          *            map/reduce.
@@ -491,7 +491,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setLimit(int)}.
          * </p>
-         *
+         * 
          * @param limit
          *            The limit for the number of objects to be used as input to
          *            the map/reduce.
@@ -506,7 +506,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setMapFunction(String)}.
          * </p>
-         *
+         * 
          * @param map
          *            The map functions to apply to each selected document.
          * @return This builder for chaining method calls.
@@ -522,16 +522,16 @@ public class MapReduce {
          * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
          * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
          * </p>
-         *
+         * 
          * @param timeLimit
          *            The new maximum amount of time to allow the command to
          *            run.
          * @param timeLimitUnits
          *            The units for the maximum amount of time to allow the
          *            command to run.
-         *
+         * 
          * @return This {@link Builder} for method call chaining.
-         *
+         * 
          * @since MongoDB 2.6
          */
         public Builder maximumTime(final long timeLimit,
@@ -547,7 +547,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setOutputDatabase(String)}.
          * </p>
-         *
+         * 
          * @param outputDatabase
          *            The name of the output database if the output type is One
          *            of {@link OutputType#REPLACE}, {@link OutputType#MERGE},
@@ -565,7 +565,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setOutputName(String)}.
          * </p>
-         *
+         * 
          * @param outputName
          *            The name of the output collection if the output type is
          *            One of {@link OutputType#REPLACE},
@@ -581,7 +581,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setOutputType}.
          * </p>
-         *
+         * 
          * @param outputType
          *            The handling for the output of the map/reduce.
          * @return This builder for chaining method calls.
@@ -595,7 +595,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
          * </p>
-         *
+         * 
          * @param query
          *            The query to select the documents to run the map/reduce
          *            against.
@@ -616,11 +616,11 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setReadPreference(ReadPreference)}.
          * </p>
-         *
+         * 
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         *
+         * 
          * @see MongoCollection#getReadPreference()
          */
         public Builder readPreference(final ReadPreference readPreference) {
@@ -633,7 +633,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setReduceFunction(String)}.
          * </p>
-         *
+         * 
          * @param reduce
          *            The reduce function to apply to the emitted output of the
          *            map function.
@@ -645,7 +645,7 @@ public class MapReduce {
 
         /**
          * Resets the builder back to its initial state.
-         *
+         * 
          * @return This {@link Builder} for method call chaining.
          */
         public Builder reset() {
@@ -674,7 +674,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setScope(DocumentAssignable)}.
          * </p>
-         *
+         * 
          * @param scope
          *            The scoped values to expose to the map/reduce/finalize
          *            functions.
@@ -687,7 +687,7 @@ public class MapReduce {
         /**
          * Sets the finalize function to apply to the final results of the
          * reduce function.
-         *
+         * 
          * @param finalize
          *            The finalize function to apply to the final results of the
          *            reduce function.
@@ -701,7 +701,7 @@ public class MapReduce {
         /**
          * Sets to true to limit the translation of the documents to an from
          * BSON/JavaScript.
-         *
+         * 
          * @param jsMode
          *            True to limit the translation of the documents to an from
          *            BSON/JavaScript.
@@ -715,7 +715,7 @@ public class MapReduce {
         /**
          * Sets to true to drop the temporary collections created during the
          * map/reduce.
-         *
+         * 
          * @param keepTemp
          *            True to drop the temporary collections created during the
          *            map/reduce.
@@ -729,7 +729,7 @@ public class MapReduce {
         /**
          * Sets the limit for the number of objects to be used as input to the
          * map/reduce.
-         *
+         * 
          * @param limit
          *            The limit for the number of objects to be used as input to
          *            the map/reduce.
@@ -742,7 +742,7 @@ public class MapReduce {
 
         /**
          * Sets the map functions to apply to each selected document.
-         *
+         * 
          * @param map
          *            The map functions to apply to each selected document.
          * @return This builder for chaining method calls.
@@ -755,12 +755,12 @@ public class MapReduce {
         /**
          * Sets the maximum number of milliseconds to allow the command to run
          * before aborting the request on the server.
-         *
+         * 
          * @param maximumTimeMilliseconds
          *            The new maximum number of milliseconds to allow the
          *            command to run.
          * @return This {@link Builder} for method call chaining.
-         *
+         * 
          * @since MongoDB 2.6
          */
         public Builder setMaximumTimeMilliseconds(
@@ -773,7 +773,7 @@ public class MapReduce {
          * Sets the name of the output database if the output type is One of
          * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
          * {@link OutputType#REDUCE}.
-         *
+         * 
          * @param outputDatabase
          *            The name of the output database if the output type is One
          *            of {@link OutputType#REPLACE}, {@link OutputType#MERGE},
@@ -789,7 +789,7 @@ public class MapReduce {
          * Sets the name of the output collection if the output type is One of
          * {@link OutputType#REPLACE}, {@link OutputType#MERGE}, or
          * {@link OutputType#REDUCE}.
-         *
+         * 
          * @param outputName
          *            The name of the output collection if the output type is
          *            One of {@link OutputType#REPLACE},
@@ -803,7 +803,7 @@ public class MapReduce {
 
         /**
          * Sets the handling for the output of the map/reduce.
-         *
+         * 
          * @param outputType
          *            The handling for the output of the map/reduce.
          * @return This builder for chaining method calls.
@@ -815,7 +815,7 @@ public class MapReduce {
 
         /**
          * Sets the query to select the documents to run the map/reduce against.
-         *
+         * 
          * @param query
          *            The query to select the documents to run the map/reduce
          *            against.
@@ -834,11 +834,11 @@ public class MapReduce {
          * {@link MongoCollection} instance's {@link ReadPreference} will be
          * used.
          * </p>
-         *
+         * 
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         *
+         * 
          * @see MongoCollection#getReadPreference()
          */
         public Builder setReadPreference(final ReadPreference readPreference) {
@@ -849,7 +849,7 @@ public class MapReduce {
         /**
          * Sets the reduce function to apply to the emitted output of the map
          * function.
-         *
+         * 
          * @param reduce
          *            The reduce function to apply to the emitted output of the
          *            map function.
@@ -863,7 +863,7 @@ public class MapReduce {
         /**
          * Sets the scoped values to expose to the map/reduce/finalize
          * functions.
-         *
+         * 
          * @param scope
          *            The scoped values to expose to the map/reduce/finalize
          *            functions.
@@ -877,7 +877,7 @@ public class MapReduce {
         /**
          * Sets the sort to apply to the input objects. Useful for optimization,
          * like sorting by the emit key for fewer reduces.
-         *
+         * 
          * @param sort
          *            The sort to apply to the input objects. Useful for
          *            optimization, like sorting by the emit key for fewer
@@ -895,7 +895,7 @@ public class MapReduce {
          * <p>
          * This method is intended to be used with the {@link Sort} class's
          * static methods: <blockquote>
-         *
+         * 
          * <pre>
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
@@ -907,9 +907,9 @@ public class MapReduce {
          * ...
          * </code>
          * </pre>
-         *
+         * 
          * </blockquote>
-         *
+         * 
          * @param sortFields
          *            The sort to apply to the input objects. Useful for
          *            optimization, like sorting by the emit key for fewer
@@ -927,7 +927,7 @@ public class MapReduce {
 
         /**
          * Sets to true to emit progress messages in the server logs.
-         *
+         * 
          * @param verbose
          *            True to emit progress messages in the server logs.
          * @return This builder for chaining method calls.
@@ -943,7 +943,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setSort(DocumentAssignable)}.
          * </p>
-         *
+         * 
          * @param sort
          *            The sort to apply to the input objects. Useful for
          *            optimization, like sorting by the emit key for fewer
@@ -963,7 +963,7 @@ public class MapReduce {
          * <p>
          * This method is intended to be used with the {@link Sort} class's
          * static methods: <blockquote>
-         *
+         * 
          * <pre>
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
@@ -975,9 +975,9 @@ public class MapReduce {
          * ...
          * </code>
          * </pre>
-         *
+         * 
          * </blockquote>
-         *
+         * 
          * @param sortFields
          *            The sort to apply to the input objects. Useful for
          *            optimization, like sorting by the emit key for fewer
@@ -994,7 +994,7 @@ public class MapReduce {
          * This method delegates to {@link #setVerbose(boolean)
          * setVerbose(true)}.
          * </p>
-         *
+         * 
          * @return This builder for chaining method calls.
          */
         public Builder verbose() {
@@ -1006,7 +1006,7 @@ public class MapReduce {
          * <p>
          * This method delegates to {@link #setVerbose(boolean)}.
          * </p>
-         *
+         * 
          * @param verbose
          *            True to emit progress messages in the server logs.
          * @return This builder for chaining method calls.
@@ -1018,7 +1018,7 @@ public class MapReduce {
 
     /**
      * Enumeration of the possible output types.
-     *
+     * 
      * @api.yes This enumeration is part of the driver's API. Public and
      *          protected members will be deprecated for at least 1 non-bugfix
      *          release (version numbers are

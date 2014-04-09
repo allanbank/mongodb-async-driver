@@ -24,7 +24,7 @@ import com.allanbank.mongodb.bson.ElementType;
 
 /**
  * UuidElementTest provides tests for the {@link UuidElement} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class UuidElementTest {
@@ -35,15 +35,15 @@ public class UuidElementTest {
 
     /** The legacy byte order for the TEST_UUID. */
     private final static byte[] LEGACY_BYTES = new byte[] { (byte) 0x77,
-        (byte) 0x66, (byte) 0x55, (byte) 0x44, (byte) 0x33, (byte) 0x22,
-        (byte) 0x11, (byte) 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd,
-        (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88 };
+            (byte) 0x66, (byte) 0x55, (byte) 0x44, (byte) 0x33, (byte) 0x22,
+            (byte) 0x11, (byte) 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd,
+            (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88 };
 
     /** The standard byte order for the TEST_UUID. */
     private final static byte[] STANDARD_BYTES = new byte[] { (byte) 0x00,
-        (byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44, (byte) 0x55,
-        (byte) 0x66, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa,
-        (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff };
+            (byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44, (byte) 0x55,
+            (byte) 0x66, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa,
+            (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff };
 
     /**
      * Test method for {@link UuidElement#equals} and

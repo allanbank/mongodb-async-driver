@@ -33,7 +33,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * JulLogTest provides tests for the {@link Slf4jLog} class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Slf4jLogTest {
@@ -94,7 +94,7 @@ public class Slf4jLogTest {
 
     /**
      * Downloads the specified jar.
-     *
+     * 
      * @param name
      *            The name of the jar to download.
      * @param version
@@ -149,7 +149,7 @@ public class Slf4jLogTest {
 
     /**
      * Initializes the logger for the test.
-     *
+     * 
      * @throws Exception
      *             On a failure initializing the logger.
      */
@@ -169,7 +169,7 @@ public class Slf4jLogTest {
 
     /**
      * Cleanup after the test.
-     *
+     * 
      * @throws Exception
      *             On a failure cleaning up the logger.
      */

@@ -40,7 +40,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * Tests for the BsonInputStream class.
- *
+ * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BsonInputStreamTest {
@@ -51,19 +51,19 @@ public class BsonInputStreamTest {
 
     /** The legacy byte order for the TEST_UUID. */
     private final static byte[] LEGACY_UUID_BYTES = new byte[] { (byte) 0x77,
-        (byte) 0x66, (byte) 0x55, (byte) 0x44, (byte) 0x33, (byte) 0x22,
-        (byte) 0x11, (byte) 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd,
-        (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88 };
+            (byte) 0x66, (byte) 0x55, (byte) 0x44, (byte) 0x33, (byte) 0x22,
+            (byte) 0x11, (byte) 0x00, (byte) 0xff, (byte) 0xee, (byte) 0xdd,
+            (byte) 0xcc, (byte) 0xbb, (byte) 0xaa, (byte) 0x99, (byte) 0x88 };
 
     /** The standard byte order for the TEST_UUID. */
     private final static byte[] STANDARD_UUID_BYTES = new byte[] { (byte) 0x00,
-        (byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44, (byte) 0x55,
-        (byte) 0x66, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa,
-        (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff };
+            (byte) 0x11, (byte) 0x22, (byte) 0x33, (byte) 0x44, (byte) 0x55,
+            (byte) 0x66, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xaa,
+            (byte) 0xbb, (byte) 0xcc, (byte) 0xdd, (byte) 0xee, (byte) 0xff };
 
     /**
      * Test method for {@link BsonInputStream#available()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -90,7 +90,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -158,7 +158,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -185,7 +185,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -257,7 +257,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -296,7 +296,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -354,7 +354,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -367,7 +367,7 @@ public class BsonInputStreamTest {
 
         final Document expected = new RootDocument(new UuidElement("juuid",
                 (byte) 3, TEST_UUID), new UuidElement("uuid", (byte) 4,
-                        TEST_UUID));
+                TEST_UUID));
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -386,7 +386,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -493,7 +493,7 @@ public class BsonInputStreamTest {
 
     /**
      * /** Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -531,7 +531,7 @@ public class BsonInputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      * @throws ClassNotFoundException
@@ -540,7 +540,7 @@ public class BsonInputStreamTest {
     @SuppressWarnings("deprecation")
     @Test
     public void testSerializeCompleteDocument() throws IOException,
-    ClassNotFoundException {
+            ClassNotFoundException {
         DocumentBuilder builder = BuilderFactory.start();
 
         builder.addBoolean("true", true);

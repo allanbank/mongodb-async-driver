@@ -19,7 +19,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * CommandCursorTranslator provides static utility methods to translate cursor
  * documents.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CommandCursorTranslator {
@@ -34,7 +34,7 @@ public class CommandCursorTranslator {
      * Traditional embedded documents under a {@code results} array. For this
      * format all of the Documents are in the single reply and there is no
      * cursor established.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {
@@ -46,13 +46,13 @@ public class CommandCursorTranslator {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote></li>
      * <li>
      * A {@code cursor} sub-document containing the cursor's {@code id} and
      * {@code firstBatch}. This reply establishes (possibly) a cursor for the
      * results.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {
@@ -67,10 +67,10 @@ public class CommandCursorTranslator {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote></li>
-     *
-     *
+     * 
+     * 
      * @param reply
      *            The reply to translate.
      * @return The translated reply.
@@ -96,7 +96,7 @@ public class CommandCursorTranslator {
      * Traditional embedded documents under a {@code results} array. For this
      * format all of the Documents are in the single reply and there is no
      * cursor established.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {
@@ -108,13 +108,13 @@ public class CommandCursorTranslator {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote></li>
      * <li>
      * A {@code cursor} sub-document containing the cursor's {@code id} and
      * {@code firstBatch}. This reply establishes (possibly) a cursor for the
      * results.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {
@@ -129,13 +129,13 @@ public class CommandCursorTranslator {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote></li>
      * <li>
      * A {@code cursor} sub-array with a sub-document as each element of the
      * array. Each sub-document contains a {@code cursor} document as described
      * above.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {
@@ -164,10 +164,10 @@ public class CommandCursorTranslator {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote></li>
-     *
-     *
+     * 
+     * 
      * @param reply
      *            The reply to translate.
      * @return The translated reply.
@@ -215,7 +215,7 @@ public class CommandCursorTranslator {
     /**
      * Translates a list of cursor documents into a list of {@link Reply}
      * objects.
-     *
+     * 
      * @param reply
      *            The original reply.
      * @param cursors
@@ -240,7 +240,7 @@ public class CommandCursorTranslator {
     /**
      * Creates a new reply based on the original reply and the specified cursor
      * id and document list.
-     *
+     * 
      * @param reply
      *            The original reply to copy from.
      * @param cursorId

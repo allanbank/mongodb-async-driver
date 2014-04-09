@@ -19,7 +19,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * CursorNotFoundExceptionTest provides tests for the
  * {@link CursorNotFoundException}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CursorNotFoundExceptionTest {

@@ -23,7 +23,7 @@ import org.junit.Test;
 
 /**
  * ProfilingStatusTest provides tests for the {@link ProfilingStatus} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ProfilingStatusTest {
@@ -125,7 +125,7 @@ public class ProfilingStatusTest {
 
     /**
      * Test method for {@link ProfilingStatus#readResolve} .
-     *
+     * 
      * @throws IOException
      *             On a failure.
      * @throws ClassNotFoundException

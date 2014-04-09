@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * MongoDbExceptionTest provides tests for the {@link MongoDbException} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDbExceptionTest {

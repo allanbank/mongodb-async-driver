@@ -25,7 +25,7 @@ import com.allanbank.mongodb.client.connection.Connection;
  * the standard wire protocol but is provided here due to the frequency of
  * usage.
  * </p>
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -34,7 +34,7 @@ public class GetLastError extends Query {
 
     /**
      * Creates the query document for the getlasterror command.
-     *
+     * 
      * @param fsync
      *            If true the command waits for an fsync of the data to have
      *            completed.
@@ -69,7 +69,7 @@ public class GetLastError extends Query {
 
     /**
      * Create a new GetLastError.
-     *
+     * 
      * @param dbName
      *            The name of the database.
      * @param fsync
@@ -96,7 +96,7 @@ public class GetLastError extends Query {
 
     /**
      * Create a new GetLastError.
-     *
+     * 
      * @param dbName
      *            The name of the database.
      * @param durability

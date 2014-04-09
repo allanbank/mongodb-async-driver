@@ -10,7 +10,7 @@ import com.allanbank.mongodb.Version;
 /**
  * ComparisonOperator provides an enumeration of all possible comparison
  * operators.
- *
+ * 
  * @api.yes This enumeration is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -44,7 +44,7 @@ public enum ComparisonOperator implements Operator {
 
     /**
      * Creates a new ComparisonOperator.
-     *
+     * 
      * @param token
      *            The token to use when sending to the server.
      */
@@ -54,7 +54,7 @@ public enum ComparisonOperator implements Operator {
 
     /**
      * Creates a new ComparisonOperator.
-     *
+     * 
      * @param token
      *            The token to use when sending to the server.
      * @param version
@@ -67,7 +67,7 @@ public enum ComparisonOperator implements Operator {
 
     /**
      * The token for the operator that can be sent to the server.
-     *
+     * 
      * @return The token for the operator.
      */
     @Override
@@ -77,7 +77,7 @@ public enum ComparisonOperator implements Operator {
 
     /**
      * Returns the first MongoDB version to support the operator.
-     *
+     * 
      * @return The first MongoDB version to support the operator. If
      *         <code>null</code> then the version is not known and can be
      *         assumed to be all currently supported versions.

@@ -12,7 +12,7 @@ import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * Helper class for the aggregation commands.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -27,7 +27,7 @@ public class AggregateCommand extends Command implements CursorableMessage {
 
     /**
      * Create a new AggregateCommand.
-     *
+     * 
      * @param aggregation
      *            The original aggregation.
      * @param databaseName
@@ -58,10 +58,10 @@ public class AggregateCommand extends Command implements CursorableMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -116,7 +116,7 @@ public class AggregateCommand extends Command implements CursorableMessage {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override

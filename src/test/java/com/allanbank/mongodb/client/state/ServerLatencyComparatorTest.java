@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  * ServerLatencyComparatorTest provides testss for the
  * {@link ServerLatencyComparator}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerLatencyComparatorTest {

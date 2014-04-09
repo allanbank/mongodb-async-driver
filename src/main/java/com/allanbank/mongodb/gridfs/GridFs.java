@@ -51,7 +51,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * the collection the _id field may contain any value but the filename field
  * must be present.
  * </p>
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -153,7 +153,7 @@ public class GridFs {
      * <p>
      * The GridFS objects will be stored in the 'fs' collection.
      * </p>
-     *
+     * 
      * @param database
      *            The database containing the GridFS collections.
      */
@@ -163,8 +163,8 @@ public class GridFs {
 
     /**
      * Creates a new GridFs.
-     *
-     *
+     * 
+     * 
      * @param database
      *            The database containing the GridFS collections.
      * @param rootName
@@ -181,14 +181,14 @@ public class GridFs {
 
     /**
      * Creates a new GridFs.
-     *
+     * 
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     *
+     * 
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -198,7 +198,7 @@ public class GridFs {
 
     /**
      * Creates a new GridFs.
-     *
+     * 
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
@@ -209,7 +209,7 @@ public class GridFs {
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     *
+     * 
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -306,7 +306,7 @@ public class GridFs {
      * <code>{files_id:1, n:1}</code>. See <a
      * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
      * </p>
-     *
+     * 
      * @param repair
      *            If set to <code>true</code> then the fsck will attempt to
      *            repair common errors.
@@ -314,7 +314,7 @@ public class GridFs {
      *         repair status. If no errors are found an empty map is returned.
      * @throws IOException
      *             On a failure to execute the fsck.
-     *
+     * 
      * @see <a
      *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
@@ -350,7 +350,7 @@ public class GridFs {
 
     /**
      * Returns the size for a chunk written.
-     *
+     * 
      * @return The size for a chunk written.
      */
     public int getChunkSize() {
@@ -360,7 +360,7 @@ public class GridFs {
     /**
      * Reads a file from the GridFS collections and writes the contents to the
      * {@code sink}
-     *
+     * 
      * @param id
      *            The id of the file.
      * @param sink
@@ -385,7 +385,7 @@ public class GridFs {
     /**
      * Reads a file from the GridFS collections and writes the contents to the
      * {@code sink}
-     *
+     * 
      * @param name
      *            The name of the file.
      * @param sink
@@ -410,7 +410,7 @@ public class GridFs {
 
     /**
      * Sets the value of size for a chunk written.
-     *
+     * 
      * @param chunkSize
      *            The new value for the size for a chunk written.
      */
@@ -420,7 +420,7 @@ public class GridFs {
 
     /**
      * Unlinks (deletes) the file from the GridFS collections.
-     *
+     * 
      * @param id
      *            The id of the file to be deleted.
      * @return True if a file was deleted, false otherwise.
@@ -441,7 +441,7 @@ public class GridFs {
 
     /**
      * Unlinks (deletes) the file from the GridFS collections.
-     *
+     * 
      * @param name
      *            The name of the file to be deleted.
      * @return True if a file was deleted, false otherwise.
@@ -470,13 +470,13 @@ public class GridFs {
      * <code>{files_id:1}</code> or <code>{files_id:1, n:1}</code>. See <a
      * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
      * </p>
-     *
+     * 
      * @param id
      *            The id of the file to be validate.
      * @return True if a file was validated (md5 hash matches), false otherwise.
      * @throws IOException
      *             On a failure to validate the file.
-     *
+     * 
      * @see <a
      *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
@@ -502,13 +502,13 @@ public class GridFs {
      * <code>{files_id:1}</code> or <code>{files_id:1, n:1}</code>. See <a
      * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
      * </p>
-     *
+     * 
      * @param name
      *            The name of the file to be validate.
      * @return True if a file was validated (md5 hash matches), false otherwise.
      * @throws IOException
      *             On a failure to validate the file.
-     *
+     * 
      * @see <a
      *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
@@ -528,7 +528,7 @@ public class GridFs {
      * Attempts to write a file into the GridFS collections using the specified
      * name for the file and deriving the chunks from the data read from the
      * <tt>source</tt>.
-     *
+     * 
      * @param name
      *            The name of the file being written.
      * @param source
@@ -616,7 +616,7 @@ public class GridFs {
 
     /**
      * Adds a fault message to the faults map.
-     *
+     * 
      * @param faults
      *            The map of file ids to the error messages.
      * @param idObj
@@ -637,7 +637,7 @@ public class GridFs {
     /**
      * Reads a file from the GridFS collections and writes the contents to the
      * {@code sink}
-     *
+     * 
      * @param fileDoc
      *            The document for the file.
      * @param sink
@@ -741,7 +741,7 @@ public class GridFs {
      * operation verifies that the reorder fixes the file prior to modifying
      * anything. it also verifies that the reordering worked after reordering
      * the chunks.
-     *
+     * 
      * @param fileDoc
      *            The document representing the file.
      * @param faults
@@ -832,7 +832,7 @@ public class GridFs {
 
     /**
      * Unlinks (deletes) the file from the GridFS collections.
-     *
+     * 
      * @param fileDoc
      *            The document for the file to delete.
      * @return True if a file was deleted, false otherwise.
@@ -872,11 +872,11 @@ public class GridFs {
      * <code>{files_id:1}</code> or <code>{files_id:1, n:1}</code>. See <a
      * href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>.
      * </p>
-     *
+     * 
      * @param fileDoc
      *            The document for the file to delete.
      * @return True if a file was deleted, false otherwise.
-     *
+     * 
      * @see <a
      *      href="https://jira.mongodb.org/browse/SERVER-9888">SERVER-9888</a>
      */
@@ -894,7 +894,7 @@ public class GridFs {
 
     /**
      * Verifies the MD5 result for the filemd5 command.
-     *
+     * 
      * @param faults
      *            The faults for to update if the verify fails.
      * @param fileDoc
@@ -915,8 +915,8 @@ public class GridFs {
         if (!ok) {
             doAddFault(faults, idElement,
                     "MD5 sums do not match. File document contains '" + md5
-                    + "' and the filemd5 command produced '"
-                    + commandMd5 + "'.");
+                            + "' and the filemd5 command produced '"
+                            + commandMd5 + "'.");
         }
 
         return ok;
@@ -924,7 +924,7 @@ public class GridFs {
 
     /**
      * Read the full contents of the stream until an EOF into the buffer.
-     *
+     * 
      * @param source
      *            The source if bytes to read.
      * @param buffer

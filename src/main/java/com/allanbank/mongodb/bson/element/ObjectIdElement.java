@@ -13,7 +13,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON Object Id.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -34,7 +34,7 @@ public class ObjectIdElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     *
+     * 
      * @param name
      *            The name for the element.
      * @return The size of the element when encoded in bytes.
@@ -51,7 +51,7 @@ public class ObjectIdElement extends AbstractElement {
 
     /**
      * Constructs a new {@link ObjectIdElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON Object Id.
      * @param id
@@ -65,7 +65,7 @@ public class ObjectIdElement extends AbstractElement {
 
     /**
      * Constructs a new {@link ObjectIdElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON Object Id.
      * @param id
@@ -88,7 +88,7 @@ public class ObjectIdElement extends AbstractElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitObjectId} method.
-     *
+     * 
      * @see Element#accept(Visitor)
      */
     @Override
@@ -118,10 +118,10 @@ public class ObjectIdElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -140,7 +140,7 @@ public class ObjectIdElement extends AbstractElement {
 
     /**
      * Returns the id value.
-     *
+     * 
      * @return The id value.
      */
     public ObjectId getId() {
@@ -168,7 +168,7 @@ public class ObjectIdElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override

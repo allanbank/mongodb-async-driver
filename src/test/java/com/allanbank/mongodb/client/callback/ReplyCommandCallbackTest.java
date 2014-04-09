@@ -34,7 +34,7 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
 /**
  * ReplyCommandCallbackTest provides tests for the {@link ReplyCommandCallback}
  * class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyCommandCallbackTest {

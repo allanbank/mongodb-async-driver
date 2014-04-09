@@ -32,7 +32,7 @@ import com.allanbank.mongodb.client.state.Server;
 /**
  * AuthenticationConnectionFactoryTest provides test for the
  * {@link AuthenticationConnectionFactory}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticationConnectionFactoryTest {
@@ -42,7 +42,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Cleans up the test connection.
-     *
+     * 
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -53,7 +53,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for {@link AuthenticationConnectionFactory#close()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -78,7 +78,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for {@link AuthenticationConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure setting up the test mocks.
      */
@@ -104,7 +104,7 @@ public class AuthenticationConnectionFactoryTest {
      * Test method for
      * {@link AuthenticationConnectionFactory#connect(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a test failure setting up mocks.
      */
@@ -118,7 +118,7 @@ public class AuthenticationConnectionFactoryTest {
         myTestFactory = new AuthenticationConnectionFactory(mockFactory, config);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
 
         replay(mockFactory, mockConnection);
 
@@ -132,7 +132,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for {@link AuthenticationConnectionFactory#getClusterType()}.
-     *
+     * 
      * @throws IOException
      *             on a test failure.
      */

@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Interface for a document.
- *
+ * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -17,12 +17,12 @@ import java.util.List;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Document extends Iterable<Element>, DocumentAssignable,
-Serializable {
+        Serializable {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based
      * on the document type.
-     *
+     * 
      * @param visitor
      *            THe visitor for the document.
      */
@@ -30,7 +30,7 @@ Serializable {
 
     /**
      * Returns true if the document contains an element with the specified name.
-     *
+     * 
      * @param name
      *            The name of the element to locate.
      * @return True if the document contains an element with the given name,
@@ -40,7 +40,7 @@ Serializable {
 
     /**
      * Returns the elements matching the path of regular expressions.
-     *
+     * 
      * @param <E>
      *            The type of element to match.
      * @param clazz
@@ -55,7 +55,7 @@ Serializable {
 
     /**
      * Returns the elements matching the path of regular expressions.
-     *
+     * 
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions. May be an
@@ -70,7 +70,7 @@ Serializable {
      * document than to use the {@link #findFirst(String...)} with a single
      * {@code nameRegexs}.
      * </p>
-     *
+     * 
      * @param <E>
      *            The type of element to match.
      * @param clazz
@@ -88,7 +88,7 @@ Serializable {
      * document than to use the {@link #findFirst(String...)} with a single
      * {@code nameRegexs}.
      * </p>
-     *
+     * 
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The first element matching the path of regular expressions.
@@ -98,7 +98,7 @@ Serializable {
     /**
      * Returns the element with the specified name or null if no element with
      * that name exists.
-     *
+     * 
      * @param <E>
      *            The type of element to get.
      * @param clazz
@@ -113,7 +113,7 @@ Serializable {
     /**
      * Returns the element with the specified name or null if no element with
      * that name exists.
-     *
+     * 
      * @param name
      *            The name of the element to locate.
      * @return The sub-element in the document with the given name or null if
@@ -123,14 +123,14 @@ Serializable {
 
     /**
      * Returns the array of elements that create this document.
-     *
+     * 
      * @return The array of elements that create this document.
      */
     public List<Element> getElements();
 
     /**
      * Returns the size of the document when encoded as bytes.
-     *
+     * 
      * @return The size of the document when encoded as bytes.
      */
     public long size();

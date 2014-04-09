@@ -27,7 +27,7 @@ import com.allanbank.mongodb.client.Message;
 /**
  * ParallelScanCommandTest provides tests for the {@link ParallelScanCommand}
  * class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ParallelScanCommandTest {

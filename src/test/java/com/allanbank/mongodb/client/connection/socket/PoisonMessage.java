@@ -19,7 +19,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 /**
  * PoisonMessage provides a message that throws an exception when you try to
  * write it.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PoisonMessage implements Message {
@@ -29,7 +29,7 @@ public class PoisonMessage implements Message {
 
     /**
      * Creates a new PoisonMessage.
-     *
+     * 
      * @param toThrow
      *            The exception to throw.
      */

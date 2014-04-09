@@ -21,7 +21,7 @@ import com.allanbank.mongodb.bson.element.ObjectIdElement;
 
 /**
  * A root level document that can inject a _id value.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -34,7 +34,7 @@ public class RootDocument extends AbstractDocument {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * document.
-     *
+     * 
      * @param entries
      *            The entries in the document.
      * @return The size of the document when encoded in bytes.
@@ -70,7 +70,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Constructs a new {@link RootDocument}.
-     *
+     * 
      * @param elements
      *            The elements for the BSON document.
      */
@@ -80,7 +80,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Constructs a new {@link RootDocument}.
-     *
+     * 
      * @param elements
      *            The elements for the BSON document.
      */
@@ -90,7 +90,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Constructs a new {@link RootDocument}.
-     *
+     * 
      * @param elements
      *            The elements for the BSON document.
      * @param idPresent
@@ -102,7 +102,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Constructs a new {@link RootDocument}.
-     *
+     * 
      * @param elements
      *            The elements for the BSON document.
      * @param idPresent
@@ -129,7 +129,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Returns true if the document contains an element with the specified name.
-     *
+     * 
      * @see Document#contains(String)
      */
     @Override
@@ -139,7 +139,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Returns the elements in the document.
-     *
+     * 
      * @return The elements in the document.
      */
     @Override
@@ -171,7 +171,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Returns the size of the document when encoded as bytes.
-     *
+     * 
      * @return The size of the document when encoded as bytes.
      */
     @Override
@@ -182,7 +182,7 @@ public class RootDocument extends AbstractDocument {
     /**
      * Returns a map from the element names to the elements in the document.
      * Used for faster by-name access.
-     *
+     * 
      * @return The element name to element mapping.
      */
     @Override
@@ -205,7 +205,7 @@ public class RootDocument extends AbstractDocument {
 
     /**
      * Sets the transient state of this document.
-     *
+     * 
      * @param in
      *            The input stream.
      * @throws ClassNotFoundException

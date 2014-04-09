@@ -29,7 +29,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * Server provides tracking of the state of a single MongoDB server.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -162,7 +162,7 @@ public class Server {
     /**
      * Creates a new {@link Server}. Package private to force creation through
      * the {@link Cluster}.
-     *
+     * 
      * @param server
      *            The server being tracked.
      */
@@ -189,10 +189,10 @@ public class Server {
     /**
      * Add a PropertyChangeListener to receive all future property changes for
      * the {@link Server}.
-     *
+     * 
      * @param listener
      *            The PropertyChangeListener to be added
-     *
+     * 
      * @see PropertyChangeSupport#addPropertyChangeListener(PropertyChangeListener)
      */
     public void addListener(final PropertyChangeListener listener) {
@@ -226,7 +226,7 @@ public class Server {
      * Notification that a connection was successfully opened to the server. The
      * {@link InetSocketAddress} provided becomes the preferred address to use
      * when connecting to the server.
-     *
+     * 
      * @param addressUsed
      *            The address that was used to connect to the server.
      */
@@ -262,7 +262,7 @@ public class Server {
 
     /**
      * Returns the address of the server being tracked.
-     *
+     * 
      * @return The address of the server being tracked.
      */
     public Collection<InetSocketAddress> getAddresses() {
@@ -284,7 +284,7 @@ public class Server {
      * <p>
      * This average is over the recent replies not over all replies received.
      * </p>
-     *
+     * 
      * @return The current average latency (in milliseconds) seen in issuing
      *         requests to the server.
      */
@@ -294,7 +294,7 @@ public class Server {
 
     /**
      * Returns the name of the server as reported by the server itself.
-     *
+     * 
      * @return The name of the server as reported by the server itself.
      */
     public String getCanonicalName() {
@@ -304,7 +304,7 @@ public class Server {
     /**
      * Returns the maximum number of write operations allowed in a single write
      * command. Defaults to {@value #MAX_BATCHED_WRITE_OPERATIONS_DEFAULT}.
-     *
+     * 
      * @return The maximum number of write operations allowed in a single write
      *         command.
      */
@@ -315,7 +315,7 @@ public class Server {
     /**
      * Returns the maximum BSON object size the server will accept. Defaults to
      * {@link Client#MAX_DOCUMENT_SIZE}.
-     *
+     * 
      * @return The maximum BSON object size the server will accept.
      */
     public int getMaxBsonObjectSize() {
@@ -324,7 +324,7 @@ public class Server {
 
     /**
      * Returns the number of messages sent to the server.
-     *
+     * 
      * @return The number of messages sent to the server.
      */
     public long getMessagesSent() {
@@ -333,7 +333,7 @@ public class Server {
 
     /**
      * Returns the number of messages received from the server.
-     *
+     * 
      * @return The number of messages received from the server.
      */
     public long getRepliesReceived() {
@@ -342,7 +342,7 @@ public class Server {
 
     /**
      * Sets the last reported seconds behind the primary.
-     *
+     * 
      * @return The seconds behind the primary server.
      */
     public double getSecondsBehind() {
@@ -351,7 +351,7 @@ public class Server {
 
     /**
      * Returns the state value.
-     *
+     * 
      * @return The state value.
      */
     public State getState() {
@@ -360,7 +360,7 @@ public class Server {
 
     /**
      * Returns the tags for the server.
-     *
+     * 
      * @return The tags for the server.
      */
     public Document getTags() {
@@ -371,7 +371,7 @@ public class Server {
      * Returns the total amount of time messages waited for a reply from the
      * server in nanoseconds. The average latency is approximately
      * {@link #getTotalLatencyNanoSeconds()}/{@link #getRepliesReceived()}.
-     *
+     * 
      * @return The total amount of time messages waited for a reply from the
      *         server in nanoseconds.
      */
@@ -381,7 +381,7 @@ public class Server {
 
     /**
      * Returns the version of the server.
-     *
+     * 
      * @return The version of the server.
      */
     public Version getVersion() {
@@ -423,7 +423,7 @@ public class Server {
      * set, or a mongos in a sharded configuration. If not writable it is a
      * secondary server in a replica set.
      * </p>
-     *
+     * 
      * @return True if the server can be written to, false otherwise.
      */
     public boolean isWritable() {
@@ -433,7 +433,7 @@ public class Server {
     /**
      * Returns true if there has not been a recent update to the server's
      * version or maximum document size.
-     *
+     * 
      * @return True if there has not been a recent update to the server's
      *         version or maximum document size.
      */
@@ -448,10 +448,10 @@ public class Server {
     /**
      * Remove a PropertyChangeListener to stop receiving future property changes
      * for the {@link Server}.
-     *
+     * 
      * @param listener
      *            The PropertyChangeListener to be removed
-     *
+     * 
      * @see PropertyChangeSupport#removePropertyChangeListener(PropertyChangeListener)
      */
     public void removeListener(final PropertyChangeListener listener) {
@@ -499,7 +499,7 @@ public class Server {
      * Updates the state of the server based on the document provided. The
      * document should be the reply to either a {@code ismaster} or
      * {@code replSetGetStatus} command.
-     *
+     * 
      * @param document
      *            The document with the state of the server.
      */
@@ -515,7 +515,7 @@ public class Server {
 
     /**
      * Updates the average latency (in nano-seconds) for the server.
-     *
+     * 
      * @param latencyNanoSeconds
      *            The latency seen sending a request and receiving a reply from
      *            the server.
@@ -539,7 +539,7 @@ public class Server {
 
     /**
      * Extract any {@code maxBsonObjectSize} from the reply.
-     *
+     * 
      * @param isMasterReply
      *            The reply to the {@code ismaster} command.
      */
@@ -558,7 +558,7 @@ public class Server {
 
     /**
      * Extract any {@code maxWriteBatchSize} from the reply.
-     *
+     * 
      * @param isMasterReply
      *            The reply to the {@code ismaster} command.
      */
@@ -578,7 +578,7 @@ public class Server {
     /**
      * Updates the canonical name for the server based on the response to the
      * {@code ismaster} command.
-     *
+     * 
      * @param isMasterReply
      *            The reply to the {@code ismaster} command.
      */
@@ -610,7 +610,7 @@ public class Server {
      * set to {@link Double#MAX_VALUE} if not in the primary (
      * {@value #PRIMARY_STATE}) or secondary ({@value #SECONDARY_STATE}).
      * </p>
-     *
+     * 
      * @param replicaStateDoc
      *            The document to extract the seconds behind from.
      */
@@ -667,7 +667,7 @@ public class Server {
 
     /**
      * Extract the if the result implies that the server is writable.
-     *
+     * 
      * @param isMasterReply
      *            The document to extract the seconds behind from.
      */
@@ -705,7 +705,7 @@ public class Server {
 
     /**
      * Extract any tags from the reply.
-     *
+     * 
      * @param isMasterReply
      *            The reply to the {@code ismaster} command.
      */
@@ -729,7 +729,7 @@ public class Server {
 
     /**
      * Extract any {@code versionArray} from the reply.
-     *
+     * 
      * @param buildInfoReply
      *            The reply to the {@code buildinfo} command.
      */
@@ -769,7 +769,7 @@ public class Server {
     /**
      * State provides the possible sttes for a server within the MongoDB
      * cluster.
-     *
+     * 
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.

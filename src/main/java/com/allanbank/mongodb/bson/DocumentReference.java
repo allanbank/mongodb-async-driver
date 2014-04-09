@@ -24,7 +24,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * <li>The name of the database where the referenced document resides:
  * {@code $db} (Optional).</li>
  * </ol>
- *
+ * 
  * @see <a
  *      href="http://docs.mongodb.org/manual/applications/database-references/#dbref">MongoDB
  *      DBRef Information</a>
@@ -59,7 +59,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Creates a new DocumentReference.
-     *
+     * 
      * @param collectionName
      *            The name of the collection being referenced.
      * @param id
@@ -76,7 +76,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Creates a new DocumentReference.
-     *
+     * 
      * @param databaseName
      *            The name of the database being referenced.
      * @param collectionName
@@ -90,7 +90,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
      */
     public DocumentReference(final String databaseName,
             final String collectionName, final Element id)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
 
         assertNotNull(collectionName,
                 "The collection name of a Document Reference (DBRef) cannot be null.");
@@ -141,14 +141,14 @@ public class DocumentReference implements DocumentAssignable, Serializable {
             result = myCollectionName.equals(other.myCollectionName)
                     && myId.withName(ID_FIELD_NAME).equals(
                             other.myId.withName(ID_FIELD_NAME))
-                            && nullSafeEquals(myDatabaseName, other.myDatabaseName);
+                    && nullSafeEquals(myDatabaseName, other.myDatabaseName);
         }
         return result;
     }
 
     /**
      * Returns the name of the collection being referenced.
-     *
+     * 
      * @return The name of the collection being referenced.
      */
     public String getCollectionName() {
@@ -158,7 +158,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
     /**
      * Returns the name of the database being referenced. This may be
      * <code>null</code>.
-     *
+     * 
      * @return The name of the database being referenced.
      */
     public String getDatabaseName() {
@@ -167,7 +167,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Returns the id of the document being referenced.
-     *
+     * 
      * @return The id of the document being referenced.
      */
     public Element getId() {
@@ -224,7 +224,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Does a null safe equals comparison.
-     *
+     * 
      * @param rhs
      *            The right-hand-side of the comparison.
      * @param lhs

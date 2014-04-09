@@ -11,7 +11,7 @@ import java.net.InetSocketAddress;
  * class is the same as and extends the {@link MongoClientConfiguration} except
  * it defaults the {@link Durability} to {@link Durability#NONE} instead of
  * {@link Durability#ACK}.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -37,7 +37,7 @@ public class MongoDbConfiguration extends MongoClientConfiguration {
 
     /**
      * Creates a new MongoDbConfiguration.
-     *
+     * 
      * @param servers
      *            The initial set of servers to connect to.
      */
@@ -49,7 +49,7 @@ public class MongoDbConfiguration extends MongoClientConfiguration {
 
     /**
      * Creates a new MongoDbConfiguration.
-     *
+     * 
      * @param other
      *            The configuration to copy.
      */
@@ -61,14 +61,14 @@ public class MongoDbConfiguration extends MongoClientConfiguration {
      * Creates a new {@link MongoDbConfiguration} instance using a MongoDB style
      * URL to initialize its state. Further configuration is possible once the
      * {@link MongoDbConfiguration} has been instantiated.
-     *
+     * 
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     *
+     * 
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -81,14 +81,14 @@ public class MongoDbConfiguration extends MongoClientConfiguration {
      * Creates a new {@link MongoDbConfiguration} instance using a MongoDB style
      * URL to initialize its state. Further configuration is possible once the
      * {@link MongoDbConfiguration} has been instantiated.
-     *
+     * 
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     *
+     * 
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */

@@ -36,7 +36,7 @@ import com.allanbank.mongodb.client.message.ServerStatus;
 /**
  * SimpleReconnectStrategyTest provides tests for the
  * {@link SimpleReconnectStrategy} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SimpleReconnectStrategyTest {
@@ -47,7 +47,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     *
+     * 
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      * @throws InterruptedException
@@ -72,7 +72,7 @@ public class SimpleReconnectStrategyTest {
                 Collections.singletonList(server));
 
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
 
         mockNewConnection.send(anyObject(IsMaster.class),
                 cb(BuilderFactory.start(PRIMARY_UPDATE)));
@@ -94,7 +94,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     *
+     * 
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      * @throws InterruptedException
@@ -102,7 +102,7 @@ public class SimpleReconnectStrategyTest {
      */
     @Test
     public void testReconnectBackWorks() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         final Cluster cluster = new Cluster(config);
         final Server server = cluster.add("foo:27017");
@@ -114,7 +114,7 @@ public class SimpleReconnectStrategyTest {
 
         expect(mockOldConnection.getServerName()).andReturn("foo:27017");
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
         mockNewConnection.send(anyObject(IsMaster.class),
                 cb(BuilderFactory.start(PRIMARY_UPDATE)));
         expectLastCall();
@@ -135,7 +135,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     *
+     * 
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -172,7 +172,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     *
+     * 
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      * @throws InterruptedException
@@ -180,7 +180,7 @@ public class SimpleReconnectStrategyTest {
      */
     @Test
     public void testReconnectFirstFails() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         final Cluster cluster = new Cluster(config);
         final Server server = cluster.add(new InetSocketAddress("foo", 27017));
@@ -200,7 +200,7 @@ public class SimpleReconnectStrategyTest {
 
         expect(mockFactory.connect(server, config)).andThrow(new IOException());
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
 
         mockNewConnection.send(anyObject(ServerStatus.class),
                 cb(BuilderFactory.start(PRIMARY_UPDATE)));
@@ -227,7 +227,7 @@ public class SimpleReconnectStrategyTest {
 
     /**
      * Test method for {@link SimpleReconnectStrategy#reconnect(Connection)}.
-     *
+     * 
      * @throws IOException
      *             On a Failure setting up the mock configuration for the test.
      */
@@ -249,7 +249,7 @@ public class SimpleReconnectStrategyTest {
         expect(mockSelector.pickServers()).andReturn(
                 Collections.singletonList(server));
         expect(mockFactory.connect(server, config))
-        .andReturn(mockNewConnection);
+                .andReturn(mockNewConnection);
         mockNewConnection.send(anyObject(ServerStatus.class),
                 cb(new MongoDbException("Injected")));
         expectLastCall();

@@ -25,7 +25,7 @@ import com.allanbank.mongodb.error.JsonException;
  * {@link JsonSerializationVisitor} class is testing via the toString() tests
  * for each Element type. This test suite handles the error cases and corner
  * cases only.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonSerializationVisitorTest {
@@ -303,7 +303,7 @@ public class JsonSerializationVisitorTest {
 
     /**
      * ThrowingWriter provides a writer that throws an exception on all writes.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class ThrowingWriter extends Writer {

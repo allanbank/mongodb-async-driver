@@ -24,7 +24,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * UpdateOperationTest provides tests for the {@link UpdateOperation} class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class UpdateOperationTest {

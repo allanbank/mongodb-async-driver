@@ -19,7 +19,7 @@ import org.junit.Test;
 
 /**
  * Tests for the {@link RandomAccessOutputStream} class.
- *
+ * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class RandomAccessOutputStreamTest {
@@ -54,7 +54,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#reset()}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -96,7 +96,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#writeAt(long, byte[])}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -145,7 +145,7 @@ public class RandomAccessOutputStreamTest {
     /**
      * Test method for
      * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -261,7 +261,7 @@ public class RandomAccessOutputStreamTest {
     /**
      * Test method for
      * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -298,7 +298,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#writeAt(long, int)}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -335,7 +335,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -367,7 +367,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -457,7 +457,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(int)}.
-     *
+     * 
      * @throws IOException
      *             On a failure writing the test results.
      */

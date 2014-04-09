@@ -16,7 +16,7 @@ import com.allanbank.mongodb.error.JsonException;
  * The string value must a JSON document parsable via the
  * {@link Json#parse(String)} method.
  * </p>
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being

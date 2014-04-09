@@ -9,7 +9,7 @@ package com.allanbank.mongodb;
  * ConnectionModel provides an enumeration of the connection models that the
  * driver supports. Currently this is related to the number of threads used by
  * the socket connections to the server.
- *
+ * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -47,7 +47,7 @@ public enum ConnectionModel {
      * single {@code write()} to the socket implementation is slow and the
      * application only uses a single write thread.
      * </p>
-     *
+     * 
      * @since 1.0.0
      */
     SENDER_RECEIVER_THREAD;

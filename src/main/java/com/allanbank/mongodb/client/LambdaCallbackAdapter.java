@@ -12,10 +12,10 @@ import com.allanbank.mongodb.StreamCallback;
 /**
  * LambdaCallbackAdapter provides an adapter for the {@link LambdaCallback} to a
  * {@link Callback} or {@link StreamCallback}.
- *
+ * 
  * @param <V>
  *            The type of the operation's result.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -27,7 +27,7 @@ public final class LambdaCallbackAdapter<V> implements StreamCallback<V> {
 
     /**
      * Creates a new LambdaCallbackAdapter.
-     *
+     * 
      * @param lambda
      *            The {@link LambdaCallback} to trigger.
      */

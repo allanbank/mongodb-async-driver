@@ -34,7 +34,7 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
 /**
  * SingleDocumentReplyCallbackTest provides tests for the
  * {@link SingleDocumentReplyCallback} class.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SingleDocumentReplyCallbackTest {

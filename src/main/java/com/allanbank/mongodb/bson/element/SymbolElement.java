@@ -13,7 +13,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON symbol.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -31,7 +31,7 @@ public class SymbolElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     *
+     * 
      * @param name
      *            The name for the element.
      * @param symbol
@@ -52,7 +52,7 @@ public class SymbolElement extends AbstractElement {
 
     /**
      * Constructs a new {@link SymbolElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON string.
      * @param symbol
@@ -66,7 +66,7 @@ public class SymbolElement extends AbstractElement {
 
     /**
      * Constructs a new {@link SymbolElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON string.
      * @param symbol
@@ -89,7 +89,7 @@ public class SymbolElement extends AbstractElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitSymbol} method.
-     *
+     * 
      * @see Element#accept(Visitor)
      */
     @Override
@@ -133,10 +133,10 @@ public class SymbolElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -156,7 +156,7 @@ public class SymbolElement extends AbstractElement {
 
     /**
      * Returns the BSON symbol value.
-     *
+     * 
      * @return The BSON symbol value.
      */
     public String getSymbol() {
@@ -195,7 +195,7 @@ public class SymbolElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override

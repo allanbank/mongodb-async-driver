@@ -23,7 +23,7 @@ import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
 
 /**
  * Integration test for the {@link BootstrapConnectionFactory}.
- *
+ * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BootstrapConnectionFactoryITest extends ServerTestDriverSupport {

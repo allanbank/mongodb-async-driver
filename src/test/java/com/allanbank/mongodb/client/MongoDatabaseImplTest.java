@@ -49,7 +49,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * MongoDatabaseImplTest provides tests for the {@link MongoDatabaseImpl} class.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
@@ -300,7 +300,7 @@ public class MongoDatabaseImplTest {
         final Durability defaultDurability = Durability.journalDurable(1234);
 
         expect(myMockClient.getDefaultDurability())
-        .andReturn(defaultDurability);
+                .andReturn(defaultDurability);
 
         replay();
 
@@ -319,7 +319,7 @@ public class MongoDatabaseImplTest {
         final Durability setDurability = Durability.journalDurable(4321);
 
         expect(myMockClient.getDefaultDurability())
-        .andReturn(defaultDurability);
+                .andReturn(defaultDurability);
 
         replay();
 
@@ -518,9 +518,9 @@ public class MongoDatabaseImplTest {
         final Command message = new Command("admin", commandDoc.build());
 
         expect(myMockMongoClient.getDatabase("admin"))
-        .andReturn(
-                new MongoDatabaseImpl(myMockMongoClient, myMockClient,
-                        "admin"));
+                .andReturn(
+                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                                "admin"));
 
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
@@ -552,9 +552,9 @@ public class MongoDatabaseImplTest {
         final Command message = new Command("admin", commandDoc.build());
 
         expect(myMockMongoClient.getDatabase("admin"))
-        .andReturn(
-                new MongoDatabaseImpl(myMockMongoClient, myMockClient,
-                        "admin"));
+                .andReturn(
+                        new MongoDatabaseImpl(myMockMongoClient, myMockClient,
+                                "admin"));
         myMockClient.send(eq(message), callback(reply(reply)));
         expectLastCall();
 
@@ -617,7 +617,7 @@ public class MongoDatabaseImplTest {
         replay(mockCallback);
 
         myTestInstance
-        .runCommandAsync(mockCallback, "command", options.build());
+                .runCommandAsync(mockCallback, "command", options.build());
 
         verify(mockCallback);
     }
@@ -656,7 +656,7 @@ public class MongoDatabaseImplTest {
     /**
      * Test method for
      * {@link MongoDatabaseImpl#runCommandAsync(DocumentAssignable)}.
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -682,7 +682,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Test method for {@link MongoDatabaseImpl#runCommandAsync(String)}.
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -709,7 +709,7 @@ public class MongoDatabaseImplTest {
     /**
      * Test method for
      * {@link MongoDatabaseImpl#runCommandAsync(String, DocumentAssignable)}.
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -733,7 +733,7 @@ public class MongoDatabaseImplTest {
 
         assertSame(reply,
                 myTestInstance.runCommandAsync("command", options.build())
-                .get());
+                        .get());
 
         verify();
     }
@@ -742,7 +742,7 @@ public class MongoDatabaseImplTest {
      * Test method for
      * {@link MongoDatabaseImpl#runCommandAsync(String, String, DocumentAssignable)}
      * .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -967,7 +967,7 @@ public class MongoDatabaseImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     *
+     * 
      * @param mocks
      *            The mock to replay.
      */
@@ -978,7 +978,7 @@ public class MongoDatabaseImplTest {
 
     /**
      * Creates a reply around the document.
-     *
+     * 
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -991,7 +991,7 @@ public class MongoDatabaseImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     *
+     * 
      * @param mocks
      *            The mock to replay.
      */

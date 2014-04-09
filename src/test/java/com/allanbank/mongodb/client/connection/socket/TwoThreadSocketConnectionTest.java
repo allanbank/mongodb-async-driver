@@ -78,7 +78,7 @@ import com.allanbank.mongodb.client.state.Server;
 /**
  * TwoThreadSocketConnectionTest provides tests for the
  * {@link TwoThreadSocketConnection} class.
- *
+ * 
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class TwoThreadSocketConnectionTest {
@@ -97,7 +97,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Starts a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -109,7 +109,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Stops a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -132,7 +132,7 @@ public class TwoThreadSocketConnectionTest {
     @Before
     public void setUp() {
         myTestServer = new Cluster(new MongoClientConfiguration())
-        .add(ourServer.getInetSocketAddress());
+                .add(ourServer.getInetSocketAddress());
 
         // Disable the re-request of build information.
         myTestServer.update(BUILD_INFO);
@@ -140,7 +140,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Cleans up the test connection.
-     *
+     * 
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -156,7 +156,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -199,7 +199,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -263,7 +263,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -322,7 +322,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -381,7 +381,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -440,7 +440,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -501,7 +501,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -553,7 +553,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -607,8 +607,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -617,7 +617,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -674,7 +674,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -722,7 +722,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -777,7 +777,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -839,7 +839,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -902,7 +902,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -965,7 +965,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1028,7 +1028,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1091,7 +1091,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1154,7 +1154,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1217,7 +1217,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1276,8 +1276,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -1287,7 +1287,7 @@ public class TwoThreadSocketConnectionTest {
     /**
      * Test method for
      * {@link TwoThreadSocketConnection#raiseErrors(MongoDbException)} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1344,7 +1344,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -1356,7 +1356,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testRead() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1408,7 +1408,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -1420,7 +1420,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testRead2() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1472,7 +1472,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1544,7 +1544,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1554,7 +1554,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testReadNonReply() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1606,7 +1606,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1618,7 +1618,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testReadStuff() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1670,7 +1670,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1712,7 +1712,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1754,7 +1754,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1762,7 +1762,7 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testSendRuntimeException() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
@@ -1797,7 +1797,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1841,7 +1841,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#shutdown} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1890,7 +1890,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1947,7 +1947,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1993,7 +1993,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2037,7 +2037,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#stop} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2087,7 +2087,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link TwoThreadSocketConnection#TwoThreadSocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2112,7 +2112,7 @@ public class TwoThreadSocketConnectionTest {
      * Test method for
      * {@link TwoThreadSocketConnection#TwoThreadSocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2130,7 +2130,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2184,8 +2184,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -2194,7 +2194,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2248,8 +2248,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -2258,7 +2258,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Test method for {@link TwoThreadSocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2312,8 +2312,8 @@ public class TwoThreadSocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -2322,7 +2322,7 @@ public class TwoThreadSocketConnectionTest {
 
     /**
      * Waits for the capture to have been set.
-     *
+     * 
      * @param capture
      *            The capture to wait for.
      */

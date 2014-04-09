@@ -19,14 +19,14 @@ import org.junit.Test;
 
 /**
  * StringDecoderTest provides tests for the {@link StringDecoder}.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StringDecoderTest {
 
     /**
      * Test method for {@link StringDecoder#decode(byte[], int, int)}.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */
@@ -67,7 +67,7 @@ public class StringDecoderTest {
 
     /**
      * Test method for {@link StringDecoder#decode(byte[], int, int)}.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */
@@ -82,7 +82,7 @@ public class StringDecoderTest {
 
     /**
      * Test method for {@link StringDecoder#getMaxCacheLength()}.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */
@@ -124,7 +124,7 @@ public class StringDecoderTest {
 
     /**
      * Test method for {@link StringDecoder#getMaxCacheEntries()}.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */

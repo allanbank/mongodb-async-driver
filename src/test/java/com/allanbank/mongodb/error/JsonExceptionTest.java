@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * JsonExceptionTest provides tests for the {@link JsonException} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonExceptionTest {

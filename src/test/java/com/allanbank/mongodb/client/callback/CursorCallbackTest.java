@@ -40,7 +40,7 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
 
 /**
  * CursorCallbackTest provides tests for the {@link CursorCallback} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CursorCallbackTest {

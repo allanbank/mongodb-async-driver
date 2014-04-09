@@ -32,7 +32,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * AuthenticatingConnectionITest provides tests of the authentication against a
  * live MongoDB process.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
@@ -48,7 +48,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     /**
      * Test method to insert a document into the database and then query it back
      * out.
-     *
+     * 
      * @throws Exception
      *             On a test failure.
      */
@@ -79,9 +79,9 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false),
-                            new Query(USER_DB, "bar", BuilderFactory.start().build(),
-                                    null, 1, 1, 0, false, ReadPreference.PRIMARY,
-                                    false, false, false, false), reply);
+                    new Query(USER_DB, "bar", BuilderFactory.start().build(),
+                            null, 1, 1, 0, false, ReadPreference.PRIMARY,
+                            false, false, false, false), reply);
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());
@@ -97,7 +97,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
     /**
      * Test method to insert a document into the database and then query it back
      * out.
-     *
+     * 
      * @throws Exception
      *             On a test failure.
      */
@@ -128,9 +128,9 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
             authConn.send(
                     new Insert(USER_DB, "bar", Collections.singletonList(doc),
                             false),
-                            new Query(USER_DB, "bar", BuilderFactory.start().build(),
-                                    null, 1, 1, 0, false, ReadPreference.PRIMARY,
-                                    false, false, false, false), reply);
+                    new Query(USER_DB, "bar", BuilderFactory.start().build(),
+                            null, 1, 1, 0, false, ReadPreference.PRIMARY,
+                            false, false, false, false), reply);
             final Reply r = reply.get();
 
             assertEquals(1, r.getResults().size());

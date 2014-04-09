@@ -20,7 +20,7 @@ import com.allanbank.mongodb.bson.Element;
 
 /**
  * ObjectIdTest provides tests for the {@link ObjectId} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ObjectIdTest {

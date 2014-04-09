@@ -59,7 +59,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * ShardedConnectionFactoryTest provides tests for the
  * {@link ShardedConnectionFactory}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnectionFactoryTest {
@@ -78,7 +78,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -90,7 +90,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Stops a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -126,9 +126,9 @@ public class ShardedConnectionFactoryTest {
                 reply(start(BUILD_INFO)),
                 reply(start().addString("_id", serverName), BuilderFactory
                         .start().addString("_id", "localhost:1234")),
-                        reply(BuilderFactory.start().addString("_id", serverName),
-                                BuilderFactory.start().addString("_id",
-                                        "localhost:1234")));
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -168,7 +168,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -181,7 +181,7 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection).times(2);
+                .andReturn(mockConnection).times(2);
 
         // Query for servers.
         mockConnection.send(anyObject(Query.class), cb(new IOException(
@@ -213,7 +213,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -226,7 +226,7 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection).times(2);
+                .andReturn(mockConnection).times(2);
 
         // Query for servers.
         mockConnection.send(anyObject(Query.class), cb());
@@ -263,7 +263,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -276,7 +276,7 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andThrow(new IOException("This is a test")).times(2);
+                .andThrow(new IOException("This is a test")).times(2);
 
         replay(mockFactory, mockConnection);
 
@@ -291,7 +291,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -304,11 +304,11 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection).times(2);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
-        .times(2);
+                .times(2);
 
         mockConnection.shutdown(false);
         expectLastCall();
@@ -331,7 +331,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#bootstrap()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -344,11 +344,11 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection).times(2);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
-        .times(2);
+                .times(2);
 
         mockConnection.shutdown(false);
         expectLastCall();
@@ -371,7 +371,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#close()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -385,9 +385,9 @@ public class ShardedConnectionFactoryTest {
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")),
-                                reply(BuilderFactory.start().addString("_id", serverName),
-                                        BuilderFactory.start().addString("_id",
-                                                "localhost:1234")));
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -411,7 +411,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -447,7 +447,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -519,7 +519,7 @@ public class ShardedConnectionFactoryTest {
 
     /**
      * Test method for {@link ShardedConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -532,7 +532,7 @@ public class ShardedConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection).times(2);
+                .andReturn(mockConnection).times(2);
 
         // Query for servers.
         mockConnection.send(anyObject(Query.class), cb());
@@ -552,7 +552,7 @@ public class ShardedConnectionFactoryTest {
         // Connect
         final IOException thrown = new IOException("Injected");
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andThrow(thrown);
+                .andThrow(thrown);
 
         replay(mockFactory, mockConnection);
 
@@ -587,9 +587,9 @@ public class ShardedConnectionFactoryTest {
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")),
-                                reply(BuilderFactory.start().addString("_id", serverName),
-                                        BuilderFactory.start().addString("_id",
-                                                "localhost:1234")));
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -615,9 +615,9 @@ public class ShardedConnectionFactoryTest {
                 reply(BuilderFactory.start().addString("_id", serverName),
                         BuilderFactory.start().addString("_id",
                                 "localhost:1234")),
-                                reply(BuilderFactory.start().addString("_id", serverName),
-                                        BuilderFactory.start().addString("_id",
-                                                "localhost:1234")), reply(), reply());
+                reply(BuilderFactory.start().addString("_id", serverName),
+                        BuilderFactory.start().addString("_id",
+                                "localhost:1234")), reply(), reply());
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());

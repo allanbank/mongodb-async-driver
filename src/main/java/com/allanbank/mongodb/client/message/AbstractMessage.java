@@ -13,7 +13,7 @@ import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * Base class for a MongoDB message.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -47,7 +47,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Create a new AbstractMessage.
-     *
+     * 
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -65,7 +65,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Creates a new AbstractMessage.
-     *
+     * 
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -88,10 +88,10 @@ public abstract class AbstractMessage implements Message {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -112,7 +112,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Returns the name of the collection.
-     *
+     * 
      * @return The name of the collection.
      */
     public String getCollectionName() {
@@ -121,7 +121,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Returns the name of the database.
-     *
+     * 
      * @return The name of the database.
      */
     @Override
@@ -150,7 +150,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override
@@ -164,7 +164,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Writes the MsgHeader messageLengthField in the header <tt>stream</tt>.
-     *
+     * 
      * <pre>
      * <code>
      * struct MsgHeader {
@@ -176,7 +176,7 @@ public abstract class AbstractMessage implements Message {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * @param stream
      *            The stream to write to.
      * @param start
@@ -192,7 +192,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Initializes the database and collection name from the full database name.
-     *
+     * 
      * @param name
      *            The full database name.
      */
@@ -209,7 +209,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Writes the MsgHeader to the <tt>stream</tt>.
-     *
+     * 
      * <pre>
      * <code>
      * struct MsgHeader {
@@ -221,7 +221,7 @@ public abstract class AbstractMessage implements Message {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * @param stream
      *            The stream to write to.
      * @param requestId
@@ -244,7 +244,7 @@ public abstract class AbstractMessage implements Message {
 
     /**
      * Writes the MsgHeader to the <tt>stream</tt>.
-     *
+     * 
      * <pre>
      * <code>
      * struct MsgHeader {
@@ -256,7 +256,7 @@ public abstract class AbstractMessage implements Message {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * @param stream
      *            The stream to write to.
      * @param requestId

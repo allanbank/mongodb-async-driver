@@ -35,14 +35,14 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * CommandTest provides tests for the {@link Command} class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CommandTest {
 
     /**
      * Test the streaming of Commands.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */
@@ -65,7 +65,7 @@ public class CommandTest {
 
     /**
      * Test the streaming of Commands.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */
@@ -157,7 +157,7 @@ public class CommandTest {
      * Test the stringify of a command.
      */
     @Test
-    public void testToString() throws IOException {
+    public void testToString() {
         final Command command = new Command("db", BuilderFactory.start()
                 .add("foo", 1).build());
 
@@ -170,7 +170,7 @@ public class CommandTest {
      * Test the stringify of a command.
      */
     @Test
-    public void testToStringNoReadPreference() throws IOException {
+    public void testToStringNoReadPreference() {
         final Command command = new Command("db", BuilderFactory.start()
                 .add("foo", 1).build(), null);
 
@@ -182,7 +182,7 @@ public class CommandTest {
      * Test the stringify of a command.
      */
     @Test
-    public void testToStringWithVersionRange() throws IOException {
+    public void testToStringWithVersionRange() {
         final Command command = new Command("db", BuilderFactory.start()
                 .add("foo", 1).build(), ReadPreference.PRIMARY,
                 VersionRange.range(Version.VERSION_2_2, Version.VERSION_2_4));
@@ -197,7 +197,7 @@ public class CommandTest {
      * Test the validation of the size of the command.
      */
     @Test
-    public void testValidateSize() throws IOException {
+    public void testValidateSize() {
         final SizeOfVisitor visitor = new SizeOfVisitor();
 
         final Command command = new Command("db", BuilderFactory.start()

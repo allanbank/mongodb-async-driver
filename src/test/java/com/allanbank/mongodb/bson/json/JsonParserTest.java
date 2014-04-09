@@ -33,14 +33,14 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * JsonParserTest provides tests for the {@link JsonParser}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      * @throws ParseException
@@ -69,29 +69,29 @@ public class JsonParserTest {
 
         final ArrayBuilder ab = BuilderFactory.startArray();
         ab.add(false).add(true).addNull().add(1).add(1.0).add(1.0e12).add(1e-1)
-        .add("abc").add("def").addSymbol("ghi");
+                .add("abc").add("def").addSymbol("ghi");
 
         final DocumentBuilder b = ab.push();
         b.add("int", 1).add("double", 1.0).add("double_1", 1.0e12)
-        .add("double_2", 1e-1).add("string", "abc")
-        .add("string2", "def").addSymbol("symbol", "ghi");
+                .add("double_2", 1e-1).add("string", "abc")
+                .add("string2", "def").addSymbol("symbol", "ghi");
         b.pushArray("array").add(1).add(1.0).add(1.0e12).add(1e-1).add("abc")
-        .add("def").addSymbol("ghi");
+                .add("def").addSymbol("ghi");
         b.push("doc").add("int", 1).add("double", 1.0).add("double_1", 1.0e12)
-        .add("double_2", 1e-1).add("string", "abc")
-        .add("string2", "def").addSymbol("symbol", "ghi")
-        .pushArray("array").add(1).add(1.0).add(1.0e12).add(1e-1)
-        .add("abc").add("def").addSymbol("ghi");
+                .add("double_2", 1e-1).add("string", "abc")
+                .add("string2", "def").addSymbol("symbol", "ghi")
+                .pushArray("array").add(1).add(1.0).add(1.0e12).add(1e-1)
+                .add("abc").add("def").addSymbol("ghi");
 
         ab.pushArray().add(1).add(1.0).add(1.0e12).add(1e-1).add("abc")
-        .add("def").addSymbol("ghi");
+                .add("def").addSymbol("ghi");
 
         assertEquals(Arrays.asList(ab.build()), result);
     }
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      * @throws ParseException
@@ -112,19 +112,19 @@ public class JsonParserTest {
         final DocumentBuilder b = BuilderFactory.start();
 
         b.add("boolean_1", true).add("boolean_2", false).addNull("n")
-        .add("int", 1).add("double", 1.0).add("double_1", 1.0e12)
-        .add("double_2", 1e-1).add("string", "abc")
-        .add("string2", "def").addSymbol("symbol", "ghi");
+                .add("int", 1).add("double", 1.0).add("double_1", 1.0e12)
+                .add("double_2", 1e-1).add("string", "abc")
+                .add("string2", "def").addSymbol("symbol", "ghi");
         b.pushArray("array").add(1).add(1.0).add(1.0e12).add(1e-1).add("abc")
-        .add("def").addSymbol("ghi").push().add("int", 1)
-        .add("double", 1.0).add("double_1", 1.0e12)
-        .add("double_2", 1e-1).add("string", "abc")
-        .add("string2", "def").addSymbol("symbol", "ghi");
+                .add("def").addSymbol("ghi").push().add("int", 1)
+                .add("double", 1.0).add("double_1", 1.0e12)
+                .add("double_2", 1e-1).add("string", "abc")
+                .add("string2", "def").addSymbol("symbol", "ghi");
         b.push("doc").add("int", 1).add("double", 1.0).add("double_1", 1.0e12)
-        .add("double_2", 1e-1).add("string", "abc")
-        .add("string2", "def").addSymbol("symbol", "ghi")
-        .pushArray("array").add(1).add(1.0).add(1.0e12).add(1e-1)
-        .add("abc").add("def").addSymbol("ghi");
+                .add("double_2", 1e-1).add("string", "abc")
+                .add("string2", "def").addSymbol("symbol", "ghi")
+                .pushArray("array").add(1).add(1.0).add(1.0e12).add(1e-1)
+                .add("abc").add("def").addSymbol("ghi");
 
         assertEquals(b.build(), result);
 
@@ -135,7 +135,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -152,7 +152,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -169,7 +169,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -186,7 +186,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -206,7 +206,7 @@ public class JsonParserTest {
 
     /**
      * Test parsing a integer value too big for an IntegerElement.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -220,7 +220,7 @@ public class JsonParserTest {
 
     /**
      * Test parsing a integer value too big for an IntegerElement in an array.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -236,7 +236,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a BinData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws UnsupportedEncodingException
@@ -246,7 +246,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseBinData() throws ParseException,
-    IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : BinData( 5, 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==' ) }";
 
         final JsonParser parser = new JsonParser();
@@ -254,17 +254,17 @@ public class JsonParserTest {
 
         assertEquals(
                 BuilderFactory
-                .start()
-                .addBinary(
-                        "a",
-                        (byte) 5,
-                        "The quick brown fox jumped over the lazy dogs."
-                        .getBytes("US-ASCII")).build(), doc);
+                        .start()
+                        .addBinary(
+                                "a",
+                                (byte) 5,
+                                "The quick brown fox jumped over the lazy dogs."
+                                        .getBytes("US-ASCII")).build(), doc);
     }
 
     /**
      * Test Parsing a BinData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws UnsupportedEncodingException
@@ -274,7 +274,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseBinDataInArray() throws ParseException,
-    IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : [ BinData( 5, 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==' )] }";
 
         final JsonParser parser = new JsonParser();
@@ -284,13 +284,13 @@ public class JsonParserTest {
         b.pushArray("a").addBinary(
                 (byte) 5,
                 "The quick brown fox jumped over the lazy dogs."
-                .getBytes("US-ASCII"));
+                        .getBytes("US-ASCII"));
         assertEquals(b.build(), doc);
     }
 
     /**
      * Test Parsing a BinData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws UnsupportedEncodingException
@@ -300,7 +300,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseBinDataStrict() throws ParseException,
-    IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : 5 } }";
 
         final JsonParser parser = new JsonParser();
@@ -308,17 +308,17 @@ public class JsonParserTest {
 
         assertEquals(
                 BuilderFactory
-                .start()
-                .addBinary(
-                        "a",
-                        (byte) 5,
-                        "The quick brown fox jumped over the lazy dogs."
-                        .getBytes("US-ASCII")).build(), doc);
+                        .start()
+                        .addBinary(
+                                "a",
+                                (byte) 5,
+                                "The quick brown fox jumped over the lazy dogs."
+                                        .getBytes("US-ASCII")).build(), doc);
     }
 
     /**
      * Test Parsing a BinData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws UnsupportedEncodingException
@@ -328,7 +328,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseBinDataStrictHexType() throws ParseException,
-    IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : '0x05' } }";
 
         final JsonParser parser = new JsonParser();
@@ -336,17 +336,17 @@ public class JsonParserTest {
 
         assertEquals(
                 BuilderFactory
-                .start()
-                .addBinary(
-                        "a",
-                        (byte) 5,
-                        "The quick brown fox jumped over the lazy dogs."
-                        .getBytes("US-ASCII")).build(), doc);
+                        .start()
+                        .addBinary(
+                                "a",
+                                (byte) 5,
+                                "The quick brown fox jumped over the lazy dogs."
+                                        .getBytes("US-ASCII")).build(), doc);
     }
 
     /**
      * Test Parsing a BinData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws UnsupportedEncodingException
@@ -356,7 +356,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseBinDataStrictInArray() throws ParseException,
-    IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : [ { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : 5 }] }";
 
         final JsonParser parser = new JsonParser();
@@ -366,13 +366,13 @@ public class JsonParserTest {
         b.pushArray("a").addBinary(
                 (byte) 5,
                 "The quick brown fox jumped over the lazy dogs."
-                .getBytes("US-ASCII"));
+                        .getBytes("US-ASCII"));
         assertEquals(b.build(), doc);
     }
 
     /**
      * Test Parsing a BinData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws UnsupportedEncodingException
@@ -382,7 +382,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseBinDataStrictInArrayHexType() throws ParseException,
-    IllegalArgumentException, UnsupportedEncodingException {
+            IllegalArgumentException, UnsupportedEncodingException {
         final String docText = "{ a : [ { $binary : 'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2dzLg==', $type : '05' }] }";
 
         final JsonParser parser = new JsonParser();
@@ -392,13 +392,13 @@ public class JsonParserTest {
         b.pushArray("a").addBinary(
                 (byte) 5,
                 "The quick brown fox jumped over the lazy dogs."
-                .getBytes("US-ASCII"));
+                        .getBytes("US-ASCII"));
         assertEquals(b.build(), doc);
     }
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -411,15 +411,15 @@ public class JsonParserTest {
                 .parse("{ a : DBPointer('db', \"collection\", ObjectId('4e9d87aa5825b60b637815a6'))}");
         assertEquals(
                 BuilderFactory
-                .start()
-                .addDBPointer("a", "db", "collection",
-                        new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L))
+                        .start()
+                        .addDBPointer("a", "db", "collection",
+                                new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L))
                         .build(), doc);
     }
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -438,7 +438,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a HexData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws IllegalArgumentException
@@ -446,7 +446,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseHexData() throws ParseException,
-    IllegalArgumentException {
+            IllegalArgumentException {
         final String docText = "{ a : HexData( 6, 'cafe' ) }";
 
         final JsonParser parser = new JsonParser();
@@ -454,15 +454,15 @@ public class JsonParserTest {
 
         assertEquals(
                 BuilderFactory
-                .start()
-                .addBinary("a", (byte) 6,
-                        new byte[] { (byte) 0xCA, (byte) 0xFE })
+                        .start()
+                        .addBinary("a", (byte) 6,
+                                new byte[] { (byte) 0xCA, (byte) 0xFE })
                         .build(), doc);
     }
 
     /**
      * Test Parsing a HexData(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws IllegalArgumentException
@@ -470,7 +470,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseHexDataInArray() throws ParseException,
-    IllegalArgumentException {
+            IllegalArgumentException {
         final String docText = "{ a : [ HexData( 6, 'cafe' ) ] }";
 
         final JsonParser parser = new JsonParser();
@@ -484,7 +484,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -501,7 +501,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -518,7 +518,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -538,7 +538,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a ISODate(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws java.text.ParseException
@@ -546,7 +546,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseISODate() throws ParseException,
-    java.text.ParseException {
+            java.text.ParseException {
         final JsonParser parser = new JsonParser();
         final SimpleDateFormat format = new SimpleDateFormat(
                 "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -554,19 +554,19 @@ public class JsonParserTest {
         Object doc = parser.parse("{ a : ISODate('2012-07-14T01:00:00.000') }");
         assertEquals(
                 BuilderFactory.start()
-                .add("a", format.parse("2012-07-14T01:00:00.000UTC"))
-                .build(), doc);
+                        .add("a", format.parse("2012-07-14T01:00:00.000UTC"))
+                        .build(), doc);
 
         doc = parser.parse("{ a : ISODate('2012-07-14') }");
         assertEquals(
                 BuilderFactory.start()
-                .add("a", format.parse("2012-07-14T00:00:00.000UTC"))
-                .build(), doc);
+                        .add("a", format.parse("2012-07-14T00:00:00.000UTC"))
+                        .build(), doc);
     }
 
     /**
      * Test Parsing a ISODate(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws java.text.ParseException
@@ -574,7 +574,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseISODateInArray() throws ParseException,
-    java.text.ParseException {
+            java.text.ParseException {
         final JsonParser parser = new JsonParser();
         final SimpleDateFormat format = new SimpleDateFormat(
                 "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -583,13 +583,13 @@ public class JsonParserTest {
                 .parse("{ a : [ISODate('2012-07-14T01:00:00.000'),ISODate('2012-07-14')] }");
         final DocumentBuilder b = BuilderFactory.start();
         b.pushArray("a").add(format.parse("2012-07-14T01:00:00.000UTC"))
-        .add(format.parse("2012-07-14T00:00:00.000UTC"));
+                .add(format.parse("2012-07-14T00:00:00.000UTC"));
         assertEquals(b.build(), doc);
     }
 
     /**
      * Test Parsing a ISODate(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws java.text.ParseException
@@ -597,7 +597,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseISODateInArrayStrict() throws ParseException,
-    java.text.ParseException {
+            java.text.ParseException {
         final JsonParser parser = new JsonParser();
         final SimpleDateFormat format = new SimpleDateFormat(
                 "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -620,7 +620,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a ISODate(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      * @throws java.text.ParseException
@@ -628,7 +628,7 @@ public class JsonParserTest {
      */
     @Test
     public void testParseISODateStrict() throws ParseException,
-    java.text.ParseException {
+            java.text.ParseException {
         final JsonParser parser = new JsonParser();
         final SimpleDateFormat format = new SimpleDateFormat(
                 "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -649,7 +649,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -663,7 +663,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -679,7 +679,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -695,7 +695,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -711,7 +711,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -725,7 +725,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MaxKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -739,7 +739,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -753,7 +753,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -769,7 +769,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -785,7 +785,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -801,7 +801,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -815,7 +815,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a MinKey() element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -829,7 +829,7 @@ public class JsonParserTest {
 
     /**
      * Test parsing a integer value too small for an IntegerElement.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -844,7 +844,7 @@ public class JsonParserTest {
 
     /**
      * Test parsing a integer value too small for an IntegerElement in an array.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -860,7 +860,7 @@ public class JsonParserTest {
 
     /**
      * Test for parsing a document.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -879,7 +879,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a NumberLong(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -893,7 +893,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a NumberLong(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -909,7 +909,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a ObjectId(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -921,14 +921,14 @@ public class JsonParserTest {
                 .parse("{ a : ObjectId('4e9d87aa5825b60b637815a6') }");
         assertEquals(
                 BuilderFactory
-                .start()
-                .add("a", new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L))
-                .build(), doc);
+                        .start()
+                        .add("a", new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L))
+                        .build(), doc);
     }
 
     /**
      * Test Parsing a ObjectId(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -945,7 +945,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a ObjectId(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -962,7 +962,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a ObjectId(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -974,14 +974,14 @@ public class JsonParserTest {
                 .parse("{ a : {$oid : '4e9d87aA5825b60b637815a6'} }");
         assertEquals(
                 BuilderFactory
-                .start()
-                .add("a", new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L))
-                .build(), doc);
+                        .start()
+                        .add("a", new ObjectId(0x4e9d87aa, 0x5825b60b637815a6L))
+                        .build(), doc);
     }
 
     /**
      * Test Parsing a {$regex:"<sRegex>","$options": "<sOptions>"} element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -994,14 +994,14 @@ public class JsonParserTest {
                         + "{ $regex : '.*2' }, { $regex : '.*3' , $options : 'i'}] }");
         final DocumentBuilder b = BuilderFactory.start();
         b.pushArray("a").addRegularExpression(".*1", "")
-        .addRegularExpression(".*2", "")
-        .addRegularExpression(".*3", "i");
+                .addRegularExpression(".*2", "")
+                .addRegularExpression(".*3", "i");
         assertEquals(b.build(), doc);
     }
 
     /**
      * Test Parsing a {$regex:"<sRegex>","$options": "<sOptions>"} element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -1024,7 +1024,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a Timestamp(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -1035,13 +1035,13 @@ public class JsonParserTest {
         final Object doc = parser.parse("{ a : Timestamp(1000,2) }");
         assertEquals(
                 BuilderFactory.start()
-                .addMongoTimestamp("a", 0x0000000100000002L).build(),
+                        .addMongoTimestamp("a", 0x0000000100000002L).build(),
                 doc);
     }
 
     /**
      * Test Parsing a Timestamp(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -1057,7 +1057,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a Timestamp(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -1074,7 +1074,7 @@ public class JsonParserTest {
 
     /**
      * Test Parsing a Timestamp(..) element.
-     *
+     * 
      * @throws ParseException
      *             On a test failure.
      */
@@ -1086,7 +1086,7 @@ public class JsonParserTest {
                 .parse("{ a : { $timestamp : { t:1000,i:2 } } }");
         assertEquals(
                 BuilderFactory.start()
-                .addMongoTimestamp("a", 0x0000000100000002L).build(),
+                        .addMongoTimestamp("a", 0x0000000100000002L).build(),
                 doc);
     }
 }

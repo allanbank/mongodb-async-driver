@@ -11,7 +11,7 @@ import com.allanbank.mongodb.bson.Document;
 /**
  * DocumentToLargeException is thrown to report that an attempt was made to
  * serialize a Document that is over the maximum size limit.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -34,7 +34,7 @@ public class DocumentToLargeException extends MongoDbException {
 
     /**
      * Creates a new DocumentToLargeException.
-     *
+     * 
      * @param size
      *            The size of the document that violated the maximum size.
      * @param maximum
@@ -54,7 +54,7 @@ public class DocumentToLargeException extends MongoDbException {
 
     /**
      * Returns the document that was too big.
-     *
+     * 
      * @return The document that was too big.
      */
     public Document getDocument() {
@@ -63,7 +63,7 @@ public class DocumentToLargeException extends MongoDbException {
 
     /**
      * Returns the maximum size for a document.
-     *
+     * 
      * @return The maximum size for a document.
      */
     public int getMaximumSize() {
@@ -72,7 +72,7 @@ public class DocumentToLargeException extends MongoDbException {
 
     /**
      * Returns the size of the document that violated the maximum size.
-     *
+     * 
      * @return The size of the document that violated the maximum size.
      */
     public int getSize() {

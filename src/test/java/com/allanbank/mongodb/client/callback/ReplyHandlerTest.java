@@ -26,7 +26,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * ReplyHandlerTest provides tests for the {@link ReplyHandler} class.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyHandlerTest {
@@ -167,7 +167,7 @@ public class ReplyHandlerTest {
     /**
      * Test method for
      * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -175,7 +175,7 @@ public class ReplyHandlerTest {
      */
     @Test
     public void testReplyWithLightWeightCallback() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Executor mockExecutor = createMock(Executor.class);
 
         final List<Document> docs = Collections.emptyList();
@@ -198,7 +198,7 @@ public class ReplyHandlerTest {
     /**
      * Test method for
      * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -230,7 +230,7 @@ public class ReplyHandlerTest {
     /**
      * Test method for
      * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -276,7 +276,7 @@ public class ReplyHandlerTest {
 
     /**
      * CallerExecutor provides a simple executor.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public class CallerExecutor implements Executor {
@@ -295,7 +295,7 @@ public class ReplyHandlerTest {
 
     /**
      * RejectionExecutor provides a simple executor.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public class RejectionExecutor implements Executor {

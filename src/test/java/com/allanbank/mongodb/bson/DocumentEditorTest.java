@@ -14,7 +14,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * DocumentEditorTest provides tests for the {@link DocumentEditor} class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DocumentEditorTest {

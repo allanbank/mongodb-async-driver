@@ -12,14 +12,14 @@ import org.junit.Test;
 
 /**
  * SequenceTest provides tests for the {@link Sequence} class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SequenceTest {
 
     /**
      * Test method for {@link Sequence#release(long, long)}.
-     *
+     * 
      * @throws InterruptedException
      *             On a failure to wait for the test threads to finish.
      */

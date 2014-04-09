@@ -19,13 +19,13 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * AuthenticationConnectionFactory wraps all of the connections with
  * {@link AuthenticatingConnection}s.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticationConnectionFactory implements
-ProxiedConnectionFactory {
+        ProxiedConnectionFactory {
 
     /** The default config. */
     private final MongoClientConfiguration myConfig;
@@ -35,7 +35,7 @@ ProxiedConnectionFactory {
 
     /**
      * Creates a new AuthenticationConnectionFactory.
-     *
+     * 
      * @param factory
      *            The factory to wrap connections wit
      *            {@link AuthenticatingConnection}.

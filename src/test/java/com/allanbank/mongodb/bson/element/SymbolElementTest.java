@@ -29,7 +29,7 @@ import com.allanbank.mongodb.bson.Visitor;
 
 /**
  * SymbolElementTest provides tests for the {@link SymbolElement} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SymbolElementTest {

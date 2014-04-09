@@ -18,7 +18,7 @@ import com.allanbank.mongodb.bson.Document;
  * and
  * {@link MongoCollection#streamingFind(Callback, com.allanbank.mongodb.builder.Find)}
  * using the new interface.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @deprecated Deprecated to ensure this class is removed with the
@@ -30,14 +30,14 @@ import com.allanbank.mongodb.bson.Document;
  */
 @Deprecated
 public final class LegacyStreamCallbackAdapter implements
-StreamCallback<Document> {
+        StreamCallback<Document> {
 
     /** The legacy callback to delegate to. */
     private final Callback<Document> myDelegate;
 
     /**
      * Creates a new LegacyStreamCallbackAdapter.
-     *
+     * 
      * @param delegate
      *            The legacy callback to delegate to.
      */

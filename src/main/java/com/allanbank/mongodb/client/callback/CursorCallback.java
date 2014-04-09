@@ -20,13 +20,13 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * Callback to convert a {@link CursorableMessage} {@link Reply} into a
  * {@link MongoIteratorImpl}.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class CursorCallback extends
-AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
+        AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;
@@ -51,7 +51,7 @@ AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
 
     /**
      * Create a new CursorCallback.
-     *
+     * 
      * @param client
      *            The client interface to the server.
      * @param message
@@ -78,7 +78,7 @@ AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
 
     /**
      * Returns the server the original request was sent to.
-     *
+     * 
      * @return The server the original request was sent to.
      */
     public String getAddress() {
@@ -87,7 +87,7 @@ AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
 
     /**
      * Sets the value of the server the original request was sent to.
-     *
+     * 
      * @param address
      *            The new value for the server the original request was sent to.
      */
@@ -102,7 +102,7 @@ AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
      * <p>
      * Overridden to add the {@link Query} to the exception.
      * </p>
-     *
+     * 
      * @see AbstractReplyCallback#asError(Reply, int, int, String)
      */
     @Override
@@ -117,7 +117,7 @@ AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
      * <p>
      * Overridden to construct a {@link MongoIteratorImpl} around the reply.
      * </p>
-     *
+     * 
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override
@@ -147,7 +147,7 @@ AbstractReplyCallback<MongoIterator<Document>> implements AddressAware {
     /**
      * Returns true if the callback should expect a command formated cursor
      * reply.
-     *
+     * 
      * @return True if the callback should expect a command formated cursor
      *         reply.
      */

@@ -15,7 +15,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 /**
  * ReadPreferenceEditorTest provides tests for the {@link ReadPreferenceEditor}
  * class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReadPreferenceEditorTest {

@@ -42,17 +42,17 @@ import com.allanbank.mongodb.util.FutureUtils;
 /**
  * Implementation of the {@link MongoCollection} interface including the
  * synchronous methods.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SynchronousMongoCollectionImpl extends
-AbstractAsyncMongoCollection implements MongoCollection {
+        AbstractAsyncMongoCollection implements MongoCollection {
 
     /**
      * Create a new MongoDatabaseClient.
-     *
+     * 
      * @param client
      *            The client for interacting with MongoDB.
      * @param database
@@ -70,7 +70,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #aggregateAsync(Aggregate)}.
      * </p>
-     *
+     * 
      * @see #aggregateAsync(Aggregate)
      */
     @Override
@@ -176,7 +176,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * Overridden to call the {@link #createIndex(String, boolean, Element...)}
      * method with <code>null</code> for the name.
      * </p>
-     *
+     * 
      * @see #createIndex(String, boolean, Element...)
      */
     @Override
@@ -192,7 +192,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #createIndex(String,DocumentAssignable,Element...)} method with
      * <code>null</code> for <tt>name</tt>.
      * </p>
-     *
+     * 
      * @see #createIndex(String,DocumentAssignable,Element...)
      */
     @Override
@@ -208,7 +208,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #createIndex(DocumentAssignable, Element...)} method with
      * {@link #EMPTY_INDEX_OPTIONS} for <tt>options</tt>.
      * </p>
-     *
+     * 
      * @see #createIndex(DocumentAssignable, Element...)
      */
     @Override
@@ -224,7 +224,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #UNIQUE_INDEX_OPTIONS} if {@code unique} is <code>true</code> or
      * {@link #EMPTY_INDEX_OPTIONS} id {@code unique} is <code>false</code>.
      * </p>
-     *
+     * 
      * @see #createIndex(String, DocumentAssignable, Element...)
      */
     @Override
@@ -240,13 +240,13 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * Overridden to insert the index document into the 'system.indexes'
      * collection.
      * </p>
-     *
+     * 
      * @see MongoCollection#createIndex(String,DocumentAssignable,Element...)
      */
     @Override
     public void createIndex(final String name,
             final DocumentAssignable options, final Element... keys)
-                    throws MongoDbException {
+            throws MongoDbException {
 
         String indexName = name;
         if ((name == null) || name.isEmpty()) {
@@ -289,7 +289,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * false as the <tt>singleDelete</tt> argument and the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #delete(DocumentAssignable, boolean, Durability)
      */
     @Override
@@ -304,7 +304,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #delete(DocumentAssignable, boolean, Durability)} method with the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #delete(DocumentAssignable, boolean, Durability)
      */
     @Override
@@ -319,13 +319,13 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #deleteAsync(DocumentAssignable, boolean, Durability)} method.
      * </p>
-     *
+     * 
      * @see #deleteAsync(DocumentAssignable, boolean, Durability)
      */
     @Override
     public long delete(final DocumentAssignable query,
             final boolean singleDelete, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
 
         final ListenableFuture<Long> future = deleteAsync(query, singleDelete,
                 durability);
@@ -340,7 +340,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #deleteAsync(DocumentAssignable, boolean, Durability)} method with
      * false as the <tt>singleDelete</tt> argument.
      * </p>
-     *
+     * 
      * @see #delete(DocumentAssignable, boolean, Durability)
      */
     @Override
@@ -378,7 +378,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to issue a { "drop" : <collection_name> } command.
      * </p>
-     *
+     * 
      * @see MongoCollection#drop()
      */
     @Override
@@ -461,7 +461,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #explain(Find)} method.
      * </p>
-     *
+     * 
      * @see #explain(Find)
      */
     @Override
@@ -475,7 +475,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #explainAsync(Find)} method.
      * </p>
-     *
+     * 
      * @see #explainAsync(Find)
      */
     @Override
@@ -499,7 +499,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #findAsync(DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #findAsync(DocumentAssignable)
      */
     @Override
@@ -513,7 +513,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #findAsync(Find)} method.
      * </p>
-     *
+     * 
      * @see #findAsync(Find)
      */
     @Override
@@ -539,7 +539,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #findAndModifyAsync(FindAndModify)}.
      * </p>
-     *
+     * 
      * @see #findAndModifyAsync(FindAndModify)
      */
     @Override
@@ -565,7 +565,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #findOneAsync(DocumentAssignable)}.
      * </p>
-     *
+     * 
      * @see #findOneAsync(DocumentAssignable)
      */
     @Override
@@ -579,7 +579,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #findOneAsync(com.allanbank.mongodb.Callback, Find)}.
      * </p>
-     *
+     * 
      * @see #findOneAsync(com.allanbank.mongodb.Callback, Find)
      */
     @Override
@@ -629,7 +629,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #insert(boolean, Durability, DocumentAssignable...)} method with
      * the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #insert(boolean, Durability, DocumentAssignable[])
      */
     @Override
@@ -644,13 +644,13 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #insertAsync(boolean, Durability, DocumentAssignable...)} method.
      * </p>
-     *
+     * 
      * @see #insertAsync(boolean, Durability, DocumentAssignable[])
      */
     @Override
     public int insert(final boolean continueOnError,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         final ListenableFuture<Integer> future = insertAsync(continueOnError,
                 durability, documents);
 
@@ -665,7 +665,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <tt>continueOnError</tt> set to false and the {@link #getDurability()
      * default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -683,7 +683,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #insert(boolean, Durability, DocumentAssignable...)} method with
      * <tt>continueOnError</tt> set to false.
      * </p>
-     *
+     * 
      * @see #insert(boolean, Durability, DocumentAssignable[])
      */
     @Override
@@ -699,7 +699,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * look for the {@code capped} field to determine if the collection is
      * capped or not.
      * </p>
-     *
+     * 
      * @see MongoCollection#isCapped
      */
     @Override
@@ -727,7 +727,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #mapReduceAsync(MapReduce)}.
      * </p>
-     *
+     * 
      * @see #mapReduceAsync(MapReduce)
      */
     @Override
@@ -753,7 +753,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #parallelScanAsync(ParallelScan)}.
      * </p>
-     *
+     * 
      * @see #parallelScanAsync(ParallelScan)
      */
     @Override
@@ -767,7 +767,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #parallelScan(ParallelScan)}.
      * </p>
-     *
+     * 
      * @see #parallelScanAsync(ParallelScan)
      */
     @Override
@@ -817,7 +817,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to send a {@code collStats} command to the MongoDB server.
      * </p>
-     *
+     * 
      * @see MongoCollection#stats
      */
     @Override
@@ -831,7 +831,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #textSearchAsync(com.allanbank.mongodb.builder.Text)}.
      * </p>
-     *
+     * 
      * @see #textSearchAsync(com.allanbank.mongodb.builder.Text)
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
@@ -844,7 +844,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
             final com.allanbank.mongodb.builder.Text command)
-                    throws MongoDbException {
+            throws MongoDbException {
         return FutureUtils.unwrap(textSearchAsync(command));
     }
 
@@ -854,7 +854,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * Overridden to call the
      * {@link #textSearch(com.allanbank.mongodb.builder.Text)}.
      * </p>
-     *
+     * 
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -866,7 +866,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     @Override
     public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
             final com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException {
+            throws MongoDbException {
         return textSearch(command.build());
     }
 
@@ -878,7 +878,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * method with multiUpdate set to true, upsert set to false, and using the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
      *      Durability)
      */
@@ -896,7 +896,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method with the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
      *      Durability)
      */
@@ -914,7 +914,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method.
      * </p>
-     *
+     * 
      * @see #updateAsync(DocumentAssignable, DocumentAssignable, boolean,
      *      boolean, Durability)
      */
@@ -922,7 +922,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     public long update(final DocumentAssignable query,
             final DocumentAssignable update, final boolean multiUpdate,
             final boolean upsert, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
 
         final ListenableFuture<Long> future = updateAsync(query, update,
                 multiUpdate, upsert, durability);
@@ -937,14 +937,14 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method with multiUpdate set to true, and upsert set to false.
      * </p>
-     *
+     * 
      * @see #update(DocumentAssignable, DocumentAssignable, boolean, boolean,
      *      Durability)
      */
     @Override
     public long update(final DocumentAssignable query,
             final DocumentAssignable update, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         return update(query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, durability);
     }
@@ -1003,7 +1003,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #writeAsync(BatchedWrite)}.
      * </p>
-     *
+     * 
      * @see #writeAsync(BatchedWrite)
      */
     @Override
@@ -1018,7 +1018,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
      * <p>
      * Overridden to call the {@link #write(BatchedWrite)}.
      * </p>
-     *
+     * 
      * @see #write(BatchedWrite)
      */
     @Override
@@ -1028,7 +1028,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
 
     /**
      * Adds the options to the document builder.
-     *
+     * 
      * @param command
      *            The command to make sure is removed from the options.
      * @param options
@@ -1049,7 +1049,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
 
     /**
      * Generates a name for the index based on the keys.
-     *
+     * 
      * @param keys
      *            The keys for the index.
      * @return The name for the index.
@@ -1075,7 +1075,7 @@ AbstractAsyncMongoCollection implements MongoCollection {
     /**
      * Determines the minimum server version required to support the provided
      * index keys and options.
-     *
+     * 
      * @param keys
      *            The index keys.
      * @return The version required for the index. May be null.

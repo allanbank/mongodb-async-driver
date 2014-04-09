@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * FindAndModifyTest provides tests for the {@link FindAndModify} command.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class FindAndModifyTest {
@@ -77,7 +77,7 @@ public class FindAndModifyTest {
 
         final FindAndModify.Builder builder = new FindAndModify.Builder();
         builder.query(query).update(update).fields(fields).remove().returnNew()
-        .sort(sort).upsert();
+                .sort(sort).upsert();
 
         FindAndModify request = builder.build();
         assertSame(query, request.getQuery());

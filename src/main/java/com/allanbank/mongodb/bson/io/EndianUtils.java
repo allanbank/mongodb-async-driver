@@ -6,7 +6,7 @@ package com.allanbank.mongodb.bson.io;
 
 /**
  * Utilities to deal with integer endian differences.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -14,7 +14,7 @@ package com.allanbank.mongodb.bson.io;
 public final class EndianUtils {
     /**
      * Performs a byte-order swap for a 32-bit signed integer.
-     *
+     * 
      * @param value
      *            The value to swap.
      * @return The swapped value.
@@ -26,7 +26,7 @@ public final class EndianUtils {
 
     /**
      * Performs a byte-order swap for a 64-bit signed integer.
-     *
+     * 
      * @param value
      *            The value to swap.
      * @return The swapped value.

@@ -23,14 +23,14 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * Callback to convert a {@link CursorableMessage} {@link Reply} into a
  * collection of {@link MongoIteratorImpl}.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class MultipleCursorCallback extends
-AbstractReplyCallback<Collection<MongoIterator<Document>>> implements
-AddressAware {
+        AbstractReplyCallback<Collection<MongoIterator<Document>>> implements
+        AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;
@@ -52,7 +52,7 @@ AddressAware {
 
     /**
      * Create a new CursorCallback.
-     *
+     * 
      * @param client
      *            The client interface to the server.
      * @param message
@@ -75,7 +75,7 @@ AddressAware {
 
     /**
      * Returns the server the original request was sent to.
-     *
+     * 
      * @return The server the original request was sent to.
      */
     public String getAddress() {
@@ -84,7 +84,7 @@ AddressAware {
 
     /**
      * Sets the value of the server the original request was sent to.
-     *
+     * 
      * @param address
      *            The new value for the server the original request was sent to.
      */
@@ -99,7 +99,7 @@ AddressAware {
      * <p>
      * Overridden to add the {@link Query} to the exception.
      * </p>
-     *
+     * 
      * @see AbstractReplyCallback#asError(Reply, int, int, String)
      */
     @Override
@@ -114,7 +114,7 @@ AddressAware {
      * <p>
      * Overridden to construct a {@link MongoIteratorImpl} around the reply.
      * </p>
-     *
+     * 
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override

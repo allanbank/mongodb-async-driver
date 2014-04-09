@@ -30,7 +30,7 @@ import com.allanbank.mongodb.bson.Visitor;
 /**
  * MongoTimestampElementTest provides tests for the
  * {@link MongoTimestampElement} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoTimestampElementTest {

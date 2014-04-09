@@ -10,7 +10,7 @@ import com.allanbank.mongodb.MongoDbException;
 /**
  * CannotConnectException is thrown to report a failure when attempting to
  * connect to MongoDB.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -31,7 +31,7 @@ public class CannotConnectException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     *
+     * 
      * @param message
      *            Message for the exception.
      */
@@ -41,7 +41,7 @@ public class CannotConnectException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     *
+     * 
      * @param message
      *            Message for the exception.
      * @param cause
@@ -53,7 +53,7 @@ public class CannotConnectException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     *
+     * 
      * @param cause
      *            The cause of the error.
      */

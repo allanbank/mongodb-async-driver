@@ -27,14 +27,14 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * Tests for the {@link BsonOutputStream} class.
- *
+ * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BsonOutputStreamTest {
 
     /**
      * Test method for {@link BsonInputStream#readDocument()}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -92,7 +92,7 @@ public class BsonOutputStreamTest {
 
     /**
      * Test method for {@link BsonOutputStream#writeDocument}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -118,7 +118,7 @@ public class BsonOutputStreamTest {
 
     /**
      * Test method for {@link BsonOutputStream#writeDocument}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */

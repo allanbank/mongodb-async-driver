@@ -20,7 +20,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * Message to apply an <a href=
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPUPDATE"
  * >update</a> to a document.
- *
+ * 
  * <pre>
  * <code>
  * struct OP_UPDATE {
@@ -33,8 +33,8 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * }
  * </code>
  * </pre>
- *
- *
+ * 
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -72,7 +72,7 @@ public class Update extends AbstractMessage {
 
     /**
      * Creates a new Update.
-     *
+     * 
      * @param in
      *            The input stream to read the update message from.
      * @throws IOException
@@ -93,7 +93,7 @@ public class Update extends AbstractMessage {
 
     /**
      * Creates a new Update.
-     *
+     * 
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -123,10 +123,10 @@ public class Update extends AbstractMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -160,7 +160,7 @@ public class Update extends AbstractMessage {
 
     /**
      * Returns the query to select the document to update.
-     *
+     * 
      * @return The query to select the document to update.
      */
     public Document getQuery() {
@@ -169,7 +169,7 @@ public class Update extends AbstractMessage {
 
     /**
      * Returns the updates to apply to the selected document(s).
-     *
+     * 
      * @return The updates to apply to the selected document(s).
      */
     public Document getUpdate() {
@@ -178,7 +178,7 @@ public class Update extends AbstractMessage {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override
@@ -195,7 +195,7 @@ public class Update extends AbstractMessage {
     /**
      * Returns true if all documents matching the query should be updated,
      * otherwise only the first document should be updated.
-     *
+     * 
      * @return True if all documents matching the query should be updated,
      *         otherwise only the first document should be updated.
      */
@@ -206,7 +206,7 @@ public class Update extends AbstractMessage {
     /**
      * Returns true if the document should be inserted if none match the query
      * criteria.
-     *
+     * 
      * @return True if the document should be inserted if none match the query
      *         criteria.
      */
@@ -248,7 +248,7 @@ public class Update extends AbstractMessage {
      * <p>
      * Overridden to write the update message.
      * </p>
-     *
+     * 
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -277,7 +277,7 @@ public class Update extends AbstractMessage {
      * <p>
      * Overridden to write the update message.
      * </p>
-     *
+     * 
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -299,7 +299,7 @@ public class Update extends AbstractMessage {
 
     /**
      * Computes the message flags bit field.
-     *
+     * 
      * @return The message flags bit field.
      */
     private int computeFlags() {

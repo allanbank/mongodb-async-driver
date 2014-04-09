@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * ManagedProcess provides the ability to manage a process.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ManagedProcess {
@@ -41,7 +41,7 @@ public class ManagedProcess {
 
     /**
      * Creates a new ClusterTestSupport.ManagedProcess.
-     *
+     * 
      * @param executable
      *            The executable being run.
      * @param process
@@ -67,7 +67,7 @@ public class ManagedProcess {
 
     /**
      * Returns the output value.
-     *
+     * 
      * @return The output value.
      */
     public String getOutput() {
@@ -99,7 +99,7 @@ public class ManagedProcess {
     /**
      * Waits for the log file to contain the standard message that mongod is
      * waiting on the specified port.
-     *
+     * 
      * @param port
      *            The port to search for.
      * @param waitMs
@@ -112,7 +112,7 @@ public class ManagedProcess {
     /**
      * Waits for the log file to contain the specified token {@code count}
      * times.
-     *
+     * 
      * @param token
      *            The token to search for.
      * @param count
@@ -152,7 +152,7 @@ public class ManagedProcess {
 
     /**
      * Waits for the log file to contain the specified token.
-     *
+     * 
      * @param token
      *            The token to search for.
      * @param waitMs
@@ -164,7 +164,7 @@ public class ManagedProcess {
 
     /**
      * Sleeps for the specified number of milliseconds.
-     *
+     * 
      * @param millis
      *            The number of milliseconds to sleep.
      */
@@ -179,7 +179,7 @@ public class ManagedProcess {
 
     /**
      * Returns true if the output buffer has grown from the length.
-     *
+     * 
      * @param length
      *            The length for the buffer.
      * @return True if the buffer contains more characters than {@code length}.
@@ -197,7 +197,7 @@ public class ManagedProcess {
     /**
      * OutputReader provides a background process to read in all of the output
      * from the process.
-     *
+     * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected final class OutputReader implements Runnable {

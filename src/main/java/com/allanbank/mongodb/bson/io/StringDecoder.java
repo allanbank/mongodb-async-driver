@@ -29,7 +29,7 @@ import java.nio.charset.Charset;
  * <p>
  * This class is <b>not</b> thread safe.
  * </p>
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -98,7 +98,7 @@ public class StringDecoder {
     /**
      * Decode a string of a known length. The last byte should be a zero byte
      * and will not be included in the decoded string.
-     *
+     * 
      * @param source
      *            The source of the bytes in the string.
      * @param offset
@@ -150,7 +150,7 @@ public class StringDecoder {
 
     /**
      * Returns the maximum node count.
-     *
+     * 
      * @return The maximum node count.
      */
     public int getMaxCacheEntries() {
@@ -160,7 +160,7 @@ public class StringDecoder {
     /**
      * Returns the maximum depth of the nodes in the trie. This can be used to
      * stop a single long string from pushing useful values out of the cache.
-     *
+     * 
      * @return The maximum depth of the nodes in the trie.
      */
     public int getMaxCacheLength() {
@@ -169,7 +169,7 @@ public class StringDecoder {
 
     /**
      * Sets the value of maximum number of cached strings.
-     *
+     * 
      * @param maxCacheEntries
      *            The new value for the maximum number of cached strings.
      */
@@ -181,7 +181,7 @@ public class StringDecoder {
      * Sets the value of maximum depth of the nodes in the trie to the new
      * value. This can be used to stop a single long string from pushing useful
      * values out of the cache.
-     *
+     * 
      * @param maxlength
      *            The new value for the maximum depth of the nodes in the trie.
      */
@@ -202,7 +202,7 @@ public class StringDecoder {
 
     /**
      * Adds a node to the head of the recent linked list.
-     *
+     * 
      * @param node
      *            The node to add to the recent list.
      */
@@ -214,7 +214,7 @@ public class StringDecoder {
      * Creates a new node in the trie with the specified parent and value. This
      * method may remove nodes from the trie if it has grown beyond the
      * {@link #setMaxCacheEntries maximum cached entries}.
-     *
+     * 
      * @param parent
      *            The parent of the node in the trie.
      * @param value
@@ -235,7 +235,7 @@ public class StringDecoder {
 
     /**
      * Retrieves or caches the decoded string for the Trie.
-     *
+     * 
      * @param source
      *            The source of the bytes in the string.
      * @param offset
@@ -278,7 +278,7 @@ public class StringDecoder {
 
     /**
      * Finds the root node for the value.
-     *
+     * 
      * @param first
      *            The first value in the trie.
      * @return The root node for the trie.
@@ -307,7 +307,7 @@ public class StringDecoder {
 
     /**
      * Retrieves or caches the decoded string for the Trie.
-     *
+     * 
      * @param source
      *            The source of the bytes in the string.
      * @param offset
@@ -340,7 +340,7 @@ public class StringDecoder {
 
     /**
      * Moves the node to the head of the recent list.
-     *
+     * 
      * @param node
      *            The node to move to the head of the recent list.
      */
@@ -365,7 +365,7 @@ public class StringDecoder {
      * {@code zone} and represents the first/high nibble of the value for the
      * child node. The second dimension of the array is the second/low nibble.</li>
      * </ul>
-     *
+     * 
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.
@@ -395,7 +395,7 @@ public class StringDecoder {
 
         /**
          * Creates a new Node.
-         *
+         * 
          * @param parent
          *            The parent node. May be <code>null</code>.
          * @param value
@@ -417,7 +417,7 @@ public class StringDecoder {
 
         /**
          * Add a node after the provided node.
-         *
+         * 
          * @param node
          *            The head node.
          */
@@ -433,29 +433,29 @@ public class StringDecoder {
 
         /**
          * Adds a child node to this node.
-         *
+         * 
          * @param child
          *            The child node to add.
          */
         public void addChild(final Node child) {
             final int value = child.getValue();
             final int zone = (value & 0xF0) >> 4;
-        final int index = (value & 0x0F);
+            final int index = (value & 0x0F);
 
-        if (myChildren == null) {
-            myChildren = new Node[16][];
-            myChildren[zone] = new Node[16];
-        }
-        else if (myChildren[zone] == null) {
-            myChildren[zone] = new Node[16];
-        }
+            if (myChildren == null) {
+                myChildren = new Node[16][];
+                myChildren[zone] = new Node[16];
+            }
+            else if (myChildren[zone] == null) {
+                myChildren[zone] = new Node[16];
+            }
 
-        myChildren[zone][index] = child;
+            myChildren[zone][index] = child;
         }
 
         /**
          * Returns the child node with the specified value.
-         *
+         * 
          * @param value
          *            The value for the child to find.
          * @return The child node for the value or null if there is node child
@@ -463,17 +463,17 @@ public class StringDecoder {
          */
         public Node child(final byte value) {
             final int zone = (value & 0xF0) >> 4;
-        final int index = (value & 0x0F);
+            final int index = (value & 0x0F);
 
-        if ((myChildren != null) && (myChildren[zone] != null)) {
-            return myChildren[zone][index];
-        }
-        return null;
+            if ((myChildren != null) && (myChildren[zone] != null)) {
+                return myChildren[zone][index];
+            }
+            return null;
         }
 
         /**
          * Returns the node's decoded value.
-         *
+         * 
          * @return The node's decoded value.
          */
         public String getDecoded() {
@@ -482,7 +482,7 @@ public class StringDecoder {
 
         /**
          * Returns the next node in the recent list.
-         *
+         * 
          * @return The next node in the recent list.
          */
         public Node getNext() {
@@ -491,7 +491,7 @@ public class StringDecoder {
 
         /**
          * Returns the previous node in the recent list.
-         *
+         * 
          * @return The previous node in the recent list.
          */
         public Node getPrevious() {
@@ -500,7 +500,7 @@ public class StringDecoder {
 
         /**
          * Returns the node's value.
-         *
+         * 
          * @return The node's value.
          */
         public byte getValue() {
@@ -509,7 +509,7 @@ public class StringDecoder {
 
         /**
          * Removes the node and its children from the trie.
-         *
+         * 
          * @return The number of nodes removed.
          */
         public int remove() {
@@ -551,7 +551,7 @@ public class StringDecoder {
 
         /**
          * Sets the decoded value for the node.
-         *
+         * 
          * @param decoded
          *            The decoded value for the node.
          */
@@ -561,18 +561,18 @@ public class StringDecoder {
 
         /**
          * Removes the child node from this parent node.
-         *
+         * 
          * @param child
          *            The child node to remove.
          */
         private void removeChild(final Node child) {
             final int value = child.getValue();
             final int zone = (value & 0xF0) >> 4;
-        final int index = (value & 0x0F);
+            final int index = (value & 0x0F);
 
-        if ((myChildren != null) && (myChildren[zone] != null)) {
-            myChildren[zone][index] = null;
-        }
+            if ((myChildren != null) && (myChildren[zone] != null)) {
+                myChildren[zone][index] = null;
+            }
         }
     }
 }

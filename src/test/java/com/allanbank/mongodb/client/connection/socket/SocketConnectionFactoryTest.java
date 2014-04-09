@@ -30,7 +30,7 @@ import com.allanbank.mongodb.client.connection.Connection;
 /**
  * SocketConnectionFactoryTest provides tests for the
  * {@link SocketConnectionFactory} class.
- *
+ * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionFactoryTest {
@@ -39,7 +39,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -52,7 +52,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Stops a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -77,7 +77,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#close()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -94,7 +94,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -130,7 +130,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -159,7 +159,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -184,7 +184,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -223,7 +223,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#getClusterType()}.
-     *
+     * 
      * @throws IOException
      *             on a test failure.
      */
@@ -245,6 +245,6 @@ public class SocketConnectionFactoryTest {
         builder.pushArray("versionArray").add(1).add(2L).add(3.0);
 
         myTestFactory.getState().add(ourServer.getInetSocketAddress())
-        .update(builder.build());
+                .update(builder.build());
     }
 }

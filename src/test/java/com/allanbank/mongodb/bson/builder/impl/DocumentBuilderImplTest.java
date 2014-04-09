@@ -47,7 +47,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * DocumentBuilderImplTest provides tests for a {@link DocumentBuilderImpl}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DocumentBuilderImplTest {

@@ -21,7 +21,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 /**
  * AggregationGeoNearTest provides tests for the {@link AggregationGeoNear}
  * class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("boxing")

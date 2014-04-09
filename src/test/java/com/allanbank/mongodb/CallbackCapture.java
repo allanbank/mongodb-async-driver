@@ -11,10 +11,10 @@ import org.easymock.EasyMock;
 /**
  * CallbackCapture provides the ability to trigger the callback when called from
  * an {@link EasyMock} mock.
- *
+ * 
  * @param <T>
  *            The type of value expected by the callback.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CallbackCapture<T> extends Capture<Callback<T>> {
@@ -24,7 +24,7 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
 
     /**
      * Creates a new CallbackCapture.
-     *
+     * 
      * @param value
      *            The value to provide to the callback.
      * @return The CallbackCapture.
@@ -36,7 +36,7 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
 
     /**
      * Creates a new CallbackCapture.
-     *
+     * 
      * @param error
      *            The error to provide to the callback.
      * @return The CallbackCapture.
@@ -48,7 +48,7 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
 
     /**
      * Creates a new CallbackCapture.
-     *
+     * 
      * @return The CallbackCapture.
      */
     public static <T> Callback<T> callbackError() {
@@ -64,7 +64,7 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
 
     /**
      * Creates a new CallbackCapture.
-     *
+     * 
      * @param reply
      *            The reply to provide to the callback.
      */
@@ -75,7 +75,7 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
 
     /**
      * Creates a new CallbackCapture.
-     *
+     * 
      * @param error
      *            The error to provide to the callback.
      */

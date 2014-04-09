@@ -38,11 +38,11 @@ import com.allanbank.mongodb.client.message.Update;
 /**
  * BatchedAsyncMongoCollectionImpl provides the implementation for the
  * {@link BatchedAsyncMongoCollection}.
- *
+ * 
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImpl extends
-AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
+        AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
     /** The interfaces to implement via the proxy. */
     private static final Class<?>[] CLIENT_INTERFACE = new Class[] { Client.class };
@@ -58,7 +58,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
     /**
      * Creates a new BatchedAsyncMongoCollectionImpl.
-     *
+     * 
      * @param client
      *            The client for interacting with MongoDB.
      * @param database
@@ -116,7 +116,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
     /**
      * Returns the mode for the batched writes.
-     *
+     * 
      * @return The mode for the batched writes.
      */
     public BatchedWriteMode getMode() {
@@ -125,7 +125,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
     /**
      * Returns true if the deletes should be batched.
-     *
+     * 
      * @return True if the deletes should be batched.
      */
     public boolean isBatchDeletes() {
@@ -134,7 +134,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
     /**
      * Returns true if the updates should be batched.
-     *
+     * 
      * @return True if the updates should be batched.
      */
     public boolean isBatchUpdates() {
@@ -168,7 +168,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
     /**
      * CaptureClientHandler provides an {@link InvocationHandler} to capture all
      * send requests and defer them until flushed.
-     *
+     * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     private static class CaptureClientHandler implements InvocationHandler {
@@ -203,7 +203,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
         /**
          * Creates a new CaptureClientHandler.
-         *
+         * 
          * @param realClient
          *            The {@link Client} implementation to delegate to when
          *            sending messages or handling other method calls.
@@ -238,15 +238,15 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
                 }
                 else if (lastArg instanceof Callback<?>) {
                     ((Callback<?>) lastArg)
-                    .exception(new CancellationException(
-                            "Batch request cancelled."));
+                            .exception(new CancellationException(
+                                    "Batch request cancelled."));
                 }
             }
         }
 
         /**
          * Flushes the pending messages to a serialized client.
-         *
+         * 
          * @param collection
          *            The Collection the we are flushing operations for.
          */
@@ -312,7 +312,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
         /**
          * Adds a delete to the batch.
-         *
+         * 
          * @param delete
          *            The delete to add to the batch.
          * @param args
@@ -328,7 +328,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
         /**
          * Adds an insert to the batch.
-         *
+         * 
          * @param insert
          *            The insert to add to the batch.
          * @param args
@@ -362,7 +362,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
 
         /**
          * Adds an update to the batch.
-         *
+         * 
          * @param update
          *            The update to add to the batch.
          * @param args
@@ -403,7 +403,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
         /**
          * Extracts the callback from the write arguments. If the write has a
          * {@link Callback} then it will be the last argument.
-         *
+         * 
          * @param args
          *            The arguments for the original {@link Client#send} call.
          * @return The callback for the call. Returns null if there is no
@@ -422,7 +422,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
          * Tries the optimize the messages we will send to the server by
          * coalescing the sequential insert, update and delete messages into the
          * batched write commands of the same name.
-         *
+         * 
          * @param collection
          *            The collection we are sending requests to.
          * @return The list of optimized messages.
@@ -488,7 +488,7 @@ AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
         /**
          * Updates the durability for the batch. If the durability changes
          * mid-batch then we force a break in the batch.
-         *
+         * 
          * @param args
          *            The arguments for the send() call. The
          *            {@link GetLastError} will be the second of three

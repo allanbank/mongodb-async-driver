@@ -19,7 +19,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * Message to <a href=
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPGETMORE"
  * >getmore</a> documents from a cursor. The format of the message is:
- *
+ * 
  * <pre>
  * <code>
  * struct {
@@ -31,8 +31,8 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * }
  * </code>
  * </pre>
- *
- *
+ * 
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -47,7 +47,7 @@ public class GetMore extends AbstractMessage {
 
     /**
      * Creates a new GetMore.
-     *
+     * 
      * @param in
      *            The stream to read the get_more message from.
      * @throws IOException
@@ -62,7 +62,7 @@ public class GetMore extends AbstractMessage {
 
     /**
      * Creates a new GetMore.
-     *
+     * 
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -86,10 +86,10 @@ public class GetMore extends AbstractMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -109,7 +109,7 @@ public class GetMore extends AbstractMessage {
 
     /**
      * Returns the id of the cursor to get more documents from.
-     *
+     * 
      * @return The id of the cursor to get more documents from.
      */
     public long getCursorId() {
@@ -118,7 +118,7 @@ public class GetMore extends AbstractMessage {
 
     /**
      * Return the number of documents to return from the cursor.
-     *
+     * 
      * @return The number of documents to return from the cursor.
      */
     public int getNumberToReturn() {
@@ -138,7 +138,7 @@ public class GetMore extends AbstractMessage {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override
@@ -168,7 +168,7 @@ public class GetMore extends AbstractMessage {
      * <p>
      * Overridden to write a get_more message.
      * </p>
-     *
+     * 
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -192,7 +192,7 @@ public class GetMore extends AbstractMessage {
      * <p>
      * Overridden to write a get_more message.
      * </p>
-     *
+     * 
      * @see Message#write(int, BsonOutputStream)
      */
     @Override

@@ -92,7 +92,7 @@ import com.allanbank.mongodb.error.ServerVersionException;
 
 /**
  * SocketConnectionTest provides tests for the {@link SocketConnection} class.
- *
+ * 
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionTest {
@@ -111,7 +111,7 @@ public class SocketConnectionTest {
 
     /**
      * Starts a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -123,7 +123,7 @@ public class SocketConnectionTest {
 
     /**
      * Stops a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -146,7 +146,7 @@ public class SocketConnectionTest {
     @Before
     public void setUp() {
         myTestServer = new Cluster(new MongoClientConfiguration())
-        .add(ourServer.getInetSocketAddress());
+                .add(ourServer.getInetSocketAddress());
 
         // Disable the re-request of build information.
         myTestServer.update(BUILD_INFO);
@@ -154,7 +154,7 @@ public class SocketConnectionTest {
 
     /**
      * Cleans up the test connection.
-     *
+     * 
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -170,7 +170,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -182,7 +182,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testAutoClose() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
@@ -226,7 +226,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -267,7 +267,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -309,7 +309,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -372,7 +372,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -430,7 +430,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -488,7 +488,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -547,7 +547,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -608,7 +608,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -660,7 +660,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -714,8 +714,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -724,7 +724,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -781,7 +781,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -822,7 +822,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -870,7 +870,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -925,7 +925,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -987,7 +987,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1050,7 +1050,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1113,7 +1113,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1176,7 +1176,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1239,7 +1239,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1302,7 +1302,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1365,7 +1365,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1424,8 +1424,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -1434,7 +1434,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#raiseErrors(MongoDbException)} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1491,7 +1491,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -1503,7 +1503,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testRead() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1555,7 +1555,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1569,7 +1569,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testRead2() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -1621,7 +1621,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1631,7 +1631,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadDelete() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1669,7 +1669,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1679,7 +1679,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadGarbage() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1743,7 +1743,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1753,7 +1753,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadGetMore() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1792,7 +1792,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1802,7 +1802,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadInsert() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1841,7 +1841,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1851,7 +1851,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadKillCursors() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1890,7 +1890,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1902,7 +1902,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadQuery() throws IOException, InterruptedException,
-    TimeoutException, ExecutionException {
+            TimeoutException, ExecutionException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -1939,7 +1939,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1951,7 +1951,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadStuff() throws IOException, InterruptedException,
-    ExecutionException, TimeoutException {
+            ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -2003,7 +2003,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2013,7 +2013,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadTimeout() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         ourServer.setReplies(Arrays.asList(new byte[] { 1 }));
 
@@ -2046,7 +2046,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2056,7 +2056,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadUpdate() throws IOException, InterruptedException,
-    TimeoutException {
+            TimeoutException {
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final BsonOutputStream bout = new BsonOutputStream(out);
@@ -2095,7 +2095,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -2107,7 +2107,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReadWhenPendingQueueIsCorrupt() throws IOException,
-    InterruptedException, ExecutionException, TimeoutException {
+            InterruptedException, ExecutionException, TimeoutException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -2193,7 +2193,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2203,7 +2203,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReplyWithLatency() throws IOException,
-    InterruptedException, TimeoutException {
+            InterruptedException, TimeoutException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         myTestConnection = new SocketConnection(myTestServer, config);
@@ -2222,7 +2222,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2232,7 +2232,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testReplyWithoutLatency() throws IOException,
-    InterruptedException, TimeoutException {
+            InterruptedException, TimeoutException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         myTestConnection = new SocketConnection(myTestServer, config);
@@ -2250,7 +2250,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2291,7 +2291,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2333,7 +2333,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2375,7 +2375,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2383,7 +2383,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testSendRuntimeException() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
@@ -2418,7 +2418,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#close()}.
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2462,7 +2462,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#shutdown} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2511,7 +2511,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#shutdown} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2519,7 +2519,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testShutdownWhenClosed() throws IOException,
-    InterruptedException {
+            InterruptedException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setReadTimeout(100);
@@ -2545,7 +2545,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2602,7 +2602,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2644,7 +2644,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2669,7 +2669,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2689,7 +2689,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2735,7 +2735,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2781,7 +2781,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2816,7 +2816,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2863,7 +2863,7 @@ public class SocketConnectionTest {
      * Test method for
      * {@link SocketConnection#SocketConnection(Server, MongoClientConfiguration)}
      * .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2914,7 +2914,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#stop} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2962,7 +2962,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3016,8 +3016,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -3026,7 +3026,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3080,8 +3080,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -3090,7 +3090,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#send} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3144,8 +3144,8 @@ public class SocketConnectionTest {
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request,
                         (request.length - helloWorld.length)
-                        - helloWorld.length, request.length
-                        - helloWorld.length));
+                                - helloWorld.length, request.length
+                                - helloWorld.length));
         assertArrayEquals(
                 "The end of the request should be the hello world document.",
                 helloWorld, Arrays.copyOfRange(request, request.length
@@ -3154,7 +3154,7 @@ public class SocketConnectionTest {
 
     /**
      * Test method for {@link SocketConnection#shutdown} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -3162,7 +3162,7 @@ public class SocketConnectionTest {
      */
     @Test
     public void testWaitForClosedWhenInterrupted() throws IOException,
-    InterruptedException {
+            InterruptedException {
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
                 (byte) 'h', (byte) 'e', (byte) 'l', (byte) 'l', (byte) 'o',
@@ -3204,7 +3204,7 @@ public class SocketConnectionTest {
 
     /**
      * Waits for the capture to have been set.
-     *
+     * 
      * @param capture
      *            The capture to wait for.
      */
@@ -3228,7 +3228,7 @@ public class SocketConnectionTest {
     /**
      * AFUNIXSocketException provides a test instance of the Unix domain socket
      * exception.
-     *
+     * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static final class AFUNIXSocketException extends SocketException {
@@ -3241,11 +3241,11 @@ public class SocketConnectionTest {
     /**
      * SocketFactoryWithConnectionListener provides a test socket factory that
      * also implements SocketConnectionListener.
-     *
+     * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public abstract class SocketFactoryWithConnectionListener extends
-    SocketFactory implements SocketConnectionListener {
+            SocketFactory implements SocketConnectionListener {
         // Nothing.
     }
 }

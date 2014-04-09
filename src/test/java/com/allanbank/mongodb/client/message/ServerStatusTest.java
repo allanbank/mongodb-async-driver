@@ -16,7 +16,7 @@ import com.allanbank.mongodb.ReadPreference;
 
 /**
  * ServerStatusTest provides tests for the {@link ServerStatus} message.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerStatusTest {

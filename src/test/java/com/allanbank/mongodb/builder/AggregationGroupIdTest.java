@@ -17,7 +17,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 /**
  * AggregationGroupIdTest provides tests for the {@link AggregationGroupId} and
  * {@link AggregationGroupId.Builder} classes.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregationGroupIdTest {
@@ -38,13 +38,13 @@ public class AggregationGroupIdTest {
         assertEquals(new DocumentElement("_id",
                 new StringElement("bar", "$bar"), new StringElement("baz",
                         "$baz")),
-                        id().addField("bar", "bar").addField("baz", "$baz").buildId()
+                id().addField("bar", "bar").addField("baz", "$baz").buildId()
                         .toElement());
 
         assertEquals(new DocumentElement("_id",
                 new StringElement("bar", "$bar"), new StringElement("baz",
                         "$baz")), id().addField("bar").addField("$baz")
-                        .buildId().toElement());
+                .buildId().toElement());
     }
 
     /**

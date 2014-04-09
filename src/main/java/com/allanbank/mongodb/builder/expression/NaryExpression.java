@@ -17,7 +17,7 @@ import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 /**
  * NaryExpression provides an implementation of an {@link Expression} with 2-N
  * operands.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -29,7 +29,7 @@ public class NaryExpression implements Expression, ElementAssignable {
 
     /**
      * Creates a new NaryExpression.
-     *
+     * 
      * @param operator
      *            The operator this object represents.
      * @param expressions
@@ -52,13 +52,13 @@ public class NaryExpression implements Expression, ElementAssignable {
      * Overridden to return the sub expressions as a {@link ArrayElement}:
      * </p>
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * "$op" : [ &lt;e1&gt;, &lt;e2&gt;, &lt;e2&gt;, ... ]
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      */
     @Override
@@ -73,13 +73,13 @@ public class NaryExpression implements Expression, ElementAssignable {
      * array element:
      * </p>
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * { &lt;name&gt; : { "$op" : [ &lt;e1&gt;, &lt;e2&gt;, &lt;e2&gt;, ... ] } }
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      */
     @Override
@@ -93,13 +93,13 @@ public class NaryExpression implements Expression, ElementAssignable {
      * Overridden to return the expression in JSON format.
      * </p>
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * "$op" : [ &lt;e1&gt;, &lt;e2&gt;, &lt;e2&gt;, ... ]
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      */
     @Override

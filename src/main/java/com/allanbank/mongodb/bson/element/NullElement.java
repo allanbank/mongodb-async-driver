@@ -11,7 +11,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON null.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -29,7 +29,7 @@ public class NullElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     *
+     * 
      * @param name
      *            The name for the element.
      * @return The size of the element when encoded in bytes.
@@ -43,7 +43,7 @@ public class NullElement extends AbstractElement {
 
     /**
      * Constructs a new {@link NullElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON null.
      * @throws IllegalArgumentException
@@ -55,7 +55,7 @@ public class NullElement extends AbstractElement {
 
     /**
      * Constructs a new {@link NullElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON null.
      * @param size
@@ -71,7 +71,7 @@ public class NullElement extends AbstractElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitNull} method.
-     *
+     * 
      * @see Element#accept(Visitor)
      */
     @Override

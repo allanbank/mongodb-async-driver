@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.impl.EmptyDocument;
 
 /**
  * InsertOperationTest provides tests for the {@link InsertOperation} class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class InsertOperationTest {

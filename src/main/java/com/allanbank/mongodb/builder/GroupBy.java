@@ -22,7 +22,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * Group provides a container for all of the options to a <tt>group</tt>
  * command. A {@link Builder} is provided to assist in creating a
  * {@link GroupBy}.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -38,7 +38,7 @@ public class GroupBy {
 
     /**
      * Creates a new builder for a {@link GroupBy}.
-     *
+     * 
      * @return The builder to construct a {@link GroupBy}.
      */
     public static Builder builder() {
@@ -77,7 +77,7 @@ public class GroupBy {
 
     /**
      * Creates a new GroupBy.
-     *
+     * 
      * @param builder
      *            The builder to copy the state from.
      * @throws IllegalArgumentException
@@ -102,7 +102,7 @@ public class GroupBy {
 
     /**
      * Returns the finalizer function to run for each group.
-     *
+     * 
      * @return The finalizer function to run for each group.
      */
     public String getFinalizeFunction() {
@@ -111,7 +111,7 @@ public class GroupBy {
 
     /**
      * Returns the initial value for each group.
-     *
+     * 
      * @return The initial value for each group.
      */
     public Document getInitialValue() {
@@ -122,7 +122,7 @@ public class GroupBy {
      * Returns the function to return the key for a document. Used instead of
      * the {@link #getKeys} to dynamically determine the group for each
      * document.
-     *
+     * 
      * @return The function to return the key for a document. Used instead of
      *         the {@link #getKeys} to dynamically determine the group for each
      *         document.
@@ -133,7 +133,7 @@ public class GroupBy {
 
     /**
      * Returns the fields to group by.
-     *
+     * 
      * @return The fields to group by.
      */
     public Set<String> getKeys() {
@@ -143,10 +143,10 @@ public class GroupBy {
     /**
      * Returns the maximum amount of time to allow the command to run on the
      * Server before it is aborted.
-     *
+     * 
      * @return The maximum amount of time to allow the command to run on the
      *         Server before it is aborted.
-     *
+     * 
      * @since MongoDB 2.6
      */
     public long getMaximumTimeMilliseconds() {
@@ -155,7 +155,7 @@ public class GroupBy {
 
     /**
      * Returns the query to select the documents to run the group against.
-     *
+     * 
      * @return The query to select the documents to run the group against.
      */
     public Document getQuery() {
@@ -169,9 +169,9 @@ public class GroupBy {
      * If <code>null</code> then the {@link MongoCollection} instance's
      * {@link ReadPreference} will be used.
      * </p>
-     *
+     * 
      * @return The read preference to use.
-     *
+     * 
      * @see MongoCollection#getReadPreference()
      */
     public ReadPreference getReadPreference() {
@@ -181,7 +181,7 @@ public class GroupBy {
     /**
      * Returns the reduce function taking the previous value and the current
      * value and returning the new reduced value.
-     *
+     * 
      * @return The reduce function taking the previous value and the current
      *         value and returning the new reduced value.
      */
@@ -191,7 +191,7 @@ public class GroupBy {
 
     /**
      * Builder provides a builder for Group commands.
-     *
+     * 
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -243,7 +243,7 @@ public class GroupBy {
         /**
          * Creates a new {@link GroupBy} based on the current state of the
          * builder.
-         *
+         * 
          * @return A new {@link GroupBy} based on the current state of the
          *         builder.
          * @throws IllegalArgumentException
@@ -259,7 +259,7 @@ public class GroupBy {
          * <p>
          * This method delegates to {@link #setFinalizeFunction(String)}.
          * </p>
-         *
+         * 
          * @param finalizeFunction
          *            The new value for the finalizer function to run for each
          *            group.
@@ -275,7 +275,7 @@ public class GroupBy {
          * This method delegates to {@link #setInitialValue(DocumentAssignable)}
          * .
          * </p>
-         *
+         * 
          * @param initialValue
          *            The new value for the initial value for the group.
          * @return This {@link Builder} for method call chaining.
@@ -291,7 +291,7 @@ public class GroupBy {
          * <p>
          * This method delegates to {@link #setKeyFunction(String)}.
          * </p>
-         *
+         * 
          * @param keyFunction
          *            The new value for the function to return the key for a
          *            document. Used instead of the {@link #setKeys} to
@@ -307,7 +307,7 @@ public class GroupBy {
          * <p>
          * This method delegates to {@link #setKeys(Set)}.
          * </p>
-         *
+         * 
          * @param keys
          *            The new fields to group by
          * @return This {@link Builder} for method call chaining.
@@ -323,16 +323,16 @@ public class GroupBy {
          * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
          * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
          * </p>
-         *
+         * 
          * @param timeLimit
          *            The new maximum amount of time to allow the command to
          *            run.
          * @param timeLimitUnits
          *            The units for the maximum amount of time to allow the
          *            command to run.
-         *
+         * 
          * @return This {@link Builder} for method call chaining.
-         *
+         * 
          * @since MongoDB 2.6
          */
         public Builder maximumTime(final long timeLimit,
@@ -347,7 +347,7 @@ public class GroupBy {
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
          * </p>
-         *
+         * 
          * @param query
          *            The new value for the query to select the documents to run
          *            the group against.
@@ -368,11 +368,11 @@ public class GroupBy {
          * <p>
          * This method delegates to {@link #setReadPreference(ReadPreference)}.
          * </p>
-         *
+         * 
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         *
+         * 
          * @see MongoCollection#getReadPreference()
          */
         public Builder readPreference(final ReadPreference readPreference) {
@@ -385,7 +385,7 @@ public class GroupBy {
          * <p>
          * This method delegates to {@link #setReduceFunction(String)}.
          * </p>
-         *
+         * 
          * @param reduceFunction
          *            The new value for the reduce function taking the previous
          *            value and the current value and returning the new reduced
@@ -398,7 +398,7 @@ public class GroupBy {
 
         /**
          * Resets the builder back to its initial state.
-         *
+         * 
          * @return This {@link Builder} for method call chaining.
          */
         public Builder reset() {
@@ -416,7 +416,7 @@ public class GroupBy {
 
         /**
          * Sets the value of the finalizer function to run for each group.
-         *
+         * 
          * @param finalizeFunction
          *            The new value for the finalizer function to run for each
          *            group.
@@ -429,7 +429,7 @@ public class GroupBy {
 
         /**
          * Sets the value of the initial value for the group.
-         *
+         * 
          * @param initialValue
          *            The new value for the initial value for the group.
          * @return This {@link Builder} for method call chaining.
@@ -443,7 +443,7 @@ public class GroupBy {
          * Sets the value of the function to return the key for a document. Used
          * instead of the {@link #setKeys} to dynamically determine the group
          * for each document.
-         *
+         * 
          * @param keyFunction
          *            The new value for the function to return the key for a
          *            document. Used instead of the {@link #setKeys} to
@@ -457,7 +457,7 @@ public class GroupBy {
 
         /**
          * Sets the fields to group by
-         *
+         * 
          * @param keys
          *            The new fields to group by
          * @return This {@link Builder} for method call chaining.
@@ -473,12 +473,12 @@ public class GroupBy {
         /**
          * Sets the maximum number of milliseconds to allow the command to run
          * before aborting the request on the server.
-         *
+         * 
          * @param maximumTimeMilliseconds
          *            The new maximum number of milliseconds to allow the
          *            command to run.
          * @return This {@link Builder} for method call chaining.
-         *
+         * 
          * @since MongoDB 2.6
          */
         public Builder setMaximumTimeMilliseconds(
@@ -490,7 +490,7 @@ public class GroupBy {
         /**
          * Sets the value of the query to select the documents to run the group
          * against.
-         *
+         * 
          * @param query
          *            The new value for the query to select the documents to run
          *            the group against.
@@ -509,11 +509,11 @@ public class GroupBy {
          * {@link MongoCollection} instance's {@link ReadPreference} will be
          * used.
          * </p>
-         *
+         * 
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         *
+         * 
          * @see MongoCollection#getReadPreference()
          */
         public Builder setReadPreference(final ReadPreference readPreference) {
@@ -524,7 +524,7 @@ public class GroupBy {
         /**
          * Sets the value of the reduce function taking the previous value and
          * the current value and returning the new reduced value.
-         *
+         * 
          * @param reduceFunction
          *            The new value for the reduce function taking the previous
          *            value and the current value and returning the new reduced

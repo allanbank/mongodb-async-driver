@@ -14,7 +14,7 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
 /**
  * A common interface for the basic BSON types used to construct Documents and
  * arrays.
- *
+ * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -22,12 +22,12 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface Element extends Serializable, ElementAssignable,
-Comparable<Element> {
+        Comparable<Element> {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based
      * on the element type.
-     *
+     * 
      * @param visitor
      *            The visitor for the element.
      */
@@ -45,7 +45,7 @@ Comparable<Element> {
 
     /**
      * Returns the elements matching the path of regular expressions.
-     *
+     * 
      * @param <E>
      *            The type of element to match.
      * @param clazz
@@ -59,7 +59,7 @@ Comparable<Element> {
 
     /**
      * Returns the elements matching the path of regular expressions.
-     *
+     * 
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
@@ -68,7 +68,7 @@ Comparable<Element> {
 
     /**
      * Returns the first element matching the path of regular expressions.
-     *
+     * 
      * @param <E>
      *            The type of element to match.
      * @param clazz
@@ -81,7 +81,7 @@ Comparable<Element> {
 
     /**
      * Returns the first element matching the path of regular expressions.
-     *
+     * 
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The first element matching the path of regular expressions.
@@ -90,14 +90,14 @@ Comparable<Element> {
 
     /**
      * Returns the name for the BSON type.
-     *
+     * 
      * @return The name for the BSON type.
      */
     public String getName();
 
     /**
      * Returns the type for the BSON type.
-     *
+     * 
      * @return The type for the BSON type.
      */
     public ElementType getType();
@@ -116,7 +116,7 @@ Comparable<Element> {
      * {@link com.allanbank.mongodb.bson.element.StringElement#getValueAsObject()}
      * method signature returns a {@link String}.
      * </p>
-     *
+     * 
      * @return The value for BSON element as a Java {@link Object} type.
      */
     public Object getValueAsObject();
@@ -133,14 +133,14 @@ Comparable<Element> {
      * {@link JsonSerializationVisitor}. For a {@link TimestampElement} that is
      * a string of the form "ISODate('1970-01-01T00:00:00.000+0000')".
      * </p>
-     *
+     * 
      * @return The value for BSON element as a {@link String}.
      */
     public String getValueAsString();
 
     /**
      * Returns the number of bytes that are used to encode the element.
-     *
+     * 
      * @return The bytes that are used to encode the element.
      */
     public long size();
@@ -150,7 +150,7 @@ Comparable<Element> {
      * with the specified name. This is useful when creating a query across a
      * set of collections where the filed name changes in the collections but
      * the values must be identical.
-     *
+     * 
      * @param name
      *            The new name for the element.
      * @return The created element.

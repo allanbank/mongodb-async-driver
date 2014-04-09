@@ -13,7 +13,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * ReplyHandler provides the capability to properly handle the replies to a
  * callback.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyHandler implements Runnable {
@@ -21,7 +21,7 @@ public class ReplyHandler implements Runnable {
     /**
      * Raise an error on the callback, if any. Will execute the request on a
      * background thread if provided.
-     *
+     * 
      * @param exception
      *            The thrown exception.
      * @param replyCallback
@@ -49,7 +49,7 @@ public class ReplyHandler implements Runnable {
 
     /**
      * Updates to set the reply for the callback, if any.
-     *
+     * 
      * @param reply
      *            The reply.
      * @param replyCallback
@@ -89,7 +89,7 @@ public class ReplyHandler implements Runnable {
 
     /**
      * Creates a new ReplyHandler.
-     *
+     * 
      * @param replyCallback
      *            The callback for the message.
      * @param reply
@@ -104,7 +104,7 @@ public class ReplyHandler implements Runnable {
 
     /**
      * Creates a new ReplyHandler.
-     *
+     * 
      * @param replyCallback
      *            The callback for the message.
      * @param exception

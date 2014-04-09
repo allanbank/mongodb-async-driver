@@ -17,7 +17,7 @@ import com.allanbank.mongodb.client.Message;
 /**
  * MongoClientClosedExceptionTest provides tests for the
  * {@link MongoClientClosedException} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoClientClosedExceptionTest {

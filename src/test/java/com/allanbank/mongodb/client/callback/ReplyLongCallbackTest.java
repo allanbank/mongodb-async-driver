@@ -26,7 +26,7 @@ import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * ReplyLongCallbackTest provides tests for the {@link ReplyLongCallback}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyLongCallbackTest {

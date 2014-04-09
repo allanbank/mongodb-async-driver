@@ -19,10 +19,10 @@ package com.allanbank.mongodb;
  * (right-side) is the value. Generally only one of the two arguments will be
  * non-null.
  * </p>
- *
+ * 
  * @param <V>
  *            The type of the operation's result.
- *
+ * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -34,7 +34,7 @@ public interface LambdaCallback<V> {
     /**
      * Called when the MongoDB operation has completed with the error or result
      * of the operation.
-     *
+     * 
      * @param thrown
      *            The error encountered when processing the request.
      * @param result

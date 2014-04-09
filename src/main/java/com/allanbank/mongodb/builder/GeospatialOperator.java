@@ -9,7 +9,7 @@ import com.allanbank.mongodb.Version;
 
 /**
  * GeospatialOperator provides the enumeration of geospatial operators.
- *
+ * 
  * @api.yes This enumeration is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -20,14 +20,14 @@ public enum GeospatialOperator implements Operator {
 
     /**
      * Operator to return documents that are within a GeoJSON shape.
-     *
+     * 
      * @since MongoDB 2.4
      */
     GEO_WITHIN("$geoWithin", Version.VERSION_2_4),
 
     /**
      * Operator to return documents that intersect the GeoJSON shape.
-     *
+     * 
      * @since MongoDB 2.4
      */
     INTERSECT("$geoIntersects", Version.VERSION_2_4),
@@ -68,7 +68,7 @@ public enum GeospatialOperator implements Operator {
     /**
      * The modifier for the {@link #WITHIN} operator to determine if duplicate
      * documents should be returned.
-     *
+     * 
      * @deprecated Support for {@value} was removed in MongoDB 2.6.
      */
     @Deprecated
@@ -89,7 +89,7 @@ public enum GeospatialOperator implements Operator {
 
     /**
      * Creates a new GeospatialOperator.
-     *
+     * 
      * @param token
      *            The token to use when sending to the server.
      */
@@ -99,7 +99,7 @@ public enum GeospatialOperator implements Operator {
 
     /**
      * Creates a new GeospatialOperator.
-     *
+     * 
      * @param token
      *            The token to use when sending to the server.
      * @param version
@@ -112,7 +112,7 @@ public enum GeospatialOperator implements Operator {
 
     /**
      * The token for the operator that can be sent to the server.
-     *
+     * 
      * @return The token for the operator.
      */
     @Override
@@ -122,7 +122,7 @@ public enum GeospatialOperator implements Operator {
 
     /**
      * Returns the first MongoDB version to support the operator.
-     *
+     * 
      * @return The first MongoDB version to support the operator. If
      *         <code>null</code> then the version is not known and can be
      *         assumed to be all currently supported versions.

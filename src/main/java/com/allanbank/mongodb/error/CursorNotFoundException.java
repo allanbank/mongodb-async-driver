@@ -9,7 +9,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Exception raised when a get_more request is issued for an unknown cursor.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -23,7 +23,7 @@ public class CursorNotFoundException extends ReplyException {
 
     /**
      * Create a new CursorNotFoundException.
-     *
+     * 
      * @param reply
      *            The reply that raised the exception.
      * @param message
@@ -35,7 +35,7 @@ public class CursorNotFoundException extends ReplyException {
 
     /**
      * Create a new CursorNotFoundException.
-     *
+     * 
      * @param reply
      *            The reply that raised the exception.
      * @param cause

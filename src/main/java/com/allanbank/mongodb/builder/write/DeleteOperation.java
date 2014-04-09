@@ -10,7 +10,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * DeleteOperation provides a container for the fields in a delete request.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -30,7 +30,7 @@ public class DeleteOperation implements WriteOperation {
 
     /**
      * Creates a new DeleteOperation.
-     *
+     * 
      * @param query
      *            The query to find the documents to delete.
      * @param singleDelete
@@ -47,10 +47,10 @@ public class DeleteOperation implements WriteOperation {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see Object#equals(Object)
      */
     @Override
@@ -70,7 +70,7 @@ public class DeleteOperation implements WriteOperation {
 
     /**
      * Returns the query to find the documents to delete.
-     *
+     * 
      * @return The query to find the documents to delete.
      */
     public Document getQuery() {
@@ -90,7 +90,7 @@ public class DeleteOperation implements WriteOperation {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override
@@ -103,7 +103,7 @@ public class DeleteOperation implements WriteOperation {
 
     /**
      * Returns true if the operation should only delete at most one document.
-     *
+     * 
      * @return True if the operation should only delete at most one document.
      */
     public boolean isSingleDelete() {

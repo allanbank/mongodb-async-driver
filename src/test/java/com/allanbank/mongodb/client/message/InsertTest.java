@@ -33,7 +33,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * InsertTest provides tests for the {@link Insert} message.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class InsertTest {
@@ -111,7 +111,7 @@ public class InsertTest {
 
     /**
      * Test method for {@link Insert#Insert(Header, BsonInputStream)} .
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */

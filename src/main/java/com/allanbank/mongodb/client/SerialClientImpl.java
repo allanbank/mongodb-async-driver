@@ -21,7 +21,7 @@ import com.allanbank.mongodb.client.connection.Connection;
 /**
  * A specialization of the {@link ClientImpl} to always try to use the same
  * connection.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -42,7 +42,7 @@ public class SerialClientImpl extends AbstractClient {
 
     /**
      * Create a new SerialClientImpl.
-     *
+     * 
      * @param client
      *            The delegate client for accessing connections.
      */
@@ -55,7 +55,7 @@ public class SerialClientImpl extends AbstractClient {
      * <p>
      * Overridden to close all of the open connections.
      * </p>
-     *
+     * 
      * @see Closeable#close()
      */
     @Override
@@ -106,7 +106,7 @@ public class SerialClientImpl extends AbstractClient {
      * <p>
      * Overridden to return the configurations default durability.
      * </p>
-     *
+     * 
      * @see Client#getDefaultDurability()
      */
     @Override
@@ -119,7 +119,7 @@ public class SerialClientImpl extends AbstractClient {
      * <p>
      * Overridden to return the configurations default read preference.
      * </p>
-     *
+     * 
      * @see Client#getDefaultReadPreference()
      */
     @Override
@@ -132,13 +132,13 @@ public class SerialClientImpl extends AbstractClient {
      * <p>
      * Overridden to forward to the delegate client.
      * </p>
-     *
+     * 
      * @see Client#restart(DocumentAssignable)
      */
     @Override
     public MongoIterator<Document> restart(
             final DocumentAssignable cursorDocument)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         return myDelegate.restart(cursorDocument);
     }
 
@@ -147,13 +147,13 @@ public class SerialClientImpl extends AbstractClient {
      * <p>
      * Overridden to forward to the delegate client.
      * </p>
-     *
+     * 
      * @see Client#restart(StreamCallback, DocumentAssignable)
      */
     @Override
     public MongoCursorControl restart(final StreamCallback<Document> results,
             final DocumentAssignable cursorDocument)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         return myDelegate.restart(results, cursorDocument);
     }
 
@@ -161,7 +161,7 @@ public class SerialClientImpl extends AbstractClient {
      * Tries to reuse the last connection used. If the connection it closed or
      * does not exist then the request is delegated to the {@link ClientImpl}
      * and the result cached for future requests.
-     *
+     * 
      * @return The found connection.
      * @throws MongoDbException
      *             On a failure to talk to the MongoDB servers.

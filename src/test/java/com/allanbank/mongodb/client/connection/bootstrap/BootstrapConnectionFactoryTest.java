@@ -51,7 +51,7 @@ import com.allanbank.mongodb.error.CannotConnectException;
 
 /**
  * Integration test for the {@link BootstrapConnectionFactory}.
- *
+ * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BootstrapConnectionFactoryTest {
@@ -72,7 +72,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -84,7 +84,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Stops a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -100,7 +100,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Cleans up the test connection.
-     *
+     * 
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -138,7 +138,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
-     *
+     * 
      * @throws UnknownHostException
      *             On a failure to resolve localhost.
      */
@@ -148,7 +148,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod");
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -176,7 +176,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
-     *
+     * 
      * @throws UnknownHostException
      *             On a failure to resolve localhost.
      */
@@ -186,7 +186,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod").add("ok", 0);
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -263,7 +263,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod");
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 ourServer.getInetSocketAddress());
@@ -291,7 +291,7 @@ public class BootstrapConnectionFactoryTest {
         replStatusBuilder.addString("process", "mongod");
 
         ourServer
-        .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
+                .setReplies(reply(start(BUILD_INFO)), reply(replStatusBuilder));
 
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 fails, ourServer.getInetSocketAddress());
@@ -334,7 +334,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#close()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */

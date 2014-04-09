@@ -32,7 +32,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 /**
  * JavaScriptWithScopeElementTest provides tests for the
  * {@link JavaScriptWithScopeElement} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JavaScriptWithScopeElementTest {

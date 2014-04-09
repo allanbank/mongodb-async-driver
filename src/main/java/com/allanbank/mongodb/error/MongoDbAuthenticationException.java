@@ -10,7 +10,7 @@ import com.allanbank.mongodb.MongoDbException;
 /**
  * MongoDbAuthenticationException is thrown to report a failure to authenticate
  * with a MongoDB database.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -31,7 +31,7 @@ public class MongoDbAuthenticationException extends MongoDbException {
 
     /**
      * Creates a new MongoDbAuthenticationException.
-     *
+     * 
      * @param message
      *            Message for the exception.
      */
@@ -41,7 +41,7 @@ public class MongoDbAuthenticationException extends MongoDbException {
 
     /**
      * Creates a new MongoDbAuthenticationException.
-     *
+     * 
      * @param message
      *            Message for the exception.
      * @param cause
@@ -54,7 +54,7 @@ public class MongoDbAuthenticationException extends MongoDbException {
 
     /**
      * Creates a new MongoDbAuthenticationException.
-     *
+     * 
      * @param cause
      *            The cause of the error.
      */

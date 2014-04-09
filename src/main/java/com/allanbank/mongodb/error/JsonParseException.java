@@ -8,7 +8,7 @@ package com.allanbank.mongodb.error;
 /**
  * JsonParseException provides an exception to throw when parsing a JSON
  * document fails.
- *
+ * 
  * @api.yes This exception is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -37,7 +37,7 @@ public class JsonParseException extends JsonException {
 
     /**
      * Creates a new JsonParseException.
-     *
+     * 
      * @param message
      *            Reason for the exception.
      */
@@ -49,7 +49,7 @@ public class JsonParseException extends JsonException {
 
     /**
      * Creates a new JsonParseException.
-     *
+     * 
      * @param message
      *            Reason for the exception.
      * @param line
@@ -66,7 +66,7 @@ public class JsonParseException extends JsonException {
 
     /**
      * Creates a new JsonParseException.
-     *
+     * 
      * @param message
      *            Reason for the exception.
      * @param cause
@@ -80,7 +80,7 @@ public class JsonParseException extends JsonException {
 
     /**
      * Creates a new JsonParseException.
-     *
+     * 
      * @param message
      *            Reason for the exception.
      * @param cause
@@ -99,7 +99,7 @@ public class JsonParseException extends JsonException {
 
     /**
      * Creates a new JsonParseException.
-     *
+     * 
      * @param cause
      *            The exception causing the MongoDbException.
      */
@@ -112,7 +112,7 @@ public class JsonParseException extends JsonException {
     /**
      * Returns the approximate column where the parse failed. Returns a negative
      * value if the column is not known.
-     *
+     * 
      * @return The approximate column where the parse failed.
      */
     public int getColumn() {
@@ -122,7 +122,7 @@ public class JsonParseException extends JsonException {
     /**
      * Returns the approximate line where the parse failed. Returns a negative
      * value if the line is not known.
-     *
+     * 
      * @return The approximate line where the parse failed.
      */
     public int getLine() {

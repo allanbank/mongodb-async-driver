@@ -39,7 +39,7 @@ import com.allanbank.mongodb.builder.ParallelScan;
  * {@link BatchedAsyncMongoCollection#close() close()} method is called to
  * submit the batch of requests.
  * </p>
- *
+ * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -55,7 +55,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param command
      *            The details of the aggregation request.
      * @return The aggregation results returned.
@@ -67,7 +67,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param command
      *            The details of the aggregation request.
      * @return The aggregation results returned.
@@ -82,7 +82,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <p>
      * This is equivalent to calling {@link #countAsync() countAsync().get()}
      * </p>
-     *
+     * 
      * @return The number of documents in the collection.
      * @throws MongoDbException
      *             On an error finding the documents.
@@ -92,7 +92,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param count
      *            The count command.
      * @return The count of the documents.
@@ -104,7 +104,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param count
      *            The count command.
      * @return The count of the documents.
@@ -120,7 +120,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #countAsync(DocumentAssignable)
      * countAsync(...).get()}
      * </p>
-     *
+     * 
      * @param query
      *            The query document.
      * @return The number of matching documents.
@@ -132,7 +132,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param query
      *            The query document.
      * @param readPreference
@@ -150,7 +150,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * <p>
      * This is equivalent to calling {@link #countAsync() countAsync().get()}
      * </p>
-     *
+     * 
      * @param readPreference
      *            The preference for which servers to use to retrieve the
      *            results.
@@ -167,7 +167,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This method is intended to be used with the
      * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
@@ -179,9 +179,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * ...
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @param unique
      *            If true then the index created will enforce entries are
      *            unique.
@@ -200,7 +200,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This method is intended to be used with the
      * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
@@ -213,9 +213,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * ...
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @param options
      *            The options for the index.
      * @param keys
@@ -236,7 +236,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This method is intended to be used with the
      * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
@@ -248,9 +248,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * ...
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @param keys
      *            The keys to use for the index.
      * @throws MongoDbException
@@ -265,7 +265,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This method is intended to be used with the
      * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
@@ -277,9 +277,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * ...
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @param name
      *            The name of the index. If <code>null</code> then a name is
      *            generated based on the keys.
@@ -301,7 +301,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This method is intended to be used with the
      * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.bson.builder.BuilderFactory#start com.allanbank.mongodb.bson.builder.BuilderFactory.start};
@@ -314,9 +314,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * ...
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @param name
      *            The name of the index. If <code>null</code> then a name is
      *            generated based on the keys.
@@ -335,7 +335,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @return The results of the delete. If the durability of the operation is
@@ -347,7 +347,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @param singleDelete
@@ -364,7 +364,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @param singleDelete
@@ -383,7 +383,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @param durability
@@ -398,7 +398,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param command
      *            The details of the distinct request.
      * @return The distinct results returned.
@@ -410,7 +410,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param command
      *            The details of the distinct request.
      * @return The distinct results returned.
@@ -422,7 +422,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Drops the collection from the database.
-     *
+     * 
      * @return True if the collection was successfully dropped.
      * @throws MongoDbException
      *             On an error dropping the collection.
@@ -435,7 +435,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This method is intended to be used with the
      * {@link com.allanbank.mongodb.builder.Index} class's static methods:
      * <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.builder.Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
@@ -447,9 +447,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * ...
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @param keys
      *            The keys for the index to be dropped.
      * @return If any indexes were removed.
@@ -460,7 +460,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Deletes the indexes with the provided name.
-     *
+     * 
      * @param name
      *            The name of the index.
      * @return If any indexes were removed.
@@ -476,7 +476,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * appears in the parent {@link MongoDatabase database's} list of
      * collections.
      * </p>
-     *
+     * 
      * @return True if the parent database returns this collection's name in its
      *         list of collection names.
      * @throws MongoDbException
@@ -490,7 +490,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #explainAsync(Aggregate)
      * explainAsync(...).get()}
      * </p>
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @return The document describing the method used to execute the
@@ -507,7 +507,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #explainAsync(Aggregate)
      * explainAsync(...).get()}
      * </p>
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @return The document describing the method used to execute the
@@ -521,7 +521,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Explains the way that the query will be performed.
-     *
+     * 
      * @param query
      *            The query document.
      * @return The document describing the method used to execute the query.
@@ -536,7 +536,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #explainAsync(Find)
      * explainAsync(...).get()}
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The document describing the method used to execute the query.
@@ -551,7 +551,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #explainAsync(Find)
      * explainAsync(...).get()}
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The document describing the method used to execute the query.
@@ -566,7 +566,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #findAsync(DocumentAssignable)
      * findAsync(...).get()}
      * </p>
-     *
+     * 
      * @param query
      *            The query document.
      * @return The MongoIterator over the documents.
@@ -582,7 +582,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #findAsync(Find)
      * findAsync(...).get()}
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The MongoIterator over the documents.
@@ -597,7 +597,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * This is equivalent to calling {@link #findAsync(Find)
      * findAsync(...).get()}
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The MongoIterator over the documents.
@@ -610,7 +610,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param command
      *            The details of the find and modify request.
      * @return The found document.
@@ -623,7 +623,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param command
      *            The details of the find and modify request.
      * @return The found document.
@@ -635,7 +635,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Finds a single matching document in the collection.
-     *
+     * 
      * @param query
      *            The query document.
      * @return The first found document.
@@ -656,7 +656,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The first found document.
@@ -677,7 +677,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The first found document.
@@ -688,7 +688,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Returns the name of the database.
-     *
+     * 
      * @return The name of the database.
      */
     public String getDatabaseName();
@@ -700,16 +700,16 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Defaults to the {@link Durability} from the parent {@link MongoDatabase}
      * instance.
      * </p>
-     *
+     * 
      * @return The durability for write operations on the server.
-     *
+     * 
      * @see MongoDatabase#getDurability()
      */
     public Durability getDurability();
 
     /**
      * Returns the name of the collection.
-     *
+     * 
      * @return The name of the collection.
      */
     public String getName();
@@ -721,16 +721,16 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Defaults to {@link ReadPreference} from the parent {@link MongoDatabase}
      * instance.
      * </p>
-     *
+     * 
      * @return The default read preference for a query.
-     *
+     * 
      * @see MongoDatabase#getReadPreference()
      */
     public ReadPreference getReadPreference();
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param command
      *            The details of the group request.
      * @return The group results returned.
@@ -742,7 +742,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param command
      *            The details of the group request.
      * @return The group results returned.
@@ -759,7 +759,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
-     *
+     * 
      * @param continueOnError
      *            If the insert should continue if one of the documents causes
      *            an error.
@@ -782,7 +782,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
-     *
+     * 
      * @param continueOnError
      *            If the insert should continue if one of the documents causes
      *            an error.
@@ -799,7 +799,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      */
     public int insert(final boolean continueOnError,
             final Durability durability, DocumentAssignable... documents)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
@@ -808,7 +808,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
-     *
+     * 
      * @param documents
      *            The documents to add to the collection.
      * @return Currently, returns zero. Once <a
@@ -827,7 +827,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * {@link #insertAsync(boolean, Durability, DocumentAssignable[])
      * insertAsync(...).get()}
      * </p>
-     *
+     * 
      * @param durability
      *            The durability for the insert.
      * @param documents
@@ -845,7 +845,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     /**
      * Returns true if the collection {@link #stats() statistics} indicate that
      * the collection is a capped collection.
-     *
+     * 
      * @return True if the collection {@link #stats() statistics} indicate that
      *         the collection is a capped collection.
      * @throws MongoDbException
@@ -855,7 +855,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param command
      *            The details of the map/reduce request.
      * @return The map/reduce results returned. Note this might be empty if the
@@ -868,7 +868,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param command
      *            The details of the map/reduce request.
      * @return The map/reduce results returned. Note this might be empty if the
@@ -884,13 +884,13 @@ public interface MongoCollection extends AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param parallelScan
      *            The details on the scan.
      * @return The collection of iterators.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -903,13 +903,13 @@ public interface MongoCollection extends AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param parallelScan
      *            The details on the scan.
      * @return The collection of iterators.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -931,7 +931,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * update(BuilderFactory.start().add(document.get("_id")), document, false,
      * true)}.
      * </p>
-     *
+     * 
      * @param document
      *            The document to save to the collection.
      * @return ListenableFuture that will be updated with the results of the
@@ -957,7 +957,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * update(BuilderFactory.start().add(document.get("_id")), document, false,
      * true, durability)}.
      * </p>
-     *
+     * 
      * @param document
      *            The document to save to the collection.
      * @param durability
@@ -978,10 +978,10 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Defaults to the {@link Durability} from the parent {@link MongoDatabase}
      * instance if set to <code>null</code>.
      * </p>
-     *
+     * 
      * @param durability
      *            The durability for write operations on the server.
-     *
+     * 
      * @see MongoDatabase#getDurability()
      */
     public void setDurability(final Durability durability);
@@ -993,10 +993,10 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Defaults to the {@link ReadPreference} from the parent
      * {@link MongoDatabase} instance if set to <code>null</code>.
      * </p>
-     *
+     * 
      * @param readPreference
      *            The read preference for a query.
-     *
+     * 
      * @see MongoDatabase#getReadPreference()
      */
     public void setReadPreference(final ReadPreference readPreference);
@@ -1004,7 +1004,7 @@ public interface MongoCollection extends AsyncMongoCollection {
     /**
      * Starts a batch of requests to the server. The returned object will not
      * submit any requests to the server until the batch is closed.
-     *
+     * 
      * @return The interface for submitting batched requests. The
      *         {@link BatchedAsyncMongoCollection#close()} method must be called
      *         to submit the batch of requests.
@@ -1013,7 +1013,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Returns the statistics for the collection.
-     *
+     * 
      * @return The results document with the collection statistics.
      * @throws MongoDbException
      *             On an error collecting the collection statistics.
@@ -1025,7 +1025,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a {@code text} command on the server.
-     *
+     * 
      * @param command
      *            The details of the {@code text} request.
      * @return The {@code text} results returned.
@@ -1048,7 +1048,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Invokes a {@code text} command on the server.
-     *
+     * 
      * @param command
      *            The details of the {@code text} request.
      * @return The {@code text} results returned.
@@ -1068,13 +1068,13 @@ public interface MongoCollection extends AsyncMongoCollection {
     @Deprecated
     public MongoIterator<com.allanbank.mongodb.builder.TextResult> textSearch(
             com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -1091,7 +1091,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -1109,13 +1109,13 @@ public interface MongoCollection extends AsyncMongoCollection {
      */
     public long update(DocumentAssignable query, DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -1141,7 +1141,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -1161,7 +1161,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * command. The return value is the response from the MongoDB server and
      * normally contains a <code>&lt;name&gt;_old</code> field for each
      * successfully set option on the collection. <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * MongoCollection collection = ...;
@@ -1169,9 +1169,9 @@ public interface MongoCollection extends AsyncMongoCollection {
      * collection.updateOptions( BuilderFactory.start().add( "usePowerOf2Sizes", true ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @param options
      *            The collection options to be set.
      * @return The results document from the database.
@@ -1186,7 +1186,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * Validates the collections contents.
-     *
+     * 
      * @param mode
      *            The validation mode to use.
      * @return The results document from the database.
@@ -1210,7 +1210,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param write
      *            The batched writes
      * @return The results of the inserts, updates, and deletes. If this method
@@ -1219,7 +1219,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      *         method applies.
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */
@@ -1237,7 +1237,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param write
      *            The batched writes
      * @return The results of the inserts, updates, and deletes. If this method
@@ -1246,7 +1246,7 @@ public interface MongoCollection extends AsyncMongoCollection {
      *         method applies.
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */
@@ -1254,7 +1254,7 @@ public interface MongoCollection extends AsyncMongoCollection {
 
     /**
      * ValidateMode provides an enumeration of the validation modes.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static enum ValidateMode {

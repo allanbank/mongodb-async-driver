@@ -21,7 +21,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 /**
  * LatencyServerSelectorTest provides tests for the
  * {@link LatencyServerSelector} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class LatencyServerSelectorTest {

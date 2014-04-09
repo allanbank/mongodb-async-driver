@@ -22,7 +22,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * VisitorAdapterTest provides tests for the {@link VisitorAdapter}.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class VisitorAdapterTest {

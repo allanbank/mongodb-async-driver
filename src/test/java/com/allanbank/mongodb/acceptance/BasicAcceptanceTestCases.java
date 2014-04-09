@@ -144,7 +144,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * are expected to verify that the format and structure of the messages the
  * driver generates are acceptable to the MongoDB servers.
  * </p>
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
@@ -223,10 +223,10 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Turn off the balancer - Can confuse the test counts.
             final boolean upsert = true;
             mongoClient
-            .getDatabase("config")
-            .getCollection("settings")
-            .update(where("_id").equals("balancer"),
-                    d(e("$set", d(e("stopped", true)))), false, upsert);
+                    .getDatabase("config")
+                    .getCollection("settings")
+                    .update(where("_id").equals("balancer"),
+                            d(e("$set", d(e("stopped", true)))), false, upsert);
         }
         finally {
             IOUtils.close(mongoClient);
@@ -235,7 +235,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns the large collection handle.
-     *
+     * 
      * @param mongoClient
      *            The client to connect to the collection.
      * @return The handle to the large collection.
@@ -337,7 +337,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Verifies the function of Aggregate framework.
      * <p>
      * Using the drivers support classes: <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.builder.AggregationGroupField#set com.allanbank.mongodb.builder.AggregateGroupField.set};
@@ -374,12 +374,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *         .sort(desc("biggestCity.pop"));
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
      * Using the MongoDB Shell: <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * > db.things.insert( { state : "NZ", city : "big", pop : 1000  } );
@@ -451,9 +451,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Inspired
      *      By</a>
@@ -467,7 +467,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         // > db.things.insert( { state : "NZ", city : "big", pop : 1000 } );
         doc.addString("state", "NZ").addString("city", "big")
-        .addInteger("pop", 1000);
+                .addInteger("pop", 1000);
         aggregate.insert(doc);
         doc.reset();
 
@@ -475,15 +475,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // > db.things.insert( { state : "MD", city : "medium", pop : 10 } );
         // > db.things.insert( { state : "MD", city : "small", pop : 1 } );
         doc.addString("state", "MD").addString("city", "big")
-        .addInteger("pop", 1000);
+                .addInteger("pop", 1000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "MD").addString("city", "medium")
-        .addInteger("pop", 10);
+                .addInteger("pop", 10);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "MD").addString("city", "small")
-        .addInteger("pop", 1);
+                .addInteger("pop", 1);
         aggregate.insert(doc);
         doc.reset();
 
@@ -491,15 +491,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // > db.things.insert( { state : "CA", city : "medium", pop : 11 } );
         // > db.things.insert( { state : "CA", city : "small", pop : 10 } );
         doc.addString("state", "CA").addString("city", "big")
-        .addInteger("pop", 10000);
+                .addInteger("pop", 10000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "CA").addString("city", "small")
-        .addInteger("pop", 11);
+                .addInteger("pop", 11);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "CA").addString("city", "small")
-        .addInteger("pop", 10);
+                .addInteger("pop", 10);
         aggregate.insert(doc);
         doc.reset();
 
@@ -507,15 +507,15 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // > db.things.insert( { state : "NY", city : "small", pop : 20 } );
         // > db.things.insert( { state : "NY", city : "small", pop : 5 } );
         doc.addString("state", "NY").addString("city", "big")
-        .addInteger("pop", 100000);
+                .addInteger("pop", 100000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "NY").addString("city", "small")
-        .addInteger("pop", 20);
+                .addInteger("pop", 20);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "NY").addString("city", "small")
-        .addInteger("pop", 5);
+                .addInteger("pop", 5);
         aggregate.insert(doc);
         doc.reset();
 
@@ -524,44 +524,44 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final Aggregate.Builder builder = new Aggregate.Builder();
 
         builder.match(where("state").notEqualTo("NZ"))
-        .group(id().addField("state").addField("city"),
-                set("pop").sum("pop"))
+                .group(id().addField("state").addField("city"),
+                        set("pop").sum("pop"))
                 .sort(asc("pop"))
                 .group(id("_id.state"), set("biggestcity").last("_id.city"),
                         set("biggestpop").last("pop"),
                         set("smallestcity").first("_id.city"),
                         set("smallestpop").first("pop"))
-                        .project(
-                                includeWithoutId(),
-                                set("state", field("_id")),
-                                set("biggestCity",
-                                        b1.add(set("name", field("biggestcity"))).add(
-                                                set("pop", field("biggestpop")))),
-                                                set("smallestCity",
-                                                        b2.add(set("name", field("smallestcity"))).add(
-                                                                set("pop", field("smallestpop")))))
-                                                                .sort(desc("biggestCity.pop"));
+                .project(
+                        includeWithoutId(),
+                        set("state", field("_id")),
+                        set("biggestCity",
+                                b1.add(set("name", field("biggestcity"))).add(
+                                        set("pop", field("biggestpop")))),
+                        set("smallestCity",
+                                b2.add(set("name", field("smallestcity"))).add(
+                                        set("pop", field("smallestpop")))))
+                .sort(desc("biggestCity.pop"));
 
         final DocumentBuilder expected1 = BuilderFactory.start();
         expected1.addString("state", "NY");
         expected1.push("biggestCity").addString("name", "big")
-        .addInteger("pop", 100000);
+                .addInteger("pop", 100000);
         expected1.push("smallestCity").addString("name", "small")
-        .addInteger("pop", 25);
+                .addInteger("pop", 25);
 
         final DocumentBuilder expected2 = BuilderFactory.start();
         expected2.addString("state", "CA");
         expected2.push("biggestCity").addString("name", "big")
-        .addInteger("pop", 10000);
+                .addInteger("pop", 10000);
         expected2.push("smallestCity").addString("name", "small")
-        .addInteger("pop", 21);
+                .addInteger("pop", 21);
 
         final DocumentBuilder expected3 = BuilderFactory.start();
         expected3.addString("state", "MD");
         expected3.push("biggestCity").addString("name", "big")
-        .addInteger("pop", 1000);
+                .addInteger("pop", 1000);
         expected3.push("smallestCity").addString("name", "small")
-        .addInteger("pop", 1);
+                .addInteger("pop", 1);
 
         final List<Document> expected = new ArrayList<Document>();
         expected.add(expected1.build());
@@ -647,23 +647,23 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final Aggregate.Builder builder = new Aggregate.Builder();
 
         builder.match(where("state").notEqualTo("NZ"))
-        .group(id().addField("state").addField("city"),
-                set("pop").sum("pop"))
+                .group(id().addField("state").addField("city"),
+                        set("pop").sum("pop"))
                 .sort(asc("pop"))
                 .group(id("_id.state"), set("biggestcity").last("_id.city"),
                         set("biggestpop").last("pop"),
                         set("smallestcity").first("_id.city"),
                         set("smallestpop").first("pop"))
-                        .project(
-                                includeWithoutId(),
-                                set("state", field("_id")),
-                                set("biggestCity",
-                                        b1.add(set("name", field("biggestcity"))).add(
-                                                set("pop", field("biggestpop")))),
-                                                set("smallestCity",
-                                                        b2.add(set("name", field("smallestcity"))).add(
-                                                                set("pop", field("smallestpop")))))
-                                                                .sort(desc("biggestCity.pop"));
+                .project(
+                        includeWithoutId(),
+                        set("state", field("_id")),
+                        set("biggestCity",
+                                b1.add(set("name", field("biggestcity"))).add(
+                                        set("pop", field("biggestpop")))),
+                        set("smallestCity",
+                                b2.add(set("name", field("smallestcity"))).add(
+                                        set("pop", field("smallestpop")))))
+                .sort(desc("biggestCity.pop"));
 
         try {
             final Document explanation = aggregate.explain(builder.build());
@@ -793,7 +793,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             iter = getGeoCollection().aggregate(
                     Aggregate.builder().geoNear(
                             AggregationGeoNear.builder().location(p(x, y))
-                            .distanceField("d")));
+                                    .distanceField("d")));
             while (iter.hasNext()) {
                 docs.add(iter.next());
             }
@@ -824,7 +824,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * closed to submit the requests so we use a try-finally. In Java 1.7 we
      * could use a try-with-resources.
      * </p>
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -834,7 +834,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testBatchedOperations() throws IllegalArgumentException,
-    InterruptedException, ExecutionException {
+            InterruptedException, ExecutionException {
         final List<Future<Integer>> insertResults = new ArrayList<Future<Integer>>();
         Future<Document> found = null;
         Future<Long> update = null;
@@ -936,9 +936,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final DocumentBuilder builder = BuilderFactory.start();
         for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
             builder.reset()
-            .add("_id", i)
-            .add("t",
-                    "Now is the time for all good men to come to the aid.");
+                    .add("_id", i)
+                    .add("t",
+                            "Now is the time for all good men to come to the aid.");
 
             write.insert(builder);
         }
@@ -992,9 +992,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final DocumentBuilder builder = BuilderFactory.start();
         for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
             builder.reset()
-            .add("_id", i)
-            .add("t",
-                    "Now is the time for all good men to come to the aid.");
+                    .add("_id", i)
+                    .add("t",
+                            "Now is the time for all good men to come to the aid.");
 
             write.insert(builder);
         }
@@ -1039,9 +1039,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final DocumentBuilder builder = BuilderFactory.start();
         for (int i = 0; i < count; ++i) {
             builder.reset()
-            .add("_id", i)
-            .add("t",
-                    "Now is the time for all good men to come to the aid.");
+                    .add("_id", i)
+                    .add("t",
+                            "Now is the time for all good men to come to the aid.");
 
             write.insert(builder);
         }
@@ -1167,7 +1167,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies counting the number of documents in the collection will timeout
      * if it takes too long.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -1175,7 +1175,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testCountTimeout() throws ExecutionException,
-    InterruptedException {
+            InterruptedException {
 
         final Count.Builder builder = new Count.Builder();
         // Need a query do it does not use an index of the collection meta-data.
@@ -1369,7 +1369,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies running a distinct command. <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * db.addresses.insert({"zip-code": 10010})
@@ -1380,7 +1380,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * [ 10010, 99701 ]
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      */
     @Test
@@ -1461,7 +1461,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies that a database is removed from the server on a drop.
-     *
+     * 
      * @throws InterruptedException
      *             On a failure to sleep as part of the test.
      */
@@ -1502,13 +1502,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         Document found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
-                .addRegularExpression("name", ".*foo.*", "").build());
+                        .addRegularExpression("name", ".*foo.*", "").build());
         assertNotNull(found);
 
         myCollection.dropIndex(Index.asc("foo"), Index.asc("bar"));
         found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
-                .addRegularExpression("name", ".*foo.*", "").build());
+                        .addRegularExpression("name", ".*foo.*", "").build());
         assertNull(found);
     }
 
@@ -1927,7 +1927,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             for (int i = 0; i < 10; ++i) {
                 query.reset().add(GridFs.CHUNK_NUMBER_FIELD, i);
                 update.reset().push("$set")
-                .add(GridFs.CHUNK_NUMBER_FIELD, myRandom.nextInt());
+                        .add(GridFs.CHUNK_NUMBER_FIELD, myRandom.nextInt());
                 chunks.update(query, update, true, false);
             }
 
@@ -2033,7 +2033,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies the function of a GroupBy command. <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * { domain: "www.mongodb.org"
@@ -2061,7 +2061,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * 
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      */
     @Test
@@ -2069,7 +2069,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final DocumentBuilder doc = BuilderFactory.start();
         doc.addString("domain", "www.mongodb.org");
         doc.push("invoked_at").addString("d", "2009-11-03")
-        .addString("t", "17:14:05");
+                .addString("t", "17:14:05");
         doc.addDouble("response_time", 0.05);
         doc.addString("http_action", "GET /display/DOCS/Aggregate");
 
@@ -2077,7 +2077,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final DocumentBuilder query = BuilderFactory.start();
         query.push("invoked_at.d").addString("$gte", "2009-11")
-        .addString("$lt", "2009-12");
+                .addString("$lt", "2009-12");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("http_action"));
@@ -2112,7 +2112,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         final DocumentBuilder query = BuilderFactory.start();
         query.push("invoked_at.d").addString("$gte", "2009-11")
-        .addString("$lt", "2009-12");
+                .addString("$lt", "2009-12");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("http_action"));
@@ -2238,7 +2238,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies that the MongoDB iteration over a large collection works as
      * expected.
-     *
+     * 
      * @throws InterruptedException
      *             On a failure of the test to wait.
      * @throws ExecutionException
@@ -2246,7 +2246,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testIteratorAsync() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         // Adjust the configuration to keep the connection count down
         // and let the inserts happen asynchronously.
         myConfig.setDefaultDurability(Durability.ACK);
@@ -2305,7 +2305,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                             + "does not have journaling enabled"),
                             containsString("journaling not enabled on this "
                                     + "server"),
-                                    containsString("timed out waiting for slaves")));
+                            containsString("timed out waiting for slaves")));
         }
     }
 
@@ -2341,7 +2341,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies the function of MapReduce via a sample Map/Reduce <blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * > db.things.insert( { _id : 1, tags : ['dog', 'cat'] } );
@@ -2384,7 +2384,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {"_id" : "mouse" , "value" : {"count" : 1}}
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      */
     @Test
@@ -2402,7 +2402,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addInteger("_id", 3);
         doc3.pushArray("tags").addString("mouse").addString("dog")
-        .addString("cat");
+                .addString("cat");
 
         final DocumentBuilder doc4 = BuilderFactory.start();
         doc4.addInteger("_id", 4);
@@ -6946,12 +6946,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7271,12 +7271,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7325,12 +7325,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7496,12 +7496,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addInteger(minx).addInteger(miny);
         ab.pushArray().addInteger(minx + (deltax / 2))
-        .addInteger(miny + (deltay / 2));
+                .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addInteger(minx + (deltax / 2))
-        .addInteger(miny + (deltay / 2));
+                .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7550,12 +7550,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addInteger(minx).addInteger(miny);
         ab.pushArray().addInteger(minx + (deltax / 2))
-        .addInteger(miny + (deltay / 2));
+                .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addInteger(minx + (deltax / 2))
-        .addInteger(miny + (deltay / 2));
+                .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7722,12 +7722,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addLong(minx).addLong(miny);
         ab.pushArray().addLong(minx + (deltax / 2))
-        .addLong(miny + (deltay / 2));
+                .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addLong(minx + (deltax / 2))
-        .addLong(miny + (deltay / 2));
+                .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7776,12 +7776,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addLong(minx).addLong(miny);
         ab.pushArray().addLong(minx + (deltax / 2))
-        .addLong(miny + (deltay / 2));
+                .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addLong(minx + (deltax / 2))
-        .addLong(miny + (deltay / 2));
+                .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -8215,12 +8215,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-        .addDouble(miny + (deltay / 2));
+                .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -8435,7 +8435,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies the function of the {@link com.allanbank.mongodb.builder.Text
      * text} command.
-     *
+     * 
      * <pre>
      * <code>
      * > db.collection.find()
@@ -8473,7 +8473,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * }
      * </code>
      * </pre>
-     *
+     * 
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -8798,7 +8798,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Calculates the distance between the two point in km.
-     *
+     * 
      * @param x1
      *            The first x coordinate.
      * @param y1
@@ -8830,7 +8830,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Fails the test.
-     *
+     * 
      * @param t
      *            The cause of the failure.
      */
@@ -8843,7 +8843,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns a collection with a geospatial 2D index on the 'p' field.
-     *
+     * 
      * @return The collection with a geospatial 2D index on the 'p' field.
      */
     protected MongoCollection getGeoCollection() {
@@ -8857,7 +8857,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns a collection with a geospatial 2Dshpere index on the 'p' field.
-     *
+     * 
      * @return The collection with a geospatial 2Dshpere index on the 'p' field.
      */
     protected MongoCollection getGeoSphereCollection() {
@@ -8872,7 +8872,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Returns true when running against a replica set configuration (may be
      * shards of replica sets.
-     *
+     * 
      * @return True when connecting to a replica set.
      */
     protected boolean isReplicaSetConfiguration() {
@@ -8883,7 +8883,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Returns true when running against a sharded configuration. Not all
      * commands are supported in shared environments, e.g., when connected to a
      * mongos.
-     *
+     * 
      * @return True when connecting to a mongos.
      */
     protected boolean isShardedConfiguration() {
@@ -8892,7 +8892,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Shards the collection with the specified name.
-     *
+     * 
      * @param collectionName
      *            The name of the collection to shard.
      */
@@ -8903,7 +8903,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Shards the collection with the specified name.
-     *
+     * 
      * @param collectionName
      *            The name of the collection to shard.
      * @param shardKey
@@ -8926,7 +8926,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             if (!Index.hashed(shardKey.getName()).equals(shardKey)) {
                 // Add some splits/chunks.
                 options.reset().push("middle")
-                .add(shardKey.getName(), new ObjectId());
+                        .add(shardKey.getName(), new ObjectId());
                 myDb.runAdminCommand("split", fullName, options);
                 options.reset().push("middle").add(shardKey.getName(), "a");
                 myDb.runAdminCommand("split", fullName, options);
@@ -8937,7 +8937,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                         .getCollection("shards");
                 for (final Document shard : shards.find(BuilderFactory.start())) {
                     options.reset().push("middle")
-                    .add(shardKey.getName(), index);
+                            .add(shardKey.getName(), index);
                     myDb.runAdminCommand("split", fullName, options);
 
                     options.reset();
@@ -8953,11 +8953,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * DocumentCallback provides a simple callback for testing streaming finds.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static final class DocumentCallback implements
-    StreamCallback<Document> {
+            StreamCallback<Document> {
 
         /** The number of documents received. */
         private int myCount = 0;
@@ -9014,7 +9014,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the number of documents received.
-         *
+         * 
          * @return The number of documents received.
          */
         public synchronized int getCount() {
@@ -9023,7 +9023,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the exception if seen.
-         *
+         * 
          * @return The exception if seen.
          */
         public synchronized Throwable getException() {
@@ -9032,7 +9032,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns true if the callback has been terminated.
-         *
+         * 
          * @return True if the callback has been terminated.
          */
         public synchronized boolean isTerminated() {
@@ -9041,7 +9041,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the terminatedByException value.
-         *
+         * 
          * @return The terminatedByException value.
          */
         public boolean isTerminatedByException() {
@@ -9050,7 +9050,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the terminatedByNull value.
-         *
+         * 
          * @return The terminatedByNull value.
          */
         public boolean isTerminatedByNull() {
@@ -9060,7 +9060,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         /**
          * Waits for the specified number of documents to be received or the
          * callback to be termined or the timeout.
-         *
+         * 
          * @param timeMs
          *            The maximum number of milliseconds to wait.
          */
@@ -9084,11 +9084,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * TestIteratorAsyncCallback provides a test callback.
-     *
+     * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     static class TestIteratorAsyncCallback implements
-    Callback<MongoIterator<Document>> {
+            Callback<MongoIterator<Document>> {
 
         /** The number of times the callback methods have been invoked. */
         private int myCalls = 0;
@@ -9115,7 +9115,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         /**
          * Checks the number of times the callback is invoked. Will wait for the
          * first call.
-         *
+         * 
          * @throws InterruptedException
          *             On a failure to wait.
          */
@@ -9151,7 +9151,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the iterator returned.
-         *
+         * 
          * @return The iterator provided to the callback.
          */
         public MongoIterator<Document> iter() {

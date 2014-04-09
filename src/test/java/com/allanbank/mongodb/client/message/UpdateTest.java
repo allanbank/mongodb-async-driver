@@ -34,7 +34,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * UpdateTest provides tests for the {@link Update} message.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class UpdateTest {
@@ -66,11 +66,11 @@ public class UpdateTest {
                                 objs1.add(new Update(databaseName,
                                         collectionName, query, update,
                                         multiUpdate.booleanValue(), upsert
-                                        .booleanValue()));
+                                                .booleanValue()));
                                 objs2.add(new Update(databaseName,
                                         collectionName, query, update,
                                         multiUpdate.booleanValue(), upsert
-                                        .booleanValue()));
+                                                .booleanValue()));
                             }
                         }
                     }
@@ -105,7 +105,7 @@ public class UpdateTest {
 
     /**
      * Test method for {@link Update#Update(BsonInputStream)}.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */
@@ -132,7 +132,7 @@ public class UpdateTest {
                                 objs1.add(new Update(databaseName,
                                         collectionName, query, update,
                                         multiUpdate.booleanValue(), upsert
-                                        .booleanValue()));
+                                                .booleanValue()));
                             }
                         }
                     }

@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 /**
  * JulLog is the simplified logging implementation for Java Util Logging.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -22,7 +22,7 @@ public class JulLog extends AbstractLog {
 
     /**
      * Creates a new {@link JulLog}.
-     *
+     * 
      * @param clazz
      *            The class for the logger.
      */
@@ -35,7 +35,7 @@ public class JulLog extends AbstractLog {
      * <p>
      * Overridden to create a {@link LogRecord} based on the log information.
      * </p>
-     *
+     * 
      * @see Log#log(Level, Throwable, String, Object[])
      */
     @Override
@@ -79,7 +79,7 @@ public class JulLog extends AbstractLog {
 
     /**
      * Formats the message to be logged.
-     *
+     * 
      * @param template
      *            The template for the message.
      * @param args

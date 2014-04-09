@@ -16,7 +16,7 @@ import com.allanbank.mongodb.Callback;
 
 /**
  * LongToIntCallbackTest provides tests for the {@link LongToIntCallback} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class LongToIntCallbackTest {

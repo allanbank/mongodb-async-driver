@@ -12,7 +12,7 @@ import com.allanbank.mongodb.bson.Document;
 
 /**
  * A wrapper for an {@link OutputStream} to handle writing BSON primitives.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -38,7 +38,7 @@ public class BsonOutputStream {
 
     /**
      * Creates a new {@link BsonOutputStream}.
-     *
+     * 
      * @param output
      *            The underlying Stream to write to.
      */
@@ -50,7 +50,7 @@ public class BsonOutputStream {
 
     /**
      * Returns the I/O exception encountered by the visitor.
-     *
+     * 
      * @return The I/O exception encountered by the visitor.
      */
     public IOException getError() {
@@ -60,7 +60,7 @@ public class BsonOutputStream {
     /**
      * Returns the maximum number of strings that may have their encoded form
      * cached.
-     *
+     * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
      */
@@ -71,7 +71,7 @@ public class BsonOutputStream {
     /**
      * Returns the maximum length for a string that the stream is allowed to
      * cache.
-     *
+     * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
      */
@@ -81,7 +81,7 @@ public class BsonOutputStream {
 
     /**
      * Returns the encoder value.
-     *
+     * 
      * @return The encoder value.
      */
     public StringEncoder getStringEncoder() {
@@ -90,7 +90,7 @@ public class BsonOutputStream {
 
     /**
      * Returns true if the visitor had an I/O error.
-     *
+     * 
      * @return True if the visitor had an I/O error, false otherwise.
      */
     public boolean hasError() {
@@ -107,7 +107,7 @@ public class BsonOutputStream {
     /**
      * Sets the value of maximum number of strings that may have their encoded
      * form cached.
-     *
+     * 
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
@@ -120,7 +120,7 @@ public class BsonOutputStream {
      * Sets the value of length for a string that the stream is allowed to cache
      * to the new value. This can be used to stop a single long string from
      * pushing useful values out of the cache.
-     *
+     * 
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
@@ -132,7 +132,7 @@ public class BsonOutputStream {
 
     /**
      * Returns the size of the writing the {@link Document} as a BSON document.
-     *
+     * 
      * @param document
      *            The document to determine the size of.
      * @return The size of the writing {@link Document} as a BSON document.
@@ -143,7 +143,7 @@ public class BsonOutputStream {
 
     /**
      * Returns the size of the writing the <tt>strings</tt> as a c-string.
-     *
+     * 
      * @param strings
      *            The 'C' strings to determine the size of.
      * @return The size of the writing the <tt>strings</tt> as a c-string.
@@ -158,7 +158,7 @@ public class BsonOutputStream {
 
     /**
      * Returns the size of the writing the <tt>string</tt> as a string.
-     *
+     * 
      * @param string
      *            The 'UTF8' string to determine the size of.
      * @return The size of the writing the <tt>string</tt> as a string.
@@ -169,7 +169,7 @@ public class BsonOutputStream {
 
     /**
      * Writes a single byte to the stream.
-     *
+     * 
      * @param b
      *            The byte to write.
      */
@@ -184,7 +184,7 @@ public class BsonOutputStream {
 
     /**
      * Writes a sequence of bytes to the under lying stream.
-     *
+     * 
      * @param data
      *            The bytes to write.
      */
@@ -199,7 +199,7 @@ public class BsonOutputStream {
 
     /**
      * Writes a "Cstring" to the stream.
-     *
+     * 
      * @param strings
      *            The CString to write. The strings are concatenated into a
      *            single CString value.
@@ -213,7 +213,7 @@ public class BsonOutputStream {
 
     /**
      * Writes a BSON {@link Document} to the stream.
-     *
+     * 
      * @param document
      *            The {@link Document} to write.
      * @throws IOException
@@ -233,7 +233,7 @@ public class BsonOutputStream {
 
     /**
      * Write the integer value in little-endian byte order.
-     *
+     * 
      * @param value
      *            The integer to write.
      */
@@ -251,7 +251,7 @@ public class BsonOutputStream {
 
     /**
      * Write the long value in little-endian byte order.
-     *
+     * 
      * @param value
      *            The long to write.
      */
@@ -273,7 +273,7 @@ public class BsonOutputStream {
 
     /**
      * Writes a "string" to the stream.
-     *
+     * 
      * @param string
      *            The String to write.
      */
@@ -285,7 +285,7 @@ public class BsonOutputStream {
 
     /**
      * Writes a sequence of bytes to the under lying stream.
-     *
+     * 
      * @param data
      *            The bytes to write.
      * @param offset
@@ -307,7 +307,7 @@ public class BsonOutputStream {
      * Writes the string as a UTF-8 string. This method handles the
      * "normal/easy" cases and delegates to the full character set if things get
      * complicated.
-     *
+     * 
      * @param string
      *            The string to encode.
      */

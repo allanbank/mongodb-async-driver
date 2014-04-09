@@ -36,6 +36,14 @@ public class MapStage2 {
         myVariableName = variableName;
     }
 
+    /**
+     * Creates the final {@code $map} expression to evaluate.
+     * 
+     * @param mapOperation
+     *            The expression to be evaluated with the variables within the
+     *            {@code $map} expression.
+     * @return The {@link UnaryExpression} for the {@code $map}.
+     */
     public Expression in(final Expression mapOperation) {
         return Expressions.map(myInputField, myVariableName, mapOperation);
     }

@@ -40,7 +40,7 @@ import com.allanbank.mongodb.bson.element.UuidElement;
 
 /**
  * A builder for BSON arrays.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -56,7 +56,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 
     /**
      * Creates a new {@link ArrayBuilderImpl}.
-     *
+     * 
      * @param outerBuilder
      *            The outer builder scope.
      */
@@ -134,7 +134,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     }
 
     /**
-     *
+     * 
      * {@inheritDoc}
      */
     @Override
@@ -212,7 +212,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Deprecated
     public ArrayBuilder add(final String databaseName,
             final String collectionName, final ObjectId id)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         return addDBPointer(databaseName, collectionName, id);
     }
 
@@ -263,7 +263,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
     @Deprecated
     public ArrayBuilder addDBPointer(final String databaseName,
             final String collectionName, final ObjectId id)
-                    throws IllegalArgumentException {
+            throws IllegalArgumentException {
         myElements.add(new com.allanbank.mongodb.bson.element.DBPointerElement(
                 nextIndex(), databaseName, collectionName, id));
         return this;
@@ -513,7 +513,7 @@ public class ArrayBuilderImpl extends AbstractBuilder implements ArrayBuilder {
 
     /**
      * Returns the next index value for an element.
-     *
+     * 
      * @return The next index value for an element.
      */
     private String nextIndex() {

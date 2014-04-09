@@ -31,7 +31,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * be standard Java Sockets as it performs better when the communication path
  * does not have built in buffering of messages.
  * </p>
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -49,7 +49,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
     /**
      * Creates a new SocketConnection to a MongoDB server.
-     *
+     * 
      * @param server
      *            The MongoDB server to connect to.
      * @param config
@@ -213,7 +213,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
     /**
      * Runnable to push data out over the MongoDB connection.
-     *
+     * 
      * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected class SendRunnable implements Runnable {
@@ -233,7 +233,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
          * poll of the queue then the socket connection is flushed and blocking
          * call is made to the queue.
          * </p>
-         *
+         * 
          * @see Runnable#run()
          */
         @Override
@@ -288,7 +288,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
         /**
          * Flushes the messages in the buffer and clears the need-to-flush flag.
-         *
+         * 
          * @throws IOException
          *             On a failure flushing the messages.
          */
@@ -301,7 +301,7 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
         /**
          * Sends a single message.
-         *
+         * 
          * @throws InterruptedException
          *             If the thread is interrupted waiting for a message to
          *             send.

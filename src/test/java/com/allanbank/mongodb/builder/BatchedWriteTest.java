@@ -34,7 +34,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * BatchedWriteTest provides tests for the {@link BatchedWrite} class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedWriteTest {
@@ -198,8 +198,8 @@ public class BatchedWriteTest {
                                         d(e("q", query), e("u", update)),
                                         d(e("q", query), e("u", update),
                                                 e("multi", true)),
-                                                d(e("q", query), e("u", update),
-                                                        e("upsert", true))))).build()));
+                                        d(e("q", query), e("u", update),
+                                                e("upsert", true))))).build()));
 
         bundle = bundles.get(2);
         writes = bundle.getWrites();
@@ -219,7 +219,7 @@ public class BatchedWriteTest {
                                 a(d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 1)))))
-                                        .build()));
+                        .build()));
     }
 
     /**
@@ -489,8 +489,8 @@ public class BatchedWriteTest {
                                         d(e("q", query), e("u", update)),
                                         d(e("q", query), e("u", update),
                                                 e("multi", true)),
-                                                d(e("q", query), e("u", update),
-                                                        e("upsert", true))))).build()));
+                                        d(e("q", query), e("u", update),
+                                                e("upsert", true))))).build()));
 
         bundle = bundles.get(2);
         writes = bundle.getWrites();
@@ -511,7 +511,7 @@ public class BatchedWriteTest {
                                 a(d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 1)))))
-                                        .build()));
+                        .build()));
     }
 
     /**
@@ -581,8 +581,8 @@ public class BatchedWriteTest {
                                         d(e("q", query), e("u", update)),
                                         d(e("q", query), e("u", update),
                                                 e("multi", true)),
-                                                d(e("q", query), e("u", update),
-                                                        e("upsert", true))))).build()));
+                                        d(e("q", query), e("u", update),
+                                                e("upsert", true))))).build()));
 
         bundle = bundles.get(2);
         writes = bundle.getWrites();
@@ -602,7 +602,7 @@ public class BatchedWriteTest {
                                 a(d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 1)))))
-                                        .build()));
+                        .build()));
     }
 
     /**
@@ -659,7 +659,7 @@ public class BatchedWriteTest {
                                 a(d(e("q", d(id)), e("u", doc),
                                         e("upsert", true)),
                                         d(e("q", query), e("u", update)))))
-                                        .build()));
+                        .build()));
 
         bundle = bundles.get(2);
         writes = bundle.getWrites();
@@ -707,7 +707,7 @@ public class BatchedWriteTest {
                         e("deletes",
                                 a(d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 0)))))
-                                        .build()));
+                        .build()));
 
         bundle = bundles.get(5);
         writes = bundle.getWrites();
@@ -784,8 +784,8 @@ public class BatchedWriteTest {
                                         d(e("q", query), e("u", update)),
                                         d(e("q", query), e("u", update),
                                                 e("multi", true)),
-                                                d(e("q", query), e("u", update),
-                                                        e("upsert", true))))).build()));
+                                        d(e("q", query), e("u", update),
+                                                e("upsert", true))))).build()));
 
         bundle = bundles.get(2);
         writes = bundle.getWrites();
@@ -805,7 +805,7 @@ public class BatchedWriteTest {
                                 a(d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 1)))))
-                                        .build()));
+                        .build()));
     }
 
     /**
@@ -863,7 +863,7 @@ public class BatchedWriteTest {
                                 a(d(e("q", d(id)), e("u", doc),
                                         e("upsert", true)),
                                         d(e("q", query), e("u", update)))))
-                                        .build()));
+                        .build()));
 
         bundle = bundles.get(2);
         writes = bundle.getWrites();
@@ -911,7 +911,7 @@ public class BatchedWriteTest {
                         e("deletes",
                                 a(d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 0)))))
-                                        .build()));
+                        .build()));
 
         bundle = bundles.get(5);
         writes = bundle.getWrites();
@@ -1040,8 +1040,8 @@ public class BatchedWriteTest {
                                         d(e("q", query), e("u", update)),
                                         d(e("q", query), e("u", update),
                                                 e("multi", true)),
-                                                d(e("q", query), e("u", update),
-                                                        e("upsert", true))))).build()));
+                                        d(e("q", query), e("u", update),
+                                                e("upsert", true))))).build()));
 
         bundle = bundles.get(2);
         writes = bundle.getWrites();
@@ -1060,7 +1060,7 @@ public class BatchedWriteTest {
                                 a(d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 0)),
                                         d(e("q", query), e("limit", 1)))))
-                                        .build()));
+                        .build()));
     }
 
     /**

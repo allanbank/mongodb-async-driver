@@ -54,7 +54,7 @@ import com.allanbank.mongodb.client.FutureCallback;
 
 /**
  * GridFsTest provides tests for the {@link GridFs} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GridFsTest {
@@ -150,7 +150,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#doAddFault}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -174,7 +174,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -183,8 +183,8 @@ public class GridFsTest {
     public void testFsck() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024)
-        .add(GridFs.MD5_FIELD, "abcdef");
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024)
+                .add(GridFs.MD5_FIELD, "abcdef");
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -233,7 +233,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -242,8 +242,8 @@ public class GridFsTest {
     public void testFsckMd5Fails() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024)
-        .add(GridFs.MD5_FIELD, "abcdef12");
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024)
+                .add(GridFs.MD5_FIELD, "abcdef12");
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -290,15 +290,15 @@ public class GridFsTest {
                 is(Collections.singletonMap(
                         (Object) "id",
                         Collections
-                        .singletonList("MD5 sums do not match. File document contains "
-                                + "'md5 : 'abcdef12'' and the filemd5 command produced 'md5 : 'abcdef''."))));
+                                .singletonList("MD5 sums do not match. File document contains "
+                                        + "'md5 : 'abcdef12'' and the filemd5 command produced 'md5 : 'abcdef''."))));
 
         verify(mockDb, mockFiles, mockChunks, mockFileIterator);
     }
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -307,8 +307,8 @@ public class GridFsTest {
     public void testFsckMd5FailsAttemptRepair() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024)
-        .add(GridFs.MD5_FIELD, "abcdef12");
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024)
+                .add(GridFs.MD5_FIELD, "abcdef12");
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -380,7 +380,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -390,8 +390,8 @@ public class GridFsTest {
             throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024)
-        .add(GridFs.MD5_FIELD, "abcdef12");
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024)
+                .add(GridFs.MD5_FIELD, "abcdef12");
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -457,7 +457,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -467,8 +467,8 @@ public class GridFsTest {
             throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024)
-        .add(GridFs.MD5_FIELD, "abcdef12");
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024)
+                .add(GridFs.MD5_FIELD, "abcdef12");
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -539,7 +539,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -548,7 +548,7 @@ public class GridFsTest {
     public void testFsckMd5FailsForMissingFileMD5() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -595,15 +595,15 @@ public class GridFsTest {
                 is(Collections.singletonMap(
                         (Object) "id",
                         Collections
-                        .singletonList("MD5 sums do not match. File document contains "
-                                + "'null' and the filemd5 command produced 'md5 : 'abcdef''."))));
+                                .singletonList("MD5 sums do not match. File document contains "
+                                        + "'null' and the filemd5 command produced 'md5 : 'abcdef''."))));
 
         verify(mockDb, mockFiles, mockChunks, mockFileIterator);
     }
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -612,8 +612,8 @@ public class GridFsTest {
     public void testFsckMd5Repair() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024)
-        .add(GridFs.MD5_FIELD, "08d6c05a21512a79a1dfeb9d2a8f262f");
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024)
+                .add(GridFs.MD5_FIELD, "08d6c05a21512a79a1dfeb9d2a8f262f");
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -629,8 +629,8 @@ public class GridFsTest {
         final ObjectId chunkId = new ObjectId();
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.add("_id", chunkId)
-        .addBinary("data", new byte[] { 1, 2, 3, 4 })
-        .add(GridFs.CHUNK_NUMBER_FIELD, 0);
+                .addBinary("data", new byte[] { 1, 2, 3, 4 })
+                .add(GridFs.CHUNK_NUMBER_FIELD, 0);
 
         final MongoDatabase mockDb = createMock(MongoDatabase.class);
         final MongoCollection mockFiles = createMock(MongoCollection.class);
@@ -699,7 +699,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -708,8 +708,8 @@ public class GridFsTest {
     public void testFsckMd5RepairButStillNotValid() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024)
-        .add(GridFs.MD5_FIELD, "08d6c05a21512a79a1dfeb9d2a8f262f");
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024)
+                .add(GridFs.MD5_FIELD, "08d6c05a21512a79a1dfeb9d2a8f262f");
 
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.add("filemd5", "id");
@@ -724,8 +724,8 @@ public class GridFsTest {
         final ObjectId chunkId = new ObjectId();
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.add("_id", chunkId)
-        .addBinary("data", new byte[] { 1, 2, 3, 4 })
-        .add(GridFs.CHUNK_NUMBER_FIELD, 0);
+                .addBinary("data", new byte[] { 1, 2, 3, 4 })
+                .add(GridFs.CHUNK_NUMBER_FIELD, 0);
 
         final MongoDatabase mockDb = createMock(MongoDatabase.class);
         final MongoCollection mockFiles = createMock(MongoCollection.class);
@@ -849,7 +849,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -858,7 +858,7 @@ public class GridFsTest {
     public void testRead() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.addBinary("data", new byte[] { 1, 2, 3, 4 }).add(
@@ -875,7 +875,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -897,7 +897,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -906,7 +906,7 @@ public class GridFsTest {
     public void testReadChunkMissingBytes() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.add(GridFs.CHUNK_NUMBER_FIELD, 0);
@@ -922,7 +922,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -950,7 +950,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -959,7 +959,7 @@ public class GridFsTest {
     public void testReadMissingChunkNumber() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.addBinary("data", new byte[] { 1, 2, 3, 4 });
@@ -975,7 +975,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1002,7 +1002,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1011,7 +1011,7 @@ public class GridFsTest {
     public void testReadMissingChunks() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final MongoDatabase mockDb = createMock(MongoDatabase.class);
         final MongoCollection mockFiles = createMock(MongoCollection.class);
@@ -1024,7 +1024,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1050,7 +1050,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1075,7 +1075,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1097,7 +1097,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1122,7 +1122,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1144,7 +1144,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1166,7 +1166,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(null);
+                .andReturn(null);
 
         replay(mockDb, mockFiles, mockChunks);
 
@@ -1185,7 +1185,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1194,7 +1194,7 @@ public class GridFsTest {
     public void testReadObjectId() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.addBinary("data", new byte[] { 1, 2, 3, 4 }).add(
@@ -1211,7 +1211,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1233,7 +1233,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1255,7 +1255,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(null);
+                .andReturn(null);
 
         replay(mockDb, mockFiles, mockChunks);
 
@@ -1274,7 +1274,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1283,7 +1283,7 @@ public class GridFsTest {
     public void testReadOutOfOrderChunks() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.addBinary("data", new byte[] { 1, 2, 3, 4 }).add(
@@ -1300,7 +1300,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1327,7 +1327,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1336,7 +1336,7 @@ public class GridFsTest {
     public void testReadWithZeroLengthFileAndEmptyChunk() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 0)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.addBinary("data", new byte[] {}).add(
@@ -1353,7 +1353,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1375,7 +1375,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1384,7 +1384,7 @@ public class GridFsTest {
     public void testReadWrongSize() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 4)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final DocumentBuilder chunkResult = BuilderFactory.start();
         chunkResult.addBinary("data", new byte[] { 1, 2, 3 }).add(
@@ -1401,7 +1401,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1430,7 +1430,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#read}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1439,7 +1439,7 @@ public class GridFsTest {
     public void testReadZeroLengthFile() throws IOException {
         final DocumentBuilder fileResult = BuilderFactory.start();
         fileResult.addString("_id", "id").add(GridFs.LENGTH_FIELD, 0)
-        .add(GridFs.CHUNK_SIZE_FIELD, 1024);
+                .add(GridFs.CHUNK_SIZE_FIELD, 1024);
 
         final MongoDatabase mockDb = createMock(MongoDatabase.class);
         final MongoCollection mockFiles = createMock(MongoCollection.class);
@@ -1452,7 +1452,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.find(anyObject(Find.class))).andReturn(mockIterator);
         expect(mockIterator.iterator()).andReturn(mockIterator);
@@ -1472,7 +1472,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1496,14 +1496,14 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Long.valueOf(1234));
 
         expect(mockFiles.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.callback(Long.valueOf(1));
 
         replay(mockDb, mockFiles, mockChunks);
@@ -1516,7 +1516,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1540,14 +1540,14 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Long.valueOf(1234));
 
         expect(mockFiles.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.callback(Long.valueOf(-1));
 
         replay(mockDb, mockFiles, mockChunks);
@@ -1560,7 +1560,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1582,7 +1582,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(null);
+                .andReturn(null);
 
         replay(mockDb, mockFiles, mockChunks);
 
@@ -1594,7 +1594,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1618,14 +1618,14 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Long.valueOf(-1));
 
         expect(mockFiles.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.callback(Long.valueOf(1));
 
         replay(mockDb, mockFiles, mockChunks);
@@ -1638,7 +1638,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1662,14 +1662,14 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.exception(new RuntimeException());
 
         expect(mockFiles.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.callback(Long.valueOf(1));
 
         replay(mockDb, mockFiles, mockChunks);
@@ -1682,7 +1682,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1706,13 +1706,13 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
 
         expect(mockFiles.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
 
         replay(mockDb, mockFiles, mockChunks);
 
@@ -1731,7 +1731,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1755,14 +1755,14 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockChunks.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Long.valueOf(1234));
 
         expect(mockFiles.deleteAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.callback(Long.valueOf(1));
 
         replay(mockDb, mockFiles, mockChunks);
@@ -1775,7 +1775,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#unlink(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1797,7 +1797,7 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(null);
+                .andReturn(null);
 
         replay(mockDb, mockFiles, mockChunks);
 
@@ -1809,7 +1809,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#validate(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1830,7 +1830,7 @@ public class GridFsTest {
         final MongoCollection mockChunks = createMock(MongoCollection.class);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockDb.getCollection("fs" + GridFs.FILES_SUFFIX)).andReturn(
                 mockFiles);
@@ -1850,7 +1850,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#validate(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1871,7 +1871,7 @@ public class GridFsTest {
         final MongoCollection mockChunks = createMock(MongoCollection.class);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockDb.getCollection("fs" + GridFs.FILES_SUFFIX)).andReturn(
                 mockFiles);
@@ -1891,7 +1891,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#validate(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1903,7 +1903,7 @@ public class GridFsTest {
         final MongoCollection mockChunks = createMock(MongoCollection.class);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(null);
+                .andReturn(null);
 
         expect(mockDb.getCollection("fs" + GridFs.FILES_SUFFIX)).andReturn(
                 mockFiles);
@@ -1927,7 +1927,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#validate(ObjectId)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1948,7 +1948,7 @@ public class GridFsTest {
         final MongoCollection mockChunks = createMock(MongoCollection.class);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockDb.getCollection("fs" + GridFs.FILES_SUFFIX)).andReturn(
                 mockFiles);
@@ -1968,7 +1968,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#validate(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -1980,7 +1980,7 @@ public class GridFsTest {
         final MongoCollection mockChunks = createMock(MongoCollection.class);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(null);
+                .andReturn(null);
 
         expect(mockDb.getCollection("fs" + GridFs.FILES_SUFFIX)).andReturn(
                 mockFiles);
@@ -2005,7 +2005,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#validate(String)}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -2026,7 +2026,7 @@ public class GridFsTest {
         final MongoCollection mockChunks = createMock(MongoCollection.class);
 
         expect(mockFiles.findOne(anyObject(DocumentAssignable.class)))
-        .andReturn(fileResult.build());
+                .andReturn(fileResult.build());
 
         expect(mockDb.getCollection("fs" + GridFs.FILES_SUFFIX)).andReturn(
                 mockFiles);
@@ -2046,7 +2046,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#write}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -2070,11 +2070,11 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Integer.valueOf(1));
 
         expect(mockFiles.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.callback(Integer.valueOf(1));
 
         replay(mockDb, mockFiles, mockChunks);
@@ -2089,7 +2089,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#write}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -2114,15 +2114,15 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
 
         expect(mockFiles.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
 
         expect(mockChunks.delete(anyObject(DocumentAssignable.class)))
-        .andReturn(0L);
+                .andReturn(0L);
         expect(mockFiles.delete(anyObject(DocumentAssignable.class)))
-        .andReturn(0L);
+                .andReturn(0L);
 
         replay(mockDb, mockFiles, mockChunks);
 
@@ -2146,7 +2146,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#write}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -2170,15 +2170,15 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Integer.valueOf(1));
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Integer.valueOf(1));
 
         expect(mockFiles.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.callback(Integer.valueOf(1));
 
         replay(mockDb, mockFiles, mockChunks);
@@ -2193,7 +2193,7 @@ public class GridFsTest {
 
     /**
      * Test method for {@link GridFs#write}.
-     *
+     * 
      * @throws IOException
      *             On an error.
      */
@@ -2219,17 +2219,17 @@ public class GridFsTest {
                 mockChunks);
 
         expect(mockChunks.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureChunks);
+                .andReturn(futureChunks);
         futureChunks.callback(Integer.valueOf(1));
 
         expect(mockFiles.insertAsync(anyObject(DocumentAssignable.class)))
-        .andReturn(futureFiles);
+                .andReturn(futureFiles);
         futureFiles.exception(thrown);
 
         expect(mockChunks.delete(anyObject(DocumentAssignable.class)))
-        .andReturn(0L);
+                .andReturn(0L);
         expect(mockFiles.delete(anyObject(DocumentAssignable.class)))
-        .andReturn(0L);
+                .andReturn(0L);
 
         replay(mockDb, mockFiles, mockChunks);
 

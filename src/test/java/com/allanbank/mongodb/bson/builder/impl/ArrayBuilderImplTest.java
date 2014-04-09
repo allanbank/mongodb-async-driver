@@ -44,7 +44,7 @@ import com.allanbank.mongodb.bson.element.UuidElement;
 
 /**
  * ArrayBuilderImplTest provides tests for the {@link ArrayBuilderImpl} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ArrayBuilderImplTest {
@@ -386,7 +386,7 @@ public class ArrayBuilderImplTest {
 
         assertThat(builder.toString(),
                 is(new ArrayElement("elements", builder.subElements())
-                .toString()));
+                        .toString()));
     }
 
 }

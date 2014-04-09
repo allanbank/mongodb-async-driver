@@ -28,7 +28,7 @@ public class LetBuilder {
     /**
      * Creates a new MapStage2.
      * 
-     * @param inputField
+     * @param firstField
      *            The name of the {@code input} field.
      */
     /* package */LetBuilder(final Element firstField) {
@@ -50,7 +50,7 @@ public class LetBuilder {
 
     /**
      * Adds a variable to the {@code $let} expression.
-     *
+     * 
      * @param name
      *            The name of the variable to set.
      * @param document
@@ -64,7 +64,7 @@ public class LetBuilder {
 
     /**
      * Adds a variable to the {@code $let} expression.
-     *
+     * 
      * @param name
      *            The name of the variable to set.
      * @param expression

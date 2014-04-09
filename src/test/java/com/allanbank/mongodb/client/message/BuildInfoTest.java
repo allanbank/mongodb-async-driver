@@ -17,7 +17,7 @@ import com.allanbank.mongodb.ReadPreference;
 
 /**
  * BuildInfoTest provides tests for the {@link BuildInfo} command.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BuildInfoTest {

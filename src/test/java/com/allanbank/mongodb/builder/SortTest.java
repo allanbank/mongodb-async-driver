@@ -14,7 +14,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * SortTest provides tests for the Sort helper class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SortTest {
@@ -37,7 +37,7 @@ public class SortTest {
 
     /**
      * Test method for {@link Sort#geo2d(String)}.
-     *
+     * 
      * @deprecated See {@link Sort#geo2d(String)}.
      */
     @Deprecated

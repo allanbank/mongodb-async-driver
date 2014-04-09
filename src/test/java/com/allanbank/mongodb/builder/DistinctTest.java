@@ -23,7 +23,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * DistinctTest provides tests for the {@link Distinct} command.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DistinctTest {

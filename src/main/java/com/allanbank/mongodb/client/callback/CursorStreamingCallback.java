@@ -28,14 +28,14 @@ import com.allanbank.mongodb.error.ReplyException;
 /**
  * Callback to convert a {@link CursorableMessage} {@link Reply} into a series
  * of callback for each document received.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public final class CursorStreamingCallback extends
-AbstractValidatingReplyCallback implements MongoCursorControl,
-AddressAware {
+        AbstractValidatingReplyCallback implements MongoCursorControl,
+        AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;
@@ -86,7 +86,7 @@ AddressAware {
 
     /**
      * Create a new CursorCallback.
-     *
+     * 
      * @param client
      *            The client interface to the server.
      * @param originalMessage
@@ -113,14 +113,14 @@ AddressAware {
 
     /**
      * Create a new CursorCallback from a cursor document.
-     *
+     * 
      * @param client
      *            The client interface to the server.
      * @param cursorDocument
      *            The original query.
      * @param results
      *            The callback to update with each document.
-     *
+     * 
      * @see MongoIteratorImpl#asDocument()
      */
     public CursorStreamingCallback(final Client client,
@@ -208,7 +208,7 @@ AddressAware {
 
     /**
      * Returns the server the original request was sent to.
-     *
+     * 
      * @return The server the original request was sent to.
      */
     public String getAddress() {
@@ -228,7 +228,7 @@ AddressAware {
 
     /**
      * Returns the client value.
-     *
+     * 
      * @return The client value.
      */
     public Client getClient() {
@@ -237,7 +237,7 @@ AddressAware {
 
     /**
      * Returns the collection name.
-     *
+     * 
      * @return The collection name.
      */
     public String getCollectionName() {
@@ -246,7 +246,7 @@ AddressAware {
 
     /**
      * Returns the cursor Id value.
-     *
+     * 
      * @return The cursor Id value.
      */
     public long getCursorId() {
@@ -255,7 +255,7 @@ AddressAware {
 
     /**
      * Returns the database name value.
-     *
+     * 
      * @return The database name value.
      */
     public String getDatabaseName() {
@@ -264,7 +264,7 @@ AddressAware {
 
     /**
      * Returns the limit value.
-     *
+     * 
      * @return The limit value.
      */
     public int getLimit() {
@@ -284,7 +284,7 @@ AddressAware {
 
     /**
      * Restarts the stream by sending a request for the next batch of documents.
-     *
+     * 
      * @throws MongoDbException
      *             On a failure to send the request for more document.
      */
@@ -294,7 +294,7 @@ AddressAware {
 
     /**
      * Sets the value of the server the original request was sent to.
-     *
+     * 
      * @param address
      *            The new value for the server the original request was sent to.
      */
@@ -336,7 +336,7 @@ AddressAware {
      * <p>
      * Overridden to add the {@link Query} to the exception.
      * </p>
-     *
+     * 
      * @see AbstractReplyCallback#asError(Reply, int, int, String)
      */
     @Override
@@ -351,7 +351,7 @@ AddressAware {
      * <p>
      * Overridden to push the documents to the application's callback.
      * </p>
-     *
+     * 
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override
@@ -374,7 +374,7 @@ AddressAware {
     /**
      * Returns true if the callback should expect a command formated cursor
      * reply.
-     *
+     * 
      * @return True if the callback should expect a command formated cursor
      *         reply.
      */
@@ -385,11 +385,11 @@ AddressAware {
     /**
      * Loads more documents. This issues a get_more command as soon as the
      * previous results start to be used.
-     *
+     * 
      * @param reply
      *            The last reply received.
      * @return The list of loaded documents.
-     *
+     * 
      * @throws RuntimeException
      *             On a failure to load documents.
      */
@@ -424,7 +424,7 @@ AddressAware {
 
     /**
      * Computes the size for the next batch of documents to get.
-     *
+     * 
      * @return The returnNex
      */
     protected int nextBatchSize() {
@@ -436,7 +436,7 @@ AddressAware {
 
     /**
      * Sends a {@link KillCursors} message if there is an active cursor.
-     *
+     * 
      * @throws MongoDbException
      *             On a failure to send the {@link KillCursors} message.
      */
@@ -451,7 +451,7 @@ AddressAware {
 
     /**
      * Sends a request to start the next match of documents.
-     *
+     * 
      * @throws MongoDbException
      *             On a failure to send the request.
      */
@@ -464,7 +464,7 @@ AddressAware {
 
     /**
      * Pushes the results from the reply to the application's callback.
-     *
+     * 
      * @param reply
      *            The reply containing the results to push to the application's
      *            callback.

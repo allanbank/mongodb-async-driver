@@ -27,7 +27,7 @@ import com.allanbank.mongodb.error.BatchedWriteException;
  * BatchedWriteCallback provides the global callback for the batched writes when
  * the server does not support the write commands. This callback will issue the
  * writes using the original wire protocol.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -57,7 +57,7 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
 
     /**
      * Creates a new BatchedWriteCallback.
-     *
+     * 
      * @param results
      *            The callback for the final results.
      * @param write
@@ -140,7 +140,7 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
 
     /**
      * Callback for a single write operation sent via the native messages.
-     *
+     * 
      * @param operation
      *            The write operation.
      * @param result
@@ -162,7 +162,7 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
     /**
      * Callback for a single write operation sent via the native messages has
      * failed.
-     *
+     * 
      * @param operation
      *            The write operation.
      * @param thrown
@@ -202,11 +202,11 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
      * batched write. This callback is used when the batched write commands are
      * not supported and the driver falls back to using the native insert,
      * update, and delete messages.
-     *
+     * 
      * @param <T>
      *            The type for the callback. Expected to be either Integer or
      *            Long.
-     *
+     * 
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.
@@ -219,7 +219,7 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
 
         /**
          * Creates a new BatchedWriteNativeCallback.
-         *
+         * 
          * @param operation
          *            The operation this callback is waiting for the reply from.
          */

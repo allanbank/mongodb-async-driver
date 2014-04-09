@@ -24,14 +24,14 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 
 /**
  * Tests for the {@link BufferingBsonOutputStream} class.
- *
+ * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BufferingBsonOutputStreamTest {
 
     /**
      * Test method for {@link BufferingBsonOutputStream#write(Document)}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -77,7 +77,7 @@ public class BufferingBsonOutputStreamTest {
 
     /**
      * Test method for {@link BufferingBsonOutputStream#write(Document)}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -172,7 +172,7 @@ public class BufferingBsonOutputStreamTest {
 
     /**
      * Test method for {@link BufferingBsonOutputStream#write}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */
@@ -207,7 +207,7 @@ public class BufferingBsonOutputStreamTest {
 
     /**
      * Test method for {@link BufferingBsonOutputStream#write}.
-     *
+     * 
      * @throws IOException
      *             On a failure reading the test document.
      */

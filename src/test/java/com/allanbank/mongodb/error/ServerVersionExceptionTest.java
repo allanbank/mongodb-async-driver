@@ -28,14 +28,14 @@ import com.allanbank.mongodb.client.message.IsMaster;
 /**
  * ServerVersionExceptionTest provides tests for the
  * {@link ServerVersionException} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerVersionExceptionTest {
 
     /**
      * Test method for {@link MongoClientConfiguration} serialization.
-     *
+     * 
      * @throws IOException
      *             On a failure reading or writing the config.
      * @throws ClassNotFoundException

@@ -12,7 +12,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON double.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -30,7 +30,7 @@ public class DoubleElement extends AbstractElement implements NumericElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     *
+     * 
      * @param name
      *            The name for the element.
      * @return The size of the element when encoded in bytes.
@@ -47,7 +47,7 @@ public class DoubleElement extends AbstractElement implements NumericElement {
 
     /**
      * Constructs a new {@link DoubleElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON double.
      * @param value
@@ -61,7 +61,7 @@ public class DoubleElement extends AbstractElement implements NumericElement {
 
     /**
      * Constructs a new {@link DoubleElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON double.
      * @param value
@@ -82,7 +82,7 @@ public class DoubleElement extends AbstractElement implements NumericElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitDouble} method.
-     *
+     * 
      * @see Element#accept(Visitor)
      */
     @Override
@@ -119,10 +119,10 @@ public class DoubleElement extends AbstractElement implements NumericElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -182,7 +182,7 @@ public class DoubleElement extends AbstractElement implements NumericElement {
 
     /**
      * Returns the BSON double value.
-     *
+     * 
      * @return The BSON double value.
      */
     public double getValue() {
@@ -213,7 +213,7 @@ public class DoubleElement extends AbstractElement implements NumericElement {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override

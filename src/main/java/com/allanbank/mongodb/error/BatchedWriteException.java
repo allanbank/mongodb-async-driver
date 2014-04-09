@@ -19,7 +19,7 @@ import com.allanbank.mongodb.builder.write.WriteOperation;
 /**
  * BatchedWriteException provides a single exception containing the aggregated
  * errors across the batched writes.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedWriteException extends ReplyException {
@@ -29,7 +29,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Constructs a single error message from the nested errors.
-     *
+     * 
      * @param errors
      *            The nested errors.
      * @return An errors message composed of the nested errors.
@@ -73,7 +73,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Creates a new BatchedWriteException.
-     *
+     * 
      * @param write
      *            The write that caused the errors.
      * @param n
@@ -99,7 +99,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the nested errors.
-     *
+     * 
      * @return The nested errors.
      */
     public Map<WriteOperation, Throwable> getErrors() {
@@ -108,7 +108,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the number of touched documents when the error is triggered.
-     *
+     * 
      * @return The number of touched documents when the error is triggered.
      */
     public long getN() {
@@ -117,7 +117,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the writes that did not get run by the server.
-     *
+     * 
      * @return The writes that did not get run by the server.
      */
     public List<WriteOperation> getSkipped() {
@@ -126,7 +126,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the write that caused the errors.
-     *
+     * 
      * @return The write that caused the errors.
      */
     public BatchedWrite getWrite() {

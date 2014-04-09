@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
  * <p>
  * We use an array of longs to avoid false sharing.
  * </p>
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Create a sequence with a specified initial value.
-     *
+     * 
      * @param initialValue
      *            The initial value for this sequence.
      */
@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Returns true if the sequence is idle (reserve == release).
-     *
+     * 
      * @return True if the sequence is idle.
      */
     public boolean isIdle() {
@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Checks if there is a waiter for the sequence to be released.
-     *
+     * 
      * @param expectedReserve
      *            The expected value for the reserve if there is no waiter.
      * @return True if there is a waiter (e.g., the reserve has advanced).
@@ -68,7 +68,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Release the position in the sequence.
-     *
+     * 
      * @param expectedValue
      *            The expected/reserved value for the sequence.
      * @param newValue
@@ -84,7 +84,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Reserves a spot in the sequence for the messages to be sent.
-     *
+     * 
      * @param numberOfMessages
      *            The number of messages to be sent.
      * @return The current value of the sequence.
@@ -104,7 +104,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Waits for the reserved sequence to be released.
-     *
+     * 
      * @param wanted
      *            The sequence to wait to be released.
      */
@@ -120,7 +120,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Perform a compare and set operation on the sequence release position.
-     *
+     * 
      * @param expectedValue
      *            The expected current value.
      * @param newValue
@@ -135,7 +135,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
 
     /**
      * Perform a compare and set operation on the sequence reserve position.
-     *
+     * 
      * @param expectedValue
      *            The expected current value.
      * @param newValue

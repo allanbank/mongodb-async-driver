@@ -25,7 +25,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * GroupByTest provides tests for the {@link GroupBy} command.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GroupByTest {
@@ -111,7 +111,7 @@ public class GroupByTest {
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.keys(keys).finalize("finalize").initialValue(initial)
-        .query(query).reduce("reduce");
+                .query(query).reduce("reduce");
 
         GroupBy g = builder.build();
         assertNull(g.getKeyFunction());

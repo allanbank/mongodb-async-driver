@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  * MongoDbAuthenticationExceptionTest provides tests for the
  * {@link MongoDbAuthenticationException} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDbAuthenticationExceptionTest {

@@ -26,7 +26,7 @@ import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * ReplyIntegerCallbackTest provides tests for the {@link ReplyIntegerCallback}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyIntegerCallbackTest {

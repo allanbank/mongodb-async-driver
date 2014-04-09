@@ -28,13 +28,13 @@ import com.allanbank.mongodb.builder.ParallelScan;
  * The synchronous methods for interacting with a collection are declared as
  * part of the {@link MongoCollection} interface (which extends this interface.
  * </p>
- *
+ * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
- *
+ * 
  * @see MongoCollection
  */
 public interface AsyncMongoCollection {
@@ -46,7 +46,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param command
      *            The details of the aggregation request.
      * @return ListenableFuture for the aggregation results returned.
@@ -58,7 +58,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param command
      *            The details of the aggregation request.
      * @return ListenableFuture for the aggregation results returned.
@@ -70,7 +70,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param results
      *            Callback for the aggregation results returned.
      * @param command
@@ -83,7 +83,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param results
      *            Callback for the aggregation results returned.
      * @param command
@@ -96,7 +96,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param results
      *            Callback for the aggregation results returned.
      * @param command
@@ -109,7 +109,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a aggregate command on the server.
-     *
+     * 
      * @param results
      *            Callback for the aggregation results returned.
      * @param command
@@ -125,7 +125,7 @@ public interface AsyncMongoCollection {
      * <p>
      * This is equivalent to calling {@link #countAsync() countAsync().get()}
      * </p>
-     *
+     * 
      * @return The number of documents in the collection.
      * @throws MongoDbException
      *             On an error finding the documents.
@@ -139,7 +139,7 @@ public interface AsyncMongoCollection {
      * {@link #countAsync(Callback, DocumentAssignable) countAsync(results,
      * BuilderFactory.start())}
      * </p>
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @throws MongoDbException
@@ -150,7 +150,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param count
@@ -164,7 +164,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param count
@@ -178,7 +178,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param query
@@ -192,7 +192,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param query
@@ -213,7 +213,7 @@ public interface AsyncMongoCollection {
      * {@link #countAsync(Callback, DocumentAssignable) countAsync(results,
      * BuilderFactory.start(), readPreference)}
      * </p>
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param readPreference
@@ -228,7 +228,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param count
      *            The count command.
      * @return The future that will be updated with the count once it is
@@ -242,7 +242,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param count
      *            The count command.
      * @return The future that will be updated with the count once it is
@@ -256,7 +256,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param query
      *            The query document.
      * @return A future that will be updated with the number of matching
@@ -270,7 +270,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param query
      *            The query document.
      * @param readPreference
@@ -291,7 +291,7 @@ public interface AsyncMongoCollection {
      * {@link #countAsync(LambdaCallback, DocumentAssignable)
      * countAsync(results, BuilderFactory.start())}
      * </p>
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @throws MongoDbException
@@ -303,7 +303,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param count
@@ -317,7 +317,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param count
@@ -331,7 +331,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param query
@@ -345,7 +345,7 @@ public interface AsyncMongoCollection {
     /**
      * Counts the set of documents matching the query document in the
      * collection.
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param query
@@ -358,7 +358,7 @@ public interface AsyncMongoCollection {
      */
     public void countAsync(LambdaCallback<Long> results,
             DocumentAssignable query, ReadPreference readPreference)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Counts the set of documents in the collection.
@@ -367,7 +367,7 @@ public interface AsyncMongoCollection {
      * {@link #countAsync(LambdaCallback, DocumentAssignable)
      * countAsync(results, BuilderFactory.start(), readPreference)}
      * </p>
-     *
+     * 
      * @param results
      *            The callback to notify of the results.
      * @param readPreference
@@ -384,7 +384,7 @@ public interface AsyncMongoCollection {
      * <p>
      * This is equivalent to calling {@link #countAsync() countAsync().get()}
      * </p>
-     *
+     * 
      * @param readPreference
      *            The preference for which servers to use to retrieve the
      *            results.
@@ -397,7 +397,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -411,7 +411,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -429,7 +429,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -446,11 +446,11 @@ public interface AsyncMongoCollection {
      */
     public void deleteAsync(Callback<Long> results, DocumentAssignable query,
             boolean singleDelete, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -466,7 +466,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @return ListenableFuture that will be updated with the results of the
@@ -480,7 +480,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @param singleDelete
@@ -498,7 +498,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @param singleDelete
@@ -515,11 +515,11 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Long> deleteAsync(DocumentAssignable query,
             boolean singleDelete, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param query
      *            Query to locate the documents to be deleted.
      * @param durability
@@ -535,7 +535,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -549,7 +549,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -564,11 +564,11 @@ public interface AsyncMongoCollection {
      */
     public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query, boolean singleDelete)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -589,7 +589,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Deletes a set of documents matching a query from the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query. If
      *            the durability of the operation is NONE then this will be -1.
@@ -602,11 +602,11 @@ public interface AsyncMongoCollection {
      */
     public void deleteAsync(LambdaCallback<Long> results,
             DocumentAssignable query, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param results
      *            Callback for the distinct results returned.
      * @param command
@@ -619,7 +619,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param results
      *            Callback for the distinct results returned.
      * @param command
@@ -632,7 +632,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param command
      *            The details of the distinct request.
      * @return ListenableFuture for the distinct results returned.
@@ -644,7 +644,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param command
      *            The details of the distinct request.
      * @return ListenableFuture for the distinct results returned.
@@ -656,7 +656,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param results
      *            Callback for the distinct results returned.
      * @param command
@@ -669,7 +669,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a distinct command on the server.
-     *
+     * 
      * @param results
      *            Callback for the distinct results returned.
      * @param command
@@ -682,7 +682,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the aggregation will be performed.
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @return The document describing the method used to execute the query.
@@ -695,7 +695,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the aggregation will be performed.
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @return The document describing the method used to execute the query.
@@ -708,7 +708,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the aggregation will be performed.
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @param results
@@ -722,7 +722,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the aggregation will be performed.
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @param results
@@ -736,7 +736,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the query will be performed.
-     *
+     * 
      * @param query
      *            The query details.
      * @param results
@@ -749,7 +749,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the query will be performed.
-     *
+     * 
      * @param query
      *            The query details.
      * @param results
@@ -762,7 +762,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the document will be performed.
-     *
+     * 
      * @param query
      *            The query details.
      * @return The document describing the method used to execute the query.
@@ -774,7 +774,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the document will be performed.
-     *
+     * 
      * @param query
      *            The query details.
      * @return The document describing the method used to execute the query.
@@ -786,7 +786,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the aggregation will be performed.
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @param results
@@ -800,7 +800,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the aggregation will be performed.
-     *
+     * 
      * @param aggregation
      *            The aggregation details.
      * @param results
@@ -814,7 +814,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the query will be performed.
-     *
+     * 
      * @param query
      *            The query details.
      * @param results
@@ -827,7 +827,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Explains the way that the query will be performed.
-     *
+     * 
      * @param query
      *            The query details.
      * @param results
@@ -841,7 +841,7 @@ public interface AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param results
      *            Callback for the the found document.
      * @param command
@@ -855,7 +855,7 @@ public interface AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param results
      *            Callback for the the found document.
      * @param command
@@ -869,7 +869,7 @@ public interface AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param command
      *            The details of the find and modify request.
      * @return ListenableFuture for the found document.
@@ -882,7 +882,7 @@ public interface AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param command
      *            The details of the find and modify request.
      * @return ListenableFuture for the found document.
@@ -895,7 +895,7 @@ public interface AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param results
      *            Callback for the the found document.
      * @param command
@@ -909,7 +909,7 @@ public interface AsyncMongoCollection {
     /**
      * Invokes a findAndModify command on the server. The <tt>query</tt> is used
      * to locate a document to apply a set of <tt>update</tt>s to.
-     *
+     * 
      * @param results
      *            Callback for the the found document.
      * @param command
@@ -922,7 +922,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query document in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -935,7 +935,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -948,7 +948,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -961,7 +961,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query document in the collection.
-     *
+     * 
      * @param query
      *            The query document.
      * @return A future for the MongoIterator over the documents.
@@ -973,7 +973,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query in the collection.
-     *
+     * 
      * @param query
      *            The query details.
      * @return A future for the MongoIterator over the documents.
@@ -985,7 +985,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query in the collection.
-     *
+     * 
      * @param query
      *            The query details.
      * @return A future for the MongoIterator over the documents.
@@ -997,7 +997,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query document in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1010,7 +1010,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1023,7 +1023,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds the set of documents matching the query in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1036,7 +1036,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds a single matching document in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1059,7 +1059,7 @@ public interface AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1082,7 +1082,7 @@ public interface AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1095,7 +1095,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds a single matching document in the collection.
-     *
+     * 
      * @param query
      *            The query document.
      * @return The first found document.
@@ -1117,7 +1117,7 @@ public interface AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The first found document.
@@ -1139,7 +1139,7 @@ public interface AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param query
      *            The query details.
      * @return The first found document.
@@ -1151,7 +1151,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Finds a single matching document in the collection.
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1174,7 +1174,7 @@ public interface AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1197,7 +1197,7 @@ public interface AsyncMongoCollection {
      * document.</li>
      * </ul>
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -1210,7 +1210,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param results
      *            Callback for the group results returned.
      * @param command
@@ -1223,7 +1223,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param results
      *            Callback for the group results returned.
      * @param command
@@ -1236,7 +1236,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param command
      *            The details of the group request.
      * @return ListenableFuture for the group results returned.
@@ -1248,7 +1248,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param command
      *            The details of the group request.
      * @return ListenableFuture for the group results returned.
@@ -1260,7 +1260,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param results
      *            Callback for the group results returned.
      * @param command
@@ -1273,7 +1273,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a group command on the server.
-     *
+     * 
      * @param results
      *            Callback for the group results returned.
      * @param command
@@ -1286,7 +1286,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param continueOnError
      *            If the insert should continue if one of the documents causes
      *            an error.
@@ -1305,7 +1305,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param continueOnError
      *            If the insert should continue if one of the documents causes
      *            an error.
@@ -1323,11 +1323,11 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Integer> insertAsync(boolean continueOnError,
             Durability durability, DocumentAssignable... documents)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1348,7 +1348,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1368,11 +1368,11 @@ public interface AsyncMongoCollection {
      */
     public void insertAsync(Callback<Integer> results, boolean continueOnError,
             Durability durability, DocumentAssignable... documents)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1390,7 +1390,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1410,7 +1410,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param documents
      *            The documents to add to the collection.
      * @return ListenableFuture that will be updated with the results of the
@@ -1426,7 +1426,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param durability
      *            The durability for the insert.
      * @param documents
@@ -1444,7 +1444,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1462,11 +1462,11 @@ public interface AsyncMongoCollection {
      */
     public void insertAsync(LambdaCallback<Integer> results,
             boolean continueOnError, DocumentAssignable... documents)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1490,7 +1490,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1508,7 +1508,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Inserts a set of documents into the collection.
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. Currently, the value is always zero. Once <a
@@ -1525,11 +1525,11 @@ public interface AsyncMongoCollection {
      */
     public void insertAsync(LambdaCallback<Integer> results,
             Durability durability, DocumentAssignable... documents)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param results
      *            Callback for the map/reduce results returned. Note this might
      *            be empty if the output type is not inline.
@@ -1543,7 +1543,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param results
      *            Callback for the map/reduce results returned. Note this might
      *            be empty if the output type is not inline.
@@ -1557,7 +1557,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param results
      *            Callback for the map/reduce results returned. Note this might
      *            be empty if the output type is not inline.
@@ -1571,7 +1571,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param results
      *            Callback for the map/reduce results returned. Note this might
      *            be empty if the output type is not inline.
@@ -1585,7 +1585,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param command
      *            The details of the map/reduce request.
      * @return ListenableFuture for the map/reduce results returned. Note this
@@ -1598,7 +1598,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a mapReduce command on the server.
-     *
+     * 
      * @param command
      *            The details of the map/reduce request.
      * @return ListenableFuture for the map/reduce results returned. Note this
@@ -1614,14 +1614,14 @@ public interface AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param results
      *            Callback for the collection of iterators.
      * @param parallelScan
      *            The details on the scan.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -1635,14 +1635,14 @@ public interface AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param results
      *            Callback for the collection of iterators.
      * @param parallelScan
      *            The details on the scan.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -1656,14 +1656,14 @@ public interface AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param results
      *            Callback for the collection of iterators.
      * @param parallelScan
      *            The details on the scan.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -1677,14 +1677,14 @@ public interface AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param results
      *            Callback for the collection of iterators.
      * @param parallelScan
      *            The details on the scan.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -1698,13 +1698,13 @@ public interface AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param parallelScan
      *            The details on the scan.
      * @return The collection of iterators.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -1717,13 +1717,13 @@ public interface AsyncMongoCollection {
      * iterators over the collection each configured to scan a distinct regions
      * of the collection. You may then use a separate thread to scan each region
      * of the collection in parallel.
-     *
+     * 
      * @param parallelScan
      *            The details on the scan.
      * @return The collection of iterators.
      * @throws MongoDbException
      *             On an error initializing the parallel scan.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
      *      Command</a>
@@ -1746,7 +1746,7 @@ public interface AsyncMongoCollection {
      * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
      * document, false, true)}.
      * </p>
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. If the durability of the operation is NONE then this
@@ -1774,7 +1774,7 @@ public interface AsyncMongoCollection {
      * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
      * document, false, true, durability)}.
      * </p>
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. If the durability of the operation is NONE then this
@@ -1788,7 +1788,7 @@ public interface AsyncMongoCollection {
      */
     public void saveAsync(Callback<Integer> results,
             DocumentAssignable document, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Saves the {@code document} to the collection.
@@ -1804,7 +1804,7 @@ public interface AsyncMongoCollection {
      * updateAsync(BuilderFactory.start().add(document.get("_id")), document,
      * false, true)}.
      * </p>
-     *
+     * 
      * @param document
      *            The document to save to the collection.
      * @return ListenableFuture that will be updated with the results of the
@@ -1831,7 +1831,7 @@ public interface AsyncMongoCollection {
      * updateAsync(BuilderFactory.start().add(document.get("_id")), document,
      * false, true, durability)}.
      * </p>
-     *
+     * 
      * @param document
      *            The document to save to the collection.
      * @param durability
@@ -1860,7 +1860,7 @@ public interface AsyncMongoCollection {
      * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
      * document, false, true)}.
      * </p>
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. If the durability of the operation is NONE then this
@@ -1888,7 +1888,7 @@ public interface AsyncMongoCollection {
      * updateAsync(results, BuilderFactory.start().add(document.get("_id")),
      * document, false, true, durability)}.
      * </p>
-     *
+     * 
      * @param results
      *            {@link Callback} that will be notified with the results of the
      *            insert. If the durability of the operation is NONE then this
@@ -1902,7 +1902,7 @@ public interface AsyncMongoCollection {
      */
     public void saveAsync(LambdaCallback<Integer> results,
             DocumentAssignable document, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Performs an aggregation and streams them to the provided callback one at
@@ -1930,7 +1930,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param aggregation
@@ -1974,7 +1974,7 @@ public interface AsyncMongoCollection {
      * This method is equivalent to {@link #stream(StreamCallback, Aggregate)
      * stream( results, aggregation.build() ) }.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param aggregation
@@ -2014,7 +2014,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2054,7 +2054,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2094,7 +2094,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param aggregation
@@ -2138,7 +2138,7 @@ public interface AsyncMongoCollection {
      * This method is equivalent to {@link #stream(StreamCallback, Aggregate)
      * stream( results, aggregation.build() ) }.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param aggregation
@@ -2178,7 +2178,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2218,7 +2218,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2257,7 +2257,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2301,7 +2301,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2344,7 +2344,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2384,7 +2384,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2424,7 +2424,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2467,7 +2467,7 @@ public interface AsyncMongoCollection {
      * Executor} be configured within the {@link MongoClientConfiguration} to
      * off-load the processing from the receive thread.
      * </p>
-     *
+     * 
      * @param results
      *            Callback that will be notified of the results of the query.
      * @param query
@@ -2486,7 +2486,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a {@code text} command on the server.
-     *
+     * 
      * @param results
      *            Callback for the {@code text} results returned.
      * @param command
@@ -2511,7 +2511,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a {@code text} command on the server.
-     *
+     * 
      * @param results
      *            Callback for the {@code text} results returned.
      * @param command
@@ -2529,11 +2529,11 @@ public interface AsyncMongoCollection {
     public void textSearchAsync(
             Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
             com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Invokes a {@code text} command on the server.
-     *
+     * 
      * @param command
      *            The details of the {@code text} request.
      * @return ListenableFuture for the {@code text} results returned.
@@ -2556,7 +2556,7 @@ public interface AsyncMongoCollection {
 
     /**
      * Invokes a {@code text} command on the server.
-     *
+     * 
      * @param command
      *            The details of the {@code text} request.
      * @return ListenableFuture for the {@code text} results returned.
@@ -2576,13 +2576,13 @@ public interface AsyncMongoCollection {
     @Deprecated
     public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents updated. If the durability of the operation is NONE
@@ -2601,7 +2601,7 @@ public interface AsyncMongoCollection {
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents updated. If the durability of the operation is NONE
@@ -2621,13 +2621,13 @@ public interface AsyncMongoCollection {
      */
     public void updateAsync(Callback<Long> results, DocumentAssignable query,
             DocumentAssignable update, boolean multiUpdate, boolean upsert)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents updated. If the durability of the operation is NONE
@@ -2655,7 +2655,7 @@ public interface AsyncMongoCollection {
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents updated. If the durability of the operation is NONE
@@ -2671,13 +2671,13 @@ public interface AsyncMongoCollection {
      */
     public void updateAsync(Callback<Long> results, DocumentAssignable query,
             DocumentAssignable update, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -2695,7 +2695,7 @@ public interface AsyncMongoCollection {
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -2714,13 +2714,13 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, boolean multiUpdate, boolean upsert)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -2747,7 +2747,7 @@ public interface AsyncMongoCollection {
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param query
      *            The query to select the documents to update.
      * @param update
@@ -2762,13 +2762,13 @@ public interface AsyncMongoCollection {
      */
     public ListenableFuture<Long> updateAsync(DocumentAssignable query,
             DocumentAssignable update, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link LambdaCallback} that will be notified of the number
      *            of documents updated. If the durability of the operation is
@@ -2782,13 +2782,13 @@ public interface AsyncMongoCollection {
      */
     public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link LambdaCallback} that will be notified of the number
      *            of documents updated. If the durability of the operation is
@@ -2814,7 +2814,7 @@ public interface AsyncMongoCollection {
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link LambdaCallback} that will be notified of the number
      *            of documents updated. If the durability of the operation is
@@ -2837,13 +2837,13 @@ public interface AsyncMongoCollection {
     public void updateAsync(LambdaCallback<Long> results,
             DocumentAssignable query, DocumentAssignable update,
             boolean multiUpdate, boolean upsert, Durability durability)
-                    throws MongoDbException;
+            throws MongoDbException;
 
     /**
      * Applies updates to a set of documents within the collection. The
      * documents to update are selected by the <tt>query</tt> and the updates
      * are describe by the <tt>update</tt> document.
-     *
+     * 
      * @param results
      *            The {@link LambdaCallback} that will be notified of the number
      *            of documents updated. If the durability of the operation is
@@ -2873,7 +2873,7 @@ public interface AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param write
      *            The batched writes
      * @return ListenableFuture that will be updated with the results of the
@@ -2882,7 +2882,7 @@ public interface AsyncMongoCollection {
      *         the {@link #insertAsync(DocumentAssignable...)} method applies.
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */
@@ -2901,7 +2901,7 @@ public interface AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param write
      *            The batched writes
      * @return ListenableFuture that will be updated with the results of the
@@ -2910,7 +2910,7 @@ public interface AsyncMongoCollection {
      *         the {@link #insertAsync(DocumentAssignable...)} method applies.
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */
@@ -2929,7 +2929,7 @@ public interface AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents inserted, updated, and deleted. If this method falls
@@ -2941,7 +2941,7 @@ public interface AsyncMongoCollection {
      *            The batched writes
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */
@@ -2960,7 +2960,7 @@ public interface AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents inserted, updated, and deleted. If this method falls
@@ -2972,7 +2972,7 @@ public interface AsyncMongoCollection {
      *            The batched writes
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */
@@ -2991,7 +2991,7 @@ public interface AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents inserted, updated, and deleted. If this method falls
@@ -3003,7 +3003,7 @@ public interface AsyncMongoCollection {
      *            The batched writes
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */
@@ -3022,7 +3022,7 @@ public interface AsyncMongoCollection {
      * Since this method may use the write commands a {@link Durability} of
      * {@link Durability#NONE} will be changed to {@link Durability#ACK}.
      * </p>
-     *
+     * 
      * @param results
      *            The {@link Callback} that will be notified of the number of
      *            documents inserted, updated, and deleted. If this method falls
@@ -3034,7 +3034,7 @@ public interface AsyncMongoCollection {
      *            The batched writes
      * @throws MongoDbException
      *             On an error submitting the write operations.
-     *
+     * 
      * @since MongoDB 2.6
      * @see BatchedWrite#REQUIRED_VERSION
      */

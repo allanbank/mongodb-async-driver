@@ -24,7 +24,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 
 /**
  * MapReduceTest provides tests for the {@link MapReduce} command.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MapReduceTest {

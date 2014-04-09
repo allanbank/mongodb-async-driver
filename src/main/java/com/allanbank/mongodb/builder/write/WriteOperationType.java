@@ -7,7 +7,7 @@ package com.allanbank.mongodb.builder.write;
 
 /**
  * WriteOperationType provides an enumeration of the types of writes.
- *
+ * 
  * @api.yes This enumeration is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)

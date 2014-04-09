@@ -30,7 +30,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * EmptyDocumentTest provides tests for the {@link EmptyDocument} class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("boxing")

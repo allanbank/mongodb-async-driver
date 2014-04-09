@@ -9,7 +9,7 @@ import com.allanbank.mongodb.Version;
 
 /**
  * MiscellaneousOperator provides the set of miscellaneous operators.
- *
+ * 
  * @api.yes This enumeration is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -49,7 +49,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Support for text searches.
-     *
+     * 
      * @since MongoDB 2.6
      */
     TEXT("$text", Version.VERSION_2_6),
@@ -63,7 +63,7 @@ public enum MiscellaneousOperator implements Operator {
     /**
      * The modifier for the {@link #TEXT} operator to specify the language of
      * the query terms.
-     *
+     * 
      * @since MongoDB 2.6
      */
     public static final String LANGUAGE_MODIFIER = "$language";
@@ -71,7 +71,7 @@ public enum MiscellaneousOperator implements Operator {
     /**
      * The modifier for the {@link #TEXT} operator to specify the the query
      * terms.
-     *
+     * 
      * @since MongoDB 2.6
      */
     public static final String SEARCH_MODIFIER = "$search";
@@ -84,7 +84,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Creates a new MiscellaneousOperator.
-     *
+     * 
      * @param token
      *            The token to use when sending to the server.
      */
@@ -94,7 +94,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Creates a new MiscellaneousOperator.
-     *
+     * 
      * @param token
      *            The token to use when sending to the server.
      * @param version
@@ -107,7 +107,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * The token for the operator that can be sent to the server.
-     *
+     * 
      * @return The token for the operator.
      */
     @Override
@@ -117,7 +117,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Returns the first MongoDB version to support the operator.
-     *
+     * 
      * @return The first MongoDB version to support the operator. If
      *         <code>null</code> then the version is not known and can be
      *         assumed to be all currently supported versions.

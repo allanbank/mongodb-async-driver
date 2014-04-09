@@ -15,7 +15,7 @@ import com.allanbank.mongodb.client.VersionRange;
 /**
  * ServerVersionException is thrown to report that an attempt was made to send a
  * request to a server that required a more recent version of the server.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -29,7 +29,7 @@ public class ServerVersionException extends MongoDbException {
 
     /**
      * Creates a suitable message for the exception.
-     *
+     * 
      * @param operation
      *            The name of the command/operation.
      * @param range
@@ -75,7 +75,7 @@ public class ServerVersionException extends MongoDbException {
 
     /**
      * Creates a new ServerVersionException.
-     *
+     * 
      * @param operation
      *            The name of the command/operation.
      * @param range
@@ -98,7 +98,7 @@ public class ServerVersionException extends MongoDbException {
 
     /**
      * Returns the actual server version.
-     *
+     * 
      * @return The actual server version.
      */
     public Version getActualVersion() {
@@ -107,7 +107,7 @@ public class ServerVersionException extends MongoDbException {
 
     /**
      * Returns the maximum (exclusive) server version for the operation.
-     *
+     * 
      * @return The required server version for the operation.
      */
     public Version getMaximumVersion() {
@@ -116,7 +116,7 @@ public class ServerVersionException extends MongoDbException {
 
     /**
      * Returns the name of the operation.
-     *
+     * 
      * @return The name of the operation.
      */
     public String getOperation() {
@@ -125,7 +125,7 @@ public class ServerVersionException extends MongoDbException {
 
     /**
      * Returns the required (inclusive) server version for the operation.
-     *
+     * 
      * @return The required server version for the operation.
      */
     public Version getRequiredVersion() {
@@ -134,7 +134,7 @@ public class ServerVersionException extends MongoDbException {
 
     /**
      * Returns the operation's message.
-     *
+     * 
      * @return The operation's message.
      */
     public Message getSentMessage() {
@@ -144,7 +144,7 @@ public class ServerVersionException extends MongoDbException {
     /**
      * Reads the serialized configuration and sets the transient field to known
      * values.
-     *
+     * 
      * @param stream
      *            The stream to read from.
      * @throws IOException

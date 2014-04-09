@@ -19,7 +19,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * The BSON specification uses prefixed length integers in several locations.
  * The {@link RandomAccessOutputStream} allows those values to be re-written
  * with a single serialization pass.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -38,7 +38,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
     /**
      * Creates a new {@link BufferingWriteVisitor}.
-     *
+     * 
      * @param output
      *            The output buffer to use.
      */
@@ -49,7 +49,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     /**
      * Returns the maximum number of strings that may have their encoded form
      * cached.
-     *
+     * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
      */
@@ -60,7 +60,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     /**
      * Returns the maximum length for a string that the stream is allowed to
      * cache.
-     *
+     * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
      */
@@ -70,7 +70,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
     /**
      * Return the current Size of the written document.
-     *
+     * 
      * @return The current size of the encoded document.
      */
     public long getSize() {
@@ -87,7 +87,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     /**
      * Sets the value of maximum number of strings that may have their encoded
      * form cached.
-     *
+     * 
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
@@ -100,7 +100,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * Sets the value of length for a string that the stream is allowed to cache
      * to the new value. This can be used to stop a single long string from
      * pushing useful values out of the cache.
-     *
+     * 
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
@@ -351,7 +351,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
     /**
      * Writes the internal buffer to the provided stream.
-     *
+     * 
      * @param out
      *            The stream to write the internal buffer to.
      * @throws IOException
@@ -363,7 +363,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
     /**
      * Returns the visitor's output buffer.
-     *
+     * 
      * @return The visitor's output buffer.
      */
     protected RandomAccessOutputStream getOutputBuffer() {

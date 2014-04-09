@@ -12,7 +12,7 @@ import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 
 /**
  * AbstractReconnectStrategy provides a base class for reconnection strategies.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -40,7 +40,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
 
     /**
      * Returns the configuration for connections to the servers.
-     *
+     * 
      * @return The configuration for connections to the servers
      */
     public MongoClientConfiguration getConfig() {
@@ -49,7 +49,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
 
     /**
      * Returns the connection factory for new connections.
-     *
+     * 
      * @return The connection factory for new connections.
      */
     public ProxiedConnectionFactory getConnectionFactory() {
@@ -58,7 +58,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
 
     /**
      * Returns the selector for which server to connect to.
-     *
+     * 
      * @return The selector for which server to connect to.
      */
     public ServerSelector getSelector() {
@@ -67,7 +67,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
 
     /**
      * Returns the state of the cluster.
-     *
+     * 
      * @return The state of the cluster.
      */
     public Cluster getState() {
@@ -109,7 +109,7 @@ public abstract class AbstractReconnectStrategy implements ReconnectStrategy {
 
     /**
      * Pings the server to verify that the connection is active.
-     *
+     * 
      * @param server
      *            The server being connected to.
      * @param connection

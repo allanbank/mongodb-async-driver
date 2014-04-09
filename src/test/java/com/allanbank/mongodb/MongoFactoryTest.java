@@ -17,7 +17,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * MongoFactoryTest provides tests for the {@link MongoFactory} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoFactoryTest {

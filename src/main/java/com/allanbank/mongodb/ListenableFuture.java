@@ -23,10 +23,10 @@ import java.util.concurrent.RejectedExecutionException;
 /**
  * Enhancement to the {@link Future} interface inspired by the Google Guava's
  * ListenableFuture.
- *
+ * 
  * @param <V>
  *            The type of the result of the {@link Future}.
- *
+ * 
  * @see <a
  *      href="https://code.google.com/p/guava-libraries/wiki/ListenableFutureExplained">Listenable
  *      Future Explained</a>
@@ -40,11 +40,11 @@ public interface ListenableFuture<V> extends Future<V> {
     /**
      * Add a {@link Runnable} to be executed once the future is completed via
      * the provided executable.
-     *
+     * 
      * <p>
      * The order that {@link Runnable Runnables} are executed is unspecified.
      * </p>
-     *
+     * 
      * @param runnable
      *            The myRunnable to execute.
      * @param executor

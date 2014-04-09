@@ -29,7 +29,7 @@ import com.allanbank.mongodb.bson.Visitor;
 
 /**
  * IntegerElementTest provides tests for the {@link IntegerElement} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class IntegerElementTest {

@@ -16,18 +16,18 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * IteratorToListCallbackAdapter provides the ability to translate a
  * MongoIterator callback into a list callback.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class IteratorToListCallbackAdapter implements
-Callback<MongoIterator<Document>> {
+        Callback<MongoIterator<Document>> {
 
     /** The list callback to invoke once all of the documents are collected. */
     private final Callback<List<Document>> myDelegate;
 
     /**
      * Creates a new IteratorToListCallbackAdapter.
-     *
+     * 
      * @param delegate
      *            The list callback to invoke once all of the documents are
      *            collected.

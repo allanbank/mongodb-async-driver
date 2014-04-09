@@ -33,7 +33,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
  * MongoDbAuthenticatorTest provides tests for the {@link MongoDbAuthenticator}.
- *
+ * 
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDbAuthenticatorTest {

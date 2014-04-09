@@ -14,7 +14,7 @@ import com.allanbank.mongodb.client.state.Server;
 
 /**
  * Provides an interface for creating proxied connections.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -22,7 +22,7 @@ import com.allanbank.mongodb.client.state.Server;
 public interface ProxiedConnectionFactory extends ConnectionFactory {
     /**
      * Creates a connection to the address provided.
-     *
+     * 
      * @param server
      *            The MongoDB server to connect to.
      * @param config

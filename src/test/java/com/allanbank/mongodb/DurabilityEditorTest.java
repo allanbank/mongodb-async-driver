@@ -12,7 +12,7 @@ import org.junit.Test;
 
 /**
  * DurabilityEditorTest provides tests for the {@link DurabilityEditor} class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DurabilityEditorTest {

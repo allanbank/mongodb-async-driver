@@ -20,7 +20,7 @@ import com.allanbank.mongodb.bson.json.Json;
 
 /**
  * GeoJsonTest provides tests for the {@link GeoJson} class.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class GeoJsonTest {
@@ -39,8 +39,8 @@ public class GeoJsonTest {
         final Document geoJsonPolygon = GeoJson.polygon(
                 Arrays.asList(p(100.0, 0.0), p(101.0, 0.0), p(101.0, 1.0),
                         p(100.0, 1.0), p(100.0, 0.0)),
-                        Arrays.asList(p(100.2, 0.2), p(100.8, 0.2), p(100.8, 0.8),
-                                p(100.2, 0.8), p(100.2, 0.2)));
+                Arrays.asList(p(100.2, 0.2), p(100.8, 0.2), p(100.8, 0.8),
+                        p(100.2, 0.8), p(100.2, 0.2)));
 
         assertEquals(jsonDoc, geoJsonPolygon);
     }
@@ -96,8 +96,8 @@ public class GeoJsonTest {
         final Document geoJson = GeoJson.multiLineString(
                 Arrays.asList(p(100.0, 0.0), p(101.0, 0.0), p(101.0, 1.0),
                         p(100.0, 1.0), p(100.0, 0.0)),
-                        Arrays.asList(p(100.2, 0.2), p(100.8, 0.2), p(100.8, 0.8),
-                                p(100.2, 0.8), p(100.2, 0.2)));
+                Arrays.asList(p(100.2, 0.2), p(100.8, 0.2), p(100.8, 0.8),
+                        p(100.2, 0.8), p(100.2, 0.2)));
 
         assertEquals(jsonDoc, geoJson);
     }

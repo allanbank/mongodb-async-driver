@@ -26,7 +26,7 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * These are not meant to be exhaustive tests of the driver but instead attempt
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {

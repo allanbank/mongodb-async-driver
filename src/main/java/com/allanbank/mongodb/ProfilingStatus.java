@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * ProfilingStatus provides a container for the {@link Level} and number of
  * milliseconds beyond which to consider an operation to be slow.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ProfilingStatus implements Comparable<ProfilingStatus>,
-Serializable {
+        Serializable {
 
     /**
      * The default threshold ({@value} )for the number of milliseconds beyond
@@ -38,7 +38,7 @@ Serializable {
     /**
      * Creates a profiling state to profile operations taking more than
      * {@code slowMillis} to complete.
-     *
+     * 
      * @param slowMillis
      *            The number of milliseconds beyond which to consider an
      *            operation to be slow.
@@ -59,7 +59,7 @@ Serializable {
 
     /**
      * Creates a new ProfilingStatus.
-     *
+     * 
      * @param level
      *            The profiling level to use.
      */
@@ -69,7 +69,7 @@ Serializable {
 
     /**
      * Creates a new ProfilingStatus.
-     *
+     * 
      * @param level
      *            The profiling level to use.
      * @param slowMillis
@@ -129,7 +129,7 @@ Serializable {
 
     /**
      * Returns the profiling level to use.
-     *
+     * 
      * @return The profiling level to use.
      */
     public Level getLevel() {
@@ -139,7 +139,7 @@ Serializable {
     /**
      * Returns the number of milliseconds beyond which to consider an operation
      * to be slow.
-     *
+     * 
      * @return The number of milliseconds beyond which to consider an operation
      *         to be slow.
      */
@@ -179,7 +179,7 @@ Serializable {
     /**
      * Hook into serialization to replace <tt>this</tt> object with the local
      * {@link #ON} or {@link #OFF} instance as appropriate.
-     *
+     * 
      * @return Either the {@link #ON} or {@link #OFF} instance if <tt>this</tt>
      *         instance equals one of those instances otherwise <tt>this</tt>
      *         instance.
@@ -199,7 +199,7 @@ Serializable {
     /**
      * Level provides the set of available profiling levels provided by the
      * MongoDB server.
-     *
+     * 
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -219,7 +219,7 @@ Serializable {
 
         /**
          * Returns the {@link Level} for the specified value.
-         *
+         * 
          * @param value
          *            The value of the profile level.
          * @return The profile level for the value.
@@ -239,7 +239,7 @@ Serializable {
 
         /**
          * Creates a new Level.
-         *
+         * 
          * @param value
          *            The profile level value to send to MongoDB.
          */
@@ -249,7 +249,7 @@ Serializable {
 
         /**
          * Returns the profile level value to send to MongoDB.
-         *
+         * 
          * @return The profile level value to send to MongoDB.
          */
         public int getValue() {

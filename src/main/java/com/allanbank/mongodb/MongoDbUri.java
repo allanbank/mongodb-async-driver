@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 
 /**
  * MongoDbUri provides the ability to parse a MongoDB URI into fields.
- *
+ * 
  * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
  *      Connections</a>
  * @api.yes This class is part of the driver's API. Public and protected members
@@ -42,14 +42,14 @@ public class MongoDbUri {
 
     /**
      * Creates a new MongoDbUri.
-     *
+     * 
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     *
+     * 
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -62,7 +62,7 @@ public class MongoDbUri {
                 .equalsIgnoreCase(MONGODB_URI_PREFIX)) {
             throw new IllegalArgumentException(
                     "The MongoDB URI must start with '" + MONGODB_URI_PREFIX
-                    + "'.");
+                            + "'.");
         }
 
         String remaining = mongoDbUri.substring(MONGODB_URI_PREFIX.length());
@@ -128,7 +128,7 @@ public class MongoDbUri {
             else {
                 throw new IllegalArgumentException(
                         "The password for the user '" + userNamePassword
-                        + "' must be provided.");
+                                + "' must be provided.");
             }
         }
         else {
@@ -139,7 +139,7 @@ public class MongoDbUri {
 
     /**
      * Returns the database contained in the URI.
-     *
+     * 
      * @return The database contained in the URI.
      */
     public String getDatabase() {
@@ -148,7 +148,7 @@ public class MongoDbUri {
 
     /**
      * Returns the hosts contained in the URI.
-     *
+     * 
      * @return The hosts contained in the URI.
      */
     public List<String> getHosts() {
@@ -158,7 +158,7 @@ public class MongoDbUri {
     /**
      * Returns the options contained in the URI. Will never be null bu may be an
      * empty string.
-     *
+     * 
      * @return The options contained in the URI.
      */
     public String getOptions() {
@@ -167,7 +167,7 @@ public class MongoDbUri {
 
     /**
      * Returns the password contained in the URI. May be <code>null</code>.
-     *
+     * 
      * @return The password contained in the URI.
      */
     public String getPassword() {
@@ -176,7 +176,7 @@ public class MongoDbUri {
 
     /**
      * Returns the user name contained in the URI. May be <code>null</code>.
-     *
+     * 
      * @return The user name contained in the URI.
      */
     public String getUserName() {

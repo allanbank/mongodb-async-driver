@@ -36,7 +36,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 /**
  * AggregateTest provides tests for the example usage of the {@link Aggregate}
  * class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  * @deprecated See deprecation of {@link Aggregate}.
  */
@@ -101,7 +101,7 @@ public class AggregateTest {
 
     /**
      * Test method for {@link Aggregate.Builder} usability.
-     *
+     * 
      * @see <a
      *      href="https://groups.google.com/d/topic/mongodb-user/1cYch580h0w/discussion">Inspired
      *      By</a>
@@ -115,7 +115,7 @@ public class AggregateTest {
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.match(
                 where("calledPloidy").notIn(constant("N")).and("sampleName")
-                .equals("XYZ"))
+                        .equals("XYZ"))
 
                 .project(
                         include("chr", "begin", "end", "calledPloidy"),
@@ -125,16 +125,16 @@ public class AggregateTest {
                                                 field("begin"),
                                                 mod(field("begin"),
                                                         constant(interval))),
-                                                        constant(interval)),
-                                                        constant(interval))))
+                                                constant(interval)),
+                                        constant(interval))))
 
-                                                        .group(id().addField("chr").addField("window"),
-                                                                set("averagePloidy").average("calledPloidy"))
+                .group(id().addField("chr").addField("window"),
+                        set("averagePloidy").average("calledPloidy"))
 
-                                                                .project(includeWithoutId(), set("chr", field("_id.chr")),
-                                                                        set("begin", field("_id.window")),
-                                                                        set("calledPloidy", field("averagePloidy")),
-                                                                        set("step", add(constant(0), constant(interval))));
+                .project(includeWithoutId(), set("chr", field("_id.chr")),
+                        set("begin", field("_id.window")),
+                        set("calledPloidy", field("averagePloidy")),
+                        set("step", add(constant(0), constant(interval))));
 
         // Now the old fashioned way.
         final ArrayBuilder expected = BuilderFactory.startArray();

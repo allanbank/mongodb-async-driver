@@ -10,7 +10,7 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * Exception raised when a a request to a shard server is based on an invalid or
  * stale configuration. Clients should never see this exception.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -24,7 +24,7 @@ public class ShardConfigStaleException extends ReplyException {
 
     /**
      * Create a new ShardConfigStaleException.
-     *
+     * 
      * @param reply
      *            The reply that raised the exception.
      * @param cause

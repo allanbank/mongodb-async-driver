@@ -52,7 +52,7 @@ import com.allanbank.mongodb.client.state.Server;
 /**
  * BatchedAsyncMongoCollectionImplTest provides tests for the
  * {@link BatchedAsyncMongoCollectionImpl} class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImplTest {
@@ -98,7 +98,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#cancel()}.
-     *
+     * 
      * @throws InterruptedException
      *             On a test failure.
      */
@@ -158,7 +158,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -166,7 +166,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseNoBatchDeleteCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
@@ -206,7 +206,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -214,7 +214,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseNoBatchUpdateCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
                 .build();
@@ -256,7 +256,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -264,7 +264,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseWithBatchDeleteCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
                 .build();
@@ -316,7 +316,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -324,7 +324,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testCloseWithBatchUpdateCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document update = BuilderFactory.start().addInteger("foo", 1)
                 .build();
@@ -377,7 +377,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -385,7 +385,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testFlushNoBatchInsertCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
                 .build();
@@ -429,7 +429,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -437,7 +437,7 @@ public class BatchedAsyncMongoCollectionImplTest {
      */
     @Test
     public void testFlushWithBatchInsertCommand() throws InterruptedException,
-    ExecutionException {
+            ExecutionException {
         final Document doc = BuilderFactory.start().add("_id", new ObjectId())
                 .build();
         final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
@@ -486,7 +486,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -559,7 +559,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -606,7 +606,6 @@ public class BatchedAsyncMongoCollectionImplTest {
         reset();
 
         expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
-        ;
         expect(myMockStats.getServerVersionRange()).andReturn(
                 VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
         expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
@@ -635,7 +634,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -716,7 +715,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     *
+     * 
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -793,7 +792,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     *
+     * 
      * @param mocks
      *            The mock to replay.
      */
@@ -804,7 +803,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Creates a reply around the document.
-     *
+     * 
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -817,7 +816,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#reset(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     *
+     * 
      * @param mocks
      *            The mock to replay.
      */
@@ -829,7 +828,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     *
+     * 
      * @param mocks
      *            The mock to replay.
      */

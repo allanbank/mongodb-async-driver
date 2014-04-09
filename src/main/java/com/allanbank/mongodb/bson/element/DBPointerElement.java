@@ -14,7 +14,7 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a deprecated BSON DB Pointer element.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -34,7 +34,7 @@ public class DBPointerElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     *
+     * 
      * @param name
      *            The name for the BSON Object Id.
      * @param dbName
@@ -66,7 +66,7 @@ public class DBPointerElement extends AbstractElement {
 
     /**
      * Constructs a new {@link DBPointerElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON Object Id.
      * @param dbName
@@ -87,7 +87,7 @@ public class DBPointerElement extends AbstractElement {
 
     /**
      * Constructs a new {@link DBPointerElement}.
-     *
+     * 
      * @param name
      *            The name for the BSON Object Id.
      * @param dbName
@@ -122,7 +122,7 @@ public class DBPointerElement extends AbstractElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitDBPointer} method.
-     *
+     * 
      * @see Element#accept(Visitor)
      */
     @Override
@@ -160,10 +160,10 @@ public class DBPointerElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     *
+     * 
      * @param object
      *            The object to compare to.
-     *
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -185,7 +185,7 @@ public class DBPointerElement extends AbstractElement {
 
     /**
      * Returns the collectionName value.
-     *
+     * 
      * @return The collectionName value.
      */
     public String getCollectionName() {
@@ -194,7 +194,7 @@ public class DBPointerElement extends AbstractElement {
 
     /**
      * Returns the databaseName value.
-     *
+     * 
      * @return The databaseName value.
      */
     public String getDatabaseName() {
@@ -203,7 +203,7 @@ public class DBPointerElement extends AbstractElement {
 
     /**
      * Returns the id value.
-     *
+     * 
      * @return The id value.
      */
     public ObjectId getId() {
@@ -237,7 +237,7 @@ public class DBPointerElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     *
+     * 
      * @return The hash code value.
      */
     @Override

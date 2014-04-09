@@ -20,7 +20,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * AbstractServerTestDriver provides common methods for starting and stopping
  * MongoDB processes in common configurations.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerTestDriverSupport {
@@ -78,7 +78,7 @@ public class ServerTestDriverSupport {
     /**
      * Repairs a MongoDB instance running in a replica set mode. This verifies
      * all of the members are running and that there is a primary.
-     *
+     * 
      * @see ClusterTestSupport#startReplicaSet
      */
     protected static void repairReplicaSet() {
@@ -165,7 +165,7 @@ public class ServerTestDriverSupport {
 
     /**
      * Starts a MongoDB instance running in a replica set mode.
-     *
+     * 
      * @see ClusterTestSupport#startReplicaSet
      */
     protected static void startReplicaSet() {
@@ -174,7 +174,7 @@ public class ServerTestDriverSupport {
 
     /**
      * Starts a MongoDB instance running in a sharded mode.
-     *
+     * 
      * @see ClusterTestSupport#startSharded
      */
     protected static void startSharded() {
@@ -183,7 +183,7 @@ public class ServerTestDriverSupport {
 
     /**
      * Starts a MongoDB instance running in a sharded cluster of replica sets.
-     *
+     * 
      * @see ClusterTestSupport#startShardedReplicaSets
      */
     protected static void startShardedReplicaSets() {
@@ -192,7 +192,7 @@ public class ServerTestDriverSupport {
 
     /**
      * Starts a MongoDB instance running in a standalone mode.
-     *
+     * 
      * @see ClusterTestSupport#startStandAlone
      */
     protected static void startStandAlone() {

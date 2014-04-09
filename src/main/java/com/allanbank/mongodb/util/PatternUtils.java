@@ -10,7 +10,7 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * PatternUtils provides utilities for handling patterns.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -24,7 +24,7 @@ public final class PatternUtils {
 
     /**
      * Converts the Regular Expression string into a {@link Pattern}.
-     *
+     * 
      * @param regex
      *            The regular expression to convert.
      * @return The {@link Pattern} for the regular expression.

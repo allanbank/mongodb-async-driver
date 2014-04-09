@@ -16,7 +16,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * ascending and descending order. See the {@link Index} helper for more
  * information.
  * </p>
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -37,7 +37,7 @@ public final class Sort {
      * <p>
      * This method is equivalent to {@link Index#asc(String)} method.
      * </p>
-     *
+     * 
      * @param field
      *            The field to create the ascending sort on.
      * @return The ascending sort specification.
@@ -52,7 +52,7 @@ public final class Sort {
      * <p>
      * This method is equivalent to {@link Index#desc(String)} method.
      * </p>
-     *
+     * 
      * @param field
      *            The field to create the descending sort on.
      * @return The descending sort specification.
@@ -64,7 +64,7 @@ public final class Sort {
     /**
      * Creates an 2D index specification, e.g.,
      * <tt>{ &lt;field&gt; : "2d" }</tt>.
-     *
+     * 
      * @param field
      *            The field to create the '2d' sort on.
      * @return The 2D index specification.
@@ -80,7 +80,7 @@ public final class Sort {
     /**
      * Creates an natural ascending order sort specification, e.g.,
      * <tt>{ "$natural" : 1 }</tt>.
-     *
+     * 
      * @return The natural ascending sort specification.
      */
     public static IntegerElement natural() {
@@ -91,7 +91,7 @@ public final class Sort {
      * Creates an natural order sort specification with the specified
      * {@link #ASCENDING} or {@link #DESCENDING} order, e.g.,
      * <tt>{ "$natural" : &lt;direction&gt; }</tt>.
-     *
+     * 
      * @param direction
      *            The direction for the natural ordering, either
      *            {@link #ASCENDING} or {@link #DESCENDING}.

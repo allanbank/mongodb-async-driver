@@ -23,7 +23,7 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
 
 /**
  * PendingMessageTest provides tests for the {@link PendingMessage} class.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class PendingMessageTest {
@@ -76,7 +76,7 @@ public class PendingMessageTest {
     /**
      * Test method for {@link PendingMessage#timestampNow()} and
      * {@link PendingMessage#latency()}.
-     *
+     * 
      * @throws InterruptedException
      *             If the test fails to sleep.
      */

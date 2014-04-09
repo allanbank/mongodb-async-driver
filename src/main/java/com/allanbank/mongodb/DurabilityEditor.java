@@ -26,7 +26,7 @@ import java.beans.PropertyEditorSupport;
  * {@code FSYNC}, {@code JOURNAL}, and {@code MAJORITY} all use the
  * {@link #DEFAULT_WAIT_TIME_MS} for the wait time.
  * </p>
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -50,7 +50,7 @@ public class DurabilityEditor extends PropertyEditorSupport {
      * <p>
      * Overridden to parse a string to a {@link Durability}.
      * </p>
-     *
+     * 
      * @throws IllegalArgumentException
      *             If the string cannot be parsed into a {@link Durability}.
      */

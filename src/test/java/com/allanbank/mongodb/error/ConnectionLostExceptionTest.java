@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  * ConnectionLostExceptionTest provides tests for the
  * {@link ConnectionLostException} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ConnectionLostExceptionTest {

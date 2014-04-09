@@ -18,7 +18,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * AggregationGroupFieldTest provides tests for the
  * {@link AggregationGroupField} and {@link AggregationGroupField.Builder}
  * classes
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregationGroupFieldTest {

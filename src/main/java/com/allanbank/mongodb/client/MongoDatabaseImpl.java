@@ -41,7 +41,7 @@ import com.allanbank.mongodb.util.FutureUtils;
 
 /**
  * Implementation of the {@link MongoDatabase} interface.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -77,7 +77,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
     /**
      * Create a new MongoDatabaseClient.
-     *
+     * 
      * @param mongoClient
      *            The {@link MongoClient}.
      * @param client
@@ -130,7 +130,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * <p>
      * Overridden to issue a "dropDatabase" command.
      * </p>
-     *
+     * 
      * @see MongoDatabase#drop()
      */
     @Override
@@ -154,7 +154,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * <p>
      * Overridden to create a new {@link SynchronousMongoCollectionImpl}.
      * </p>
-     *
+     * 
      * @see MongoDatabase#getCollection(String)
      */
     @Override
@@ -227,7 +227,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to query the system.namespace collection for the names of all
      * of the collections.
      * </p>
-     *
+     * 
      * @see MongoDatabase#getProfilingStatus()
      */
     @Override
@@ -276,17 +276,17 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to query the system.namespace collection for the names of all
      * of the collections.
      * </p>
-     *
+     * 
      * @see MongoDatabase#listCollectionNames()
      */
     @Override
     public List<String> listCollectionNames() {
         final Query query = new Query(myName, "system.namespaces", EMPTY_QUERY,
-                /* fields= */null,
-                /* batchSize= */0, /* limit= */0, /* numberToSkip= */0,
-                /* tailable= */false, ReadPreference.PRIMARY,
-                /* noCursorTimeout= */false, /* awaitData= */false,
-                /* exhaust= */false, /* partial= */false);
+        /* fields= */null,
+        /* batchSize= */0, /* limit= */0, /* numberToSkip= */0,
+        /* tailable= */false, ReadPreference.PRIMARY,
+        /* noCursorTimeout= */false, /* awaitData= */false,
+        /* exhaust= */false, /* partial= */false);
 
         final FutureCallback<MongoIterator<Document>> iterFuture = new FutureCallback<MongoIterator<Document>>(
                 getLockType());
@@ -319,7 +319,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to query the system.namespace collection for the names of all
      * of the collections.
      * </p>
-     *
+     * 
      * @see MongoDatabase#listCollectionNames()
      */
     @Override
@@ -333,7 +333,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * <p>
      * Overridden to call {@link #runCommand(String)} on the 'admin' database.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(String, DocumentAssignable)
      */
     @Override
@@ -348,7 +348,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the
      * {@link #runCommandAsync(String, DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(String, DocumentAssignable)
      */
     @Override
@@ -363,13 +363,13 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the
      * {@link #runCommandAsync(String, String, DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(String, String, DocumentAssignable)
      */
     @Override
     public Document runAdminCommand(final String commandName,
             final String commandValue, final DocumentAssignable options)
-                    throws MongoDbException {
+            throws MongoDbException {
         return getAdminDatabase()
                 .runCommand(commandName, commandValue, options);
     }
@@ -380,7 +380,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the {@link #runCommandAsync(DocumentAssignable)}
      * method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(DocumentAssignable)
      */
     @Override
@@ -396,7 +396,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@link #runCommandAsync(String, DocumentAssignable)} method with
      * <code>null</code> options.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(String, DocumentAssignable)
      */
     @Override
@@ -410,7 +410,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the
      * {@link #runCommandAsync(String, DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(String, DocumentAssignable)
      */
     @Override
@@ -425,13 +425,13 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the
      * {@link #runCommandAsync(String, int, DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(String, int, DocumentAssignable)
      */
     @Override
     public Document runCommand(final String commandName,
             final int commandValue, final DocumentAssignable options)
-                    throws MongoDbException {
+            throws MongoDbException {
         return FutureUtils.unwrap(runCommandAsync(commandName, commandValue,
                 options));
     }
@@ -442,13 +442,13 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the
      * {@link #runCommandAsync(String, String, DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(String, String, DocumentAssignable)
      */
     @Override
     public Document runCommand(final String commandName,
             final String commandValue, final DocumentAssignable options)
-                    throws MongoDbException {
+            throws MongoDbException {
         return FutureUtils.unwrap(runCommandAsync(commandName, commandValue,
                 options));
     }
@@ -460,7 +460,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@link #runCommandAsync(Callback, DocumentAssignable, Version)} method
      * with {@code null} as the version.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(Callback, DocumentAssignable, Version)
      */
     @Override
@@ -478,7 +478,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public void runCommandAsync(final Callback<Document> reply,
             final DocumentAssignable command, final Version requireServerVersion)
-                    throws MongoDbException {
+            throws MongoDbException {
         final Command commandMessage = new Command(myName,
                 command.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(requireServerVersion));
@@ -493,7 +493,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@link #runCommandAsync(Callback, String, DocumentAssignable)} method
      * with <code>null</code> for the options.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(Callback, String, DocumentAssignable)
      */
     @Override
@@ -512,7 +512,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public void runCommandAsync(final Callback<Document> reply,
             final String command, final DocumentAssignable options)
-                    throws MongoDbException {
+            throws MongoDbException {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addInteger(command, 1);
         addOptions(command, options, builder);
@@ -562,7 +562,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the
      * {@link #runCommandAsync(Callback, DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -629,7 +629,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
     @Override
     public void runCommandAsync(final LambdaCallback<Document> reply,
             final String command, final DocumentAssignable options)
-                    throws MongoDbException {
+            throws MongoDbException {
         runCommandAsync(new LambdaCallbackAdapter<Document>(reply), command,
                 options);
     }
@@ -673,7 +673,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@link #runCommandAsync(Callback, String, DocumentAssignable)} method
      * with <code>null</code> options.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(Callback, String, DocumentAssignable)
      */
     @Override
@@ -693,7 +693,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * Overridden to call the
      * {@link #runCommandAsync(Callback, String, DocumentAssignable)} method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(Callback, String, DocumentAssignable)
      */
     @Override
@@ -714,13 +714,13 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@link #runCommandAsync(Callback, String, int, DocumentAssignable)}
      * method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(Callback, String, int, DocumentAssignable)
      */
     @Override
     public ListenableFuture<Document> runCommandAsync(final String commandName,
             final int commandValue, final DocumentAssignable options)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Document> future = new FutureCallback<Document>(
                 getLockType());
 
@@ -736,13 +736,13 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * {@link #runCommandAsync(Callback, String, String, DocumentAssignable)}
      * method.
      * </p>
-     *
+     * 
      * @see #runCommandAsync(Callback, String, String, DocumentAssignable)
      */
     @Override
     public ListenableFuture<Document> runCommandAsync(final String commandName,
             final String commandValue, final DocumentAssignable options)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Document> future = new FutureCallback<Document>(
                 getLockType());
 
@@ -764,7 +764,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * <p>
      * Overridden to update the databases profile level.
      * </p>
-     *
+     * 
      * @see MongoDatabase#setProfilingStatus
      */
     @Override
@@ -816,7 +816,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
      * <p>
      * Overridden to send a {@code dbStats} command to the MongoDB server.
      * </p>
-     *
+     * 
      * @see MongoDatabase#stats
      */
     @Override
@@ -826,7 +826,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
     /**
      * Adds the options to the document builder.
-     *
+     * 
      * @param command
      *            The command to make sure is removed from the options.
      * @param options
@@ -847,7 +847,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
     /**
      * Returns the type of lock to use.
-     *
+     * 
      * @return The type of lock to use.
      */
     protected LockType getLockType() {
@@ -856,7 +856,7 @@ public class MongoDatabaseImpl implements MongoDatabase {
 
     /**
      * Returns a {@link MongoDatabase} interface to the 'admin' database.
-     *
+     * 
      * @return A reference to a {@link MongoDatabase} for interacting with the
      *         'admin' database.
      */

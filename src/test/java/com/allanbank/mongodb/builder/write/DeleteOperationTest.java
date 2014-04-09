@@ -24,7 +24,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 
 /**
  * DeleteOperationTest provides tests for the {@link DeleteOperation} class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DeleteOperationTest {

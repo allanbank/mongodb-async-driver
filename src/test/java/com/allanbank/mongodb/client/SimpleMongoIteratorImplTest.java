@@ -23,7 +23,7 @@ import com.allanbank.mongodb.bson.impl.EmptyDocument;
 /**
  * SimpleMongoIteratorImplTest provides tests for the
  * {@link SimpleMongoIteratorImpl}.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SimpleMongoIteratorImplTest {

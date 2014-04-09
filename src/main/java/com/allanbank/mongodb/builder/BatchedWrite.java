@@ -66,7 +66,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * For a more generalized batched write and query capability see the
  * {@link BatchedAsyncMongoCollection} and {@link MongoCollection#startBatch()}.
  * </p>
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -83,7 +83,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Creates a new builder for a {@link BatchedWrite}.
-     *
+     * 
      * @return The builder to construct a {@link BatchedWrite}.
      */
     public static Builder builder() {
@@ -101,7 +101,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Creates a new BatchedWrite.
-     *
+     * 
      * @param builder
      *            The builder for the writes.
      */
@@ -114,7 +114,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Returns the durability for the writes.
-     *
+     * 
      * @return The durability for the writes.
      */
     public Durability getDurability() {
@@ -123,7 +123,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Returns the mode for submitting the writes to the server.
-     *
+     * 
      * @return The mode for submitting the writes to the server.
      */
     public BatchedWriteMode getMode() {
@@ -132,7 +132,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Returns the writes to submit to the server.
-     *
+     * 
      * @return The writes to submit to the server.
      */
     public List<WriteOperation> getWrites() {
@@ -142,7 +142,7 @@ public class BatchedWrite implements Serializable {
     /**
      * Creates write commands for all of the insert, updates and deletes. The
      * number and order of the writes is based on the {@link #getMode() mode}.
-     *
+     * 
      * @param collectionName
      *            The name of the collection the documents will be inserted
      *            into.
@@ -172,7 +172,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Adds the document to the array of documents.
-     *
+     * 
      * @param array
      *            The array to add the operation to.
      * @param operation
@@ -211,7 +211,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Adds the durability ('writeConcern') to the command document.
-     *
+     * 
      * @param command
      *            The command document to add the durability to.
      * @param durability
@@ -244,7 +244,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Creates a {@link DocumentToLargeException} for the operation.
-     *
+     * 
      * @param operation
      *            The large operation.
      * @param size
@@ -293,7 +293,7 @@ public class BatchedWrite implements Serializable {
      * added to command documents of there own once the command overhead has
      * been factored in.
      * </p>
-     *
+     * 
      * @param collectionName
      *            The name of the collection the documents will be inserted
      *            into.
@@ -392,7 +392,7 @@ public class BatchedWrite implements Serializable {
      * below with the full map. That allows those big operations to be added to
      * commands of there own once the command overhead has been factored in.
      * </p>
-     *
+     * 
      * @param collectionName
      *            The name of the collection the documents will be inserted
      *            into.
@@ -489,7 +489,7 @@ public class BatchedWrite implements Serializable {
      * <dt>'limit' field</dt>
      * <dd>name (6 bytes), type (1 byte), value (4 bytes)</dd>
      * </dl>
-     *
+     * 
      * @param index
      *            The index of the operation in the operations array.
      * @param operation
@@ -524,7 +524,7 @@ public class BatchedWrite implements Serializable {
     /**
      * Returns the number of bytes required to encode the index within the array
      * element.
-     *
+     * 
      * @param index
      *            The index to return the size of.
      * @return The length of the encoded index.
@@ -554,7 +554,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Starts a new command document.
-     *
+     * 
      * @param operation
      *            The operation to start.
      * @param collectionName
@@ -603,7 +603,7 @@ public class BatchedWrite implements Serializable {
 
     /**
      * Builder for creating {@link BatchedWrite}s.
-     *
+     * 
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -633,7 +633,7 @@ public class BatchedWrite implements Serializable {
         /**
          * Constructs a new {@link BatchedWrite} object from the state of the
          * builder.
-         *
+         * 
          * @return The new {@link BatchedWrite} object.
          */
         public BatchedWrite build() {
@@ -649,7 +649,7 @@ public class BatchedWrite implements Serializable {
          * This method is delegates to
          * {@link #delete(DocumentAssignable, boolean) delete(query, false)}
          * </p>
-         *
+         * 
          * @param query
          *            The query to find the document to delete.
          * @return This builder for chaining method calls.
@@ -663,7 +663,7 @@ public class BatchedWrite implements Serializable {
          * <p>
          * Defaults to deleting as many documents as match the query.
          * </p>
-         *
+         * 
          * @param query
          *            The query to find the document to delete.
          * @param singleDelete
@@ -682,7 +682,7 @@ public class BatchedWrite implements Serializable {
          * <p>
          * This method delegates to {@link #setDurability(Durability)}.
          * </p>
-         *
+         * 
          * @param durability
          *            The new value for the durability for the writes.
          * @return This builder for chaining method calls.
@@ -693,7 +693,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Returns the durability for the write.
-         *
+         * 
          * @return This durability for the write.
          */
         public Durability getDurability() {
@@ -702,7 +702,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Adds an insert operation to the batched write.
-         *
+         * 
          * @param document
          *            The document to insert.
          * @return This builder for chaining method calls.
@@ -716,7 +716,7 @@ public class BatchedWrite implements Serializable {
          * <p>
          * This method delegates to {@link #setMode(BatchedWriteMode)}.
          * </p>
-         *
+         * 
          * @param mode
          *            The new value for the mode for submitting the writes to
          *            the server.
@@ -728,7 +728,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Resets the builder back to its initial state for reuse.
-         *
+         * 
          * @return This builder for chaining method calls.
          */
         public Builder reset() {
@@ -753,7 +753,7 @@ public class BatchedWrite implements Serializable {
          * updateAsync(BuilderFactory.start().add(document.get("_id")),
          * document, false, true)}.
          * </p>
-         *
+         * 
          * @param document
          *            The document to save.
          * @return This builder for chaining method calls.
@@ -769,7 +769,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Sets the durability for the writes.
-         *
+         * 
          * @param durability
          *            The new value for the durability for the writes.
          * @return This builder for chaining method calls.
@@ -781,7 +781,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Sets the mode for submitting the writes to the server.
-         *
+         * 
          * @param mode
          *            The new value for the mode for submitting the writes to
          *            the server.
@@ -794,7 +794,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Sets the writes to submit to the server.
-         *
+         * 
          * @param writes
          *            The new value for the writes to submit to the server.
          * @return This builder for chaining method calls.
@@ -818,7 +818,7 @@ public class BatchedWrite implements Serializable {
          * {@link #update(DocumentAssignable, DocumentAssignable, boolean, boolean)
          * update(query, update, false, false)}
          * </p>
-         *
+         * 
          * @param query
          *            The query to find the document to update.
          * @param update
@@ -836,7 +836,7 @@ public class BatchedWrite implements Serializable {
          * Defaults to updating a single document and not performing an upsert
          * if no document is found.
          * </p>
-         *
+         * 
          * @param query
          *            The query to find the document to update.
          * @param update
@@ -859,7 +859,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Adds a single write to the list of writes to send to the server.
-         *
+         * 
          * @param write
          *            The write to add to the list of writes to send to the
          *            server.
@@ -875,7 +875,7 @@ public class BatchedWrite implements Serializable {
          * <p>
          * This method delegates to {@link #setWrites(List)}.
          * </p>
-         *
+         * 
          * @param writes
          *            The new value for the writes to submit to the server.
          * @return This builder for chaining method calls.
@@ -888,7 +888,7 @@ public class BatchedWrite implements Serializable {
     /**
      * Bundle is a container for the write command and the
      * {@link WriteOperation} it contains.
-     *
+     * 
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -903,7 +903,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Creates a new Bundle.
-         *
+         * 
          * @param command
          *            The command containing the bundled write operations.
          * @param writes
@@ -919,7 +919,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Returns the command containing the bundled write operations.
-         *
+         * 
          * @return The command containing the bundled write operations.
          */
         public Document getCommand() {
@@ -928,7 +928,7 @@ public class BatchedWrite implements Serializable {
 
         /**
          * Returns the writes that are bundled in the command.
-         *
+         * 
          * @return The writes that are bundled in the command.
          */
         public List<WriteOperation> getWrites() {

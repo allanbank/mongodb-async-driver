@@ -22,7 +22,7 @@ import com.allanbank.mongodb.bson.element.AbstractElement;
 /**
  * Base class with common functionality for the all builders. A builder is
  * responsible for constructing a single level of the BSON document.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -51,7 +51,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Creates a new builder.
-     *
+     * 
      * @param outerBuilder
      *            The outer scoped builder.
      */
@@ -81,7 +81,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Constructs the final form of the element being constructed.
-     *
+     * 
      * @param name
      *            The name of the element.
      * @return The Element constructed by the builder.
@@ -90,7 +90,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Pushes a context for constructing a sub-document.
-     *
+     * 
      * @param name
      *            The name of the sub-document.
      * @return A {@link DocumentBuilder} for constructing the sub-document.
@@ -104,7 +104,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Pushes a context for constructing a sub-array.
-     *
+     * 
      * @param name
      *            The name of the sub-array.
      * @return A {@link ArrayBuilder} for constructing the sub-array.
@@ -118,7 +118,7 @@ public abstract class AbstractBuilder implements Builder {
     /**
      * Renders the final form of the sub elements in the builder replacing all
      * {@link BuilderElement}s with the final element form.
-     *
+     * 
      * @return The final sub element list.
      */
     protected List<Element> subElements() {
@@ -164,7 +164,7 @@ public abstract class AbstractBuilder implements Builder {
 
         /**
          * Creates a new {@link BuilderElement}.
-         *
+         * 
          * @param name
          *            The name for the element to build.
          * @param builder
@@ -186,7 +186,7 @@ public abstract class AbstractBuilder implements Builder {
         /**
          * Constructs the final form of the element being constructed by the
          * encapsulated builder.
-         *
+         * 
          * @return The Element constructed by the encapsulated builder.
          */
         public Element build() {
@@ -226,7 +226,7 @@ public abstract class AbstractBuilder implements Builder {
 
         /**
          * Sets the transient state of this non-Element.
-         *
+         * 
          * @param in
          *            The input stream.
          * @throws ClassNotFoundException

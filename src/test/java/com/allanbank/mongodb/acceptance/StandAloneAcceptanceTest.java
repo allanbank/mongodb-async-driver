@@ -35,7 +35,7 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * These are not meant to be exhaustive tests of the driver but instead attempt
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
@@ -237,7 +237,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
     /**
      * BackgroundTailableCursorReader provides a background myRunnable for
      * reading documents.
-     *
+     * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static class BackgroundTailableCursorReader implements Runnable {
@@ -253,7 +253,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
 
         /**
          * Creates a new BackgroundTailableCursorReader.
-         *
+         * 
          * @param iterator
          *            The iterator to read from.
          * @param docsToRead
@@ -268,7 +268,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
 
         /**
          * Returns the thrown exception, if any.
-         *
+         * 
          * @return The thrown exception, if any.
          */
         public Throwable getThrown() {

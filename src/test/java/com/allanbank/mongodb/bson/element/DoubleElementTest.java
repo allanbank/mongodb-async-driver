@@ -28,7 +28,7 @@ import com.allanbank.mongodb.bson.Visitor;
 
 /**
  * DoubleElementTest provides tests for the {@link DoubleElement} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DoubleElementTest {

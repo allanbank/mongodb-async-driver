@@ -35,7 +35,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * KillCursorsTest provides tests for the {@link KillCursors} message.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class KillCursorsTest {
@@ -89,7 +89,7 @@ public class KillCursorsTest {
 
     /**
      * Test method for {@link KillCursors#KillCursors(BsonInputStream)} .
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */

@@ -14,7 +14,7 @@ import com.allanbank.mongodb.builder.Find;
  * MongoCursorControl provides the controls for a MongoDB cursor interaction.
  * Normally this interface is used via a {@link MongoIterator} but in the case
  * of streaming only the controls are returned.
- *
+ * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -51,7 +51,7 @@ public interface MongoCursorControl extends Closeable {
      * </p>
      * <p>
      * Returns the active cursor in the form:<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {
@@ -62,9 +62,9 @@ public interface MongoCursorControl extends Closeable {
      *     {@value #BATCH_SIZE_FIELD} : &lt;batch_size&gt;
      * }</code>
      * </pre>
-     *
+     * 
      * </blockquote>
-     *
+     * 
      * @return A document that can be used to restart the cursor.
      *         <code>null</code> if the server's cursor has been exhausted or
      *         closed.
@@ -79,14 +79,14 @@ public interface MongoCursorControl extends Closeable {
 
     /**
      * Returns the size for batches of documents that are requested.
-     *
+     * 
      * @return The size of the batches of documents that are requested.
      */
     public int getBatchSize();
 
     /**
      * Sets the size for future batch sizes.
-     *
+     * 
      * @param batchSize
      *            The size to request for future batch sizes.
      */

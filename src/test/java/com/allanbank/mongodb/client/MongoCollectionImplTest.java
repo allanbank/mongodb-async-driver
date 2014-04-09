@@ -93,7 +93,7 @@ import com.allanbank.mongodb.error.ReplyException;
 /**
  * MongoCollectionImplTest provides tests for the
  * {@link SynchronousMongoCollectionImpl} class.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
@@ -175,7 +175,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -328,7 +328,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -372,7 +372,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -417,7 +417,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#aggregateAsync(Aggregate)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -732,7 +732,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#countAsync(DocumentAssignable, ReadPreference)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error
      */
@@ -909,7 +909,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#countAsync(Count.Builder)} .
-     *
+     * 
      * @throws Exception
      *             On an error
      */
@@ -943,7 +943,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#countAsync(ReadPreference)} .
-     *
+     * 
      * @throws Exception
      *             On an error
      */
@@ -1113,7 +1113,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#count(ReadPreference)} .
-     *
+     * 
      * @throws Exception
      *             On an error
      */
@@ -1147,7 +1147,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#countAsync(DocumentAssignable, ReadPreference)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error
      */
@@ -1183,7 +1183,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#countAsync(DocumentAssignable, ReadPreference)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error
      */
@@ -1781,7 +1781,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -1815,7 +1815,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable, boolean)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -1849,7 +1849,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable, boolean, Durability)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -1881,7 +1881,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#deleteAsync(DocumentAssignable, Durability)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -2202,7 +2202,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#distinctAsync(Distinct)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -2344,7 +2344,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#distinctAsync(Distinct)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -2571,7 +2571,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#explainAsync(Aggregate)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -2650,7 +2650,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#explainAsync(Find)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -2861,7 +2861,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#explain(Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -2895,7 +2895,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#explainAsync(Callback, Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -2947,7 +2947,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#explainAsync(Callback, Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -3105,7 +3105,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#findAndModifyAsync(FindAndModify)}
      * .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -3445,7 +3445,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#findAsync(DocumentAssignable)}.
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -3484,7 +3484,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -3522,7 +3522,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -3799,7 +3799,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#findOneAsync(DocumentAssignable)}.
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -3830,7 +3830,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findOneAsync(Find)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4014,7 +4014,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findOne(Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4066,7 +4066,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4117,7 +4117,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findOneAsync(Find)}
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4161,7 +4161,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#findAndModifyAsync(Callback, FindAndModify)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4222,7 +4222,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findAsync(Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4282,7 +4282,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for {@link SynchronousMongoCollectionImpl#findOneAsync(Find)}
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4504,7 +4504,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#groupByAsync(GroupBy)}.
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -4720,7 +4720,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#insertAsync(boolean, DocumentAssignable...)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4755,7 +4755,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#insertAsync(boolean, Durability, DocumentAssignable...)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4904,7 +4904,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#insertAsync(DocumentAssignable...)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -4931,7 +4931,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#insertAsync(Durability, DocumentAssignable...)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -5406,7 +5406,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#mapReduceAsync(MapReduce)} .
-     *
+     * 
      * @throws Exception
      *             On a failure.
      */
@@ -5910,7 +5910,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#parallelScanAsync(ParallelScan)} .
-     *
+     * 
      * @throws Exception
      *             On a test error.
      */
@@ -6015,7 +6015,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#saveAsync(DocumentAssignable)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -6048,7 +6048,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#saveAsync(DocumentAssignable,Durability)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -6213,7 +6213,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#streamingFind(Callback, Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -6425,7 +6425,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#streamingFind(Callback, Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -6489,7 +6489,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#streamingFind(Callback, Find)} .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -6860,7 +6860,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#streamingFind(StreamCallback, Find)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -6924,7 +6924,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#streamingFind(StreamCallback, Find)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -6988,7 +6988,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#textSearch(com.allanbank.mongodb.builder.Text)}
      * .
-     *
+     * 
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -7042,7 +7042,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#textSearch(com.allanbank.mongodb.builder.Text)}
      * .
-     *
+     * 
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -7211,7 +7211,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -7241,7 +7241,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -7278,7 +7278,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -7317,7 +7317,7 @@ public class MongoCollectionImplTest {
      * Test method for
      * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, Durability)}
      * .
-     *
+     * 
      * @throws Exception
      *             On an error.
      */
@@ -7791,7 +7791,7 @@ public class MongoCollectionImplTest {
     /**
      * Test method for
      * {@link SynchronousMongoCollectionImpl#write(BatchedWrite)} .
-     *
+     * 
      * @throws Exception
      *             On a test failure.
      */
@@ -7842,7 +7842,7 @@ public class MongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     *
+     * 
      * @param mocks
      *            The mock to replay.
      */
@@ -7853,7 +7853,7 @@ public class MongoCollectionImplTest {
 
     /**
      * Creates a reply around the document.
-     *
+     * 
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -7866,7 +7866,7 @@ public class MongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     *
+     * 
      * @param mocks
      *            The mock to replay.
      */

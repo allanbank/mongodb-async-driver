@@ -10,7 +10,7 @@ import com.allanbank.mongodb.MongoDbException;
 /**
  * ConnectionLostException provides a exception thrown when the connection to
  * the MongoDB server is lost.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -31,7 +31,7 @@ public class ConnectionLostException extends MongoDbException {
 
     /**
      * Creates a new ConnectionLostException.
-     *
+     * 
      * @param message
      *            Reason for the exception.
      */
@@ -41,7 +41,7 @@ public class ConnectionLostException extends MongoDbException {
 
     /**
      * Creates a new ConnectionLostException.
-     *
+     * 
      * @param message
      *            Reason for the exception.
      * @param cause
@@ -53,7 +53,7 @@ public class ConnectionLostException extends MongoDbException {
 
     /**
      * Creates a new ConnectionLostException.
-     *
+     * 
      * @param cause
      *            The exception causing the {@link ConnectionLostException}.
      */

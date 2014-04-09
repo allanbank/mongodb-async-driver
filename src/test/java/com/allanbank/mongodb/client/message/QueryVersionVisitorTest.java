@@ -20,7 +20,7 @@ import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * QueryVersionVisitorTest provides tests for the {@link QueryVersionVisitor}.
- *
+ * 
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class QueryVersionVisitorTest {
@@ -50,12 +50,12 @@ public class QueryVersionVisitorTest {
 
         assertThat(QueryVersionVisitor.version(where("a").equals(1).text("abc")
                 .build()), is(VersionRange.range(
-                        MiscellaneousOperator.TEXT.getVersion(), null)));
+                MiscellaneousOperator.TEXT.getVersion(), null)));
 
         assertThat(
                 QueryVersionVisitor.version(BuilderFactory.start()
                         .add("$maxTimeMS", 1).build()),
-                        is(VersionRange.range(Find.MAX_TIMEOUT_VERSION, null)));
+                is(VersionRange.range(Find.MAX_TIMEOUT_VERSION, null)));
 
     }
 
@@ -68,7 +68,7 @@ public class QueryVersionVisitorTest {
         assertThat(QueryVersionVisitor.version(where("a").geoWithin(
                 GeoJson.multiPoint(GeoJson.p(1, 1), GeoJson.p(1, 1)), true)
                 .build()), is(VersionRange.range(
-                        GeospatialOperator.GEO_WITHIN.getVersion(),
-                        GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION)));
+                GeospatialOperator.GEO_WITHIN.getVersion(),
+                GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION)));
     }
 }

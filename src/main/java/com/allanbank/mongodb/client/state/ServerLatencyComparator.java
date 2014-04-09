@@ -9,13 +9,13 @@ import java.util.Comparator;
 
 /**
  * Compares {@link Server}'s based on the latency of the servers.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerLatencyComparator implements Comparator<Server>,
-Serializable {
+        Serializable {
 
     /** A singleton instance of the comparator. No need to multiple instances. */
     public static final Comparator<Server> COMPARATOR = new ServerLatencyComparator();
@@ -35,7 +35,7 @@ Serializable {
      * <p>
      * Compares the servers based on their respective average latencies.
      * </p>
-     *
+     * 
      * @see Comparator#compare
      */
     @Override

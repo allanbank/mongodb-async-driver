@@ -12,7 +12,7 @@ import org.junit.Test;
 
 /**
  * NamedReferenceTest provides tests for the {@link NamedReference} class.
- *
+ * 
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class NamedReferenceTest {

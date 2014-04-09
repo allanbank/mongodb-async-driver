@@ -35,7 +35,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
  * QueryTest provides tests for the {@link Query} message.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class QueryTest {
@@ -71,7 +71,7 @@ public class QueryTest {
                                                 .nextBoolean();
                                         final ReadPreference readPreference = random
                                                 .nextBoolean() ? ReadPreference.CLOSEST
-                                                        : ReadPreference.SECONDARY;
+                                                : ReadPreference.SECONDARY;
                                         final boolean noCursorTimeout = random
                                                 .nextBoolean();
                                         final boolean awaitData = random
@@ -444,7 +444,7 @@ public class QueryTest {
 
     /**
      * Test method for {@link Query#Query(Header,BsonInputStream)}.
-     *
+     * 
      * @throws IOException
      *             On a test failure.
      */
@@ -471,7 +471,7 @@ public class QueryTest {
                                             .nextBoolean();
                                     final ReadPreference readPreference = random
                                             .nextBoolean() ? ReadPreference.PRIMARY
-                                                    : ReadPreference.SECONDARY;
+                                            : ReadPreference.SECONDARY;
                                     final boolean noCursorTimeout = random
                                             .nextBoolean();
                                     final boolean awaitData = random

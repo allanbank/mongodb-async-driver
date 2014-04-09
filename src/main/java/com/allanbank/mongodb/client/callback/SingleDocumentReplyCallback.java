@@ -15,17 +15,17 @@ import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * Callback to expect and extract a single document from the reply.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SingleDocumentReplyCallback extends
-AbstractReplyCallback<Document> {
+        AbstractReplyCallback<Document> {
 
     /**
      * Create a new SingleDocumentReplyCallback.
-     *
+     * 
      * @param results
      *            The callback to notify of the reply document.
      */
@@ -39,7 +39,7 @@ AbstractReplyCallback<Document> {
      * Creates an exception if the {@link Reply} has less than or more than a
      * single reply document.
      * </p>
-     *
+     * 
      * @param reply
      *            The raw reply.
      * @return The exception created.
@@ -62,7 +62,7 @@ AbstractReplyCallback<Document> {
      * <p>
      * Overridden to return the reply document.
      * </p>
-     *
+     * 
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override

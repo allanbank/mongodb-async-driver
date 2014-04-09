@@ -16,7 +16,7 @@ import com.allanbank.mongodb.ReadPreference;
 
 /**
  * IsMasterTest provides tests for the {@link IsMaster} message.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class IsMasterTest {

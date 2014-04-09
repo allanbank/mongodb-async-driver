@@ -22,7 +22,7 @@ import com.allanbank.mongodb.client.Client;
 
 /**
  * ServerTest provides tests for the {@link Server} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ServerTest {

@@ -35,7 +35,7 @@ import com.allanbank.mongodb.util.Assertions;
 
 /**
  * BatchedWriteCallback provides the global callback for the batched writes.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -74,7 +74,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
     /**
      * Creates a new BatchedWriteCallback.
-     *
+     * 
      * @param databaseName
      *            The name of the database.
      * @param results
@@ -110,7 +110,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
     /**
      * Creates a new BatchedWriteCallback.
-     *
+     * 
      * @param databaseName
      *            The name of the database.
      * @param realCallbacks
@@ -188,7 +188,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
     /**
      * Sets the client to use to send the bundled writes.
-     *
+     * 
      * @param client
      *            The new client for the batch.
      */
@@ -198,7 +198,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
     /**
      * Callback for a bundle of write operations sent via the write commands.
-     *
+     * 
      * @param bundle
      *            The bundle of write operations.
      * @param result
@@ -235,7 +235,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
     /**
      * Callback for a bundle of write operations sent via the write commands has
      * failed.
-     *
+     * 
      * @param bundle
      *            The bundle of write operations.
      * @param thrown
@@ -262,7 +262,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
      * Checks for a failure in the durability requirements (e.g., did not
      * replicate to sufficient servers within the timeout) and updates the
      * failed operations map if any are found.
-     *
+     * 
      * @param bundle
      *            The bundle for the reply.
      * @param reply
@@ -295,7 +295,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
     /**
      * Checks for individual {@code writeErrors} and updates the failed
      * operations map if any are found.
-     *
+     * 
      * @param bundle
      *            The bundle for the reply.
      * @param reply
@@ -342,7 +342,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
     /**
      * Publishes the results for an individual bundle.
-     *
+     * 
      * @param bundle
      *            The bundle that we received the results for.
      * @param reply
@@ -459,7 +459,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
     /**
      * BundleCallback provides the callback for a single batched write.
-     *
+     * 
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.
@@ -474,7 +474,7 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
         /**
          * Creates a new BatchedWriteBundleCallback.
-         *
+         * 
          * @param bundle
          *            The bundle of operations this callback is waiting for the
          *            reply from.

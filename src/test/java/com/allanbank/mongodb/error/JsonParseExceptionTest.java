@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  * JsonParseExceptionTest provides tests for the {@link JsonParseException}
  * class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JsonParseExceptionTest {

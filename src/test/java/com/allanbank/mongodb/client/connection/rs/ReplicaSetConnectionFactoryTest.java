@@ -61,7 +61,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * ReplicaSetConnectionFactoryTest provides tests for the
  * {@link ReplicaSetConnectionFactory}.
- *
+ * 
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetConnectionFactoryTest {
@@ -74,7 +74,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Returns true if a driver thread is found.
-     *
+     * 
      * @return True if a driver thread is found.
      */
     public static final boolean driverThreadRunning() {
@@ -90,7 +90,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -102,7 +102,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Makes sure all of the threads have terminates at the end of the tests.
-     *
+     * 
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -135,7 +135,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -151,7 +151,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Cleans up the test connection and stops a Mock MongoDB server.
-     *
+     * 
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -186,7 +186,7 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName)
-        .addString("localhost:1234");
+                .addString("localhost:1234");
 
         ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
@@ -221,7 +221,7 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", "localhost:6789");
         replStatusBuilder.pushArray("hosts").addString(serverName)
-        .addString("localhost:1234").addString("localhost:6789");
+                .addString("localhost:1234").addString("localhost:6789");
 
         ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
@@ -256,7 +256,7 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName)
-        .addString("localhost:1234");
+                .addString("localhost:1234");
 
         ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder),
@@ -334,7 +334,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#close()} .
-     *
+     * 
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -347,7 +347,7 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName)
-        .addString("localhost:1234");
+                .addString("localhost:1234");
 
         ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
@@ -369,7 +369,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -403,7 +403,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -469,7 +469,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -477,7 +477,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectReplyWeird() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final String serverName = "foo:27017";
 
         final DocumentBuilder replStatusBuilder = BuilderFactory
@@ -495,7 +495,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.close();
@@ -503,7 +503,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));
@@ -519,7 +519,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Any empty reply.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb());
         expectLastCall();
         mockConnection.close();
@@ -527,7 +527,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.close();
@@ -535,14 +535,14 @@ public class ReplicaSetConnectionFactoryTest {
 
         // An Interrupted thread...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andAnswer(new IAnswer<Connection>() {
-            @Override
-            public Connection answer() throws Throwable {
-                // For the next check....
-                Thread.currentThread().interrupt();
-                return mockConnection;
-            }
-        });
+                .andAnswer(new IAnswer<Connection>() {
+                    @Override
+                    public Connection answer() throws Throwable {
+                        // For the next check....
+                        Thread.currentThread().interrupt();
+                        return mockConnection;
+                    }
+                });
         mockConnection.send(eq(new IsMaster()), anyObject(ReplyCallback.class));
         expectLastCall();
         mockConnection.close();
@@ -550,7 +550,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.close();
@@ -558,7 +558,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Execution error.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()),
                 cb(new IOException("Injected.")));
         expectLastCall();
@@ -567,7 +567,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.close();
@@ -575,7 +575,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // No primary field in reply.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(start(PRIMARY_UPDATE)));
         expectLastCall();
         mockConnection.close();
@@ -583,7 +583,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Locate the primary...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.close();
@@ -591,9 +591,9 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Finally success...
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection
-        .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
@@ -601,7 +601,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // A clean close.
         mockConnection
-        .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
+                .removePropertyChangeListener(anyObject(PropertyChangeListener.class));
         expectLastCall();
         mockConnection.close();
 
@@ -626,7 +626,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -639,11 +639,11 @@ public class ReplicaSetConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection).times(2);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
-        .times(2);
+                .times(2);
 
         mockConnection.shutdown(false);
         expectLastCall();
@@ -666,7 +666,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -679,7 +679,7 @@ public class ReplicaSetConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andThrow(new IOException("This is a test")).times(2);
+                .andThrow(new IOException("This is a test")).times(2);
 
         replay(mockFactory, mockConnection);
 
@@ -694,7 +694,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -702,7 +702,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testConnectThrowsIOException() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final String serverName = "foo:27017";
 
         final DocumentBuilder replStatusBuilder = BuilderFactory
@@ -720,7 +720,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.close();
@@ -728,7 +728,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));
@@ -744,7 +744,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         final IOException thrown = new IOException("Injected");
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andThrow(thrown).times(11);
+                .andThrow(thrown).times(11);
 
         // A clean close.
         mockFactory.close();
@@ -768,7 +768,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      */
@@ -781,11 +781,11 @@ public class ReplicaSetConnectionFactoryTest {
         final Connection mockConnection = createMock(Connection.class);
 
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection).times(2);
+                .andReturn(mockConnection).times(2);
 
         mockConnection.send(anyObject(IsMaster.class), cb());
         expectLastCall().andThrow(new MongoDbException("This is a test"))
-        .times(2);
+                .times(2);
 
         mockConnection.shutdown(false);
         expectLastCall();
@@ -808,7 +808,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -816,7 +816,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testExceptionsInBootstrap() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final String serverName = "foo:27017";
 
         final DocumentBuilder replStatusBuilder = BuilderFactory
@@ -834,7 +834,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()),
                 cb(new IOException("Injected.")));
         expectLastCall();
@@ -843,7 +843,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));
@@ -877,7 +877,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#getClusterType()}.
-     *
+     * 
      * @throws IOException
      *             on a test failure.
      */
@@ -890,7 +890,7 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.push("repl");
         replStatusBuilder.addString("primary", serverName);
         replStatusBuilder.pushArray("hosts").addString(serverName)
-        .addString("localhost:1234");
+                .addString("localhost:1234");
 
         ourServer.setReplies(reply(replStatusBuilder),
                 reply(replStatusBuilder), reply(replStatusBuilder));
@@ -938,7 +938,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     *
+     * 
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -946,7 +946,7 @@ public class ReplicaSetConnectionFactoryTest {
      */
     @Test
     public void testInterruptedBootstrap() throws IOException,
-    InterruptedException {
+            InterruptedException {
         final String serverName = "foo:27017";
 
         final DocumentBuilder replStatusBuilder = BuilderFactory
@@ -964,7 +964,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // The request to find the cluster.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), anyObject(ReplyCallback.class));
         expectLastCall();
         mockConnection.close();
@@ -972,7 +972,7 @@ public class ReplicaSetConnectionFactoryTest {
 
         // Now the ping sweep.
         expect(mockFactory.connect(anyObject(Server.class), eq(config)))
-        .andReturn(mockConnection);
+                .andReturn(mockConnection);
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
         mockConnection.send(eq(new ReplicaSetStatus()), cb(replStatusBuilder));

@@ -19,7 +19,7 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * of this command will look like:
  * </p>
  * <blockquote>
- *
+ * 
  * <pre>
  * <code>
  * {
@@ -42,10 +42,10 @@ import com.allanbank.mongodb.bson.impl.ImmutableDocument;
  * }
  * </code>
  * </pre>
- *
+ * 
  * </blockquote>
- *
- *
+ * 
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved

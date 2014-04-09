@@ -43,17 +43,17 @@ import com.allanbank.mongodb.builder.ParallelScan;
  * with the conversion of the asynchronous method invocations into synchronous
  * methods for those uses cases that do not require an asynchronous interface.
  * </p>
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractAsyncMongoCollection extends
-AbstractMongoOperations implements AsyncMongoCollection {
+        AbstractMongoOperations implements AsyncMongoCollection {
 
     /**
      * Create a new AbstractAsyncMongoCollection.
-     *
+     * 
      * @param client
      *            The client for interacting with MongoDB.
      * @param database
@@ -71,7 +71,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #aggregateAsync(Callback, Aggregate)}.
      * </p>
-     *
+     * 
      * @see #aggregateAsync(Callback, Aggregate)
      */
     @Override
@@ -208,10 +208,10 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void countAsync(final Callback<Long> results,
             final DocumentAssignable query, final ReadPreference readPreference)
-                    throws MongoDbException {
+            throws MongoDbException {
         countAsync(results,
                 Count.builder().query(query).readPreference(readPreference)
-                .build());
+                        .build());
     }
 
     /**
@@ -267,7 +267,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * with {@link #getReadPreference()} as the <tt>readPreference</tt>
      * argument.
      * </p>
-     *
+     * 
      * @param query
      *            The query document.
      * @return A future that will be updated with the number of matching
@@ -368,7 +368,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void countAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final ReadPreference readPreference)
-                    throws MongoDbException {
+            throws MongoDbException {
         countAsync(new LambdaCallbackAdapter<Long>(results), query,
                 readPreference);
     }
@@ -408,7 +408,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * method with false as the <tt>singleDelete</tt> argument and the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #deleteAsync(Callback, DocumentAssignable, boolean, Durability)
      */
     @Override
@@ -425,13 +425,13 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
     public void deleteAsync(final Callback<Long> results,
             final DocumentAssignable query, final boolean singleDelete)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(results, query, singleDelete, getDurability());
     }
 
@@ -442,13 +442,13 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with false as the <tt>singleDelete</tt> argument.
      * </p>
-     *
+     * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable, boolean)
      */
     @Override
     public void deleteAsync(final Callback<Long> results,
             final DocumentAssignable query, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(results, query, DELETE_SINGLE_DELETE_DEFAULT, durability);
     }
 
@@ -460,7 +460,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * method with false as the <tt>singleDelete</tt> argument and the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -482,7 +482,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -502,13 +502,13 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the {@link #deleteAsync(Callback, DocumentAssignable)}
      * method.
      * </p>
-     *
+     * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
     public ListenableFuture<Long> deleteAsync(final DocumentAssignable query,
             final boolean singleDelete, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>(
                 getLockType());
 
@@ -523,7 +523,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the {@link #deleteAsync(Callback, DocumentAssignable)}
      * method with false as the <tt>singleDelete</tt> argument.
      * </p>
-     *
+     * 
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -561,7 +561,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void deleteAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final boolean singleDelete)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(new LambdaCallbackAdapter<Long>(results), query,
                 singleDelete);
     }
@@ -593,7 +593,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void deleteAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         deleteAsync(new LambdaCallbackAdapter<Long>(results), query, durability);
     }
 
@@ -734,7 +734,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #explainAsync(Callback,Find)} method.
      * </p>
-     *
+     * 
      * @see #explainAsync(Callback,Find)
      */
     @Override
@@ -831,7 +831,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the
      * {@link #findAndModifyAsync(Callback, FindAndModify)}.
      * </p>
-     *
+     * 
      * @see #findAndModifyAsync(Callback, FindAndModify)
      */
     @Override
@@ -892,7 +892,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #findAsync(Callback, Find)}.
      * </p>
-     *
+     * 
      * @see #findAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -918,7 +918,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #findAsync(Callback, DocumentAssignable)}.
      * </p>
-     *
+     * 
      * @see #findAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -937,7 +937,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #findAsync(Callback, Find)}.
      * </p>
-     *
+     * 
      * @see #findAsync(Callback, Find)
      */
     @Override
@@ -1013,7 +1013,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #findOneAsync(Callback, Find)}.
      * </p>
-     *
+     * 
      * @see #findOneAsync(Callback, Find)
      */
     @Override
@@ -1040,7 +1040,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the
      * {@link #findOneAsync(Callback, DocumentAssignable)}.
      * </p>
-     *
+     * 
      * @see #findOneAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -1059,7 +1059,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #findOneAsync(Callback, Find)}.
      * </p>
-     *
+     * 
      * @see #findOneAsync(Callback, Find)
      */
     @Override
@@ -1204,7 +1204,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1227,14 +1227,14 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * method with <tt>continueOnError</tt> set to false and the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
     @Override
     public ListenableFuture<Integer> insertAsync(final boolean continueOnError,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>(
                 getLockType());
 
@@ -1250,7 +1250,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1269,7 +1269,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * method with <tt>continueOnError</tt> set to false and the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1287,14 +1287,14 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with <tt>continueOnError</tt> set to false.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
     @Override
     public void insertAsync(final Callback<Integer> results,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         insertAsync(results, INSERT_CONTINUE_ON_ERROR_DEFAULT, durability,
                 documents);
     }
@@ -1307,7 +1307,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * method with <tt>continueOnError</tt> set to false and the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1330,7 +1330,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with <tt>continueOnError</tt> set to false.
      * </p>
-     *
+     * 
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1403,7 +1403,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void insertAsync(final LambdaCallback<Integer> results,
             final Durability durability, final DocumentAssignable... documents)
-                    throws MongoDbException {
+            throws MongoDbException {
         insertAsync(new LambdaCallbackAdapter<Integer>(results), durability,
                 documents);
     }
@@ -1456,7 +1456,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #mapReduceAsync(Callback, MapReduce)}.
      * </p>
-     *
+     * 
      * @see #mapReduceAsync(Callback, MapReduce)
      */
     @Override
@@ -1603,7 +1603,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<Integer> saveAsync(
             final DocumentAssignable document, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Integer> future = new FutureCallback<Integer>(
                 getLockType());
 
@@ -1636,7 +1636,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void saveAsync(final LambdaCallback<Integer> results,
             final DocumentAssignable document, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         saveAsync(new LambdaCallbackAdapter<Integer>(results), document,
                 durability);
     }
@@ -1698,7 +1698,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #stream(StreamCallback, Aggregate)}.
      * </p>
-     *
+     * 
      * @see #stream(StreamCallback, Aggregate)
      */
     @Override
@@ -1724,7 +1724,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #streamingFind(Callback, Find)}.
      * </p>
-     *
+     * 
      * @see #streamingFind(Callback, Find)
      */
     @Deprecated
@@ -1739,7 +1739,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #stream(StreamCallback, Find)}.
      * </p>
-     *
+     * 
      * @see #stream(StreamCallback, Find)
      */
     @Deprecated
@@ -1772,7 +1772,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #stream(StreamCallback, Find)}.
      * </p>
-     *
+     * 
      * @see #stream(StreamCallback, Find)
      */
     @Override
@@ -1787,14 +1787,14 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #streamingFind(StreamCallback, Find)}.
      * </p>
-     *
+     * 
      * @see #stream(StreamCallback, Find)
      */
     @Deprecated
     @Override
     public MongoCursorControl streamingFind(
             final StreamCallback<Document> results, final Find query)
-                    throws MongoDbException {
+            throws MongoDbException {
         return stream(results, query);
     }
 
@@ -1809,7 +1809,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public MongoCursorControl streamingFind(
             final StreamCallback<Document> results, final Find.Builder query)
-                    throws MongoDbException {
+            throws MongoDbException {
         return streamingFind(results, query.build());
     }
 
@@ -1819,7 +1819,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the
      * {@link #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)}.
      * </p>
-     *
+     * 
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -1832,7 +1832,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public void textSearchAsync(
             final Callback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> results,
             final com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException {
+            throws MongoDbException {
         textSearchAsync(results, command.build());
     }
 
@@ -1842,7 +1842,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the
      * {@link #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)}.
      * </p>
-     *
+     * 
      * @see #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
@@ -1855,7 +1855,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             final com.allanbank.mongodb.builder.Text command)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<MongoIterator<com.allanbank.mongodb.builder.TextResult>> future;
         future = new FutureCallback<MongoIterator<com.allanbank.mongodb.builder.TextResult>>(
                 getLockType());
@@ -1871,7 +1871,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the
      * {@link #textSearchAsync(com.allanbank.mongodb.builder.Text)}.
      * </p>
-     *
+     * 
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -1883,7 +1883,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public ListenableFuture<MongoIterator<com.allanbank.mongodb.builder.TextResult>> textSearchAsync(
             final com.allanbank.mongodb.builder.Text.Builder command)
-                    throws MongoDbException {
+            throws MongoDbException {
         return textSearchAsync(command.build());
     }
 
@@ -1895,14 +1895,14 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * with multiUpdate set to true, upsert set to false, and using the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
     @Override
     public void updateAsync(final Callback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(results, query, update, UPDATE_MULTIUPDATE_DEFAULT,
                 UPDATE_UPSERT_DEFAULT, getDurability());
     }
@@ -1914,7 +1914,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * using the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -1922,7 +1922,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public void updateAsync(final Callback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(results, query, update, multiUpdate, upsert,
                 getDurability());
     }
@@ -1934,7 +1934,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * with multiUpdate set to true, and upsert set to false.
      * </p>
-     *
+     * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -1954,7 +1954,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * with multiUpdate set to true, upsert set to false, and using the
      * {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -1977,7 +1977,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * using the {@link #getDurability() default durability}.
      * </p>
-     *
+     * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -2000,7 +2000,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method.
      * </p>
-     *
+     * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -2008,7 +2008,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update, final boolean multiUpdate,
             final boolean upsert, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>(
                 getLockType());
 
@@ -2024,14 +2024,14 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * with multiUpdate set to true, and upsert set to false.
      * </p>
-     *
+     * 
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
     @Override
     public ListenableFuture<Long> updateAsync(final DocumentAssignable query,
             final DocumentAssignable update, final Durability durability)
-                    throws MongoDbException {
+            throws MongoDbException {
         final FutureCallback<Long> future = new FutureCallback<Long>(
                 getLockType());
 
@@ -2052,7 +2052,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     @Override
     public void updateAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(new LambdaCallbackAdapter<Long>(results), query, update);
     }
 
@@ -2068,7 +2068,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
     public void updateAsync(final LambdaCallback<Long> results,
             final DocumentAssignable query, final DocumentAssignable update,
             final boolean multiUpdate, final boolean upsert)
-                    throws MongoDbException {
+            throws MongoDbException {
         updateAsync(new LambdaCallbackAdapter<Long>(results), query, update,
                 multiUpdate, upsert);
     }
@@ -2112,7 +2112,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
      * method.
      * </p>
-     *
+     * 
      * @see #writeAsync(Callback, BatchedWrite)
      */
     @Override
@@ -2131,7 +2131,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * <p>
      * Overridden to call the {@link #writeAsync(BatchedWrite)} method.
      * </p>
-     *
+     * 
      * @see #writeAsync(BatchedWrite)
      */
     @Override
@@ -2146,7 +2146,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
      * method.
      * </p>
-     *
+     * 
      * @see #writeAsync(Callback, BatchedWrite)
      */
     @Override
@@ -2161,7 +2161,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
      * method.
      * </p>
-     *
+     * 
      * @see #writeAsync(Callback, BatchedWrite)
      */
     @Override
@@ -2176,7 +2176,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
      * Overridden to call the {@link #writeAsync(LambdaCallback, BatchedWrite)}
      * method.
      * </p>
-     *
+     * 
      * @see #writeAsync(LambdaCallback, BatchedWrite)
      */
     @Override
@@ -2187,7 +2187,7 @@ AbstractMongoOperations implements AsyncMongoCollection {
 
     /**
      * Returns the type of lock to use.
-     *
+     * 
      * @return The type of lock to use.
      */
     protected LockType getLockType() {

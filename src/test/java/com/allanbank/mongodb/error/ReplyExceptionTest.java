@@ -21,7 +21,7 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * ReplyExceptionTest provides tests for the {@link ReplyException}.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyExceptionTest {

@@ -18,7 +18,7 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 /**
  * AggregationProjectFieldsTest provides tests for the
  * {@link AggregationProjectFields} class.
- *
+ * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AggregationProjectFieldsTest {

@@ -41,7 +41,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
 /**
  * {@link BsonInputStream} provides a class to read BSON documents based on the
  * <a href="http://bsonspec.org/">BSON specification</a>.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -73,7 +73,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Creates a BSON document reader.
-     *
+     * 
      * @param input
      *            the underlying stream to read from.
      */
@@ -83,7 +83,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Creates a BSON document reader.
-     *
+     * 
      * @param input
      *            the underlying stream to read from.
      * @param expectedMaxDocumentSize
@@ -125,7 +125,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Returns the number of bytes that have been read by the stream.
-     *
+     * 
      * @return The number of bytes that have been read from the stream.
      */
     public long getBytesRead() {
@@ -135,7 +135,7 @@ public class BsonInputStream extends InputStream {
     /**
      * Returns the maximum number of strings that may have their encoded form
      * cached.
-     *
+     * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
      */
@@ -146,7 +146,7 @@ public class BsonInputStream extends InputStream {
     /**
      * Returns the maximum length for a string that the stream is allowed to
      * cache.
-     *
+     * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
      */
@@ -179,7 +179,7 @@ public class BsonInputStream extends InputStream {
     /**
      * Tries to prefetch the requested number of bytes from the underlying
      * stream.
-     *
+     * 
      * @param size
      *            The number of bytes to try and read.
      * @throws IOException
@@ -248,7 +248,7 @@ public class BsonInputStream extends InputStream {
      * followed by '\x00'. The (byte*) MUST NOT contain '\x00', hence it is not
      * full UTF-8. </blockquote>
      * </p>
-     *
+     * 
      * @return The string value.
      * @throws EOFException
      *             On insufficient data for the integer.
@@ -283,7 +283,7 @@ public class BsonInputStream extends InputStream {
      * document 	::= 	int32 e_list "\x00"
      * </pre>
      * </code>
-     *
+     * 
      * @return The Document.
      * @throws EOFException
      *             On insufficient data for the document.
@@ -303,7 +303,7 @@ public class BsonInputStream extends InputStream {
     /**
      * Reads the complete set of bytes from the stream or throws an
      * {@link EOFException}.
-     *
+     * 
      * @param buffer
      *            The buffer into which the data is read.
      * @exception EOFException
@@ -318,7 +318,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a little-endian 4 byte signed integer from the stream.
-     *
+     * 
      * @return The integer value.
      * @throws EOFException
      *             On insufficient data for the integer.
@@ -343,7 +343,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a little-endian 8 byte signed integer from the stream.
-     *
+     * 
      * @return The long value.
      * @throws EOFException
      *             On insufficient data for the long.
@@ -384,7 +384,7 @@ public class BsonInputStream extends InputStream {
     /**
      * Sets the value of maximum number of strings that may have their encoded
      * form cached.
-     *
+     * 
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
@@ -397,7 +397,7 @@ public class BsonInputStream extends InputStream {
      * Sets the value of length for a string that the stream is allowed to cache
      * to the new value. This can be used to stop a single long string from
      * pushing useful values out of the cache.
-     *
+     * 
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
@@ -431,7 +431,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Returns the number of bytes available in the buffer.
-     *
+     * 
      * @return The number of bytes available in the buffer.
      */
     protected final int availableInBuffer() {
@@ -444,7 +444,7 @@ public class BsonInputStream extends InputStream {
      * "\x04" e_name document
      * </pre>
      * </code>
-     *
+     * 
      * @return The {@link ArrayElement}.
      * @throws EOFException
      *             On insufficient data for the document.
@@ -475,7 +475,7 @@ public class BsonInputStream extends InputStream {
      * 	           | 	"\x80" 	User defined
      * </pre>
      * </code>
-     *
+     * 
      * @return The {@link BinaryElement}.
      * @throws IOException
      *             On a failure reading the binary data.
@@ -497,7 +497,7 @@ public class BsonInputStream extends InputStream {
             final int anotherLength = readInt();
 
             assert (anotherLength == (length - 4)) : "Binary Element Subtye 2 "
-            + "length should be outer length - 4.";
+                    + "length should be outer length - 4.";
 
             length -= 4;
         }
@@ -524,7 +524,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link BooleanElement} from the stream.
-     *
+     * 
      * @return The {@link BooleanElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -543,7 +543,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@code DBPointerElement} from the stream.
-     *
+     * 
      * @return The {@code DBPointerElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -578,7 +578,7 @@ public class BsonInputStream extends InputStream {
      * "\x03" e_name document
      * </pre>
      * </code>
-     *
+     * 
      * @return The {@link ArrayElement}.
      * @throws IOException
      *             On a failure reading the document.
@@ -599,7 +599,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link DoubleElement} from the stream.
-     *
+     * 
      * @return The {@link DoubleElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -642,7 +642,7 @@ public class BsonInputStream extends InputStream {
      * 	           | 	"\x7F" e_name 					Max key
      * </pre>
      * </code>
-     *
+     * 
      * @param token
      *            The element's token.
      * @return The Element.
@@ -653,7 +653,7 @@ public class BsonInputStream extends InputStream {
      */
     @SuppressWarnings("deprecation")
     protected Element readElement(final byte token) throws EOFException,
-    IOException {
+            IOException {
         final ElementType type = ElementType.valueOf(token);
         if (type == null) {
             throw new StreamCorruptedException("Unknown element type: 0x"
@@ -729,7 +729,7 @@ public class BsonInputStream extends InputStream {
      * e_list 	::= 	element e_list | ""
      * </pre>
      * </code>
-     *
+     * 
      * @return The list of elements.
      * @throws EOFException
      *             On insufficient data for the elements.
@@ -752,7 +752,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link IntegerElement} from the stream.
-     *
+     * 
      * @return The {@link IntegerElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -771,7 +771,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link JavaScriptElement} from the stream.
-     *
+     * 
      * @return The {@link JavaScriptElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -790,7 +790,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link JavaScriptWithScopeElement} from the stream.
-     *
+     * 
      * @return The {@link JavaScriptWithScopeElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -812,7 +812,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link LongElement} from the stream.
-     *
+     * 
      * @return The {@link LongElement}.
      * @throws IOException
      *             On a failure to read the contents of the {@link LongElement}.
@@ -830,7 +830,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link MaxKeyElement} from the stream.
-     *
+     * 
      * @return The {@link MaxKeyElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -848,7 +848,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link MinKeyElement} from the stream.
-     *
+     * 
      * @return The {@link MinKeyElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -866,7 +866,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link MongoTimestampElement} from the stream.
-     *
+     * 
      * @return The {@link MongoTimestampElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -886,7 +886,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link NullElement} from the stream.
-     *
+     * 
      * @return The {@link NullElement}.
      * @throws IOException
      *             On a failure to read the contents of the {@link NullElement}.
@@ -903,7 +903,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link ObjectIdElement} from the stream.
-     *
+     * 
      * @return The {@link ObjectIdElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -924,7 +924,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link RegularExpressionElement} from the stream.
-     *
+     * 
      * @return The {@link RegularExpressionElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -954,7 +954,7 @@ public class BsonInputStream extends InputStream {
      * (for the trailing '\x00'). The (byte*) is zero or more UTF-8 encoded
      * characters. </blockquote>
      * </p>
-     *
+     * 
      * @return The string value.
      * @throws EOFException
      *             On insufficient data for the integer.
@@ -978,7 +978,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link StringElement} from the stream.
-     *
+     * 
      * @return The {@link StringElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -997,7 +997,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link SymbolElement} from the stream.
-     *
+     * 
      * @return The {@link SymbolElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -1016,7 +1016,7 @@ public class BsonInputStream extends InputStream {
 
     /**
      * Reads a {@link TimestampElement} from the stream.
-     *
+     * 
      * @return The {@link TimestampElement}.
      * @throws IOException
      *             On a failure to read the contents of the
@@ -1037,7 +1037,7 @@ public class BsonInputStream extends InputStream {
      * Fetch the requested number of bytes from the underlying stream. Returns
      * the number of bytes available in the buffer or the number of requested
      * bytes, which ever is smaller.
-     *
+     * 
      * @param size
      *            The number of bytes to be read.
      * @return The smaller of the number of bytes requested or the number of
@@ -1053,7 +1053,7 @@ public class BsonInputStream extends InputStream {
      * Fetch the requested number of bytes from the underlying stream. Returns
      * the number of bytes available in the buffer or the number of requested
      * bytes, which ever is smaller.
-     *
+     * 
      * @param size
      *            The number of bytes to be read.
      * @param forceRead
@@ -1113,7 +1113,7 @@ public class BsonInputStream extends InputStream {
     /**
      * Reads the complete set of bytes from the stream or throws an
      * {@link EOFException}.
-     *
+     * 
      * @param buffer
      *            The buffer into which the data is read.
      * @param offset

@@ -12,10 +12,10 @@ import java.lang.ref.WeakReference;
  * NamedReference provides a Reference that tracks a name. We use a weak
  * reference as the base class as we want the garbage collector to reclaim the
  * instance as soon as possible.
- *
+ * 
  * @param <T>
  *            The type of the referent.
- *
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference;
 
     /**
      * Creates a new NamedReference.
-     *
+     * 
      * @param name
      *            The name for the referent.
      * @param referent
@@ -43,7 +43,7 @@ import java.lang.ref.WeakReference;
 
     /**
      * Returns the name for the referent.
-     *
+     * 
      * @return The name for the referent.
      */
     public String getName() {

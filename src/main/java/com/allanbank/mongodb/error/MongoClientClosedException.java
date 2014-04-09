@@ -12,7 +12,7 @@ import com.allanbank.mongodb.client.Message;
 /**
  * MongoClientClosedException is thrown when there is an attempt to send a
  * message on a closed {@link MongoClient}.
- *
+ * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
@@ -37,7 +37,7 @@ public class MongoClientClosedException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     *
+     * 
      * @param message
      *            The message that was being sent.
      */
@@ -48,7 +48,7 @@ public class MongoClientClosedException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     *
+     * 
      * @param message
      *            Message for the exception.
      */
@@ -59,7 +59,7 @@ public class MongoClientClosedException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     *
+     * 
      * @param message
      *            Message for the exception.
      * @param cause
@@ -73,7 +73,7 @@ public class MongoClientClosedException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     *
+     * 
      * @param cause
      *            The cause of the error.
      */
@@ -84,7 +84,7 @@ public class MongoClientClosedException extends MongoDbException {
 
     /**
      * Returns the message that was being sent.
-     *
+     * 
      * @return The message that was being sent.
      */
     public Message getSentMessage() {

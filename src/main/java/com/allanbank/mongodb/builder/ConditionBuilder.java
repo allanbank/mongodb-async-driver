@@ -52,7 +52,7 @@ import com.allanbank.mongodb.error.QueryFailedException;
  * Use the {@link QueryBuilder#where(String)} method to create a
  * {@link ConditionBuilder}.
  * </p>
- *
+ * 
  * @see QueryBuilder#whereField(String)
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
@@ -80,7 +80,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * This constructor is protected since generally users will use the
      * {@link QueryBuilder} class to create a condition builder.
      * </p>
-     *
+     * 
      * @param fieldName
      *            The name for the field to compare.
      * @param parent
@@ -106,7 +106,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -124,7 +124,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param elements
      *            A builder for the values for the comparison. Any changes to
      *            the {@link ArrayBuilder} after this method is called are not
@@ -155,7 +155,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -188,7 +188,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -206,7 +206,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be used with the {@link Expressions#constant
      * Expressions.constant(...)} helper methods.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
@@ -214,7 +214,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * DocumentAssignable query = QueryBuilder.where("f").all(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -223,7 +223,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -261,7 +261,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -294,7 +294,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -327,7 +327,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -348,7 +348,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param elements
      *            The element values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -381,7 +381,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -414,7 +414,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -447,7 +447,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -480,7 +480,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -513,7 +513,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -546,7 +546,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -564,7 +564,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <tt>fieldName</tt> is equal to this builder's {@link #getFieldName()
      * field name} then this builder will be returned. Otherwise a different
      * builder will be returned sharing the same parent {@link QueryBuilder}.
-     *
+     * 
      * @param fieldName
      *            The name of the field to create a conjunction with.
      * @return The {@link ConditionBuilder} to use to construct the conjunction.
@@ -578,7 +578,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * Returns the result of {@link #build()}.
      * </p>
-     *
+     * 
      * @see #build()
      */
     @Override
@@ -599,7 +599,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -611,9 +611,9 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Returns the results of building the parent {@link QueryBuilder}.
-     *
+     * 
      * @return The results of building the parent {@link QueryBuilder}.
-     *
+     * 
      * @see QueryBuilder#build()
      */
     public Document build() {
@@ -628,7 +628,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * previous values. In addition any {@link #equals(boolean) equals(...)}
      * condition is removed since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param arrayElementQuery
      *            A builder for the query to match a sub element. Any changes to
      *            the {@link QueryBuilder} after this method is called are not
@@ -654,7 +654,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -674,7 +674,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param subType
      *            The binary values subtype.
      * @param value
@@ -696,7 +696,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -720,7 +720,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -739,7 +739,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -765,7 +765,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -789,7 +789,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -813,7 +813,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -833,7 +833,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -858,11 +858,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
-     *
+     * 
      * @see #matches(Pattern)
      */
     public ConditionBuilder equals(final Pattern value) {
@@ -884,7 +884,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -905,7 +905,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param uuid
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -925,7 +925,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -949,7 +949,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @param scope
@@ -974,7 +974,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param uuid
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -999,7 +999,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder equalsMaxKey() {
@@ -1021,7 +1021,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder equalsMinKey() {
@@ -1044,7 +1044,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1069,7 +1069,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder equalsNull() {
@@ -1087,7 +1087,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1111,7 +1111,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * other conditions from the builder since there is no equal operator
      * supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1134,7 +1134,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * This method is equivalent to calling {@link #exists(boolean)
      * exists(true)}.
      * </p>
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder exists() {
@@ -1149,7 +1149,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * previous values. In addition any {@link #equals(boolean) equals(...)}
      * condition is removed since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            If true the field must exist. If false the field must not
      *            exist.
@@ -1169,13 +1169,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").intersects({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -1188,11 +1188,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @return The condition builder for chaining method calls.
-     *
+     * 
      * @since MongoDB 2.4
      */
     public ConditionBuilder geoWithin(final DocumentAssignable geoJsonDoc) {
@@ -1212,13 +1212,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").intersects({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -1231,14 +1231,14 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @param unique
      *            If false then the query will return a document with multiple
      *            matching shaped or points multiple times.
      * @return The condition builder for chaining method calls.
-     *
+     * 
      * @since MongoDB 2.4
      * @deprecated {@code $uniqueDocs} was removed in MongoDB 2.6. This method
      *             will not be removed until two releases after the MongoDB 2.6
@@ -1250,12 +1250,12 @@ public class ConditionBuilder implements DocumentAssignable {
         myEqualsComparison = null;
 
         myOtherComparisons
-        .put(GeospatialOperator.GEO_WITHIN,
-                new DocumentElement(
-                        GeospatialOperator.GEO_WITHIN.getToken(),
+                .put(GeospatialOperator.GEO_WITHIN,
                         new DocumentElement(
-                                GeospatialOperator.GEOMETRY, geoJsonDoc
-                                .asDocument()),
+                                GeospatialOperator.GEO_WITHIN.getToken(),
+                                new DocumentElement(
+                                        GeospatialOperator.GEOMETRY, geoJsonDoc
+                                                .asDocument()),
                                 new BooleanElement(
                                         GeospatialOperator.UNIQUE_DOCS_MODIFIER,
                                         unique)));
@@ -1265,7 +1265,7 @@ public class ConditionBuilder implements DocumentAssignable {
 
     /**
      * Returns the fieldName value.
-     *
+     * 
      * @return The fieldName value.
      */
     public String getFieldName() {
@@ -1281,7 +1281,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param subType
      *            The binary values subtype.
      * @param value
@@ -1304,7 +1304,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1329,7 +1329,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1348,7 +1348,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1369,7 +1369,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1390,7 +1390,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1411,7 +1411,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1432,7 +1432,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1453,7 +1453,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1477,7 +1477,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param subType
      *            The binary values subtype.
      * @param value
@@ -1503,7 +1503,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1530,7 +1530,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1551,7 +1551,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1574,7 +1574,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1597,7 +1597,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1620,7 +1620,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1643,7 +1643,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1666,7 +1666,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1690,7 +1690,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1713,7 +1713,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1734,7 +1734,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1755,7 +1755,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -1775,7 +1775,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param elements
      *            A builder for the values for the comparison. Any changes to
      *            the {@link ArrayBuilder} after this method is called are not
@@ -1807,7 +1807,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -1841,7 +1841,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -1859,7 +1859,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be used with the {@link Expressions#constant
      * Expressions.constant(...)} helper methods.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
@@ -1867,7 +1867,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * DocumentAssignable query = QueryBuilder.where("f").in(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -1876,7 +1876,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -1915,7 +1915,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -1949,7 +1949,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -1983,7 +1983,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2004,7 +2004,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param elements
      *            The element values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2038,7 +2038,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2072,7 +2072,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2106,7 +2106,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2140,7 +2140,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2174,7 +2174,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2208,7 +2208,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -2229,10 +2229,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * previous values. In addition any {@link #equals(boolean) equals(...)}
      * condition is removed since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param type
      *            The expected type for the value.
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder instanceOf(final ElementType type) {
@@ -2248,13 +2248,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").intersects({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -2267,11 +2267,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @return The condition builder for chaining method calls.
-     *
+     * 
      * @since MongoDB 2.4
      */
     public ConditionBuilder intersects(final DocumentAssignable geoJsonDoc) {
@@ -2294,7 +2294,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param subType
      *            The binary values subtype.
      * @param value
@@ -2317,7 +2317,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2342,7 +2342,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2361,7 +2361,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2382,7 +2382,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2403,7 +2403,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2424,7 +2424,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2445,7 +2445,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2466,7 +2466,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2489,7 +2489,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param subType
      *            The binary values subtype.
      * @param value
@@ -2514,7 +2514,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2541,7 +2541,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2561,7 +2561,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2583,7 +2583,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2605,7 +2605,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2627,7 +2627,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2649,7 +2649,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2671,7 +2671,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2694,7 +2694,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2716,7 +2716,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2737,7 +2737,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2758,7 +2758,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -2786,10 +2786,10 @@ public class ConditionBuilder implements DocumentAssignable {
      * This method is equivalent to calling {@link #exists(boolean)
      * exists(true)}.
      * </p>
-     *
+     * 
      * @param pattern
      *            The pattern to match the value against.
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder matches(final Pattern pattern) {
@@ -2810,12 +2810,12 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param divisor
      *            The divisor for the modulo operation.
      * @param remainder
      *            The desired remainder from the modulo operation.
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder mod(final int divisor, final int remainder) {
@@ -2839,12 +2839,12 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param divisor
      *            The divisor for the modulo operation.
      * @param remainder
      *            The desired remainder from the modulo operation.
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder mod(final long divisor, final long remainder) {
@@ -2865,13 +2865,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").near({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -2888,7 +2888,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @return The condition builder for chaining method calls.
@@ -2909,13 +2909,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").near({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ), 42 );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -2932,7 +2932,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @param maxDistance
@@ -2948,7 +2948,7 @@ public class ConditionBuilder implements DocumentAssignable {
                 new DocumentElement(GeospatialOperator.NEAR.getToken(),
                         new DocumentElement(GeospatialOperator.GEOMETRY,
                                 geoJsonDoc.asDocument()), new DoubleElement(
-                                        GeospatialOperator.MAX_DISTANCE_MODIFIER
+                                GeospatialOperator.MAX_DISTANCE_MODIFIER
                                         .getToken(), maxDistance)));
         myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
@@ -2972,7 +2972,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3006,7 +3006,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3047,7 +3047,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3081,7 +3081,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3121,7 +3121,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3155,7 +3155,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3185,13 +3185,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").nearSphere({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -3208,7 +3208,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @return The condition builder for chaining method calls.
@@ -3230,13 +3230,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").nearSphere({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ), 42 );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -3253,7 +3253,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @param maxDistance
@@ -3269,7 +3269,7 @@ public class ConditionBuilder implements DocumentAssignable {
                 new DocumentElement(GeospatialOperator.NEAR_SPHERE.getToken(),
                         new DocumentElement(GeospatialOperator.GEOMETRY,
                                 geoJsonDoc.asDocument()), new DoubleElement(
-                                        GeospatialOperator.MAX_DISTANCE_MODIFIER
+                                GeospatialOperator.MAX_DISTANCE_MODIFIER
                                         .getToken(), maxDistance)));
         myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
@@ -3294,7 +3294,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3329,7 +3329,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3371,7 +3371,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3381,9 +3381,9 @@ public class ConditionBuilder implements DocumentAssignable {
     public ConditionBuilder nearSphere(final int x, final int y) {
         myEqualsComparison = null;
         myOtherComparisons
-        .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
-                GeospatialOperator.NEAR_SPHERE.getToken(),
-                new IntegerElement("0", x), new IntegerElement("1", y)));
+                .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
+                        GeospatialOperator.NEAR_SPHERE.getToken(),
+                        new IntegerElement("0", x), new IntegerElement("1", y)));
         myOtherComparisons.remove(GeospatialOperator.MAX_DISTANCE_MODIFIER);
 
         return this;
@@ -3407,7 +3407,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3421,9 +3421,9 @@ public class ConditionBuilder implements DocumentAssignable {
             final int maxDistance) {
         myEqualsComparison = null;
         myOtherComparisons
-        .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
-                GeospatialOperator.NEAR_SPHERE.getToken(),
-                new IntegerElement("0", x), new IntegerElement("1", y)));
+                .put(GeospatialOperator.NEAR_SPHERE, new ArrayElement(
+                        GeospatialOperator.NEAR_SPHERE.getToken(),
+                        new IntegerElement("0", x), new IntegerElement("1", y)));
         myOtherComparisons.put(
                 GeospatialOperator.MAX_DISTANCE_MODIFIER,
                 new IntegerElement(GeospatialOperator.MAX_DISTANCE_MODIFIER
@@ -3450,7 +3450,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3485,7 +3485,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate to find documents near.
      * @param y
@@ -3518,7 +3518,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3539,7 +3539,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param subType
      *            The binary values subtype.
      * @param value
@@ -3562,7 +3562,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3587,7 +3587,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param dateTime
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3606,7 +3606,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3627,7 +3627,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3648,7 +3648,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3669,7 +3669,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3690,7 +3690,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3715,11 +3715,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
-     *
+     * 
      * @see #matches(Pattern)
      */
     public ConditionBuilder notEqualTo(final Pattern value) {
@@ -3739,7 +3739,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3761,7 +3761,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param uuid
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3782,7 +3782,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3807,7 +3807,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @param scope
@@ -3821,7 +3821,7 @@ public class ConditionBuilder implements DocumentAssignable {
                 ComparisonOperator.NE,
                 new JavaScriptWithScopeElement(
                         ComparisonOperator.NE.getToken(), value, scope
-                        .asDocument()));
+                                .asDocument()));
         return this;
     }
 
@@ -3835,7 +3835,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param uuid
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3862,9 +3862,9 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @return The condition builder for chaining method calls.
-     *
+     * 
      * @see <a
      *      href="https://jira.mongodb.org/browse/SERVER-11369">SERVER-11369</a>
      */
@@ -3889,9 +3889,9 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @return The condition builder for chaining method calls.
-     *
+     * 
      * @see <a
      *      href="https://jira.mongodb.org/browse/SERVER-11369">SERVER-11369</a>
      */
@@ -3911,7 +3911,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3933,7 +3933,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @return The condition builder for chaining method calls.
      */
     public ConditionBuilder notEqualToNull() {
@@ -3952,7 +3952,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3973,7 +3973,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * equals(...)} condition is removed since no equality operator is supported
      * by MongoDB.
      * </p>
-     *
+     * 
      * @param value
      *            The value to compare the field against.
      * @return The condition builder for chaining method calls.
@@ -3993,7 +3993,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param elements
      *            A builder for the values for the comparison. Any changes to
      *            the {@link ArrayBuilder} after this method is called are not
@@ -4024,7 +4024,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4057,7 +4057,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4075,7 +4075,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be used with the {@link Expressions#constant
      * Expressions.constant(...)} helper methods.<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * import static {@link Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
@@ -4083,7 +4083,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * DocumentAssignable query = QueryBuilder.where("f").notIn(constant(1), constant(2), constant(3));
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -4092,7 +4092,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4130,7 +4130,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4163,7 +4163,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4196,7 +4196,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4217,7 +4217,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param elements
      *            The element values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4250,7 +4250,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4283,7 +4283,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4316,7 +4316,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4349,7 +4349,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4382,7 +4382,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4415,7 +4415,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param values
      *            The values for the comparison.
      * @return The condition builder for chaining method calls.
@@ -4444,7 +4444,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * In addition any {@link #equals(boolean) equals(...)} condition is removed
      * since no equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param length
      *            The value to compare the field's length against.
      * @return The condition builder for chaining method calls.
@@ -4464,11 +4464,11 @@ public class ConditionBuilder implements DocumentAssignable {
      * this reason only a single {@link #text} condition can be used. Calling
      * multiple <tt>text(...)</tt> methods overwrites previous values.
      * </p>
-     *
+     * 
      * @param textSearchExpression
      *            The text search expression.
      * @return This builder for call chaining.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
      *      Search Expressions</a>
@@ -4487,13 +4487,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * this reason only a single {@link #text} condition can be used. Calling
      * multiple <tt>text(...)</tt> methods overwrites previous values.
      * </p>
-     *
+     * 
      * @param textSearchExpression
      *            The text search expression.
      * @param language
      *            The language of the text search expression.
      * @return This builder for call chaining.
-     *
+     * 
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
      *      Search Expressions</a>
@@ -4516,7 +4516,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * this reason only a single {@link #where(String)} condition can be used.
      * Calling multiple <tt>where(...)</tt> methods overwrites previous values.
      * </p>
-     *
+     * 
      * @param javaScript
      *            The javaScript condition to add.
      * @return This builder for call chaining.
@@ -4540,7 +4540,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param uniqueDocs
      *            Controls if documents are returned multiple times for multiple
      *            matching conditions.
@@ -4586,13 +4586,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").near({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -4609,7 +4609,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @return The condition builder for chaining method calls.
@@ -4621,13 +4621,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").within({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ) );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -4640,7 +4640,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @return The condition builder for chaining method calls.
@@ -4661,13 +4661,13 @@ public class ConditionBuilder implements DocumentAssignable {
      * <p>
      * This method is designed to be use with a GeoJSON document constructed
      * with the {@link GeoJson} class<blockquote>
-     *
+     * 
      * <pre>
      * <code>
      * {@link QueryBuilder#where where}("geo").within({@link GeoJson#lineString GeoJson.lineString}( {@link GeoJson#p GeoJson.p}(1,2),{@link GeoJson#p GeoJson.p}(10,11) ), true );
      * </code>
      * </pre>
-     *
+     * 
      * </blockquote>
      * </p>
      * <p>
@@ -4680,7 +4680,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param geoJsonDoc
      *            The GeoJSON document describing the geometry.
      * @param uniqueDocs
@@ -4699,8 +4699,8 @@ public class ConditionBuilder implements DocumentAssignable {
         myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
                 GeospatialOperator.WITHIN.getToken(), new DocumentElement(
                         GeospatialOperator.GEOMETRY, geoJsonDoc.asDocument()),
-                        new BooleanElement(GeospatialOperator.UNIQUE_DOCS_MODIFIER,
-                                uniqueDocs)));
+                new BooleanElement(GeospatialOperator.UNIQUE_DOCS_MODIFIER,
+                        uniqueDocs)));
 
         return this;
     }
@@ -4718,7 +4718,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -4755,7 +4755,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -4800,7 +4800,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x1
      *            The first X coordinate.
      * @param y1
@@ -4839,7 +4839,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x1
      *            The first X coordinate.
      * @param y1
@@ -4886,7 +4886,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -4922,7 +4922,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -4967,7 +4967,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x1
      *            The first X coordinate.
      * @param y1
@@ -4985,9 +4985,9 @@ public class ConditionBuilder implements DocumentAssignable {
         final DocumentBuilder builder = BuilderFactory.start();
         final ArrayBuilder box = builder.pushArray(GeospatialOperator.BOX);
         box.pushArray().addInteger(Math.min(x1, x2))
-        .addInteger(Math.min(y1, y2));
+                .addInteger(Math.min(y1, y2));
         box.pushArray().addInteger(Math.max(x1, x2))
-        .addInteger(Math.max(y1, y2));
+                .addInteger(Math.max(y1, y2));
 
         myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
                 GeospatialOperator.WITHIN.getToken(), builder.build()));
@@ -5008,7 +5008,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x1
      *            The first X coordinate.
      * @param y1
@@ -5033,9 +5033,9 @@ public class ConditionBuilder implements DocumentAssignable {
         final DocumentBuilder builder = BuilderFactory.start();
         final ArrayBuilder box = builder.pushArray(GeospatialOperator.BOX);
         box.pushArray().addInteger(Math.min(x1, x2))
-        .addInteger(Math.min(y1, y2));
+                .addInteger(Math.min(y1, y2));
         box.pushArray().addInteger(Math.max(x1, x2))
-        .addInteger(Math.max(y1, y2));
+                .addInteger(Math.max(y1, y2));
         builder.addBoolean(GeospatialOperator.UNIQUE_DOCS_MODIFIER, uniqueDocs);
 
         myOtherComparisons.put(GeospatialOperator.WITHIN, new DocumentElement(
@@ -5057,7 +5057,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5093,7 +5093,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5138,7 +5138,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x1
      *            The first X coordinate.
      * @param y1
@@ -5177,7 +5177,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x1
      *            The first X coordinate.
      * @param y1
@@ -5224,7 +5224,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param p1
      *            The first point defining the bounds of the polygon.
      * @param p2
@@ -5274,7 +5274,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5317,7 +5317,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5368,7 +5368,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5411,7 +5411,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5462,7 +5462,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5505,7 +5505,7 @@ public class ConditionBuilder implements DocumentAssignable {
      * any {@link #equals(boolean) equals(...)} condition is removed since no
      * equality operator is supported by MongoDB.
      * </p>
-     *
+     * 
      * @param x
      *            The X coordinate for the center of the circle.
      * @param y
@@ -5541,7 +5541,7 @@ public class ConditionBuilder implements DocumentAssignable {
     /**
      * Returns the element representing the current state of this fields
      * condition.
-     *
+     * 
      * @return The element for the condition which may be <code>null</code> if
      *         no condition has been set.
      */
