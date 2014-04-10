@@ -76,7 +76,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     @Override
     public void connect() {
         myConfig = new MongoClientConfiguration();
-        myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+        myConfig.addServer(createAddress());
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(1);
         myConfig.setReconnectTimeout(90000);
@@ -143,12 +143,13 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setDefaultReadPreference(ReadPreference.preferSecondary());
         myConfig.setDefaultDurability(Durability.replicaDurable(2, 1000));
 
+        InetSocketAddress defaultAddr = createAddress();
         final Cluster cluster = new Cluster(myConfig);
         for (int i = 0; i < PORTS.length; ++i) {
             final int port = PORTS[i];
 
             conns[i] = new SocketConnection(cluster.add(new InetSocketAddress(
-                    "localhost", port)), myConfig);
+                    defaultAddr.getHostName(), port)), myConfig);
             conns[i].start();
         }
 

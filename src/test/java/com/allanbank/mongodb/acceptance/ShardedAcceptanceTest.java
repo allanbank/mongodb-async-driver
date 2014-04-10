@@ -8,8 +8,6 @@ package com.allanbank.mongodb.acceptance;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
 
-import java.net.InetSocketAddress;
-
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -56,7 +54,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     @Override
     public void connect() {
         myConfig = new MongoClientConfiguration();
-        myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+        myConfig.addServer(createAddress());
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(1);
         myConfig.setReconnectTimeout(60000);

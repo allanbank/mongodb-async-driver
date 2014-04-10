@@ -134,6 +134,7 @@ import com.allanbank.mongodb.error.ReplyException;
 import com.allanbank.mongodb.error.ServerVersionException;
 import com.allanbank.mongodb.gridfs.GridFs;
 import com.allanbank.mongodb.util.IOUtils;
+import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -176,7 +177,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     protected static void buildLargeCollection() {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+        config.addServer(createAddress());
 
         final MongoClient mongoClient = MongoFactory.createClient(config);
         try {
@@ -216,7 +217,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     protected static void disableBalancer() {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        config.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+        config.addServer(createAddress());
 
         final MongoClient mongoClient = MongoFactory.createClient(config);
         try {
@@ -231,6 +232,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         finally {
             IOUtils.close(mongoClient);
         }
+    }
+
+    /**
+     * Creates the address to connect to.
+     * 
+     * @return The {@link InetSocketAddress} for the MongoDB server.
+     */
+    protected static InetSocketAddress createAddress() {
+        String remote = System.getenv("MONGODB_HOST");
+        if (remote != null) {
+            return ServerNameUtils.parse(remote);
+        }
+        return new InetSocketAddress("127.0.0.1", DEFAULT_PORT);
     }
 
     /**
@@ -274,7 +288,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public void connect() {
         if (myConfig == null) {
             myConfig = new MongoClientConfiguration();
-            myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+            myConfig.addServer(createAddress());
         }
 
         myMongo = MongoFactory.createClient(myConfig);

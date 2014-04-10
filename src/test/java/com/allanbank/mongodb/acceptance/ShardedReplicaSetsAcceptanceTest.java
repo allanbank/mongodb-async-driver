@@ -102,7 +102,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     @Override
     public void connect() {
         myConfig = new MongoClientConfiguration();
-        myConfig.addServer(new InetSocketAddress("127.0.0.1", DEFAULT_PORT));
+        myConfig.addServer(createAddress());
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(1);
         myConfig.setReconnectTimeout(60000);
@@ -886,13 +886,14 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     protected int countPrimaryCommands() {
         int count = 0;
         try {
+            InetSocketAddress defaultAddr = createAddress();
             final Cluster cluster = new Cluster(myConfig);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {
                     conn = new SocketConnection(
-                            cluster.add(new InetSocketAddress("localhost", port)),
-                            myConfig);
+                            cluster.add(new InetSocketAddress(defaultAddr
+                                    .getHostName(), port)), myConfig);
                     conn.start();
 
                     final FutureReplyCallback replyFuture = new FutureReplyCallback();
@@ -947,13 +948,14 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     protected int countSecondaryCommands() {
         int count = 0;
         try {
+            InetSocketAddress defaultAddr = createAddress();
             final Cluster cluster = new Cluster(myConfig);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {
                     conn = new SocketConnection(
-                            cluster.add(new InetSocketAddress("localhost", port)),
-                            myConfig);
+                            cluster.add(new InetSocketAddress(defaultAddr
+                                    .getHostName(), port)), myConfig);
                     conn.start();
 
                     final FutureReplyCallback replyFuture = new FutureReplyCallback();
