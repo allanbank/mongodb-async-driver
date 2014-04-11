@@ -103,11 +103,12 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden for testing.
+     * Overridden for testing access.
      * </p>
      */
     @Override
     protected Connection connection(final Server server) {
+        LOG.debug("Lookup connection for server: {}", server.getCanonicalName());
         return super.connection(server);
     }
 
