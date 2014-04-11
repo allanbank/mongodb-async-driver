@@ -81,6 +81,9 @@ public class ClientImpl extends AbstractClient {
             result = (ConnectionFactory) constructor.newInstance(config);
         }
         // Too many exceptions.
+        catch (final RuntimeException e) {
+            throw e;
+        }
         catch (final Exception e) {
             result = new BootstrapConnectionFactory(config);
         }
