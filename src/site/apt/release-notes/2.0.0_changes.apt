@@ -41,12 +41,26 @@ Updates and Improvements:
       * See the 
         {{{../apidocs/index.html?com/allanbank/mongodb/BatchedAsyncMongoCollection.html}BatchedAsyncMongoCollection}}
         interface for how to create batches of inserts, updates, deletes, 
-        queries and commands. Also see the 
-        {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}}.
+        queries and commands. Also see the {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}} and 
+        {{{https://github.com/allanbank/mongodb-async-examples/blob/master/src/main/java/batch/BatchDemo.java}BatchDemo.java}}
+        or the Java 8 version of 
+        {{{https://github.com/allanbank/mongodb-async-examples/blob/master/src/main/java/java8/BatchDemo.java}BatchDemo.java}}
         
       * See the 
         {{{../apidocs/index.html?com/allanbank/mongodb/builder/BatchedWrite.html}BatchedWrite}}
         class for information on batching inserts, updates, and deletes.
+
+  * Performance:
+
+    * We have further reduced BSON encoding and decoding times. Part of the improvement
+      is due to using an intelligent cache for encoding and decoding strings.
+  
+    * The driver now, by default, uses a single read thread per connection 
+      instead of 2 threads (read/write) per connection.  This further reduced
+      the latency of operations.
+
+  * Introduction of the {{{https://github.com/allanbank/mongodb-async-examples}mongodb-async-examples}} 
+    project on GitHub which contains a number demonstration applications for the driver's features. 
     
   * Extension Enhancements
   
@@ -83,34 +97,26 @@ Updates and Improvements:
       handling has been greatly enhanced.  The driver will now block operations
       once the primary is down and release the operations once the primary is 
       successfully determined. Users can configure the maximum amount of time 
-      an operation will block via the configuration.
+      an operation will block via the configuration. See the 
+      {{{https://github.com/allanbank/mongodb-async-examples/tree/master/src/main/java/flip/flop}Flip/Flop Demos}}.
  
     * The driver will detect the existence of SLF4J logging framework and use it
       instead of (JUL) (Java Util Logging). See the 
       {{{../apidocs/index.html?com/allanbank/mongodb/util/log/package-summary.html}Micro-logging framework Package}}
       The framework uses reflection and the driver does not have a dependency on SLF4J.
       
-    * Support for RFC-2732 IPv6 addresses.
+    * Support for {{{http://www.ietf.org/rfc/rfc2732.txt}RFC-2732}} IPv6 addresses.
     
-    * Performance:
-    
-      * We have cut BSON encoding and decoding times in half. Part of the improvement
-        is due to using an intelligent cache for encoding an decoding strings.
-      
-      * The driver now, by default, uses a single read thread per connection 
-        instead of 2 threads (read/write) per connection.  This further reduced
-        the latency of operations.
-
 * Documentation
 
   * {{{../userguide/tls.html}SSL/TLS Users Guide}}
   
   * {{{../userguide/plain_sasl.html}Plain SASL Authentication Users Guide}}
-  
+ 
   * {{{../userguide/x509.html}X.509 Authentication Users Guide}}
   
   * {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}}
-  
+ 
 Deprecations
 
   * Text, Text.Builder, TextResult have been deprecated since the MongoDB 
