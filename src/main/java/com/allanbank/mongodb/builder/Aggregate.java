@@ -810,8 +810,9 @@ public class Aggregate {
          * @param elseOption
          *            Operation to apply if the {@code ifExpression} evaluates
          *            to false.
+         * @return This builder for chaining method calls.
          */
-        public void redact(final DocumentAssignable ifExpression,
+        public Builder redact(final DocumentAssignable ifExpression,
                 final RedactOption thenOption, final RedactOption elseOption) {
 
             final DocumentBuilder doc = BuilderFactory.start();
@@ -820,7 +821,7 @@ public class Aggregate {
                     .add("then", thenOption.getToken())
                     .add("else", elseOption.getToken());
 
-            step("$redact", doc);
+            return step("$redact", doc);
         }
 
         /**
@@ -836,8 +837,9 @@ public class Aggregate {
          * @param elseOption
          *            Operation to apply if the {@code ifExpression} evaluates
          *            to false.
+         * @return This builder for chaining method calls.
          */
-        public void redact(final Expression ifExpression,
+        public Builder redact(final Expression ifExpression,
                 final RedactOption thenOption, final RedactOption elseOption) {
 
             final DocumentBuilder doc = BuilderFactory.start();
@@ -845,7 +847,7 @@ public class Aggregate {
                     .add("then", thenOption.getToken())
                     .add("else", elseOption.getToken());
 
-            step("$redact", doc);
+            return step("$redact", doc);
         }
 
         /**
