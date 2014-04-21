@@ -315,7 +315,7 @@ public class CredentialTest {
                 .file(new File("a")).database("foo").x509().build();
         assertThat(
                 c.toString(),
-                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'X.509' }"));
+                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'x.509' }"));
 
         c = Credential.builder().userName("user").password(new char[1])
                 .file(new File("a")).database("foo").plainSasl().build();
