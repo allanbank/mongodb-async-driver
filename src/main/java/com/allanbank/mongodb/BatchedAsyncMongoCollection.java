@@ -33,6 +33,19 @@ import com.allanbank.mongodb.builder.BatchedWriteMode;
  * logical connection. Queries using different, non-primary,
  * {@link ReadPreference}s may use different physical connections.
  * </p>
+ * <p>
+ * <b>Warning</b>: In the case of
+ * {@link BatchedWriteMode#SERIALIZE_AND_CONTINUE} and
+ * {@link BatchedWriteMode#REORDERED} it is impossible to determine the number
+ * of documents each update and/or delete touched. In these cases each update in
+ * the batch will be returned the number of documents touched by the batch as a
+ * whole. For this reason the batching of updates and deletes is disabled. It
+ * can be enabled by setting {@link #setBatchUpdates(boolean)} and
+ * {@link #setBatchDeletes(boolean)} to true. We have written a bug report (<a
+ * href="https://jira.mongodb.org/browse/SERVER-12858">SERVER-12858</a>) to have
+ * the additional information added to the responses so we can remove this
+ * restriction.
+ * </p>
  * 
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
