@@ -143,7 +143,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setDefaultReadPreference(ReadPreference.preferSecondary());
         myConfig.setDefaultDurability(Durability.replicaDurable(2, 1000));
 
-        InetSocketAddress defaultAddr = createAddress();
+        final InetSocketAddress defaultAddr = createAddress();
         final Cluster cluster = new Cluster(myConfig);
         for (int i = 0; i < PORTS.length; ++i) {
             final int port = PORTS[i];

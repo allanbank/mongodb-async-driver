@@ -212,6 +212,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Creates the address to connect to.
+     * 
+     * @return The {@link InetSocketAddress} for the MongoDB server.
+     */
+    protected static InetSocketAddress createAddress() {
+        final String remote = System.getenv("MONGODB_HOST");
+        if (remote != null) {
+            return ServerNameUtils.parse(remote);
+        }
+        return new InetSocketAddress("127.0.0.1", DEFAULT_PORT);
+    }
+
+    /**
      * Creates a large collection of documents that test should only read from.
      */
     protected static void disableBalancer() {
@@ -232,19 +245,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         finally {
             IOUtils.close(mongoClient);
         }
-    }
-
-    /**
-     * Creates the address to connect to.
-     * 
-     * @return The {@link InetSocketAddress} for the MongoDB server.
-     */
-    protected static InetSocketAddress createAddress() {
-        String remote = System.getenv("MONGODB_HOST");
-        if (remote != null) {
-            return ServerNameUtils.parse(remote);
-        }
-        return new InetSocketAddress("127.0.0.1", DEFAULT_PORT);
     }
 
     /**
@@ -1736,6 +1736,78 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#and}.
+     */
+    @Test
+    public void testFindWithComment() {
+        final ObjectId doc1Id = new ObjectId();
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", doc1Id);
+
+        final ObjectId doc2Id = new ObjectId();
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", doc2Id);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final Find.Builder find = new Find.Builder();
+
+        find.setQuery(where("_id").equals(doc1Id).comment("Test comment"));
+        final MongoIterator<Document> iter = myCollection.find(find.build());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
+        }
+    }
+
+    /**
+     * Test method for {@link ConditionBuilder#and}.
+     */
+    @Test
+    public void testFindWithCommentInProfile() {
+        final ObjectId doc1Id = new ObjectId();
+        final DocumentBuilder doc1 = BuilderFactory.start();
+        doc1.addObjectId("_id", doc1Id);
+
+        final ObjectId doc2Id = new ObjectId();
+        final DocumentBuilder doc2 = BuilderFactory.start();
+        doc2.addObjectId("_id", doc2Id);
+
+        myCollection.insert(Durability.ACK, doc1, doc2);
+
+        final Find.Builder find = new Find.Builder();
+
+        find.setQuery(where("_id").equals(doc1Id).comment("Test comment"));
+
+        myDb.setProfilingStatus(ProfilingStatus.ON);
+        MongoIterator<Document> iter = myCollection.find(find.build());
+        try {
+            assertTrue(iter.hasNext());
+            assertEquals(doc1.build(), iter.next());
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            myDb.setProfilingStatus(ProfilingStatus.OFF);
+            iter.close();
+        }
+
+        final MongoCollection profile = myDb.getCollection("system.profile");
+        iter = profile.find(where("query.$comment").equals("Test comment"));
+        try {
+            assertTrue(iter.hasNext());
+            iter.next();
+            assertFalse(iter.hasNext());
+        }
+        finally {
+            iter.close();
         }
     }
 

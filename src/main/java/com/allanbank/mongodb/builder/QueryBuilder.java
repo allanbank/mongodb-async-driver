@@ -201,6 +201,9 @@ public class QueryBuilder implements DocumentAssignable {
     /** The set of conditions created for the query. */
     private final Map<String, ConditionBuilder> myConditions;
 
+    /** The comment for the query. */
+    private String myQueryComment;
+
     /** The text search expression. */
     private Element myTextQuery;
 
@@ -212,6 +215,8 @@ public class QueryBuilder implements DocumentAssignable {
      */
     public QueryBuilder() {
         myConditions = new LinkedHashMap<String, ConditionBuilder>();
+
+        reset();
     }
 
     /**
@@ -235,6 +240,11 @@ public class QueryBuilder implements DocumentAssignable {
     public Document build() {
         final DocumentBuilder builder = BuilderFactory.start();
 
+        if (myQueryComment != null) {
+            builder.add(MiscellaneousOperator.COMMENT.getToken(),
+                    myQueryComment);
+        }
+
         if (myTextQuery != null) {
             builder.add(myTextQuery);
         }
@@ -256,10 +266,33 @@ public class QueryBuilder implements DocumentAssignable {
     }
 
     /**
+     * Adds a comment to the query builder. Comments are useful for locating
+     * queries in the profiler log within MongoDB.
+     * <p>
+     * Only a single {@link #comment} can be used. Calling multiple
+     * <tt>comment(...)</tt> methods overwrites previous values.
+     * </p>
+     * 
+     * @param comment
+     *            The query's comment.
+     * @return This builder for call chaining.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/operator/meta/comment/">$comment</a>
+     */
+    public QueryBuilder comment(final String comment) {
+        myQueryComment = comment;
+
+        return this;
+    }
+
+    /**
      * Clears the builder's conditions.
      */
     public void reset() {
         myConditions.clear();
+        myTextQuery = null;
+        myQueryComment = null;
     }
 
     /**

@@ -886,7 +886,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     protected int countPrimaryCommands() {
         int count = 0;
         try {
-            InetSocketAddress defaultAddr = createAddress();
+            final InetSocketAddress defaultAddr = createAddress();
             final Cluster cluster = new Cluster(myConfig);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
@@ -948,7 +948,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     protected int countSecondaryCommands() {
         int count = 0;
         try {
-            InetSocketAddress defaultAddr = createAddress();
+            final InetSocketAddress defaultAddr = createAddress();
             final Cluster cluster = new Cluster(myConfig);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
