@@ -530,6 +530,23 @@ public class ConditionBuilderTest {
     }
 
     /**
+     * Test method for {@link ConditionBuilder#comment(String)}.
+     */
+    @Test
+    public void testComment() {
+
+        final ConditionBuilder b = QueryBuilder.where("foo");
+
+        b.comment("comment");
+
+        final Document e = b.build();
+
+        assertThat(e.getElements().size(), is(1));
+        assertEquals(e.getElements().get(0), new StringElement(
+                MiscellaneousOperator.COMMENT.getToken(), "comment"));
+    }
+
+    /**
      * Test method for
      * {@link ConditionBuilder#elementMatches(DocumentAssignable)} .
      */

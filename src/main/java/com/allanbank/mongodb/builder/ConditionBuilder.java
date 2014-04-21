@@ -621,6 +621,30 @@ public class ConditionBuilder implements DocumentAssignable {
     }
 
     /**
+     * Adds a {@link MiscellaneousOperator#COMMENT $comment} to the query.
+     * Comments are useful for locating queries in the profiler log within
+     * MongoDB.
+     * <p>
+     * Note that the {@link MiscellaneousOperator#COMMENT $comment} operator
+     * does not apply to a specific field but applies to the document as a
+     * whole. For this reason only a single {@link #comment} condition can be
+     * used. Calling multiple <tt>comment(...)</tt> methods overwrites previous
+     * values.
+     * </p>
+     * 
+     * @param comment
+     *            The comment to add to the query.
+     * @return This builder for call chaining.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/operator/meta/comment/">$comment</a>
+     */
+    public ConditionBuilder comment(final String comment) {
+        myParent.comment(comment);
+        return this;
+    }
+
+    /**
      * Query to match a single element in the array field.
      * <p>
      * Only a single {@link #elementMatches(DocumentAssignable)} comparison can
