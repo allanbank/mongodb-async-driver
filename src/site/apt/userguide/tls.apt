@@ -1,0 +1,129 @@
+            ------
+            MongoDB Asynchronous Java Driver: TLS/SSL Users Guide
+            ------
+            ------
+            2014-04-20
+
+TLS/SSL Connections
+
+  * <<Note:>> The driver's TLS/SSL socket factory is provided as part of the extensions jar. 
+    See the {{Notes}} at the bottom of this documentation for details. Further, the use of TLS/SSL 
+    connections requires a custom compiled version of MongoDB or the Enterprise version of the MongoDB 
+    server. See the {{{http://docs.mongodb.org/manual/tutorial/configure-ssl/}MongoDB Tutorial}} for details.
+    
+  []
+  
+  The driver provides an enhanced TLS/SSL SocketFactory that ensures enables the client to establish
+an encrypted and authenticated connection to each MongoDB process. There are several issues that must be 
+addresses to ensure that the TLS/SSL connection is secure.
+
+  1. Ensure that the x.509 certificate presented by the server is the valid and trusted.
+  
+  2. Ensure that the x.509 certificate presented by the server is the one we expected based on the server 
+     we are attempting to connected to. 
+
+  3. Ensure that only appropriate cipher suites are used.
+  
+  4. Optionally, provide an x.509 certificate and private key for the client to authenticate with the server.
+  
+  []
+  
+  The driver's TLS/SSL support is provided via the 
+{{{http://www.allanbank.com/mongodb-async-extensions/apidocs/index.html?com/allanbank/mongodb/TlsSocketFactory.html}TlsSocketFactory}}
+class and accompanying 
+{{{http://www.allanbank.com/mongodb-async-extensions/apidocs/index.html?com/allanbank/mongodb/TlsSocketFactory.Builder.html}TlsSocketFactory.Builder}}
+ class. Below is an example configuring the client to use the 
+driver's enhanced <<<TlsSocketFactory>>>.
+
++----------------------------------------+
+ final File keyStore = new File("keystore");
+ final File trustStore = new File("trust");
+ 
+ final TlsSocketFactory.Builder socketFactoryBuilder = TlsSocketFactory
+         .builder()
+         .trustOnly(trustStore, "JKS", "changeme".toCharArray())
+         .hostnameVerifier(
+                 HttpsURLConnection.getDefaultHostnameVerifier())
+         .ciphers(CipherName.AES_CIPHERS)
+         .keys(keyStore, "JKS", "changeme".toCharArray(),
+                 "changeit".toCharArray());
+ 
+ client.getConfig().setSocketFactory(socketFactoryBuilder.build());
++----------------------------------------+
+
+* Trusting the Server
+
+  When the client creates a TLS/SSL connection to a MongoDB server the server will present it's x.509 certificate
+to the client to prove its identity.  The client should first ensure that the certificate is valid 
+(e.g., it has not expired) and trusted. The Java Runtime provides a default trust manager that will ensure that
+the certificate presented to is signed by one of the CA (Certificate Authority) or trust certificates. This model
+of trust can be setup via the standard JSSE System properties (e.g., <<<javax.net.ssl.trustStore>>>) or via the use
+of the <<<TlsSocketFactory.Builder.trust(File storeFile,String storeType, char[] storePassword)>>> method.
+
+  While the model of trusting a certificate strictly based on the the signer is probably sufficient for a client
+application that will connect to a number of unknown servers for a MongoDB client we can take advantage of the fact 
+that the number of servers is much smaller and known in advance. If it is possible to enumerate all of the certificates
+that MongoDB server will use we can store those certificate in a single key store and then only allow connections to 
+servers presenting those certificates. This model of trust is not provided via the Java Runtime and can only be used 
+via the <<<TlsSocketFactory.Builder.trustOnly(File storeFile,String storeType, char[] storePassword)>>> method. To 
+support key updates the <<<trustOnly(...)>>> mode will also periodically poll the trust store file's modification time 
+and reload the file when it detects a change. 
+
+  Lastly, when in development and for automated testing it it often useful to simply have the driver not inspect the
+certificate presented by the server at all.  This can be accomplished using the 
+<<<TlsSocketFactory.Builder.trustAny()>>> method. Not validating the certificate from the server has the side effect of 
+essentially removing all security provided by TLS/SSL connections and should not be used in production.
+
+* Hostname Verification
+
+  Once we have validated the certificate presented by the server we still need to do one additional check that
+the name of the certificate presented matches the name of the server we thought we were connecting to. Without this check 
+the TLS/SSL connection is vulnerable to man-in-the-middle attack where the attacker arranges for the connections for the
+the server be instead sent to a server they control. (Examples include DNS spoofing and ARP Cache Poisoning.) The attacker 
+may still present a valid certificate (e.g., signed by a trusted CA) but having to also present the correct host name is 
+more difficult. Used with a minimal set of CA certificate hostname verification can make man-in-the-middle attacks extremely 
+difficult to perform. Note that trustOnly(....) model also makes man-in-the-middle attacks difficult but not impossible. 
+The attack only needs to compromise 1 certificate's private key to launch the attack against all of the servers in the cluster.  
+With host name verification they are only able to exploit that single server's connections. 
+
+  Hostname verification is so important that if already built into the HTTPS support of the Java Runtime. Rather that 
+reinvent the wheel we have leveraged the <<<HostnameVerifier>>> interface. The driver also provides a <<<DefaultHostnameVerifier>>>
+which contains the default logic for validating the name of the server we are attempting to connect to matches that within
+the server's certificate.  The will validate the name against both the subject's common name and the DNS alternate 
+names on the certificate. 
+
+  Similar to the <<<trustAny()>>> method we also provide a <<<AllowAllHostnameVerifier>>> <<<HostnameVerifier>>> implementation
+that reverts the TLS/SSL Socket factory to not using hostname verification. For the reasons described above not validating
+the hostname against the server's certificate should not be used in production.
+
+* Cipher Suites
+
+  For TLS/SSL connections the cipher suite defines the authentication protocol, message authentication algorithm and symmetric 
+cipher suite that will be used.  The client for within the connection provides a list of acceptable cipher suites at the 
+beginning of the connection.  The MongoDB server then chooses the first acceptable cipher suite from that list. The relative 
+security of the various cipher suites is beyond the scope of this guide.
+
+  The <<<CipherSuite>>> class provided with the driver compiles the list of cipher suite
+names that are supported by the Java 8 SunJSSE provider.  It also contains several logical groupings for the cipher suites
+and the default order of enabled  cipher suites.  
+
+  The <<<TlsSocketFactory.Builder>>> enables a user to easily create a list of cipher suites to present to the server and the
+order they should be presented. Since there may be cipher suites supported by the MongoDB server that are not provided 
+by the SunJSSE provider the builder also supports setting the cipher suites by name.
+
+* Client Authentication
+
+  To enable x.509 authentication with the MongoDB server the client must present its x.509 certificate during the
+start of the TLS/SSL connection.  Similar to the default trust modes, this may be configured using the JSSE System properties 
+(e.g., <<<javax.net.ssl.keyStore>>>) or by using the 
+<<<TlsSocketFactory.Builder.key(File storeFile,String storeType, char[] storePassword, char[] keyPassword)>>>.
+
+  See the {{{./authentication/x509.html}x.509 Authentication Users Guide}} for details on configuring the driver to 
+use x.509 authentication.
+
+Notes
+
+  The TLS/SSL socket factory is provided via the driver's extensions jar available to license holders. Please contact 
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
+for information on licensing the driver and obtaining the extensions jar.
+ 

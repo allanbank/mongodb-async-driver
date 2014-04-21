@@ -36,10 +36,17 @@
 				<item name="Hello World" href="userguide/hello_world.html" />
 				<item name="Aggregation Support" href="userguide/aggregation.html" />
 				<item name="Asynchronous API" href="userguide/asynchronous_api.html" />
+				<item name="Authentication" href="userguide/authentication.html" collapse="true">
+					<item name="Kerberos" href="userguide/authentication/kerberos.html" />
+					<item name="MongoDB Challenge Response" href="userguide/authentication/mongodb_cr.html" />
+					<item name="Plain SASL" href="userguide/authentication/plain_sasl.html" />
+					<item name="x.509" href="userguide/authentication/x509.html" />
+				</item>
+				<item name="Batched Requests" href="userguide/batched.html" />
 				<item name="Cursor Restarts" href="userguide/cursor_restart.html" />
-				<item name="Kerberos" href="userguide/kerberos.html" />
 				<item name="Maven" href="userguide/maven.html" />
 				<item name="Spring Support" href="userguide/spring.html" />
+				<item name="TLS/SSL" href="userguide/tls.html" />
 				<item name="UNIX Domain Sockets" href="userguide/unix_domain_sockets.html" />
 			</item>
 			<item name="Performance" href="index.html#Performance">

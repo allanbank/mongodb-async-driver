@@ -179,12 +179,14 @@ method.
 
 Callback Based API
 
-  Using the <<<Callback>>> asynchronous API requires the most work on the developers part but if 
+  Using the <<<Callback>>> asynchronous API requires the most work on the developer's part but if 
 done carefully can maintain the clarity of the code and also ensure maximum performance.  To use
 the <<<Callback>>> API the developer needs to implement and instantiate a specialized hander for the
-results of each unique use case to the MongoDB server. The class will extend the <<<Callback>>> interface
-which specifies two methods: <<<Callback.callback(T)>>> and <<<Callback.exception(Throwable)>>>. 
-Initial implementations of the interface are commonly created as anonymous inner classes.
+results of each unique use case to the MongoDB server. The class will extend either the <<<Callback>>> or 
+<<<LambdaCallback>>> interface. The <<<Callback>>> interface defines two methods: 
+<<<Callback.callback(T)>>> and <<<Callback.exception(Throwable)>>>.  The <<<LambdaCallback>>> 
+interface was added to support Java 8 Lambda methods and defines a single method: <<<LambdaCallback.accept(Throwable,V)>>>.
+Initial implementations of these interfaces are commonly created as anonymous inner classes or lambda expressions.
 
   When switching to the <<<Callback>>> interface, if there are any callbacks that are not lightweight then
 it is highly recommended that an <<<Executor>>> be provided in the 
@@ -217,6 +219,27 @@ while ((line = reader.readLine()) != null) {
             // Handle error.
         }
     }, query, update);
+}
++----------------+
+
+  For a LambdaCallback using a Java 8 lambda expression this becomes even more succinct.
+
++----------------+
+String line;
+MongoCollection collection = null;
+
+BufferedReader reader = new BufferedReader(new StringReader("f"));
+while ((line = reader.readLine()) != null) {
+    Document query = queryForLine(line);
+    Document update = updateForLine(line);
+
+    collection.updateAsync((e, result) -> {
+            if( e ) {
+                // Handle error.
+            } else {
+                processResult(result)
+            }
+        }, query, update);
 }
 +----------------+
 

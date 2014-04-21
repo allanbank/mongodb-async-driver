@@ -1,0 +1,26 @@
+            ------
+            MongoDB Asynchronous Java Driver: Authentication Users Guide
+            ------
+            ------
+            2014-04-20
+
+Authentication
+
+  Authentication to the MongoDB server is accomplished by adding appropriate credentials to the 
+MongoDB configuration.  The driver supports the 4 authentication mechanisms currently supported by
+the server.
+
+  * {{{./authentication/mongodb_cr.html}MongoDB Challenge/Response}} (MongoDB CR)
+  
+  * {{{./authentication/kerberos.html}Kerberos}}
+
+  * {{{./authentication/plain_sasl.html}Plain SASL}}
+
+  * {{{./authentication/x509.html}x.509}}
+
+  []
+  
+  <<Note:>> All authenticators except MongoDB CR are provided via the driver's extensions jar available 
+to license holders. Please contact 
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
+for information on licensing the driver and obtaining the extensions jar.

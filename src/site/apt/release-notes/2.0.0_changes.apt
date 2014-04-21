@@ -11,7 +11,7 @@ Upgrading
   To fully support the aggregation command cursors the return type for all methods
 of a collection that had returned a List now return a 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}}.  
-To make porting applications easier the '''MongoIterator''' now has a '''toList()''' 
+To make porting applications easier the <<<MongoIterator>>> now has a <<<toList()>>> 
 method that will consume any remaining results for the iterator and return it as
 a List.
 
@@ -22,11 +22,11 @@ Updates and Improvements:
   * Fully support for all MongoDB 2.6 features including:
   
     * {{{../apidocs/index.html?com/allanbank/mongodb/builder/Aggregate.html}Aggregation}} 
-      command enhancements: cursors, '''$out''' pipeline stage, explain.
+      command enhancements: cursors, <<<$out>>> pipeline stage, explain.
     
     * Expanded 
       {{{../apidocs/index.html?com/allanbank/mongodb/builder/expression/Expressions.html}expression}}
-      support: '''$map''', '''$let''', '''$redact''', '''$setXXX''', etc.
+      support: <<<$map>>>, <<<$let>>>, <<<$redact>>>, <<<$setXXX>>>, etc.
     
     * {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$text}}
       query operator support.
@@ -73,7 +73,7 @@ Updates and Improvements:
     
     * Support for a custom service name with Kerberos and Plan SASL authentication.
     
-    * Initial support for removing the '''mongos''' bottleneck in a sharded cluster. 
+    * Initial support for removing the <<<mongos>>> bottleneck in a sharded cluster. 
   
   * Other Notable Changes
     
@@ -83,7 +83,7 @@ Updates and Improvements:
       
     * The Future returned from asynchronous methods is now a 
       {{{../apidocs/index.html?com/allanbank/mongodb/ListenableFuture.html}ListenableFuture}}.
-      The '''ListenableFuture''' interface support '''addListener(Runnable,Executor)'''
+      The <<<ListenableFuture>>> interface support <<<addListener(Runnable,Executor)>>>
       inspired by the Google Guava Library.
       
     * The driver will now detect some incompatible operations (both too new and 
@@ -109,18 +109,18 @@ Updates and Improvements:
     
 * Documentation
 
-  * {{{../userguide/tls.html}SSL/TLS Users Guide}}
+  * {{{../userguide/tls.html}TLS/SSL Users Guide}}
   
   * {{{../userguide/plain_sasl.html}Plain SASL Authentication Users Guide}}
  
-  * {{{../userguide/x509.html}X.509 Authentication Users Guide}}
+  * {{{../userguide/x509.html}x.509 Authentication Users Guide}}
   
   * {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}}
  
 Deprecations
 
   * Text, Text.Builder, TextResult have been deprecated since the MongoDB 
-    '''text''' command is now deprecated. Use the 
+    <<<text>>> command is now deprecated. Use the 
     {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}$text}}
     query operator instead.
     
@@ -128,7 +128,7 @@ Deprecations
     is now deprecated as MongoDB 2.6 no longer supports the option. This change 
     also deprecated a number of methods within the 
     {{{../apidocs/index.html?com/allanbank/mongodb/builder/ConditionBuilder.html}ConditionBuilder}} 
-    which provided support for setting '''UNIQUE_DOCS_MODIFIER'''.
+    which provided support for setting <<<UNIQUE_DOCS_MODIFIER>>>.
     
     
     

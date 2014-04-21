@@ -1,0 +1,75 @@
+            ------
+            MongoDB Asynchronous Java Driver: Plain SASL Users Guide
+            ------
+            ------
+            2014-04-20
+
+Plain SASL Authentication
+
+  * <<Note:>> The Plain SASL authenticator is provided via the driver's extensions jar available to license holders.
+    See the {{Notes}} at the bottom of this documentation for details. Further, the use of TLS/SSL 
+    connections requires the Enterprise version of the MongoDB 
+    server. See the {{{http://docs.mongodb.org/manual/tutorial/configure-ldap-sasl-authentication/}MongoDB Tutorial}} 
+    for details.
+    
+  []
+  
+  With the release of MongoDB 2.6 Enterprise it is now possible to authenticate with the MongoDB server by proxying the 
+authentication to either an LDAP server or even Linux PAM. 
+
+  To configure the driver to use the plain SASL authentication 
+simply add a {{{../../apidocs/index.html?com/allanbank/mongodb/Credential.html}Credential}}  which is built with the 
+<<<plainSasl()>>> option.
+
++----------------------------------------+
+MongoClientConfiguration config = new MongoClientConfiguration("mongodb://locahost:27017/");
+
+char[] password = new char[] { 's', 'u', 'p', 'e', 'r', 's', 'e', 'c', 'r', 'e', 't' };
+config.addCredential(
+   Credential.builder()
+             .userName("<user>")
+             .password(password)
+             .plainSasl());
+Arrays.fill( password, ' ' );
++----------------------------------------+ 
+
+* Configuring the Server
+
+  See the {{{http://docs.mongodb.org/manual/tutorial/configure-ldap-sasl-authentication/}Authenticate Using SASL and LDAP}} 
+Tutorial.
+
+* Options
+
+  The following options are supported by the plain SASL Authenticator.
+
+*-----------------------------:----------------+-------------------------------------------------------------------+
+|| Option Name                || Default Value || Description                                                      |
+*-----------------------------+----------------+-------------------------------------------------------------------+
+| <<<plain.service.name>>>    | <<<mongodb>>>  | The name of the SASL service the MongoDB server is providing.     |
+*-----------------------------+----------------+-------------------------------------------------------------------+
+Plain SASL Authentication Options
+
+
+  Options are added to the credentials as they are built.
+  
++----------------------------------------+
+MongoClientConfiguration config = new MongoClientConfiguration("mongodb://locahost:27017/");
+
+char[] password = new char[] { 's', 'u', 'p', 'e', 'r', 's', 'e', 'c', 'r', 'e', 't' };
+config.addCredential(
+   Credential.builder()
+             .userName("<user>")
+             .password(password)
+             .plainSasl()
+             .addOption("plain.service.name", "mongo"));
+Arrays.fill( password, ' ' );
++----------------------------------------+
+
+Notes
+
+  The Plain SASL authenticator is provided via the driver's extensions jar available to license holders.
+Any attempt to add a credential to a configuration using plain SASL authentication will throw an 
+<<<IllegalArguementException>>> without the extensions jar on the classpath. Please contact 
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
+for information on licensing the driver and obtaining the extensions jar.
+ 
