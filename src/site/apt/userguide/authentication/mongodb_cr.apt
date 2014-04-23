@@ -13,9 +13,9 @@ MongoDB Challenge/Response Authentication
   MongoDB Challenge/Response uses a user name and password to authenticate to the server.
 The user name, password and static salt are hashed using MD5.  The driver will issue a request
 for a one time nonce from the server.  MD5 is then used to hash the nonce, username, and password hash.
-the final hash is then sent to the server to finally authenticate the user.
+The final hash is then sent to the server to finally authenticate the user.
 
-  The user name and password are provided to driver by creating a 
+  The user name and password are provided to the driver by creating a 
 {{{../../apidocs/index.html?com/allanbank/mongodb/Credential.html}Credential}} and adding it to the configuration for 
 the client.  
 
@@ -32,7 +32,7 @@ config.addCredential(
 Arrays.fill( password, ' ' );
 +----------------------------------------+ 
 
-  As noted in the code above the specification of a database is optional and will default to the 
+  As noted in the code above, the specification of a database is optional and will default to the 
 <<<admin>>> database.
 
 * Configuring the Server

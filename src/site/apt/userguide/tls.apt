@@ -13,11 +13,11 @@ TLS/SSL Connections
     
   []
   
-  The driver provides an enhanced TLS/SSL SocketFactory that ensures enables the client to establish
+  The driver provides an enhanced TLS/SSL SocketFactory that enables the client to establish
 an encrypted and authenticated connection to each MongoDB process. There are several issues that must be 
-addresses to ensure that the TLS/SSL connection is secure.
+addressed to ensure that the TLS/SSL connection is secure.
 
-  1. Ensure that the x.509 certificate presented by the server is the valid and trusted.
+  1. Ensure that the x.509 certificate presented by the server is valid and trusted.
   
   2. Ensure that the x.509 certificate presented by the server is the one we expected based on the server 
      we are attempting to connected to. 
@@ -53,17 +53,17 @@ driver's enhanced <<<TlsSocketFactory>>>.
 
 * Trusting the Server
 
-  When the client creates a TLS/SSL connection to a MongoDB server the server will present it's x.509 certificate
+  When the client creates a TLS/SSL connection to a MongoDB server the server will present its x.509 certificate
 to the client to prove its identity.  The client should first ensure that the certificate is valid 
 (e.g., it has not expired) and trusted. The Java Runtime provides a default trust manager that will ensure that
-the certificate presented to is signed by one of the CA (Certificate Authority) or trust certificates. This model
+the certificate presented is signed by one of the CA (Certificate Authority) or trust certificates. This model
 of trust can be setup via the standard JSSE System properties (e.g., <<<javax.net.ssl.trustStore>>>) or via the use
 of the <<<TlsSocketFactory.Builder.trust(File storeFile,String storeType, char[] storePassword)>>> method.
 
-  While the model of trusting a certificate strictly based on the the signer is probably sufficient for a client
-application that will connect to a number of unknown servers for a MongoDB client we can take advantage of the fact 
+  The model of trusting a certificate strictly based on the the signer is probably sufficient for a client
+application that will connect to a number of unknown servers (e.g., a browser). For a MongoDB client we can take advantage of the fact 
 that the number of servers is much smaller and known in advance. If it is possible to enumerate all of the certificates
-that MongoDB server will use we can store those certificate in a single key store and then only allow connections to 
+that MongoDB servers will use we can store those certificate in a single key store and then only allow connections to 
 servers presenting those certificates. This model of trust is not provided via the Java Runtime and can only be used 
 via the <<<TlsSocketFactory.Builder.trustOnly(File storeFile,String storeType, char[] storePassword)>>> method. To 
 support key updates the <<<trustOnly(...)>>> mode will also periodically poll the trust store file's modification time 
@@ -76,32 +76,36 @@ essentially removing all security provided by TLS/SSL connections and should not
 
 * Hostname Verification
 
-  Once we have validated the certificate presented by the server we still need to do one additional check that
-the name of the certificate presented matches the name of the server we thought we were connecting to. Without this check 
-the TLS/SSL connection is vulnerable to man-in-the-middle attack where the attacker arranges for the connections for the
-the server be instead sent to a server they control. (Examples include DNS spoofing and ARP Cache Poisoning.) The attacker 
-may still present a valid certificate (e.g., signed by a trusted CA) but having to also present the correct host name is 
-more difficult. Used with a minimal set of CA certificate hostname verification can make man-in-the-middle attacks extremely 
-difficult to perform. Note that trustOnly(....) model also makes man-in-the-middle attacks difficult but not impossible. 
-The attack only needs to compromise 1 certificate's private key to launch the attack against all of the servers in the cluster.  
+  Once we have validated the certificate presented by the server we still need to do one additional check. 
+To avoid a man-in-the-middle attack we should verify the name of the certificate presented matches the name 
+of the server we thought we were connecting to. Without this check the TLS/SSL connection is vulnerable 
+to a man-in-the-middle attack where the attacker arranges for the connections for a server in the cluster to 
+instead be connected to a server they control. (Examples include DNS spoofing and ARP Cache Poisoning.) The attacker 
+may still present a valid certificate (e.g., signed by a trusted CA) but having to also present the 
+correct host name is more difficult. Used with a minimal set of CA certificate hostname verification 
+can make man-in-the-middle attacks extremely difficult to perform. Note that trustOnly(....) model also 
+makes man-in-the-middle attacks difficult but not impossible. The attack only needs to compromise 1 
+certificate's private key to launch the attack against all of the servers in the cluster.  
 With host name verification they are only able to exploit that single server's connections. 
 
-  Hostname verification is so important that if already built into the HTTPS support of the Java Runtime. Rather that 
-reinvent the wheel we have leveraged the <<<HostnameVerifier>>> interface. The driver also provides a <<<DefaultHostnameVerifier>>>
-which contains the default logic for validating the name of the server we are attempting to connect to matches that within
-the server's certificate.  The will validate the name against both the subject's common name and the DNS alternate 
-names on the certificate. 
+  Hostname verification is so important that if already built into the HTTPS support of the Java Runtime
+as part of the HttpsUrlConnection class. Rather than reinvent the wheel we have leveraged the 
+<<<HostnameVerifier>>> interface. The driver also provides a <<<DefaultHostnameVerifier>>> which contains 
+the default logic for validating the name of the server we are attempting to connect to matches the
+name from the server's certificate.  The class will validate the name against both the subject's common name and 
+the DNS alternate names contained within the certificate. 
 
-  Similar to the <<<trustAny()>>> method we also provide a <<<AllowAllHostnameVerifier>>> <<<HostnameVerifier>>> implementation
+  Similar to the <<<trustAny()>>> method we also provide an <<<AllowAllHostnameVerifier>>> <<<HostnameVerifier>>> implementation
 that reverts the TLS/SSL Socket factory to not using hostname verification. For the reasons described above not validating
 the hostname against the server's certificate should not be used in production.
 
 * Cipher Suites
 
-  For TLS/SSL connections the cipher suite defines the authentication protocol, message authentication algorithm and symmetric 
-cipher suite that will be used.  The client for within the connection provides a list of acceptable cipher suites at the 
-beginning of the connection.  The MongoDB server then chooses the first acceptable cipher suite from that list. The relative 
-security of the various cipher suites is beyond the scope of this guide.
+  For TLS/SSL connections the cipher suite defines the authentication protocol, message authentication 
+algorithm and symmetric cipher suite that will be used.  The client provides the server with
+a list of acceptable cipher suites at the beginning of the connection.  The MongoDB server then chooses 
+the first acceptable cipher suite from that list. The relative security of the various cipher suites is 
+beyond the scope of this guide.
 
   The <<<CipherSuite>>> class provided with the driver compiles the list of cipher suite
 names that are supported by the Java 8 SunJSSE provider.  It also contains several logical groupings for the cipher suites

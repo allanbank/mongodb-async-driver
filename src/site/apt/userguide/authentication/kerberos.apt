@@ -35,7 +35,7 @@ Kerberos Java environment.
   
   []
 
-  With a working kerberos environment the driver supports three modes for Kerberos authentication:
+  With a working Kerberos environment the driver supports three modes for Kerberos authentication:
   
   [[1]] User name and password
   
@@ -104,7 +104,7 @@ config.addCredential(Credential.builder().userName("<user>@<REALM>").file(keytab
   The driver will then load the appropriate credentials from the key tab file when authenticating 
 with MongoDB.
 
-* Authenticating via a Cached Credentials (kinit)
+* Authenticating via Cached Credentials (kinit)
 
   Lastly, the driver can leverage previously acquired Kerberos credentials that have been cached locally. 
 The credentials are normally cached via the <<<kinit>>> application similar to the following:
@@ -140,12 +140,12 @@ some mechanism to securely store the user password for the <<<kinit>>> invocatio
 
 * Options
 
-  Regardless of the mode you are using with the driver the following options can be used with kerberos authentication.
+  Regardless of the mode you are using with the driver the following options can be used with Kerberos authentication.
 
 *-----------------------------:----------------+-------------------------------------------------------------------+
 || Option Name                || Default Value || Description                                                      |
 *-----------------------------+----------------+-------------------------------------------------------------------+
-| <<<kerberos.service.name>>> | <<<mongodb>>>  | The name of the kerberos service the MongoDB server is providing. |
+| <<<kerberos.service.name>>> | <<<mongodb>>>  | The name of the Kerberos service the MongoDB server is providing. |
 *-----------------------------+----------------+-------------------------------------------------------------------+
 Kerberos Authentication Options
 
@@ -167,11 +167,11 @@ Arrays.fill( password, ' ' );
 
 Getting a MongoDB Server Running with Kerberos Support
 
-  * <<Note:>> Kerberos Support is only available in the 2.3/2.4 and later Enterprise editions.
+  * <<Note:>> Kerberos support is only available in the 2.3/2.4 and later Enterprise editions.
 
   []
   
-* Creating a Principle for the MongoDB server
+* Creating a Principle for the MongoDB Server
 
   Before starting a MongoDB server with Kerberos support, we need to provision or identify 
 the MongDB server within the Kerberos domain. The first step is to create a principle for the MongoDB 
@@ -182,7 +182,7 @@ Replace <<\<fqdn\>>> with the fully qualified domain name of the machine on whic
 kadmin -q "addprinc -randkey mongodb/<fqdn>"
 +----------------------------------------+
 
-* Creating a keytab file for the MongoDB server
+* Creating a Keytab File for the MongoDB Server
 
   With the principle created we now export the key for the principle to a keytab file for 
 the MongoDB process to use.  The permissions on the keytab file should be checked to ensure that
@@ -208,7 +208,7 @@ challenge response.  Once the Kerberos authentication is working the user can sw
   [--keyFile option] If running a cluster of servers, this option provides the mechanism for the servers 
 to authenticate to each other. All servers must have access to a copy of identical key files.
 
-  [KRB5_KTNAME Environment Variable] Points to the keytab file created above, e.g., <<</opt/mongodb/mongod.keytab>>>.
+  [KRB5_KTNAME Environment Variable] Contains the fully qualified path to the keytab file created above, e.g., <<</opt/mongodb/mongod.keytab>>>.
 
   []
   
@@ -230,7 +230,7 @@ mongod --auth                                                    \
 Notes
 
   Kerberos support is provided via the driver's extensions jar available to license holders.
-Any attempt to add a credential to a configuration using Kerberos will throw an IllegalArguementException without 
+Any attempt to add a credential to a configuration using Kerberos will throw an IllegalArgumentException without 
 the extensions jar on the classpath. Please contact 
 {{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
 for information on licensing the driver and obtaining the extensions jar.

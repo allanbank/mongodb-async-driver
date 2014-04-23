@@ -150,7 +150,7 @@ MongoDB, it should run close to optimal.
 can be sent to MongoDB and a client side task (that takes some non-trivial amount of time) is done before
 the response is evaluated.  This approach, and what is a non-trivial amount of time, is application
 specific.  Generally, the longer you defer evaluating the future the better.  We will return to this 
-concept as part of the section on mixing <<<Futures>>> and <<<Callbacks>>>>.  
+concept as part of the section on mixing <<<Futures>>> and <<<Callbacks>>>.  
 
   A good example of the delayed evaluation is within the driver itself.  The implementation of the 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoIterator.html}MongoIterator}} sends a request for

@@ -7,9 +7,9 @@
 x.509 Authentication
 
   * <<Note:>> The driver's x.509 authenticator is provided as part of the extensions jar. 
-    See the {{Notes}} at the bottom of this documentation for details. Further, the use of TLS/SSL 
-    connections requires the Enterprise version of the MongoDB 
-    server. See the {{{http://docs.mongodb.org/manual/tutorial/configure-x509/}MongoDB Tutorial}} for details.
+    See the {{Notes}} at the bottom of this documentation for details. Further, the use of x.509 authentication 
+    requires the Enterprise version of the MongoDB server. See the
+    {{{http://docs.mongodb.org/manual/tutorial/configure-x509/}MongoDB Tutorial}} for details.
     
   []
 
@@ -28,7 +28,7 @@ config.addCredential(
 
 * Configuring the Server
 
-  See the {{{http://docs.mongodb.org/manual/tutorial/configure-x509/}Authenticate with x.509 Certificate}} Tutorial.
+  See the {{{http://docs.mongodb.org/manual/tutorial/configure-x509/}Authenticate with x.509 Certificate}} tutorial.
 
 * Options
 
@@ -36,9 +36,9 @@ config.addCredential(
 
 Notes
 
-  The x.509 authenticator are provided via the driver's extensions jar available to license holders.
+  The x.509 authenticator is provided via the driver's extensions jar available to license holders.
 Any attempt to add a credential to a configuration using x.509 client authentication will throw an 
-<<<IllegalArguementException>>> without the extensions jar on the classpath. Please contact 
+<<<IllegalArgumentException>>> without the extensions jar on the classpath. Please contact 
 {{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
 for information on licensing the driver and obtaining the extensions jar.
  

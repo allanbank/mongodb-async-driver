@@ -39,20 +39,20 @@ long modified = collection.write( writes ); // Should be 3000.
 
   The BatchedWrite contains a 
 {{{../apidocs/index.html?com/allanbank/mongodb/builder/BatchedWriteMode.html}BatchedWriteMode}} that controls
-the level of reordering and pipelining the driver can do. By default the driver uses the <<<SERIALIZE_AND_CONTINUE>>>
-mode which allow the driver to pack the operations in the order provided but it does not have to wait for the results
+the level of reordering and pipelining the driver can perform. By default the driver uses the <<<SERIALIZE_AND_CONTINUE>>>
+mode which allows the driver to pack the operations in the order provided but it does not have to wait for the results
 of one batch before executing the next. See the <<<BatchedWriteMode>>> for other options.  To maximize performance 
 use the <<<REORDER>>> mode that allows the driver to reorder operations to maximize the packing of operations in 
 the commands.  Care must be take to ensure that the operations are independent when using this mode.
 
-  If a BatchedWrite is issued with a MongoDB server in the cluster that is lower than 2.6 then the writes will be 
-done using the pre-2.6 insert/update/delete operations. 
+  <<<BatchedWrite>>> may still be used with pre-2.6 MongoDB servers/clusters.  The driver will automatically
+switch to using the pre-2.6 insert/update/delete operations. 
 
 * BatchedAsyncMongoCollection
 
   While the BatchedWrite object is useful it is limited to only insert, update, and delete operations.
 There are many cases where the user knows the full sequence of operations to be applied and would like to 
-submit them to the server in as unit. In order to achieve a generic batching capability we will need some way 
+submit them to the server as unit. In order to achieve a generic batching capability we will need some way 
 of deferring the results of each operation.  Luckly, this is already solved for the driver via 
 {{{../apidocs/index.html?com/allanbank/mongodb/ListenableFuture.html}ListenableFutures}},
 {{{../apidocs/index.html?com/allanbank/mongodb/Callback.html}Callback}}, and
@@ -61,14 +61,16 @@ spool up the operations and a way to indicate when they should be flushed to the
 {{{../apidocs/index.html?com/allanbank/mongodb/BatchedAsyncMongoCollection.html}BatchedAsyncMongoCollection}} interface.
 
   We get an instance of the <<<BatchedAsyncMongoCollection>>> from a 
-{{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}}.  Once we have the batched collection we
-can execute any of the asynchronous operations on it that we want.  The driver will not send any of them to the server 
-until <<<flush()>>> or <<<close()>>> is called. (<<<BatchedAsyncMongoCollection>>> extends <<<Closeable>>> to support 
-try-with-finally blocks.) Once the batch is flushed all of the commands are sent to the server.  Any sequential insert, 
-update, and deletes will also be migrated to using the batch write commands if the server supports them.  There are some 
-important limitations for updates and deletes that are explained in the interface JavaDoc.
+{{{../apidocs/index.html?com/allanbank/mongodb/MongoCollection.html}MongoCollection}}.  Once we have the 
+batched collection we can invoke any of the asynchronous operations we want.  The driver will 
+not send any of them to the server and instead simply remember the operations until <<<flush()>>> or 
+<<<close()>>> is called. (<<<BatchedAsyncMongoCollection>>> extends <<<Closeable>>> to support 
+try-with-finally blocks.) Once the batch is flushed all of the commands are sent to the server.  
+Any sequential inserts, updates, and deletes will also be migrated to using the batch write commands, 
+if the server supports them.  There are some important limitations for updates and deletes that are 
+explained in the interface JavaDoc.
 
-  We have to demo applications that show the flexibility of the <<<BatchedAsyncMongoCollection>>> interface.
+  We have two demo applications that show the flexibility of the <<<BatchedAsyncMongoCollection>>> interface.
 Both are located in the  {{{https://github.com/allanbank/mongodb-async-examples}mongodb-async-examples}} GitHub repository.
 The {{{https://github.com/allanbank/mongodb-async-examples/blob/master/src/main/java/batch/BatchDemo.java}first demo}} 
 uses <<<ListenableFutures>>> to capture the results.  The 
