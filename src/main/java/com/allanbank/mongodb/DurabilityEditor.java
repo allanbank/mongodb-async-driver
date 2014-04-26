@@ -9,22 +9,22 @@ import java.beans.PropertyEditorSupport;
 /**
  * {@link java.beans.PropertyEditor} for the {@link Durability} class.
  * <p>
- * The string value must be one of the following tokens or parsable by
+ * The string value must be one of the following tokens or parse-able by
  * {@link Durability#valueOf(String)} method.
  * </p>
  * <p>
  * Valid tokens are:
  * <ul>
- * <li>NONE</li>
- * <li>ACK</li>
- * <li>FSYNC</li>
- * <li>JOURNAL</li>
- * <li>MAJORITY</li>
+ * <li>{@code NONE}</li>
+ * <li>{@code ACK}</li>
+ * <li>{@code FSYNC}</li>
+ * <li>{@code JOURNAL}</li>
+ * <li>{@code MAJORITY}</li>
  * </ul>
  * </p>
  * <p>
- * {@code FSYNC}, {@code JOURNAL}, and {@code MAJORITY} all use the
- * {@link #DEFAULT_WAIT_TIME_MS} for the wait time.
+ * {@code FSYNC}, {@code JOURNAL}, and {@code MAJORITY} all use
+ * {@value #DEFAULT_WAIT_TIME_MS} milliseconds for the wait time.
  * </p>
  * 
  * @api.yes This class is part of the driver's API. Public and protected members

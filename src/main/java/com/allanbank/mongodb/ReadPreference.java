@@ -290,6 +290,9 @@ public class ReadPreference implements Serializable, DocumentAssignable {
 
         final DocumentBuilder builder = BuilderFactory.start();
         builder.addString("mode", mode.getToken());
+        if (address != null) {
+            builder.addString("server", address);
+        }
         myDocumentForm = builder.build();
 
     }
@@ -298,6 +301,18 @@ public class ReadPreference implements Serializable, DocumentAssignable {
      * {@inheritDoc}
      * <p>
      * Overridden to return the read preference document.
+     * </p>
+     * <p>
+     * The document contains:
+     * <ul>
+     * <li>The {@code mode} string value as returned by {@link Mode#getToken()}.
+     * </li>
+     * <li>An optional {@code tags} array containing the
+     * {@link #getTagMatchingDocuments() tag matching documents}</li>
+     * <li>An optional {@code server} containing the server to read from. This
+     * should only used for cursors to ensure the correct server is used to
+     * request more documents.</li>
+     * </ul>
      * </p>
      */
     @Override

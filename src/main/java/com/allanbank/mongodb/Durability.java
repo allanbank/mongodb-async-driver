@@ -203,31 +203,28 @@ public class Durability implements Serializable {
      * <ul>
      * <li>A name of the constant (ignoring case):
      * <ul>
-     * <li>ACK</li>
-     * <li>NONE</li>
-     * <li>SAFE - for compatibility with the 10gen MongoDB driver, returns
-     * {@link #ACK}.</li>
+     * <li>{@code ACK}</li>
+     * <li>{@code NONE}</li>
+     * <li>{@code SAFE} - for compatibility with the MongoDB Inc. driver,
+     * returns {@link #ACK}.</li>
      * </ul>
      * </li>
      * <li>A JSON document representation of the Durability. The following
      * fields are allowed in the document and the values for each should match
      * those for a {@code getlasterror} command:
      * <ul>
-     * <li>w</li>
-     * <li>wtimeout</li>
-     * <li>fsync</li>
-     * <li>j</li>
-     * <li>getlasterror</li>
+     * <li>{@code w}</li>
+     * <li>{@code wtimeout}</li>
+     * <li>{@code fsync}</li>
+     * <li>{@code j}</li>
+     * <li>{@code getlasterror}</li>
      * </ul>
      * If present the {@code getlasterror} field is ignored. An example JSON
      * document might look like: <blockquote>
      * 
      * <pre>
      * <code>
-     * {
-     *    w : majority,
-     *    wtimeout : 10000,
-     * }
+     * { w : 'majority', wtimeout : 10000 }
      * </code>
      * </pre>
      * 
@@ -235,8 +232,9 @@ public class Durability implements Serializable {
      * </ul>
      * </p>
      * <p>
-     * If the string is not parsable in either of these forms then null is
+     * If the string is not parse-able in either of these forms then null is
      * returned.
+     * </p>
      * 
      * @param value
      *            The string representation of the Durability.

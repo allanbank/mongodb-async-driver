@@ -22,12 +22,12 @@ import com.allanbank.mongodb.error.JsonException;
  * </p>
  * </p> Valid tokens are:
  * <ul>
- * <li>PRIMARY</li>
- * <li>SECONDARY</li>
- * <li>CLOSEST</li>
- * <li>NEAREST</li>
- * <li>PREFER_PRIMARY</li>
- * <li>PREFER_SECONDARY</li>
+ * <li>{@code PRIMARY}</li>
+ * <li>{@code SECONDARY}</li>
+ * <li>{@code CLOSEST}</li>
+ * <li>{@code NEAREST}</li>
+ * <li>{@code PREFER_PRIMARY}</li>
+ * <li>{@code PREFER_SECONDARY}</li>
  * </ul>
  * 
  * @api.yes This class is part of the driver's API. Public and protected members

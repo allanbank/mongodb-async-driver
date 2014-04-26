@@ -2,9 +2,19 @@
             MongoDB Asynchronous Java Driver: Spring Support
             ------
             ------
-            2013-03-22
+            2014-04-26
 
-Spring XML Configuration Support
+Property Editors
+
+  The {{{../apidocs/index.html?com/allanbank/mongodb/Durability.html}Durability}} and 
+{{{../apidocs/index.html?com/allanbank/mongodb/ReadPreference.html}ReadPreference}} classes 
+both have associated <<<PropertyEditor>>> classes to allow automatic conversion from text 
+to correctly constructed instances when set as properties within Spring contexts. See the 
+{{{../apidocs/index.html?com/allanbank/mongodb/DurabilityEditor.html}DurabilityEditor}} and
+{{{../apidocs/index.html?com/allanbank/mongodb/ReadPreferenceEditor.html}ReadPreferenceEditor}}
+for details on what values are supported.
+
+Spring XML NameSpace Support.
 
   The driver's extension jar contains name-space support for creating and configuring the 
 {{{../apidocs/index.html?com/allanbank/mongodb/MongoClient.html}MongoClient}} singleton 
