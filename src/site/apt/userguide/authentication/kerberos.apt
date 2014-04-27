@@ -106,6 +106,11 @@ with MongoDB.
 
 * Authenticating via Cached Credentials (kinit)
 
+  * <<Note:>> You must have the JCE unlimited strength policy files installed to use some Kerberos tickets 
+    cached via <<<kinit>>>.
+
+  []
+  
   Lastly, the driver can leverage previously acquired Kerberos credentials that have been cached locally. 
 The credentials are normally cached via the <<<kinit>>> application similar to the following:
  
@@ -117,9 +122,35 @@ Password for user@EXAMPLE.COM:
   The cached credentials are then viewable via the <<<klist>>> application. The <<<-e>>> option
 provides the encryption type for a ticket which can be particularly helpful when debugging.
 
-  * <<Note:>> You must have the JCE unlimited strength policy files installed to use some Kerberos tickets 
-    cached via <<<kinit>>>.
+  * <<Note:>> Recent changes to the MIT Kerberos now supports using a <<<KEYRING>>> for storing the 
+    tickets which provides secure persistence of the tickets within the kernel.
+    The Java Kerberos libraries do not support using a <<<KEYRING>>> repository and breaks the 
+    ability of the usage of the cached credentials in the driver.  
+    
+    This error normally is seen as a <<<MongoDbAuthenticationException>>> with the message 
+    <<<Unable to obtain password from user>>>. You can also verify the use of the <<<KEYRING>>>
+    using <<<klist>>> as shown below. Note the value reported for the <<<Ticket cache>>>.
+    
++----------------------------------------+
+prompt> klist
+Ticket cache: KEYRING:persistent:1000:1000
+Default principal: user@EXAMPLE.COM
 
+Valid starting       Expires              Service principal
+01/01/2014 23:14:53  01/02/2014 23:14:53  krbtgt/EXAMPLE.COM@EXAMPLE.COM
+	renew until 01/02/2014 23:14:53
++----------------------------------------+
+
+    To use the former default location (<<</tmp/krb5cc_\{uid\}>>>) and restore Java access to the
+    cached tickets you must modify the <<<kinit>>> invocation to include the cache name via the 
+    <<<-c>>> option or KRB5CCNAME environment variable. Below is an example using the bash shell
+    and the <<<-c>>> option.
+    
++----------------------------------------+
+prompt> kinit -l 1d -r 1d -c FILE:/tmp/krb5cc_$( id -u ) user@EXAMPLE.COM
+Password for user@EXAMPLE.COM:
++----------------------------------------+
+     
   [] 
   
   With the tickets cached, start the application as the same user (does not need to be the same session) and 
