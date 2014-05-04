@@ -1,11 +1,14 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc.
+ * Copyright 2013-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
 package com.allanbank.mongodb;
 
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.d;
+import static com.allanbank.mongodb.bson.builder.BuilderFactory.e;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -16,7 +19,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
  * ReadPreferenceEditorTest provides tests for the {@link ReadPreferenceEditor}
  * class.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReadPreferenceEditorTest {
 
@@ -238,5 +241,115 @@ public class ReadPreferenceEditorTest {
 
         editor.setAsText("secondary");
         assertThat(editor.getValue(), is((Object) ReadPreference.SECONDARY));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriNearest() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodbs://host:port/db?readPreference=nearest");
+        assertThat(editor.getValue(), is((Object) ReadPreference.closest()));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriNotAReadPreference() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodbs://host:port/db");
+        assertThat(editor.getValue(), nullValue());
+
+        // But should not set to null.
+        editor.setValue(ReadPreference.PRIMARY);
+        editor.setAsText("mongodbs://host:port/db");
+        assertThat(editor.getValue(), is((Object) ReadPreference.PRIMARY));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriNotAReadPreferenceUnknown() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodbs://host:port/db?readPreference=WTF");
+        assertThat(editor.getValue(), is((Object) ReadPreference.primary()));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriPreferPrimary() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodb://host:port/db?readPreference=primarypreferred");
+        assertThat(editor.getValue(),
+                is((Object) ReadPreference.preferPrimary()));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriPreferSecondary() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodbs://host:port/db?readPreference=SecondaryPreferred");
+        assertThat(editor.getValue(),
+                is((Object) ReadPreference.preferSecondary()));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriPrimary() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodb://host:port/db?readPreference=primary");
+        assertThat(editor.getValue(), is((Object) ReadPreference.PRIMARY));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriSecondary() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodb://host:port/db?readPreference=secondary");
+        assertThat(editor.getValue(), is((Object) ReadPreference.SECONDARY));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriWithMultipleTags() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodbs://host:port/db?readpreference=Secondary&readPreferenceTags=a:1&readPreferenceTags=b:1,c:2");
+        assertThat(
+                editor.getValue(),
+                is((Object) ReadPreference.secondary(d(e("a", 1)),
+                        d(e("b", 1), e("c", 2)))));
+    }
+
+    /**
+     * Test method for {@link ReadPreferenceEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriWithTags() {
+        final ReadPreferenceEditor editor = new ReadPreferenceEditor();
+
+        editor.setAsText("mongodbs://host:port/db?readpreference=Secondary&readPreferenceTags=a:1");
+        assertThat(editor.getValue(),
+                is((Object) ReadPreference.secondary(d(e("a", 1)))));
     }
 }

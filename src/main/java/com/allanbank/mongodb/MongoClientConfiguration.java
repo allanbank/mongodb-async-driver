@@ -1,22 +1,31 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc.
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorManager;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -24,6 +33,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
@@ -39,7 +49,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoClientConfiguration implements Cloneable, Serializable {
 
@@ -297,9 +307,11 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         myDefaultDurability = other.getDefaultDurability();
         myDefaultReadPreference = other.getDefaultReadPreference();
         myExecutor = other.getExecutor();
-        myMaxIdleTickCount = other.getMaxIdleTickCount();
         myLockType = other.getLockType();
+        myMaxCachedStringEntries = other.getMaxCachedStringEntries();
+        myMaxCachedStringLength = other.getMaxCachedStringLength();
         myMaxConnectionCount = other.getMaxConnectionCount();
+        myMaxIdleTickCount = other.getMaxIdleTickCount();
         myMaxPendingOperationsPerConnection = other
                 .getMaxPendingOperationsPerConnection();
         myMaxSecondaryLag = other.getMaxSecondaryLag();
@@ -379,6 +391,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
             final Durability defaultDurability) throws IllegalArgumentException {
         this();
 
+        myDefaultDurability = defaultDurability;
         for (final String host : mongoDbUri.getHosts()) {
             addServer(host);
         }
@@ -386,145 +399,128 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
             throw new IllegalArgumentException(
                     "Must provide at least 1 host to connect to.");
         }
-
-        final String database = mongoDbUri.getDatabase();
-        if (!database.isEmpty()) {
-            setDefaultDatabase(database);
+        if (!mongoDbUri.getDatabase().isEmpty()) {
+            setDefaultDatabase(mongoDbUri.getDatabase());
         }
 
-        if (mongoDbUri.getUserName() != null) {
-            if (database.isEmpty()) {
-                setCredentials(Arrays.asList(Credential.builder()
-                        .userName(mongoDbUri.getUserName())
-                        .password(mongoDbUri.getPassword().toCharArray())
-                        .mongodbCR().build()));
+        final Map<String, String> parameters = mongoDbUri.getParsedOptions();
+        final Map<String, String> renames = new HashMap<String, String>();
+
+        // Renames for the standard names.
+        final Iterator<Map.Entry<String, String>> iter = parameters.entrySet()
+                .iterator();
+        while (iter.hasNext()) {
+            final Map.Entry<String, String> entry = iter.next();
+            final String name = entry.getKey();
+            if ("sockettimeoutms".equals(entry.getKey())) {
+                renames.put("readtimeout", entry.getValue());
+                iter.remove();
+            }
+            else if ("usesokeepalive".equals(name)) {
+                renames.put("usingsokeepalive", entry.getValue());
+                iter.remove();
+            }
+            else if ("minpoolsize".equals(name)) {
+                renames.put("minconnectioncount", entry.getValue());
+                iter.remove();
+            }
+            else if ("maxpoolsize".equals(name)) {
+                renames.put("maxconnectioncount", entry.getValue());
+                iter.remove();
+            }
+            else if (name.endsWith("ms")) {
+                final String newName = name.substring(0,
+                        name.length() - "ms".length());
+                renames.put(newName, entry.getValue());
+                iter.remove();
+            }
+        }
+        parameters.putAll(renames);
+
+        // Remove the parameters for the Credentials and durability and use the
+        // full URI for the text to feed to the property editor.
+        parameters.keySet().removeAll(CredentialEditor.MONGODB_URI_FIELDS);
+        parameters.put("credentials", mongoDbUri.toString());
+
+        if (parameters.keySet().removeAll(DurabilityEditor.MONGODB_URI_FIELDS)) {
+            parameters.put("defaultdurability", mongoDbUri.toString());
+        }
+        if (parameters.keySet().removeAll(
+                ReadPreferenceEditor.MONGODB_URI_FIELDS)) {
+            parameters.put("defaultreadpreference", mongoDbUri.toString());
+        }
+
+        // Special handling for the SSL parameter.
+        final String sslValue = parameters.remove("ssl");
+        if (mongoDbUri.isUseSsl() || (sslValue != null)) {
+            if (mongoDbUri.isUseSsl() || Boolean.parseBoolean(sslValue)) {
+                try {
+                    setSocketFactory((SocketFactory) Class
+                            .forName(
+                                    "com.allanbank.mongodb.extensions.tls.TlsSocketFactory")
+                            .newInstance());
+                }
+                catch (final Throwable error) {
+                    setSocketFactory(SSLSocketFactory.getDefault());
+                    LOG.warn("Using the JVM default SSL Socket Factory. "
+                            + "This may allow man-in-the-middle attacks. "
+                            + "See http://www.allanbank.com/mongodb-async-driver/userguide/tls.html");
+                }
             }
             else {
-                setCredentials(Arrays.asList(Credential.builder()
-                        .userName(mongoDbUri.getUserName())
-                        .password(mongoDbUri.getPassword().toCharArray())
-                        .database(database).mongodbCR().build()));
+                setSocketFactory(null);
             }
         }
 
-        boolean safe = false;
-        int w = -1;
-        boolean fsync = false;
-        boolean journal = false;
-        int wtimeout = 0;
-
-        final StringTokenizer tokenizer = new StringTokenizer(
-                mongoDbUri.getOptions(), "?;&");
-        while (tokenizer.hasMoreTokens()) {
-            String property;
-            String value;
-
-            final String propertyAndValue = tokenizer.nextToken();
-            final int position = propertyAndValue.indexOf('=');
-            if (position >= 0) {
-                property = propertyAndValue.substring(0, position);
-                value = propertyAndValue.substring(position + 1);
-            }
-            else {
-                property = propertyAndValue;
-                value = Boolean.TRUE.toString();
+        try {
+            final BeanInfo info = Introspector
+                    .getBeanInfo(MongoClientConfiguration.class);
+            final PropertyDescriptor[] descriptors = info
+                    .getPropertyDescriptors();
+            final Map<String, PropertyDescriptor> descriptorsByName = new HashMap<String, PropertyDescriptor>();
+            for (final PropertyDescriptor descriptor : descriptors) {
+                descriptorsByName
+                        .put(descriptor.getName().toLowerCase(Locale.US),
+                                descriptor);
             }
 
-            try {
-                if ("replicaSet".equalsIgnoreCase(property)) {
+            for (final Map.Entry<String, String> param : parameters.entrySet()) {
+                final String propName = param.getKey();
+                final String propValue = param.getValue();
+
+                final PropertyDescriptor descriptor = descriptorsByName
+                        .get(propName);
+                if (descriptor != null) {
+                    try {
+                        updateFieldValue(descriptor, propName, propValue);
+                    }
+                    catch (final NumberFormatException nfe) {
+                        throw new IllegalArgumentException("The '" + propName
+                                + "' parameter must have a numeric value not '"
+                                + propValue + "'.", nfe);
+                    }
+                    catch (final Exception e) {
+                        throw new IllegalArgumentException("The '" + propName
+                                + "' parameter's editor could not be set '"
+                                + propValue + "'.", e);
+                    }
+                }
+                else if ("uuidrepresentation".equals(propName)) {
+                    LOG.info("Changing the UUID representation is not supported.");
+                }
+                else if ("replicaset".equals(propName)) {
                     LOG.info("Not validating the replica set name is '{}'.",
-                            value);
-                }
-                else if ("slaveOk".equalsIgnoreCase(property)) {
-                    if (Boolean.parseBoolean(value)) {
-                        myDefaultReadPreference = ReadPreference.SECONDARY;
-                    }
-                    else {
-                        myDefaultReadPreference = ReadPreference.PRIMARY;
-                    }
-                }
-                else if ("safe".equalsIgnoreCase(property)) {
-                    safe = Boolean.parseBoolean(value);
-                }
-                else if ("w".equalsIgnoreCase(property)) {
-                    safe = true;
-                    w = Integer.parseInt(value);
-                }
-                else if ("wtimeout".equalsIgnoreCase(property)) {
-                    safe = true;
-                    wtimeout = Integer.parseInt(value);
-                    if (w < 1) {
-                        w = 1;
-                    }
-                }
-                else if ("fsync".equalsIgnoreCase(property)) {
-                    fsync = Boolean.parseBoolean(value);
-                    if (fsync) {
-                        journal = false;
-                        safe = true;
-                    }
-                }
-                else if ("journal".equalsIgnoreCase(property)) {
-                    journal = Boolean.parseBoolean(value);
-                    if (journal) {
-                        fsync = false;
-                        safe = true;
-                    }
-                }
-                else if ("connectTimeoutMS".equalsIgnoreCase(property)) {
-                    myConnectTimeout = Integer.parseInt(value);
-                }
-                else if ("socketTimeoutMS".equalsIgnoreCase(property)) {
-                    myReadTimeout = Integer.parseInt(value);
-                }
-
-                // Extensions
-                else if ("autoDiscoverServers".equalsIgnoreCase(property)) {
-                    myAutoDiscoverServers = Boolean.parseBoolean(value);
-                }
-                else if ("maxConnectionCount".equalsIgnoreCase(property)) {
-                    myMaxConnectionCount = Integer.parseInt(value);
-                }
-                else if ("maxPendingOperationsPerConnection"
-                        .equalsIgnoreCase(property)) {
-                    myMaxPendingOperationsPerConnection = Integer
-                            .parseInt(value);
-                }
-                else if ("reconnectTimeoutMS".equalsIgnoreCase(property)) {
-                    myReconnectTimeout = Integer.parseInt(value);
-                }
-                else if ("useSoKeepalive".equalsIgnoreCase(property)) {
-                    myUsingSoKeepalive = Boolean.parseBoolean(value);
+                            propValue);
                 }
                 else {
-                    LOG.info("Unknown property '{}' and value '{}'.", property,
-                            value);
+                    LOG.info("Unknown property '{}' and value '{}'.", propName,
+                            propValue);
                 }
             }
-            catch (final NumberFormatException nfe) {
-                throw new IllegalArgumentException("The '" + property
-                        + "' parameter must have a numeric value not '" + value
-                        + "'.", nfe);
-            }
         }
-
-        // Figure out the intended durability.
-        if (safe) {
-            if (fsync) {
-                myDefaultDurability = Durability.fsyncDurable(wtimeout);
-            }
-            else if (journal) {
-                myDefaultDurability = Durability.journalDurable(wtimeout);
-            }
-            else if (w > 0) {
-                myDefaultDurability = Durability.replicaDurable(w, wtimeout);
-            }
-            else {
-                myDefaultDurability = Durability.ACK;
-            }
-        }
-        else {
-            myDefaultDurability = defaultDurability;
+        catch (final IntrospectionException e) {
+            throw new IllegalArgumentException(
+                    "Could not introspect on the MongoClientConfiguration.");
         }
     }
 
@@ -1496,5 +1492,46 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         myExecutor = null;
         mySocketFactory = null;
         myThreadFactory = null;
+    }
+
+    /**
+     * Updates this configurations value based on the field's descriptor, name
+     * and value.
+     * 
+     * @param descriptor
+     *            The field's descriptor.
+     * @param propName
+     *            The name of the field.
+     * @param propValue
+     *            The value for the field.
+     * @throws Exception
+     *             On a number of errors.
+     */
+    private void updateFieldValue(final PropertyDescriptor descriptor,
+            final String propName, final String propValue) throws Exception {
+        final Method writer = descriptor.getWriteMethod();
+        PropertyEditor editor;
+
+        final Class<?> editorClass = descriptor.getPropertyEditorClass();
+        if (editorClass != null) {
+            editor = (PropertyEditor) editorClass.newInstance();
+        }
+        else {
+            final Class<?> fieldType = descriptor.getPropertyType();
+            editor = PropertyEditorManager.findEditor(fieldType);
+        }
+
+        if (editor != null) {
+            final Method reader = descriptor.getReadMethod();
+            editor.setValue(reader.invoke(this));
+            editor.setAsText(propValue);
+            writer.invoke(this, editor.getValue());
+        }
+        else {
+            throw new IllegalArgumentException("The '" + propName
+                    + "' parameter could not be set " + "to the value '"
+                    + propValue + "'. No editor available.");
+
+        }
     }
 }

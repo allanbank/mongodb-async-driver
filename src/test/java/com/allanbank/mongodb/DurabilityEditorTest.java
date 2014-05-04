@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc.
+ * Copyright 2013-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * DurabilityEditorTest provides tests for the {@link DurabilityEditor} class.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DurabilityEditorTest {
 
@@ -99,5 +99,17 @@ public class DurabilityEditorTest {
 
         editor.setAsText("NoNe");
         assertThat(editor.getValue(), is((Object) Durability.NONE));
+    }
+
+    /**
+     * Test method for {@link DurabilityEditor#setAsText(String)}.
+     */
+    @Test
+    public void testUriWMajortity() {
+        final DurabilityEditor editor = new DurabilityEditor();
+
+        editor.setAsText("mongodb://host:port?w=majority");
+        assertThat(editor.getValue(),
+                is((Object) Durability.replicaDurable("majority", 0)));
     }
 }

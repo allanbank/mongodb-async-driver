@@ -1,18 +1,26 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc.
+ * Copyright 2013-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 package com.allanbank.mongodb;
 
 import java.beans.PropertyEditorSupport;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
 import com.allanbank.mongodb.bson.json.Json;
 import com.allanbank.mongodb.error.JsonException;
+import com.allanbank.mongodb.util.log.Log;
+import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * {@link java.beans.PropertyEditor} for the {@link ReadPreference} class.
@@ -29,14 +37,40 @@ import com.allanbank.mongodb.error.JsonException;
  * <li>{@code PREFER_PRIMARY}</li>
  * <li>{@code PREFER_SECONDARY}</li>
  * </ul>
+ * <p>
+ * This editor will also parse a full MongoDB URI to extract the specified
+ * {@link ReadPreference}. See the <a href=
+ * "http://docs.mongodb.org/manual/reference/connection-string/#read-preference-options"
+ * >Connection String URI Format</a> documentation for information on
+ * constructing a MongoDB URI.
+ * </p>
  * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReadPreferenceEditor extends PropertyEditorSupport {
+
+    /** The set of fields used to determine a Durability from a MongoDB URI. */
+    public static final Set<String> MONGODB_URI_FIELDS;
+
+    /** The logger for the {@link ReadPreferenceEditor}. */
+    protected static final Log LOG = LogFactory
+            .getLog(ReadPreferenceEditor.class);
+
+    /** Any empty array for tags. */
+    private static final DocumentAssignable[] EMPTY_TAGS = new DocumentAssignable[0];
+
+    static {
+        final Set<String> fields = new HashSet<String>();
+        fields.add("readpreferencetags");
+        fields.add("readpreference");
+        fields.add("slaveok");
+
+        MONGODB_URI_FIELDS = Collections.unmodifiableSet(fields);
+    }
 
     /**
      * Creates a new ReadPreferenceEditor.
@@ -74,6 +108,13 @@ public class ReadPreferenceEditor extends PropertyEditorSupport {
         }
         else if ("PREFER_SECONDARY".equalsIgnoreCase(readPreferenceString)) {
             setValue(ReadPreference.preferSecondary());
+        }
+        else if (MongoDbUri.isUri(readPreferenceString)) {
+            final MongoDbUri uri = new MongoDbUri(readPreferenceString);
+            final ReadPreference parsed = fromUriParameters(uri);
+            if (parsed != null) {
+                setValue(parsed);
+            }
         }
         else {
             // JSON Document?
@@ -145,5 +186,77 @@ public class ReadPreferenceEditor extends PropertyEditorSupport {
                                 + readPreferenceString + "'.");
             }
         }
+    }
+
+    /**
+     * Uses the URI parameters to determine a {@link ReadPreference}. May return
+     * null if the URI did not contain any read preference settings.
+     * 
+     * @param uri
+     *            The URI.
+     * @return The {@link ReadPreference} from the URI parameters.
+     */
+    private ReadPreference fromUriParameters(final MongoDbUri uri) {
+
+        final Map<String, String> parameters = uri.getParsedOptions();
+
+        ReadPreference result = null;
+
+        String value = parameters.remove("slaveok");
+        if (value != null) {
+            if (Boolean.parseBoolean(value)) {
+                result = ReadPreference.SECONDARY;
+            }
+            else {
+                result = ReadPreference.PRIMARY;
+            }
+        }
+
+        value = parameters.remove("readpreference");
+        final List<String> tagsValue = uri.getValuesFor("readpreferencetags");
+        if (value != null) {
+            if ("primary".equalsIgnoreCase(value)) {
+                result = ReadPreference.PRIMARY;
+            }
+            else if ("primaryPreferred".equalsIgnoreCase(value)) {
+                result = ReadPreference.preferPrimary(parseTags(tagsValue));
+            }
+            else if ("secondary".equalsIgnoreCase(value)) {
+                result = ReadPreference.secondary(parseTags(tagsValue));
+            }
+            else if ("secondaryPreferred".equalsIgnoreCase(value)) {
+                result = ReadPreference.preferSecondary(parseTags(tagsValue));
+            }
+            else if ("nearest".equalsIgnoreCase(value)) {
+                result = ReadPreference.closest(parseTags(tagsValue));
+            }
+            else {
+                LOG.warn("Unknown readPreference: '{}'. "
+                        + "Defaulting to primary.", value);
+                result = ReadPreference.PRIMARY;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Parses out the tags documents.
+     * 
+     * @param tagsValue
+     *            The list of tags entries.
+     * @return The tags documents.
+     */
+    private DocumentAssignable[] parseTags(final List<String> tagsValue) {
+        if ((tagsValue == null) || tagsValue.isEmpty()) {
+            return EMPTY_TAGS;
+        }
+
+        final List<DocumentAssignable> docs = new ArrayList<DocumentAssignable>(
+                tagsValue.size());
+        for (final String tagValue : tagsValue) {
+            docs.add(Json.parse("{" + tagValue + "}"));
+        }
+        return docs.toArray(EMPTY_TAGS);
     }
 }

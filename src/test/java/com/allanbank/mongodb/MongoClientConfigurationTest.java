@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc.
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -8,6 +8,8 @@ package com.allanbank.mongodb;
 import static org.easymock.EasyMock.createMock;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,6 +18,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +34,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.easymock.EasyMock;
 import org.hamcrest.Matchers;
@@ -42,7 +46,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * MongoClientConfigurationTest provides tests for the
  * {@link MongoClientConfiguration} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("boxing")
 public class MongoClientConfigurationTest {
@@ -314,6 +318,39 @@ public class MongoClientConfigurationTest {
         assertNotNull(config.getThreadFactory());
 
         assertFalse(config.isAuthenticating());
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(com.allanbank.mongodb.MongoClientConfiguration)}
+     * .
+     */
+    @Test
+    public void testMongoClientConfigurationMongoClientConfigurationWithCredentials() {
+        final InetSocketAddress addr1 = new InetSocketAddress("foo", 1234);
+        final InetSocketAddress addr2 = new InetSocketAddress("bar", 1234);
+
+        final MongoClientConfiguration first = new MongoClientConfiguration(
+                addr1, addr2);
+        first.addCredential(Credential.builder().userName("f")
+                .password("p".toCharArray()).build());
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                first);
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Arrays.asList("foo:1234", "bar:1234"), config.getServers());
+        assertNotNull(config.getThreadFactory());
+
+        assertTrue(config.isAuthenticating());
+        assertEquals(config.getCredentials().size(), first.getCredentials()
+                .size());
         assertTrue(config.isAutoDiscoverServers());
         assertTrue(config.isUsingSoKeepalive());
     }
@@ -605,6 +642,34 @@ public class MongoClientConfigurationTest {
      * Test method for
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
+    @Test
+    public void testMongoUriMinMaxConnectionCount() {
+        final String addr1 = "foo:27017";
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                "mongodb://foo/db?minpoolsize=1&maxPoolSize=100");
+
+        assertEquals(1, config.getMinConnectionCount());
+        assertEquals(100, config.getMaxConnectionCount());
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+
+        assertFalse(config.isAuthenticating());
+        assertThat(config.getCredentials().size(), is(0));
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
+     */
     @SuppressWarnings("unused")
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriNoPassword() {
@@ -619,6 +684,23 @@ public class MongoClientConfigurationTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMongoUriNoServer() {
         new MongoClientConfiguration("mongodb:///");
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
+     */
+    @Test
+    public void testMongoUriNoServers() {
+        try {
+            final MongoClientConfiguration config = new MongoClientConfiguration(
+                    "mongodb://");
+            fail("Should not be able to create a config ffrom a URI without servers.");
+            config.clone();
+        }
+        catch (final IllegalArgumentException expected) {
+            // Good.
+        }
     }
 
     /**
@@ -691,6 +773,68 @@ public class MongoClientConfigurationTest {
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
+    public void testMongoUriSslOff() {
+        final String addr1 = "foo:27017";
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                "mongodb://foo/db?ssl=false");
+
+        assertThat(config.getSocketFactory(),
+                not(instanceOf(SSLSocketFactory.class)));
+
+        assertEquals(0, config.getMinConnectionCount());
+        assertEquals(3, config.getMaxConnectionCount());
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+
+        assertFalse(config.isAuthenticating());
+        assertThat(config.getCredentials().size(), is(0));
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
+     */
+    @Test
+    public void testMongoUriSslOn() {
+        final String addr1 = "foo:27017";
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                "mongodb://foo/db?ssl");
+
+        assertThat(config.getSocketFactory(),
+                instanceOf(SSLSocketFactory.class));
+
+        assertEquals(0, config.getMinConnectionCount());
+        assertEquals(3, config.getMaxConnectionCount());
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+
+        assertFalse(config.isAuthenticating());
+        assertThat(config.getCredentials().size(), is(0));
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
+     */
+    @Test
     public void testMongoUriTwoServers() {
         final String addr1 = "foo:27017";
         final String addr2 = "bar:1234";
@@ -746,6 +890,32 @@ public class MongoClientConfigurationTest {
                 hasItem(Credential.builder().userName("user")
                         .password("pass:ord".toCharArray()).database("db")
                         .authenticationType(Credential.MONGODB_CR).build()));
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
+     */
+    @Test
+    public void testMongoUriUuidRep() {
+        final String addr1 = "foo:27017";
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                "mongodb://foo/db?uuidRepresentation=java");
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
+        assertEquals(3, config.getMaxConnectionCount());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
+        assertNotNull(config.getThreadFactory());
+
+        assertFalse(config.isAuthenticating());
+        assertThat(config.getCredentials().size(), is(0));
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
     }
 
     /**
@@ -829,6 +999,37 @@ public class MongoClientConfigurationTest {
         assertEquals(Collections.singletonList(ServerNameUtils
                 .normalize(new InetSocketAddress(addr1, port))),
                 config.getServers());
+        assertNotNull(config.getThreadFactory());
+
+        assertFalse(config.isAuthenticating());
+        assertThat(config.getCredentials().size(), is(0));
+        assertTrue(config.isAutoDiscoverServers());
+        assertTrue(config.isUsingSoKeepalive());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
+     */
+    @Test
+    public void testMongoUriWithMongodbS() {
+        final String addr1 = "foo:27017";
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                "mongodbs://foo/db?ssl=false");
+
+        assertThat(config.getSocketFactory(),
+                instanceOf(SSLSocketFactory.class));
+
+        assertEquals(0, config.getMinConnectionCount());
+        assertEquals(3, config.getMaxConnectionCount());
+
+        assertEquals(0, config.getConnectTimeout());
+        assertEquals(Durability.ACK, config.getDefaultDurability());
+        assertEquals(1024, config.getMaxPendingOperationsPerConnection());
+
+        assertEquals(0, config.getReadTimeout());
+        assertEquals(Collections.singletonList(addr1), config.getServers());
         assertNotNull(config.getThreadFactory());
 
         assertFalse(config.isAuthenticating());
@@ -1003,6 +1204,34 @@ public class MongoClientConfigurationTest {
         assertEquals(LockType.LOW_LATENCY_SPIN, config.getLockType());
         config.setLockType(LockType.MUTEX);
         assertEquals(LockType.MUTEX, config.getLockType());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#setMaxCachedStringEntries}.
+     */
+    @Test
+    public void testSetMaxCachedStringEntries() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        assertEquals(MongoClientConfiguration.DEFAULT_MAX_STRING_CACHE_ENTRIES,
+                config.getMaxCachedStringEntries());
+        config.setMaxCachedStringEntries(100);
+        assertEquals(100, config.getMaxCachedStringEntries());
+    }
+
+    /**
+     * Test method for {@link MongoClientConfiguration#setMaxCachedStringLength}
+     * .
+     */
+    @Test
+    public void testSetMaxCachedStringLength() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        assertEquals(MongoClientConfiguration.DEFAULT_MAX_STRING_CACHE_LENGTH,
+                config.getMaxCachedStringLength());
+        config.setMaxCachedStringLength(100);
+        assertEquals(100, config.getMaxCachedStringLength());
     }
 
     /**
