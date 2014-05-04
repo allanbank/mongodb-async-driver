@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2013, Allanbank Consulting, Inc.
+ * Copyright 2011-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -44,7 +44,7 @@ import com.allanbank.mongodb.util.FutureUtils;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDatabaseImpl implements MongoDatabase {
 
@@ -480,7 +480,8 @@ public class MongoDatabaseImpl implements MongoDatabase {
             final DocumentAssignable command, final Version requireServerVersion)
             throws MongoDbException {
         final Command commandMessage = new Command(myName,
-                command.asDocument(), ReadPreference.PRIMARY,
+                Command.COMMAND_COLLECTION, command.asDocument(),
+                ReadPreference.PRIMARY,
                 VersionRange.minimum(requireServerVersion));
 
         myClient.send(commandMessage, new ReplyCommandCallback(reply));

@@ -277,7 +277,7 @@ public class BatchedAsyncMongoCollectionImplTest {
                         a(d(e("q", doc), e("limit", 0)),
                                 d(e("q", doc), e("limit", 0)),
                                 d(e("q", doc), e("limit", 0)))));
-        final Command deleteMessage = new Command("test",
+        final Command deleteMessage = new Command("test", "test",
                 deleteCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -339,7 +339,7 @@ public class BatchedAsyncMongoCollectionImplTest {
                         a(d(e("q", doc), e("u", update)),
                                 d(e("q", doc), e("u", update)),
                                 d(e("q", doc), e("u", update)))));
-        final Command updateMessage = new Command("test",
+        final Command updateMessage = new Command("test", "test",
                 updateCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -446,7 +446,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc, doc, doc)));
-        final Command insertMessage = new Command("test",
+        final Command insertMessage = new Command("test", "test",
                 insertCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -504,7 +504,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test",
+        final Command insertMessage = new Command("test", "test",
                 insertCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -576,7 +576,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test",
+        final Command insertMessage = new Command("test", "test",
                 insertCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -587,7 +587,7 @@ public class BatchedAsyncMongoCollectionImplTest {
                 e("deletes",
                         a(d(e("q", doc), e("limit", 0)),
                                 d(e("q", doc), e("limit", 0)))));
-        final Command deleteMessage = new Command("test",
+        final Command deleteMessage = new Command("test", "test",
                 deleteCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -652,21 +652,21 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test",
+        final Command insertMessage = new Command("test", "test",
                 insertCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
         final DocumentAssignable updateCommand = d(e("update", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("updates", a(d(e("q", doc), e("u", update)))));
-        final Command updateMessage = new Command("test",
+        final Command updateMessage = new Command("test", "test",
                 updateCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
         final DocumentAssignable deleteCommand = d(e("delete", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("deletes", a(d(e("q", doc), e("limit", 0)))));
-        final Command deleteMessage = new Command("test",
+        final Command deleteMessage = new Command("test", "test",
                 deleteCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -733,7 +733,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test",
+        final Command insertMessage = new Command("test", "test",
                 insertCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
@@ -744,7 +744,7 @@ public class BatchedAsyncMongoCollectionImplTest {
                 e("updates",
                         a(d(e("q", doc), e("u", update)),
                                 d(e("q", doc), e("u", update)))));
-        final Command updateMessage = new Command("test",
+        final Command updateMessage = new Command("test", "test",
                 updateCommand.asDocument(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 

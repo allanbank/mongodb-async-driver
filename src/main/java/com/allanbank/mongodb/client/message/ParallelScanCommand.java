@@ -29,9 +29,6 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
     /** The original request. */
     private final ParallelScan myCommand;
 
-    /** The name of the collection to run the {@code parallelCollectionScan} on. */
-    private final String myScannedCollectionName;
-
     /**
      * Create a new ParallelScanCommand.
      * 
@@ -49,11 +46,10 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
     public ParallelScanCommand(final ParallelScan command,
             final String databaseName, final String collectionName,
             final Document commandDocument, final ReadPreference readPreference) {
-        super(databaseName, commandDocument, readPreference, VersionRange
-                .minimum(REQUIRED_VERSION));
+        super(databaseName, collectionName, commandDocument, readPreference,
+                VersionRange.minimum(REQUIRED_VERSION));
 
         myCommand = command;
-        myScannedCollectionName = collectionName;
     }
 
     /**
@@ -72,11 +68,7 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
             result = true;
         }
         else if ((object != null) && (getClass() == object.getClass())) {
-            final ParallelScanCommand other = (ParallelScanCommand) object;
-
-            result = myScannedCollectionName
-                    .equals(other.myScannedCollectionName)
-                    && super.equals(object);
+            result = super.equals(object);
         }
         return result;
     }
@@ -90,18 +82,6 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
     @Override
     public int getBatchSize() {
         return myCommand.getBatchSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return the name to run the {@code parallelCollectionScan}
-     * on instead of the {@link Command#COMMAND_COLLECTION} name.
-     * </p>
-     */
-    @Override
-    public String getCollectionName() {
-        return myScannedCollectionName;
     }
 
     /**
@@ -124,7 +104,6 @@ public class ParallelScanCommand extends Command implements CursorableMessage {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + super.hashCode();
-        result = (31 * result) + myScannedCollectionName.hashCode();
         return result;
     }
 }

@@ -115,7 +115,7 @@ public class ParallelScanCommandTest {
 
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
-            assertFalse(obj1.equals(new Command("db", doc1)));
+            assertFalse(obj1.equals(new Command("db", "coll", doc1)));
         }
     }
 }

@@ -568,7 +568,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), callback(reply(replyDoc)));
         expectLastCall();
@@ -590,7 +590,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -615,7 +615,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -641,7 +641,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -666,7 +666,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -692,7 +692,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -716,7 +716,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -744,7 +744,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), callback(reply(replyDoc)));
         expectLastCall();
@@ -769,7 +769,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -793,7 +793,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -818,7 +818,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -845,7 +845,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -869,7 +869,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -894,7 +894,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -927,7 +927,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(
-                eq(new Command("test", BuilderFactory.start()
+                eq(new Command("test", "test", BuilderFactory.start()
                         .addString("count", "test").addDocument("query", doc)
                         .add("maxTimeMS", 1234L).build(),
                         ReadPreference.SECONDARY)), callback(reply(replyDoc)));
@@ -958,7 +958,7 @@ public class MongoCollectionImplTest {
                 .addDocument("query", doc);
         commandDoc.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_SECONDARY);
-        final Command command = new Command("test", commandDoc.build(),
+        final Command command = new Command("test", "test", commandDoc.build(),
                 ReadPreference.PREFER_SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -989,7 +989,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.PRIMARY)), callback(reply(replyDoc)));
         expectLastCall();
@@ -1013,7 +1013,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), callback(reply(replyDoc)));
         expectLastCall();
@@ -1036,7 +1036,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), callback());
         expectLastCall();
@@ -1064,7 +1064,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), callback(new IOException()));
         expectLastCall();
@@ -1094,7 +1094,7 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        myMockClient.send(eq(new Command("test", BuilderFactory.start()
+        myMockClient.send(eq(new Command("test", "test", BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc).build(),
                 ReadPreference.SECONDARY)), callback(reply(replyDoc)));
         expectLastCall();
@@ -1128,7 +1128,7 @@ public class MongoCollectionImplTest {
                 .addDocument("query", doc);
         commandDoc.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_SECONDARY);
-        final Command command = new Command("test", commandDoc.build(),
+        final Command command = new Command("test", "test", commandDoc.build(),
                 ReadPreference.PREFER_SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -1162,7 +1162,7 @@ public class MongoCollectionImplTest {
                 .addDocument("query", doc);
         commandDoc.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_SECONDARY);
-        final Command command = new Command("test", commandDoc.build(),
+        final Command command = new Command("test", "test", commandDoc.build(),
                 ReadPreference.PREFER_SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -1195,7 +1195,7 @@ public class MongoCollectionImplTest {
 
         final DocumentBuilder commandDoc = BuilderFactory.start()
                 .addString("count", "test").addDocument("query", doc);
-        final Command command = new Command("test", commandDoc.build(),
+        final Command command = new Command("test", "test", commandDoc.build(),
                 ReadPreference.PREFER_SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
@@ -2148,7 +2148,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2183,7 +2184,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2223,7 +2225,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2259,7 +2262,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2294,7 +2298,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("key", "foo");
         expectedCommand.addDocument("query", request.getQuery());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2325,7 +2330,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2368,7 +2374,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.add("maxTimeMS", request.getMaximumTimeMilliseconds());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -2402,8 +2409,8 @@ public class MongoCollectionImplTest {
                 .addString("key", "foo");
         expectedCommand.add(ReadPreference.FIELD_NAME, ReadPreference.CLOSEST);
 
-        final Command message = new Command("test", expectedCommand.build(),
-                ReadPreference.CLOSEST);
+        final Command message = new Command("test", "test",
+                expectedCommand.build(), ReadPreference.CLOSEST);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
@@ -2434,8 +2441,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("distinct", "test");
         expectedCommand.addString("key", "foo");
 
-        final Command message = new Command("test", expectedCommand.build(),
-                ReadPreference.CLOSEST);
+        final Command message = new Command("test", "test",
+                expectedCommand.build(), ReadPreference.CLOSEST);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
@@ -3021,7 +3028,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -3055,7 +3063,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.add("remove", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -3087,7 +3096,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -3126,7 +3136,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -3158,7 +3169,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -3191,7 +3203,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("query", request.getQuery());
         expectedCommand.addDocument("update", request.getUpdate());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
 
@@ -3229,7 +3242,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("fields", BuilderFactory.start()
                 .add("f", 1));
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -3266,7 +3280,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("update", request.getUpdate());
         expectedCommand.add("maxTimeMS", request.getMaximumTimeMilliseconds());
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -3302,7 +3317,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("update", request.getUpdate());
         expectedCommand.add("new", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -3338,7 +3354,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("update", request.getUpdate());
         expectedCommand.addDocument("sort", BuilderFactory.start().add("f", 1));
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -3374,7 +3391,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addDocument("update", request.getUpdate());
         expectedCommand.add("upsert", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         myMockClient.send(eq(message), callback(reply(result.build())));
@@ -4452,7 +4470,8 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -4485,7 +4504,8 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -4522,7 +4542,8 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -4557,7 +4578,8 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -4589,7 +4611,8 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -4632,7 +4655,8 @@ public class MongoCollectionImplTest {
         group.addDocument("cond", request.getQuery());
         expectedCommand.add("maxTimeMS", 1000L);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -4667,8 +4691,8 @@ public class MongoCollectionImplTest {
         group.push("key").addBoolean("foo", true);
         group.add(ReadPreference.FIELD_NAME, ReadPreference.PREFER_SECONDARY);
 
-        final Command message = new Command("test", expectedCommand.build(),
-                ReadPreference.PREFER_SECONDARY);
+        final Command message = new Command("test", "test",
+                expectedCommand.build(), ReadPreference.PREFER_SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
@@ -4699,8 +4723,8 @@ public class MongoCollectionImplTest {
         group.addString("ns", "test");
         group.push("key").addBoolean("foo", true);
 
-        final Command message = new Command("test", expectedCommand.build(),
-                ReadPreference.PREFER_SECONDARY);
+        final Command message = new Command("test", "test",
+                expectedCommand.build(), ReadPreference.PREFER_SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
@@ -5282,7 +5306,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5317,7 +5342,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5352,7 +5378,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5387,7 +5414,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5427,7 +5455,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5482,7 +5511,8 @@ public class MongoCollectionImplTest {
         expectedCommand.add("maxTimeMS", request.getMaximumTimeMilliseconds());
         expectedCommand.push("out").addInteger("inline", 1);
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5520,7 +5550,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("merge", "out");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5560,7 +5591,8 @@ public class MongoCollectionImplTest {
         expectedCommand.push("out").addString("merge", "out")
                 .addString("db", "out_db");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5598,7 +5630,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("reduce", "out");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5638,7 +5671,8 @@ public class MongoCollectionImplTest {
         expectedCommand.push("out").addString("reduce", "out")
                 .addString("db", "out_db");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5676,7 +5710,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addJavaScript("reduce", "reduce");
         expectedCommand.push("out").addString("replace", "out");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5716,7 +5751,8 @@ public class MongoCollectionImplTest {
         expectedCommand.push("out").addString("replace", "out")
                 .addString("db", "out_db");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -5758,8 +5794,8 @@ public class MongoCollectionImplTest {
         expectedCommand.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_PRIMARY);
 
-        final Command message = new Command("test", expectedCommand.build(),
-                ReadPreference.PREFER_PRIMARY);
+        final Command message = new Command("test", "test",
+                expectedCommand.build(), ReadPreference.PREFER_PRIMARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType()).andReturn(ClusterType.SHARDED);
@@ -5799,8 +5835,8 @@ public class MongoCollectionImplTest {
         expectedCommand.push("out").addString("replace", "out")
                 .addString("db", "out_db");
 
-        final Command message = new Command("test", expectedCommand.build(),
-                ReadPreference.PREFER_PRIMARY);
+        final Command message = new Command("test", "test",
+                expectedCommand.build(), ReadPreference.PREFER_PRIMARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
@@ -7020,8 +7056,8 @@ public class MongoCollectionImplTest {
                 BuilderFactory.start().add("f", 1).add("_id", 0).build());
         expectedCommand.addString("language", "l");
 
-        final Command message = new Command("test", expectedCommand.build(),
-                ReadPreference.PREFER_SECONDARY);
+        final Command message = new Command("test", "test",
+                expectedCommand.build(), ReadPreference.PREFER_SECONDARY);
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockClient.getClusterType())
@@ -7065,7 +7101,8 @@ public class MongoCollectionImplTest {
         expectedCommand.addString("text", "test");
         expectedCommand.addString("search", "foo");
 
-        final Command message = new Command("test", expectedCommand.build());
+        final Command message = new Command("test", "test",
+                expectedCommand.build());
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getReadPreference()).andReturn(
@@ -7673,8 +7710,8 @@ public class MongoCollectionImplTest {
         final BatchedWrite.Bundle bundle = write.build()
                 .toBundles("test", 100000, 10000000).get(0);
 
-        final Command commandMsg = new Command("test", bundle.getCommand(),
-                ReadPreference.PRIMARY,
+        final Command commandMsg = new Command("test", "test",
+                bundle.getCommand(), ReadPreference.PRIMARY,
                 VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
         expect(myMockClient.getClusterStats()).andReturn(mockStats);

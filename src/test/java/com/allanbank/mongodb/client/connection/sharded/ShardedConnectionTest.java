@@ -199,9 +199,9 @@ public class ShardedConnectionTest {
         final Server server = cluster.add("localhost:27017");
         final Server server2 = cluster.add("localhost:27018");
 
-        final Message msg1 = new Command("db", Find.ALL,
+        final Message msg1 = new Command("db", "coll", Find.ALL,
                 ReadPreference.server("localhost:27018"));
-        final Message msg2 = new Command("db", Find.ALL);
+        final Message msg2 = new Command("db", "coll", Find.ALL);
 
         final Connection mockConnection = createMock(Connection.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
@@ -247,8 +247,8 @@ public class ShardedConnectionTest {
         final Cluster cluster = new Cluster(config);
         final Server server = cluster.add("localhost:27017");
 
-        final Message msg1 = new Command("db", Find.ALL);
-        final Message msg2 = new Command("db", Find.ALL);
+        final Message msg1 = new Command("db", "coll", Find.ALL);
+        final Message msg2 = new Command("db", "coll", Find.ALL);
 
         final Connection mockConnection = createMock(Connection.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
@@ -294,7 +294,7 @@ public class ShardedConnectionTest {
         final Cluster cluster = new Cluster(config);
         final Server server = cluster.add("localhost:27017");
 
-        final Message msg1 = new Command("db", Find.ALL);
+        final Message msg1 = new Command("db", "coll", Find.ALL);
 
         final Connection mockConnection = createMock(Connection.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
@@ -341,8 +341,9 @@ public class ShardedConnectionTest {
         final Server server = cluster.add("localhost:27017");
         final Server server2 = cluster.add("localhost:27018");
 
-        final Message msg1 = new Command("db", Find.ALL, ReadPreference.PRIMARY);
-        final Message msg2 = new Command("db", Find.ALL,
+        final Message msg1 = new Command("db", "coll", Find.ALL,
+                ReadPreference.PRIMARY);
+        final Message msg2 = new Command("db", "coll", Find.ALL,
                 ReadPreference.server("localhost:27018"));
 
         final Connection mockConnection = createMock(Connection.class);

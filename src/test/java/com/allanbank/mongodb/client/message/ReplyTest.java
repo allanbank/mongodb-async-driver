@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc.
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -32,7 +32,7 @@ import com.allanbank.mongodb.client.Operation;
 /**
  * ReplyTest provides tests for the {@link Reply} message.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplyTest {
 
@@ -118,7 +118,8 @@ public class ReplyTest {
 
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
-            assertFalse(obj1.equals(new Command(obj1.getDatabaseName(), doc1)));
+            assertFalse(obj1.equals(new Command(obj1.getDatabaseName(), "coll",
+                    doc1)));
         }
     }
 

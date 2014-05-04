@@ -48,6 +48,9 @@ public class BatchedWriteCallback extends ReplyLongCallback {
     /** The client to send messages with. */
     private Client myClient;
 
+    /** The name of the collection. */
+    private final String myCollectionName;
+
     /** The name of the database. */
     private final String myDatabaseName;
 
@@ -77,6 +80,8 @@ public class BatchedWriteCallback extends ReplyLongCallback {
      * 
      * @param databaseName
      *            The name of the database.
+     * @param collectionName
+     *            The name of the collection.
      * @param results
      *            The callback for the final results.
      * @param write
@@ -87,11 +92,13 @@ public class BatchedWriteCallback extends ReplyLongCallback {
      *            The bundled writes.
      */
     public BatchedWriteCallback(final String databaseName,
-            final Callback<Long> results, final BatchedWrite write,
-            final Client client, final List<BatchedWrite.Bundle> bundles) {
+            final String collectionName, final Callback<Long> results,
+            final BatchedWrite write, final Client client,
+            final List<BatchedWrite.Bundle> bundles) {
         super(results);
 
         myDatabaseName = databaseName;
+        myCollectionName = collectionName;
         myWrite = write;
         myClient = client;
         myBundles = Collections
@@ -113,6 +120,8 @@ public class BatchedWriteCallback extends ReplyLongCallback {
      * 
      * @param databaseName
      *            The name of the database.
+     * @param collectionName
+     *            The name of the collection.
      * @param realCallbacks
      *            The list of callbacks. One for each write.
      * @param write
@@ -121,11 +130,13 @@ public class BatchedWriteCallback extends ReplyLongCallback {
      *            The bundled writes.
      */
     public BatchedWriteCallback(final String databaseName,
+            final String collectionName,
             final List<Callback<Reply>> realCallbacks,
             final BatchedWrite write, final List<Bundle> bundles) {
         super(null);
 
         myDatabaseName = databaseName;
+        myCollectionName = collectionName;
         myWrite = write;
         myClient = null;
         myBundles = Collections
@@ -176,7 +187,8 @@ public class BatchedWriteCallback extends ReplyLongCallback {
         // Batches....
         for (final BatchedWrite.Bundle bundle : toSendBundles) {
             final Command commandMsg = new Command(myDatabaseName,
-                    bundle.getCommand(), ReadPreference.PRIMARY,
+                    myCollectionName, bundle.getCommand(),
+                    ReadPreference.PRIMARY,
                     VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
 
             // Our documents may be bigger than normally allowed...

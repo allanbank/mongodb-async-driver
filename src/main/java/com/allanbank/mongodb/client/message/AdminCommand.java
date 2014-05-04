@@ -26,6 +26,6 @@ public class AdminCommand extends Command {
      *            The command document containing the command and options.
      */
     public AdminCommand(final Document commandDocument) {
-        super(ADMIN_DATABASE, commandDocument);
+        super(ADMIN_DATABASE, COMMAND_COLLECTION, commandDocument);
     }
 }

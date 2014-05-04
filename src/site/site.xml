@@ -34,6 +34,7 @@
 			<item name="JavaDocs" href="apidocs/index.html" />
 			<item name="Getting Started" href="usage.html" collapse="true">
 				<item name="Hello World" href="userguide/hello_world.html" />
+				<item name="Advanced Routing" href="userguide/advanced_routing.html" />
 				<item name="Aggregation Support" href="userguide/aggregation.html" />
 				<item name="Asynchronous API" href="userguide/asynchronous_api.html" />
 				<item name="Authentication" href="userguide/authentication.html" collapse="true">

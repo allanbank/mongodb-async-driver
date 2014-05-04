@@ -49,7 +49,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, List, BatchedWrite, java.util.List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,List, BatchedWrite, java.util.List)}
      * . This version is used when by the batching async collection interface.
      */
     @SuppressWarnings("unchecked")
@@ -75,7 +75,7 @@ public class BatchedWriteCallbackTest {
         replay(mockReplyCallback1, mockReplyCallback2, mockReplyCallback3,
                 mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                Arrays.asList(mockReplyCallback1, mockReplyCallback2,
+                "foo", Arrays.asList(mockReplyCallback1, mockReplyCallback2,
                         mockReplyCallback3), write, bundles);
         cb.setClient(mockClient);
 
@@ -138,7 +138,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, List, BatchedWrite, java.util.List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,List, BatchedWrite, java.util.List)}
      * . This version is used when by the batching async collection interface.
      */
     @SuppressWarnings("unchecked")
@@ -164,7 +164,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockReplyCallback2, mockReplyCallback3, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                Arrays.asList(replyCallback1, mockReplyCallback2,
+                "foo", Arrays.asList(replyCallback1, mockReplyCallback2,
                         mockReplyCallback3), write, bundles);
         cb.setClient(mockClient);
 
@@ -212,7 +212,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, List, BatchedWrite, java.util.List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,List, BatchedWrite, java.util.List)}
      * . This version is used when by the batching async collection interface.
      */
     @SuppressWarnings("unchecked")
@@ -232,7 +232,7 @@ public class BatchedWriteCallbackTest {
         replay(mockReplyCallback1, mockReplyCallback2, mockClient);
         try {
             final BatchedWriteCallback cb = new BatchedWriteCallback(
-                    databaseName, Arrays.asList(mockReplyCallback1,
+                    databaseName, "foo", Arrays.asList(mockReplyCallback1,
                             mockReplyCallback2), write, bundles);
             fail("Should not have created the callback with one less reply callback."
                     + cb);
@@ -248,7 +248,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, List, BatchedWrite, java.util.List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,List, BatchedWrite, java.util.List)}
      * . This version is used when by the batching async collection interface.
      */
     @SuppressWarnings("unchecked")
@@ -282,7 +282,7 @@ public class BatchedWriteCallbackTest {
         replay(mockReplyCallback1, mockReplyCallback2, mockReplyCallback3,
                 mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                Arrays.asList(mockReplyCallback1, mockReplyCallback2,
+                "foo", Arrays.asList(mockReplyCallback1, mockReplyCallback2,
                         mockReplyCallback3), write, bundles);
         cb.setClient(mockClient);
 
@@ -345,7 +345,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, List, BatchedWrite, java.util.List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,List, BatchedWrite, java.util.List)}
      * . This version is used when by the batching async collection interface.
      */
     @SuppressWarnings("unchecked")
@@ -380,7 +380,7 @@ public class BatchedWriteCallbackTest {
         replay(mockReplyCallback1, mockReplyCallback2, mockReplyCallback3,
                 mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                Arrays.asList(mockReplyCallback1, mockReplyCallback2,
+                "foo", Arrays.asList(mockReplyCallback1, mockReplyCallback2,
                         mockReplyCallback3), write, bundles);
         cb.setClient(mockClient);
 
@@ -430,7 +430,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -454,7 +454,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -490,7 +490,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -522,7 +522,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -579,7 +579,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -605,7 +605,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -657,7 +657,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -687,7 +687,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -739,7 +739,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -769,7 +769,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -821,7 +821,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -854,7 +854,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -902,7 +902,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -927,7 +927,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -969,7 +969,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -1000,7 +1000,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -1048,7 +1048,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -1081,7 +1081,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -1129,7 +1129,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -1162,7 +1162,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -1210,7 +1210,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -1242,7 +1242,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -1298,7 +1298,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -1330,7 +1330,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 
@@ -1373,7 +1373,7 @@ public class BatchedWriteCallbackTest {
 
     /**
      * Test method for
-     * {@link BatchedWriteCallback#BatchedWriteCallback(String, Callback, BatchedWrite, Client, List)}
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
      * . This constructor is used for a set of write operations that do use the
      * write commands. e.g., the server is on or after MongoDB 2.6.
      */
@@ -1405,7 +1405,7 @@ public class BatchedWriteCallbackTest {
 
         replay(mockResults, mockClient);
         final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
-                mockResults, write, mockClient, bundles);
+                "foo", mockResults, write, mockClient, bundles);
         assertThat(cb.getForwardCallback(), sameInstance(mockResults));
         verify(mockResults, mockClient);
 

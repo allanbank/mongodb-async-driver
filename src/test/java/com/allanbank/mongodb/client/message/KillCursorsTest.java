@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc.
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -36,7 +36,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 /**
  * KillCursorsTest provides tests for the {@link KillCursors} message.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class KillCursorsTest {
 
@@ -82,7 +82,7 @@ public class KillCursorsTest {
 
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
-            assertFalse(obj1.equals(new Command(obj1.getDatabaseName(),
+            assertFalse(obj1.equals(new Command(obj1.getDatabaseName(), "coll",
                     BuilderFactory.start().build())));
         }
     }

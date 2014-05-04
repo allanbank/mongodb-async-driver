@@ -99,8 +99,8 @@ public class SerialClientImplTest {
     @Test
     public void testClose() throws IOException {
 
-        final Command message = new Command("testDb", BuilderFactory.start()
-                .build());
+        final Command message = new Command("testDb", "coll", BuilderFactory
+                .start().build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -633,8 +633,8 @@ public class SerialClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessageClosedExisting() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", "coll", BuilderFactory
+                .start().build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -673,8 +673,8 @@ public class SerialClientImplTest {
     @Test
     public void testSendMessageCreatesSecondConnectionOnClosed()
             throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", "coll", BuilderFactory
+                .start().build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -745,8 +745,8 @@ public class SerialClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessagePicksIdleExisting() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", "coll", BuilderFactory
+                .start().build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -778,8 +778,8 @@ public class SerialClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessagePicksMostIdleWhenAllPending() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", "coll", BuilderFactory
+                .start().build());
 
         myConfig.setMaxConnectionCount(2);
 

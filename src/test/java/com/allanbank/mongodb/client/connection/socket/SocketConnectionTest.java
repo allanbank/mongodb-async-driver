@@ -285,7 +285,7 @@ public class SocketConnectionTest {
         builder.add("silverBullet", 1);
         final Document commandDoc = builder.build();
 
-        final Message command = new Command("db", commandDoc,
+        final Message command = new Command("db", "coll", commandDoc,
                 ReadPreference.PRIMARY, VersionRange.minimum(Version
                         .parse("99.99.99")));
 

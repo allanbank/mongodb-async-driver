@@ -389,8 +389,8 @@ public class BatchedAsyncMongoCollectionImpl extends
                     stats.getSmallestMaxBatchedWriteOperations());
             if (!bundles.isEmpty()) {
                 final BatchedWriteCallback cb = new BatchedWriteCallback(
-                        myCollection.getDatabaseName(), myRealCallbacks, w,
-                        bundles);
+                        myCollection.getDatabaseName(), myCollection.getName(),
+                        myRealCallbacks, w, bundles);
                 myResults.add(cb);
             }
 

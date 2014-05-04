@@ -1,5 +1,5 @@
 /*
- * Copyright 2013, Allanbank Consulting, Inc.
+ * Copyright 2013-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -36,7 +36,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 /**
  * CommandTest provides tests for the {@link Command} class.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CommandTest {
 
@@ -48,8 +48,8 @@ public class CommandTest {
      */
     @Test
     public void testBsonWrite() throws IOException {
-        final Command command = new Command("db", BuilderFactory.start()
-                .build());
+        final Command command = new Command("db", "coll", BuilderFactory
+                .start().build());
 
         final ByteArrayOutputStream out1 = new ByteArrayOutputStream();
         final BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
@@ -71,8 +71,8 @@ public class CommandTest {
      */
     @Test
     public void testBsonWriteWithSecondaryOkReadPreference() throws IOException {
-        final Command command = new Command("db", BuilderFactory.start()
-                .build(), ReadPreference.PREFER_SECONDARY);
+        final Command command = new Command("db", "coll", BuilderFactory
+                .start().build(), ReadPreference.PREFER_SECONDARY);
 
         final ByteArrayOutputStream out1 = new ByteArrayOutputStream();
         final BsonOutputStream bsonOut1 = new BsonOutputStream(out1);
@@ -105,13 +105,16 @@ public class CommandTest {
 
         for (final Document document : Arrays.asList(doc1, doc2, doc3)) {
             for (final String databaseName : Arrays.asList("n1", "n2", "n3")) {
-                for (final ReadPreference readPreference : Arrays
-                        .asList(ReadPreference.PRIMARY)) {
+                for (final String collectionName : Arrays.asList("n1", "n2",
+                        "n3")) {
+                    for (final ReadPreference readPreference : Arrays
+                            .asList(ReadPreference.PRIMARY)) {
 
-                    objs1.add(new Command(databaseName, document,
-                            readPreference, range));
-                    objs2.add(new Command(databaseName, document,
-                            readPreference, range));
+                        objs1.add(new Command(databaseName, collectionName,
+                                document, readPreference, range));
+                        objs2.add(new Command(databaseName, collectionName,
+                                document, readPreference, range));
+                    }
                 }
             }
         }
@@ -147,8 +150,8 @@ public class CommandTest {
      */
     @Test
     public void testGetOperationNameWithEmptyCommandDocument() {
-        final Command command = new Command("db", BuilderFactory.start()
-                .build());
+        final Command command = new Command("db", "coll", BuilderFactory
+                .start().build());
 
         assertThat(command.getOperationName(), is("command"));
     }
@@ -158,11 +161,11 @@ public class CommandTest {
      */
     @Test
     public void testToString() {
-        final Command command = new Command("db", BuilderFactory.start()
-                .add("foo", 1).build());
+        final Command command = new Command("db", "coll", BuilderFactory
+                .start().add("foo", 1).build());
 
         assertThat(command.toString(),
-                is("Command[foo, db=db, collection=$cmd, "
+                is("Command[foo, db=db, collection=coll, "
                         + "readPreference=PRIMARY_ONLY]: { foo : 1 }"));
     }
 
@@ -171,11 +174,11 @@ public class CommandTest {
      */
     @Test
     public void testToStringNoReadPreference() {
-        final Command command = new Command("db", BuilderFactory.start()
-                .add("foo", 1).build(), null);
+        final Command command = new Command("db", "coll", BuilderFactory
+                .start().add("foo", 1).build(), null);
 
         assertThat(command.toString(),
-                is("Command[foo, db=db, collection=$cmd]: { foo : 1 }"));
+                is("Command[foo, db=db, collection=coll]: { foo : 1 }"));
     }
 
     /**
@@ -183,12 +186,12 @@ public class CommandTest {
      */
     @Test
     public void testToStringWithVersionRange() {
-        final Command command = new Command("db", BuilderFactory.start()
-                .add("foo", 1).build(), ReadPreference.PRIMARY,
+        final Command command = new Command("db", "coll", BuilderFactory
+                .start().add("foo", 1).build(), ReadPreference.PRIMARY,
                 VersionRange.range(Version.VERSION_2_2, Version.VERSION_2_4));
 
         assertThat(command.toString(),
-                is("Command[foo, db=db, collection=$cmd, "
+                is("Command[foo, db=db, collection=coll, "
                         + "readPreference=PRIMARY_ONLY, "
                         + "requiredVersionRange=[2.2, 2.4)]: { foo : 1 }"));
     }
@@ -200,8 +203,8 @@ public class CommandTest {
     public void testValidateSize() {
         final SizeOfVisitor visitor = new SizeOfVisitor();
 
-        final Command command = new Command("db", BuilderFactory.start()
-                .add("foo", 1).build(), ReadPreference.PRIMARY,
+        final Command command = new Command("db", "coll", BuilderFactory
+                .start().add("foo", 1).build(), ReadPreference.PRIMARY,
                 VersionRange.range(Version.VERSION_2_2, Version.VERSION_2_4));
 
         try {
@@ -221,8 +224,8 @@ public class CommandTest {
         command.setAllowJumbo(true);
         command.validateSize(visitor, 1);
 
-        final Command bigCommand = new Command("db", BuilderFactory.start()
-                .add("foo", new byte[16 * 1024]).build(),
+        final Command bigCommand = new Command("db", "coll", BuilderFactory
+                .start().add("foo", new byte[16 * 1024]).build(),
                 ReadPreference.PRIMARY, VersionRange.range(Version.VERSION_2_2,
                         Version.VERSION_2_4));
         // Should throw if Jumbo still too big

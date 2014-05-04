@@ -153,8 +153,8 @@ public class ClientImplTest {
     @Test
     public void testClose() throws IOException {
 
-        final Command message = new Command("testDb", BuilderFactory.start()
-                .build());
+        final Command message = new Command("testDb",
+                Command.COMMAND_COLLECTION, BuilderFactory.start().build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -196,8 +196,8 @@ public class ClientImplTest {
     @Test
     public void testCloseFails() throws IOException {
 
-        final Command message = new Command("testDb", BuilderFactory.start()
-                .build());
+        final Command message = new Command("testDb",
+                Command.COMMAND_COLLECTION, BuilderFactory.start().build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -244,8 +244,8 @@ public class ClientImplTest {
     @Test
     public void testCloseOnThrownIoException() throws IOException {
 
-        final Command message = new Command("testDb", BuilderFactory.start()
-                .build());
+        final Command message = new Command("testDb",
+                Command.COMMAND_COLLECTION, BuilderFactory.start().build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -292,8 +292,8 @@ public class ClientImplTest {
     @Test
     public void testCloseThenThrows() throws IOException {
 
-        final Command message = new Command("testDb", BuilderFactory.start()
-                .build());
+        final Command message = new Command("testDb",
+                Command.COMMAND_COLLECTION, BuilderFactory.start().build());
 
         myTestInstance.close();
         try {
@@ -314,8 +314,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testCreatesConnectionOnScannedPending() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(7);
 
@@ -602,8 +602,8 @@ public class ClientImplTest {
      */
     @Test
     public void testInvalidPrpertyChange() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         final Capture<PropertyChangeListener> propListenerCapture = new Capture<PropertyChangeListener>();
         final Connection mockConnection = createMock(Connection.class);
@@ -727,8 +727,8 @@ public class ClientImplTest {
      */
     @Test
     public void testReconnectFails() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
         final Cluster cluster = new Cluster(myConfig);
         final Server server = cluster.add(new InetSocketAddress("localhost",
                 27017));
@@ -811,8 +811,8 @@ public class ClientImplTest {
     @Test
     public void testReconnectOnShutdownConnection() throws IOException,
             InterruptedException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(1);
 
@@ -853,8 +853,8 @@ public class ClientImplTest {
     @Test
     public void testReconnectThatFails() throws IOException,
             InterruptedException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(1);
 
@@ -1348,8 +1348,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessageClosesFirstWhenMaxShrinks() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -1415,8 +1415,8 @@ public class ClientImplTest {
     @Test
     public void testSendMessageClosesFirstWhenMaxShrinksAndCloseFails()
             throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -1476,8 +1476,8 @@ public class ClientImplTest {
     @Test
     public void testSendMessageCreatesSecondConnectionOnPending()
             throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -1517,8 +1517,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessageFailsWhenAllAreClosed() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -1606,8 +1606,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessagePicksIdleExisting() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         final Connection mockConnection = createMock(Connection.class);
 
@@ -1641,8 +1641,8 @@ public class ClientImplTest {
     @SuppressWarnings("boxing")
     @Test
     public void testSendMessagePicksMostIdleWhenAllPending() throws IOException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(2);
 
@@ -1699,8 +1699,8 @@ public class ClientImplTest {
     @Test
     public void testSendMessageWaitsForReconnect() throws IOException,
             InterruptedException {
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(1);
 
@@ -1784,8 +1784,8 @@ public class ClientImplTest {
 
         myConfig.setReconnectTimeout(250);
 
-        final Message message = new Command("db", BuilderFactory.start()
-                .build());
+        final Message message = new Command("db", Command.COMMAND_COLLECTION,
+                BuilderFactory.start().build());
 
         myConfig.setMaxConnectionCount(1);
 

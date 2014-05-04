@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc.
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -49,7 +49,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * MongoClientImplTest provides tests for the {@link MongoClientImpl} class.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoClientImplTest {
 
@@ -232,7 +232,8 @@ public class MongoClientImplTest {
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("listDatabases", 1);
 
-        final Command message = new Command("admin", commandDoc.build());
+        final Command message = new Command("admin",
+                Command.COMMAND_COLLECTION, commandDoc.build());
 
         expect(myMockClient.getConfig()).andReturn(
                 new MongoClientConfiguration());
@@ -261,7 +262,8 @@ public class MongoClientImplTest {
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("listDatabases", 1);
 
-        final Command message = new Command("admin", commandDoc.build());
+        final Command message = new Command("admin",
+                Command.COMMAND_COLLECTION, commandDoc.build());
 
         expect(myMockClient.getConfig()).andReturn(
                 new MongoClientConfiguration());

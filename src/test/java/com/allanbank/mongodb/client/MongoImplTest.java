@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc.
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -37,7 +37,7 @@ import com.allanbank.mongodb.client.message.Reply;
  * 
  * @deprecated Use the {@link MongoClient} interface instead. This interface
  *             will be removed on or after the 1.3.0 release.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
 public class MongoImplTest {
@@ -162,7 +162,8 @@ public class MongoImplTest {
         final DocumentBuilder commandDoc = BuilderFactory.start();
         commandDoc.addInteger("listDatabases", 1);
 
-        final Command message = new Command("admin", commandDoc.build());
+        final Command message = new Command("admin",
+                Command.COMMAND_COLLECTION, commandDoc.build());
 
         expect(myMockClient.getConfig()).andReturn(
                 new MongoClientConfiguration());

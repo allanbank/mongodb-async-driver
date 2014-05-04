@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2013, Allanbank Consulting, Inc.
+ * Copyright 2012-2014, Allanbank Consulting, Inc.
  *           All Rights Reserved
  */
 
@@ -35,7 +35,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 /**
  * UpdateTest provides tests for the {@link Update} message.
  * 
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class UpdateTest {
 
@@ -99,7 +99,8 @@ public class UpdateTest {
 
             assertFalse(obj1.equals("foo"));
             assertFalse(obj1.equals(null));
-            assertFalse(obj1.equals(new Command(obj1.getDatabaseName(), doc1)));
+            assertFalse(obj1.equals(new Command(obj1.getDatabaseName(), "coll",
+                    doc1)));
         }
     }
 

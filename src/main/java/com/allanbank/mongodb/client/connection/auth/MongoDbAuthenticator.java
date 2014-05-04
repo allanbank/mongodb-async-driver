@@ -34,7 +34,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * MongoDbAuthenticator provides an authenticator for the legacy, pre-2.4
  * version, of MongoDB authentication.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoDbAuthenticator implements Authenticator {
 
@@ -129,8 +129,8 @@ public class MongoDbAuthenticator implements Authenticator {
             final DocumentBuilder builder = BuilderFactory.start();
             builder.addInteger("getnonce", 1);
 
-            connection.send(
-                    new Command(credential.getDatabase(), builder.build()),
+            connection.send(new Command(credential.getDatabase(),
+                    Command.COMMAND_COLLECTION, builder.build()),
                     new NonceReplyCallback(credential, connection));
         }
         catch (final MongoDbException errorOnSend) {
@@ -307,8 +307,8 @@ public class MongoDbAuthenticator implements Authenticator {
                 builder.addString("key", IOUtils.toHex(bytes));
 
                 myConnection.send(new Command(myCredential.getDatabase(),
-                        builder.build()), new AuthenticateReplyCallback(
-                        myResults));
+                        Command.COMMAND_COLLECTION, builder.build()),
+                        new AuthenticateReplyCallback(myResults));
             }
             catch (final NoSuchAlgorithmException e) {
                 exception(new MongoDbAuthenticationException(e));

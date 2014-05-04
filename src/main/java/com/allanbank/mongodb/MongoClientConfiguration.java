@@ -1537,13 +1537,13 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
             }
         }
-        catch (InstantiationException e) {
+        catch (final InstantiationException e) {
             throw new IllegalArgumentException(e);
         }
-        catch (IllegalAccessException e) {
+        catch (final IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         }
-        catch (InvocationTargetException e) {
+        catch (final InvocationTargetException e) {
             throw new IllegalArgumentException(e);
         }
     }

@@ -182,8 +182,8 @@ public abstract class AbstractMongoOperations {
         final ReadPreference finalPreference = updateReadPreference(builder,
                 count.getReadPreference(), true);
 
-        final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), finalPreference,
+        final Command commandMsg = new Command(getDatabaseName(), getName(),
+                builder.build(), count.getQuery(), finalPreference,
                 VersionRange.minimum(minVersion));
 
         myClient.send(commandMsg, new ReplyLongCallback(results));
@@ -259,7 +259,7 @@ public abstract class AbstractMongoOperations {
         final ReadPreference readPreference = updateReadPreference(builder,
                 command.getReadPreference(), true);
 
-        final Command commandMsg = new Command(getDatabaseName(),
+        final Command commandMsg = new Command(getDatabaseName(), getName(),
                 builder.build(), readPreference,
                 VersionRange.minimum(minVersion));
 
@@ -370,8 +370,8 @@ public abstract class AbstractMongoOperations {
         }
 
         // Must be the primary since this is a write.
-        final Command commandMsg = new Command(getDatabaseName(),
-                builder.build(), ReadPreference.PRIMARY,
+        final Command commandMsg = new Command(getDatabaseName(), getName(),
+                builder.build(), command.getQuery(), ReadPreference.PRIMARY,
                 VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyDocumentCallback(results));
     }
@@ -523,7 +523,7 @@ public abstract class AbstractMongoOperations {
         final ReadPreference readPreference = updateReadPreference(
                 groupDocBuilder, command.getReadPreference(), false);
 
-        final Command commandMsg = new Command(getDatabaseName(),
+        final Command commandMsg = new Command(getDatabaseName(), getName(),
                 builder.build(), readPreference,
                 VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyArrayCallback("retval", results));
@@ -643,7 +643,7 @@ public abstract class AbstractMongoOperations {
         final ReadPreference readPreference = updateReadPreference(builder,
                 command.getReadPreference(), true);
 
-        final Command commandMsg = new Command(getDatabaseName(),
+        final Command commandMsg = new Command(getDatabaseName(), getName(),
                 builder.build(), readPreference,
                 VersionRange.minimum(minVersion));
         myClient.send(commandMsg, new ReplyResultCallback(results));
@@ -848,7 +848,7 @@ public abstract class AbstractMongoOperations {
         final ReadPreference readPreference = updateReadPreference(builder,
                 command.getReadPreference(), true);
 
-        final Command commandMsg = new Command(getDatabaseName(),
+        final Command commandMsg = new Command(getDatabaseName(), getName(),
                 builder.build(), readPreference,
                 VersionRange.minimum(minVersion));
         myClient.send(commandMsg,
@@ -932,7 +932,8 @@ public abstract class AbstractMongoOperations {
             }
 
             final BatchedWriteCallback callback = new BatchedWriteCallback(
-                    getDatabaseName(), results, write, myClient, bundles);
+                    getDatabaseName(), getName(), results, write, myClient,
+                    bundles);
 
             // Push the messages out.
             callback.send();

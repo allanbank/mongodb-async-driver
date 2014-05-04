@@ -11,6 +11,7 @@ import java.util.Iterator;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
@@ -49,16 +50,25 @@ public class Command extends AbstractMessage {
      */
     private int myMessageSize;
 
+    /** The command's document to use in routing decisions. */
+    private final Document myRoutingDocument;
+
     /**
      * Create a new Command.
      * 
      * @param databaseName
      *            The name of the database.
+     * @param collectionName
+     *            The name of the collection the command is using. This should
+     *            be the real collection and not {@value #COMMAND_COLLECTION} if
+     *            the real collection is known.
      * @param commandDocument
      *            The command document containing the command and options.
      */
-    public Command(final String databaseName, final Document commandDocument) {
-        this(databaseName, commandDocument, ReadPreference.PRIMARY);
+    public Command(final String databaseName, final String collectionName,
+            final Document commandDocument) {
+        this(databaseName, collectionName, commandDocument,
+                ReadPreference.PRIMARY);
     }
 
     /**
@@ -66,15 +76,52 @@ public class Command extends AbstractMessage {
      * 
      * @param databaseName
      *            The name of the database.
+     * @param collectionName
+     *            The name of the collection the command is using. This should
+     *            be the real collection and not {@value #COMMAND_COLLECTION} if
+     *            the real collection is known.
+     * @param commandDocument
+     *            The command document containing the command and options.
+     * @param routingDocument
+     *            The document that should be used for routing the command.
+     * @param readPreference
+     *            The preference for which servers to use to retrieve the
+     *            results.
+     * @param requiredServerVersion
+     *            The required version of the server to support processing the
+     *            message.
+     */
+    public Command(final String databaseName, final String collectionName,
+            final Document commandDocument, final Document routingDocument,
+            final ReadPreference readPreference,
+            final VersionRange requiredServerVersion) {
+        super(databaseName, collectionName, readPreference,
+                requiredServerVersion);
+
+        myCommand = commandDocument;
+        myRoutingDocument = routingDocument;
+        myMessageSize = -1;
+    }
+
+    /**
+     * Create a new Command.
+     * 
+     * @param databaseName
+     *            The name of the database.
+     * @param collectionName
+     *            The name of the collection the command is using. This should
+     *            be the real collection and not {@value #COMMAND_COLLECTION} if
+     *            the real collection is known.
      * @param commandDocument
      *            The command document containing the command and options.
      * @param readPreference
      *            The preference for which servers to use to retrieve the
      *            results.
      */
-    public Command(final String databaseName, final Document commandDocument,
-            final ReadPreference readPreference) {
-        this(databaseName, commandDocument, readPreference, null);
+    public Command(final String databaseName, final String collectionName,
+            final Document commandDocument, final ReadPreference readPreference) {
+        this(databaseName, collectionName, commandDocument, readPreference,
+                null);
     }
 
     /**
@@ -82,6 +129,10 @@ public class Command extends AbstractMessage {
      * 
      * @param databaseName
      *            The name of the database.
+     * @param collectionName
+     *            The name of the collection the command is using. This should
+     *            be the real collection and not {@value #COMMAND_COLLECTION} if
+     *            the real collection is known.
      * @param commandDocument
      *            The command document containing the command and options.
      * @param readPreference
@@ -91,14 +142,12 @@ public class Command extends AbstractMessage {
      *            The required version of the server to support processing the
      *            message.
      */
-    public Command(final String databaseName, final Document commandDocument,
+    public Command(final String databaseName, final String collectionName,
+            final Document commandDocument,
             final ReadPreference readPreference,
             final VersionRange requiredServerVersion) {
-        super(databaseName, COMMAND_COLLECTION, readPreference,
-                requiredServerVersion);
-
-        myCommand = commandDocument;
-        myMessageSize = -1;
+        this(databaseName, collectionName, commandDocument,
+                EmptyDocument.INSTANCE, readPreference, requiredServerVersion);
     }
 
     /**
@@ -149,6 +198,15 @@ public class Command extends AbstractMessage {
         // Not expected. Command documents should have atleast one element. Just
         // return a generic name here.
         return "command";
+    }
+
+    /**
+     * Returns the routingDocument value.
+     * 
+     * @return The routingDocument value.
+     */
+    public Document getRoutingDocument() {
+        return myRoutingDocument;
     }
 
     /**
@@ -263,14 +321,14 @@ public class Command extends AbstractMessage {
 
         int size = HEADER_SIZE;
         size += 4; // flags;
-        size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
+        size += out.sizeOfCString(myDatabaseName, ".", COMMAND_COLLECTION);
         size += 4; // numberToSkip
         size += 4; // numberToReturn
         size += out.sizeOf(myCommand);
 
         writeHeader(out, messageId, 0, Operation.QUERY, size);
         out.writeInt(flags);
-        out.writeCString(myDatabaseName, ".", myCollectionName);
+        out.writeCString(myDatabaseName, ".", COMMAND_COLLECTION);
         out.writeInt(numberToSkip);
         out.writeInt(numberToReturn);
         out.writeDocument(myCommand);
@@ -291,7 +349,7 @@ public class Command extends AbstractMessage {
 
         final long start = writeHeader(out, messageId, 0, Operation.QUERY);
         out.writeInt(flags);
-        out.writeCString(myDatabaseName, ".", myCollectionName);
+        out.writeCString(myDatabaseName, ".", COMMAND_COLLECTION);
         out.writeInt(numberToSkip);
         out.writeInt(numberToReturn);
         out.writeDocument(myCommand);

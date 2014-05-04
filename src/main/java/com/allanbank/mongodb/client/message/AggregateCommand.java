@@ -22,9 +22,6 @@ public class AggregateCommand extends Command implements CursorableMessage {
     /** The original aggregation. */
     private final Aggregate myAggregate;
 
-    /** The name of the collection to run the aggregation on. */
-    private final String myAggregateCollectionName;
-
     /**
      * Create a new AggregateCommand.
      * 
@@ -48,11 +45,10 @@ public class AggregateCommand extends Command implements CursorableMessage {
             final Document commandDocument,
             final ReadPreference readPreference,
             final VersionRange requiredServerVersion) {
-        super(databaseName, commandDocument, readPreference,
+        super(databaseName, collectionName, commandDocument, readPreference,
                 requiredServerVersion);
 
         myAggregate = aggregation;
-        myAggregateCollectionName = collectionName;
     }
 
     /**
@@ -71,11 +67,7 @@ public class AggregateCommand extends Command implements CursorableMessage {
             result = true;
         }
         else if ((object != null) && (getClass() == object.getClass())) {
-            final AggregateCommand other = (AggregateCommand) object;
-
-            result = myAggregateCollectionName
-                    .equals(other.myAggregateCollectionName)
-                    && super.equals(object);
+            result = super.equals(object);
         }
         return result;
     }
@@ -89,18 +81,6 @@ public class AggregateCommand extends Command implements CursorableMessage {
     @Override
     public int getBatchSize() {
         return myAggregate.getBatchSize();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return the name to run the aggregation on instead of the
-     * {@link Command#COMMAND_COLLECTION} name.
-     * </p>
-     */
-    @Override
-    public String getCollectionName() {
-        return myAggregateCollectionName;
     }
 
     /**
@@ -123,7 +103,6 @@ public class AggregateCommand extends Command implements CursorableMessage {
     public int hashCode() {
         int result = 1;
         result = (31 * result) + super.hashCode();
-        result = (31 * result) + myAggregateCollectionName.hashCode();
         return result;
     }
 }
