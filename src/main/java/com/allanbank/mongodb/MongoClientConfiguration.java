@@ -12,6 +12,7 @@ import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -1504,34 +1505,46 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The name of the field.
      * @param propValue
      *            The value for the field.
-     * @throws Exception
+     * @throws IllegalArgumentException
      *             On a number of errors.
      */
     private void updateFieldValue(final PropertyDescriptor descriptor,
-            final String propName, final String propValue) throws Exception {
-        final Method writer = descriptor.getWriteMethod();
-        PropertyEditor editor;
+            final String propName, final String propValue)
+            throws IllegalArgumentException {
 
-        final Class<?> editorClass = descriptor.getPropertyEditorClass();
-        if (editorClass != null) {
-            editor = (PropertyEditor) editorClass.newInstance();
-        }
-        else {
-            final Class<?> fieldType = descriptor.getPropertyType();
-            editor = PropertyEditorManager.findEditor(fieldType);
-        }
+        try {
+            final Method writer = descriptor.getWriteMethod();
+            PropertyEditor editor;
+            final Class<?> editorClass = descriptor.getPropertyEditorClass();
+            if (editorClass != null) {
+                editor = (PropertyEditor) editorClass.newInstance();
+            }
+            else {
+                final Class<?> fieldType = descriptor.getPropertyType();
+                editor = PropertyEditorManager.findEditor(fieldType);
+            }
 
-        if (editor != null) {
-            final Method reader = descriptor.getReadMethod();
-            editor.setValue(reader.invoke(this));
-            editor.setAsText(propValue);
-            writer.invoke(this, editor.getValue());
-        }
-        else {
-            throw new IllegalArgumentException("The '" + propName
-                    + "' parameter could not be set " + "to the value '"
-                    + propValue + "'. No editor available.");
+            if (editor != null) {
+                final Method reader = descriptor.getReadMethod();
+                editor.setValue(reader.invoke(this));
+                editor.setAsText(propValue);
+                writer.invoke(this, editor.getValue());
+            }
+            else {
+                throw new IllegalArgumentException("The '" + propName
+                        + "' parameter could not be set " + "to the value '"
+                        + propValue + "'. No editor available.");
 
+            }
+        }
+        catch (InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        }
+        catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        }
+        catch (InvocationTargetException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 }
