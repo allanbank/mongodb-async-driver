@@ -130,7 +130,7 @@ public class DurabilityEditor extends PropertyEditorSupport {
      */
     private Durability fromUriParameters(final Map<String, String> parameters) {
         boolean safe = false;
-        int w = -1;
+        int w = 1;
         String wTxt = null;
         boolean fsync = false;
         boolean journal = false;
@@ -151,7 +151,7 @@ public class DurabilityEditor extends PropertyEditorSupport {
                     wTxt = null;
                 }
                 catch (final NumberFormatException nfe) {
-                    w = 1;
+                    w = 2;
                     wTxt = value;
                 }
             }
@@ -159,8 +159,8 @@ public class DurabilityEditor extends PropertyEditorSupport {
                     || "wtimeoutms".equalsIgnoreCase(parameter)) {
                 safe = true;
                 wtimeout = Integer.parseInt(value);
-                if (w < 1) {
-                    w = 1;
+                if (w <= 1) {
+                    w = 2;
                 }
             }
             else if ("fsync".equalsIgnoreCase(parameter)) {
@@ -188,7 +188,10 @@ public class DurabilityEditor extends PropertyEditorSupport {
             else if (journal) {
                 result = Durability.journalDurable(wtimeout);
             }
-            else if (w > 0) {
+            else if (w == 1) {
+                result = Durability.ACK;
+            }
+            else if (w > 1) {
                 if (wTxt != null) {
                     result = Durability.replicaDurable(wTxt, wtimeout);
                 }
@@ -196,8 +199,8 @@ public class DurabilityEditor extends PropertyEditorSupport {
                     result = Durability.replicaDurable(w, wtimeout);
                 }
             }
-            else {
-                result = Durability.ACK;
+            else if (w <= 0) {
+                result = Durability.NONE;
             }
         }
         return result;

@@ -69,7 +69,7 @@ public class DurabilityTest {
         builder.reset();
         builder.add("getlasterror", 1);
         builder.add("wtimeout", 125);
-        builder.add("w", 1);
+        builder.add("w", 2);
         assertEquals(builder.asDocument(), Durability.replicaDurable(125)
                 .asDocument());
 
@@ -307,7 +307,7 @@ public class DurabilityTest {
         assertFalse(durability.isWaitForJournal());
         assertTrue(durability.isWaitForReply());
         assertEquals(wait, durability.getWaitTimeoutMillis());
-        assertEquals(1, durability.getWaitForReplicas());
+        assertEquals(2, durability.getWaitForReplicas());
         assertNull(durability.getWaitForReplicasByMode());
         assertNull(durability.getWaitForReplicasByMode());
     }
@@ -382,7 +382,7 @@ public class DurabilityTest {
                 Durability
                         .valueOf("{ getlasterror : 1, wtimeout : 126, w : 3 }"));
         assertEquals(Durability.replicaDurable(125),
-                Durability.valueOf("{ wtimeout : 125, w : 1 }"));
+                Durability.valueOf("{ wtimeout : 125, w : 2 }"));
         assertEquals(Durability.journalDurable(124),
                 Durability.valueOf("{ wtimeout : 124, j : 1 }"));
         assertEquals(Durability.fsyncDurable(123),

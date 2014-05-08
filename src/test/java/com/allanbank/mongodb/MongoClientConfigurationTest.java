@@ -1012,6 +1012,18 @@ public class MongoClientConfigurationTest {
      * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
      */
     @Test
+    public void testMongoUriWithLockType() {
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                "mongodb://foo/db?lockType=LOW_LATENCY_SPIN");
+
+        assertEquals(LockType.LOW_LATENCY_SPIN, config.getLockType());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#MongoClientConfiguration(String)} .
+     */
+    @Test
     public void testMongoUriWithMongodbS() {
         final String addr1 = "foo:27017";
 

@@ -13,8 +13,87 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import com.allanbank.mongodb.bson.element.UuidElement;
+
 /**
  * MongoDbUri provides the ability to parse a MongoDB URI into fields.
+ * <p>
+ * The set of possible options is a combination of the <a
+ * href="http://docs.mongodb.org/manual/reference/connection-string/">standard
+ * MongoDB URI options</a> and the complete set of fields supported by the
+ * {@link MongoClientConfiguration} class. The driver uses the Java beans
+ * standard to define the label for each field.
+ * </p>
+ * See the <a
+ * href="http://docs.mongodb.org/manual/reference/connection-string/">Connection
+ * String</a> documentation for information on the standard options. The
+ * following standard options are not supported by the driver:
+ * <dl>
+ * <dt>replicaSet</dt>
+ * <dd>The driver does automatic cluster type discovery so this options is not
+ * needed or used.</dd>
+ * <dt>maxIdleTimeMS</dt>
+ * <dd>The driver does not use a specific wait time. Instead the connection is
+ * considered idle when it experiences a defined number of idle ticks. A tick is
+ * defined by the {@link MongoClientConfiguration#setReadTimeout(int)
+ * readTimeout} and the number of ticks is defined by
+ * {@link MongoClientConfiguration#setMaxIdleTickCount(int) maxIdleTickCount}.</dd>
+ * <dt>waitQueueMultiple</dt>
+ * <dd>The driver does not queue requests waiting for a socket since it is
+ * asynchronous. The closest option would be the
+ * {@link MongoClientConfiguration#setMaxPendingOperationsPerConnection(int)
+ * maxPendingOperationsPerConnection} which can be used to control how
+ * aggressively the driver will apply back pressure.</dd>
+ * <dt>waitQueueTimeoutMS</dt>
+ * <dd>Similar to {@code waitQueueMultiple} this option does not make sense for
+ * an asynchronous driver.</dd>
+ * <dt>uuidRepresentation</dt>
+ * <dd>The UUID representation can only be controlled via construction. See the
+ * {@link UuidElement#UuidElement(String, byte, java.util.UUID)} and
+ * {@link UuidElement#LEGACY_UUID_SUBTTYPE}.</dd>
+ * </dl>
+ * <p>
+ * </p>
+ * <p>
+ * The current set of auto-mapped fields is listed below. See the linked
+ * documentation for details on the fields values.
+ * <ul>
+ * <li>{@link MongoClientConfiguration#setAutoDiscoverServers(boolean)
+ * autoDiscoverServers}</li>
+ * <li>{@link MongoClientConfiguration#setConnectionModel(ConnectionModel)
+ * connectionModel}</li>
+ * <li>{@link MongoClientConfiguration#setConnectTimeout(int) connectTimeout}</li>
+ * <li>{@link MongoClientConfiguration#setLockType(LockType) lockType}</li>
+ * <li>{@link MongoClientConfiguration#setMaxCachedStringEntries(int)
+ * maxCachedStringEntries}</li>
+ * <li>{@link MongoClientConfiguration#setMaxCachedStringLength(int)
+ * maxCachedStringLength}</li>
+ * <li>{@link MongoClientConfiguration#setMaxConnectionCount(int)
+ * maxConnectionCount}</li>
+ * <li>{@link MongoClientConfiguration#setMaxIdleTickCount(int)
+ * maxIdleTickCount}</li>
+ * <li>
+ * {@link MongoClientConfiguration#setMaxPendingOperationsPerConnection(int)
+ * maxPendingOperationsPerConnection}</li>
+ * <li>
+ * {@link MongoClientConfiguration#setMaxSecondaryLag(long) maxSecondaryLag}</li>
+ * <li>
+ * {@link MongoClientConfiguration#setMinConnectionCount(int)
+ * minConnectionCount}</li>
+ * <li>
+ * {@link MongoClientConfiguration#setReadTimeout(int) readTimeout}</li>
+ * <li>
+ * {@link MongoClientConfiguration#setReconnectTimeout(int) reconnectTimeout}</li>
+ * <li>
+ * {@link MongoClientConfiguration#setUsingSoKeepalive(boolean)
+ * usingSoKeepalive}</li>
+ * </ul>
+ * </p>
+ * <p>
+ * Any credentials, default read preference, and default durability will also be
+ * determined via the URI. See the {@link CredentialEditor},
+ * {@link ReadPreferenceEditor}, and {@link DurabilityEditor} for details
+ * </p>
  * 
  * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
  *      Connections</a>

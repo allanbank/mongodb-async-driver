@@ -149,7 +149,7 @@ public class Durability implements Serializable {
     }
 
     /**
-     * Creates a single replica durability.
+     * Creates a single replica durability. This is a 'w' value of 2.
      * 
      * @param waitTimeoutMillis
      *            The number of milliseconds to wait for the durability
@@ -158,7 +158,7 @@ public class Durability implements Serializable {
      *         of server's replicas before returning.
      */
     public static Durability replicaDurable(final int waitTimeoutMillis) {
-        return new Durability(false, false, 1, waitTimeoutMillis);
+        return new Durability(false, false, 2, waitTimeoutMillis);
     }
 
     /**

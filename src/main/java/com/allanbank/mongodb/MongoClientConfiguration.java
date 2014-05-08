@@ -1508,11 +1508,13 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * @throws IllegalArgumentException
      *             On a number of errors.
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void updateFieldValue(final PropertyDescriptor descriptor,
             final String propName, final String propValue)
             throws IllegalArgumentException {
 
         try {
+            final Class<?> fieldType = descriptor.getPropertyType();
             final Method writer = descriptor.getWriteMethod();
             PropertyEditor editor;
             final Class<?> editorClass = descriptor.getPropertyEditorClass();
@@ -1520,7 +1522,6 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
                 editor = (PropertyEditor) editorClass.newInstance();
             }
             else {
-                final Class<?> fieldType = descriptor.getPropertyType();
                 editor = PropertyEditorManager.findEditor(fieldType);
             }
 
@@ -1529,6 +1530,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
                 editor.setValue(reader.invoke(this));
                 editor.setAsText(propValue);
                 writer.invoke(this, editor.getValue());
+            }
+            else if (fieldType.isEnum()) {
+                final Class<? extends Enum> c = (Class<? extends Enum>) fieldType;
+                writer.invoke(this, Enum.valueOf(c, propValue));
             }
             else {
                 throw new IllegalArgumentException("The '" + propName
