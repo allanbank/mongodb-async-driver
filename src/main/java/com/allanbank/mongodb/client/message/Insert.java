@@ -15,6 +15,7 @@ import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
@@ -209,6 +210,28 @@ public class Insert extends AbstractMessage {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the size of the {@link Insert}.
+     * </p>
+     */
+    @Override
+    public int size() {
+
+        int size = HEADER_SIZE + 6; // See below.
+        // size += 4; // flags
+        size += StringEncoder.utf8Size(myDatabaseName);
+        // size += 1; // StringEncoder.utf8Size(".");
+        size += StringEncoder.utf8Size(myCollectionName);
+        // size += 1; // \0 on the CString.
+        for (final Document document : myDocuments) {
+            size += document.size();
+        }
+
+        return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to output the documents and insert flags.
      * </p>
      */
@@ -261,7 +284,7 @@ public class Insert extends AbstractMessage {
         size += 4; // flags
         size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
         for (final Document document : myDocuments) {
-            size += out.sizeOf(document);
+            size += out.sizeOf(document); // Seeds length list for later use.
         }
 
         writeHeader(out, messageId, 0, Operation.INSERT, size);

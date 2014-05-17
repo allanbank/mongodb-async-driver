@@ -92,7 +92,7 @@ public class GetLastErrorTest {
         final DocumentBuilder b = BuilderFactory.start();
         b.addInteger("getlasterror", 1);
         b.addInteger("wtimeout", 1002);
-        b.addInteger("w", 1);
+        b.addInteger("w", 2);
 
         assertEquals(b.build(), msg.getQuery());
         assertEquals(Command.COMMAND_COLLECTION, msg.getCollectionName());

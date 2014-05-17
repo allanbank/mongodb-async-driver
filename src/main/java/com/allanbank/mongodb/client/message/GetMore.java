@@ -11,6 +11,7 @@ import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -149,6 +150,26 @@ public class GetMore extends AbstractMessage {
         result = (31 * result) + (int) myCursorId;
         result = (31 * result) + myNumberToReturn;
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the size of the {@link GetMore}.
+     * </p>
+     */
+    @Override
+    public int size() {
+        int size = HEADER_SIZE + 16; // See below.
+        // size += 4; // reserved - 0;
+        size += StringEncoder.utf8Size(myDatabaseName);
+        // size += 1; // StringEncoder.utf8Size(".");
+        size += StringEncoder.utf8Size(myCollectionName);
+        // size += 1; // \0 on the CString.
+        // size += 4; // numberToReturn - int32
+        // size += 8; // cursorId - long(64)
+
+        return size;
     }
 
     /**

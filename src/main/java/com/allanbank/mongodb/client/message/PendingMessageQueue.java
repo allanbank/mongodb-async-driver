@@ -92,11 +92,11 @@ public final class PendingMessageQueue {
     /** Amount of time to spin before yielding. Set to 1/100 of a millisecond. */
     public static final long SPIN_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) / 100;
 
+    /** Amount of time to spin/yield before waiting. Set to 1/2 millisecond. */
+    public static final long YIELD_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) >> 1;
+
     /** Number of times to spin before trying something different. */
     private static final int SPIN_ITERATIONS = 10000;
-
-    /** Amount of time to spin/yield before waiting. Set to 1/2 millisecond. */
-    private static final long YIELD_TIME_NS = TimeUnit.MILLISECONDS.toNanos(1) >> 1;
 
     /** The condition used with the queue being full or empty. */
     private final Condition myCondition;

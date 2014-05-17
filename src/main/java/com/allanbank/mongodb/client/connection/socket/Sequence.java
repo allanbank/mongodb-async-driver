@@ -5,7 +5,14 @@
 
 package com.allanbank.mongodb.client.connection.socket;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLongArray;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import com.allanbank.mongodb.LockType;
+import com.allanbank.mongodb.client.message.PendingMessageQueue;
 
 /**
  * Sequence provides the ability to synchronize the access to the socket's
@@ -28,8 +35,23 @@ import java.util.concurrent.atomic.AtomicLongArray;
     /** The offset of the reserve value. */
     private static final int RESERVE_OFFSET = 7;
 
+    /** Amount of time to spin/yield before waiting. Set to 1/2 millisecond. */
+    private static final long YIELD_TIME_NS = PendingMessageQueue.YIELD_TIME_NS;
+
+    /** The condition used when there are waiters. */
+    private final Condition myCondition;
+
+    /** The mutex used with the sequence. */
+    private final Lock myLock;
+
+    /** The lock type to use with the sequence. */
+    private final LockType myLockType;
+
     /** The atomic array of long values. */
     private final AtomicLongArray myPaddedValue = new AtomicLongArray(30);
+
+    /** Tracks how many threads are waiting for a message or a space to open. */
+    private final AtomicInteger myWaiting;
 
     /**
      * Create a sequence with a specified initial value.
@@ -38,8 +60,26 @@ import java.util.concurrent.atomic.AtomicLongArray;
      *            The initial value for this sequence.
      */
     public Sequence(final long initialValue) {
+        this(initialValue, LockType.MUTEX);
+    }
+
+    /**
+     * Create a sequence with a specified initial value.
+     * 
+     * @param initialValue
+     *            The initial value for this sequence.
+     * @param lockType
+     *            The lock type to use with the sequence.
+     */
+    public Sequence(final long initialValue, final LockType lockType) {
         myPaddedValue.set(RESERVE_OFFSET, initialValue);
         myPaddedValue.set(RELEASE_OFFSET, initialValue);
+
+        myLockType = lockType;
+
+        myLock = new ReentrantLock();
+        myCondition = myLock.newCondition();
+        myWaiting = new AtomicInteger(0);
     }
 
     /**
@@ -80,6 +120,7 @@ import java.util.concurrent.atomic.AtomicLongArray;
             // did a waitFor.
             Thread.yield();
         }
+        notifyWaiters();
     }
 
     /**
@@ -111,10 +152,36 @@ import java.util.concurrent.atomic.AtomicLongArray;
     public void waitFor(final long wanted) {
         long releaseValue = myPaddedValue.get(RELEASE_OFFSET);
         while (releaseValue != wanted) {
-            // Let another thread make progress.
-            Thread.yield();
+            if (myLockType == LockType.LOW_LATENCY_SPIN) {
+                long now = System.nanoTime();
+                final long yeildDeadline = now + YIELD_TIME_NS;
 
-            releaseValue = myPaddedValue.get(RELEASE_OFFSET);
+                releaseValue = myPaddedValue.get(RELEASE_OFFSET);
+                while ((now < yeildDeadline) && (releaseValue != wanted)) {
+                    // Let another thread make progress.
+                    Thread.yield();
+                    now = System.nanoTime();
+                    releaseValue = myPaddedValue.get(RELEASE_OFFSET);
+                }
+            }
+
+            // Block.
+            if (releaseValue != wanted) {
+                try {
+                    myWaiting.incrementAndGet();
+                    myLock.lock();
+
+                    releaseValue = myPaddedValue.get(RELEASE_OFFSET);
+                    while (releaseValue != wanted) {
+                        myCondition.awaitUninterruptibly();
+                        releaseValue = myPaddedValue.get(RELEASE_OFFSET);
+                    }
+                }
+                finally {
+                    myLock.unlock();
+                    myWaiting.decrementAndGet();
+                }
+            }
         }
     }
 
@@ -146,5 +213,20 @@ import java.util.concurrent.atomic.AtomicLongArray;
             final long newValue) {
         return myPaddedValue.compareAndSet(RESERVE_OFFSET, expectedValue,
                 newValue);
+    }
+
+    /**
+     * Notifies the waiting threads that the state of the sequence has changed.
+     */
+    private void notifyWaiters() {
+        if (myWaiting.get() > 0) {
+            try {
+                myLock.lock();
+                myCondition.signalAll();
+            }
+            finally {
+                myLock.unlock();
+            }
+        }
     }
 }

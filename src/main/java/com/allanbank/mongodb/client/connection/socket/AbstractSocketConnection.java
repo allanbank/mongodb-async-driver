@@ -28,7 +28,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
-import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
+import com.allanbank.mongodb.bson.io.RandomAccessOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -73,8 +73,8 @@ public abstract class AbstractSocketConnection implements Connection {
     /** The writer for BSON documents. Shares this objects {@link #myInput}. */
     protected final BsonInputStream myBsonIn;
 
-    /** The writer for BSON documents. Shares this objects {@link #myOutput}. */
-    protected final BufferingBsonOutputStream myBsonOut;
+    /** The connections configuration. */
+    protected final MongoClientConfiguration myConfig;
 
     /** Support for emitting property change events. */
     protected final PropertyChangeSupport myEventSupport;
@@ -105,9 +105,6 @@ public abstract class AbstractSocketConnection implements Connection {
 
     /** The open socket. */
     protected final Socket mySocket;
-
-    /** The connections configuration. */
-    private final MongoClientConfiguration myConfig;
 
     /** Tracks the number of sequential read timeouts. */
     private int myIdleTicks = 0;
@@ -170,10 +167,6 @@ public abstract class AbstractSocketConnection implements Connection {
         // improve performance.
         myOutput = new BufferedOutputStream(mySocket.getOutputStream(),
                 32 * 1024);
-        myBsonOut = new BufferingBsonOutputStream(myOutput);
-        myBsonOut.setMaxCachedStringEntries(myConfig
-                .getMaxCachedStringEntries());
-        myBsonOut.setMaxCachedStringLength(myConfig.getMaxCachedStringLength());
 
         myPendingQueue = new PendingMessageQueue(
                 config.getMaxPendingOperationsPerConnection(),
@@ -511,9 +504,11 @@ public abstract class AbstractSocketConnection implements Connection {
      * @throws IOException
      *             On a failure sending the message.
      */
-    protected void doSend(final int messageId, final Message message)
-            throws IOException {
-        message.write(messageId, myBsonOut);
+    protected void doSend(final int messageId,
+            final RandomAccessOutputStream message) throws IOException {
+        message.writeTo(myOutput);
+        message.reset();
+
         myServer.incrementMessagesSent();
     }
 
@@ -604,16 +599,20 @@ public abstract class AbstractSocketConnection implements Connection {
      * 
      * @param pendingMessage
      *            The message to be sent.
-     * 
+     * @param message
+     *            The message that has already been encoded/serialized. This may
+     *            be <code>null</code> in which case the message is streamed to
+     *            the socket.
      * @throws InterruptedException
      *             If the thread is interrupted waiting for a message to send.
      * @throws IOException
      *             On a failure sending the message.
      */
-    protected final void send(final PendingMessage pendingMessage)
+    protected final void send(final PendingMessage pendingMessage,
+            final RandomAccessOutputStream message)
             throws InterruptedException, IOException {
+
         final int messageId = pendingMessage.getMessageId();
-        final Message message = pendingMessage.getMessage();
 
         // Mark the timestamp.
         pendingMessage.timestampNow();

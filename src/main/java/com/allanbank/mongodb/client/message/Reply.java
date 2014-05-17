@@ -299,6 +299,27 @@ public class Reply extends AbstractMessage {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the size of the {@link Query}.
+     * </p>
+     */
+    @Override
+    public int size() {
+
+        int size = HEADER_SIZE + 20;
+        // size += 4; // flags;
+        // size += 8; // cursorId
+        // size += 4; // cursorOffset
+        // size += 4; // result count.
+        for (final Document result : myResults) {
+            size += result.size();
+        }
+
+        return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overrridden to be a no-op since we normally only receive a reply and
      * don't care about the size.
      * </p>
@@ -328,7 +349,7 @@ public class Reply extends AbstractMessage {
         size += 4; // cursorOffset
         size += 4; // result count.
         for (final Document result : myResults) {
-            size += out.sizeOf(result);
+            size += out.sizeOf(result); // Seeds the size list for later use.
         }
 
         writeHeader(out, messageId, myResponseToId, Operation.REPLY, size);

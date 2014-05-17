@@ -1773,41 +1773,45 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testFindWithCommentInProfile() {
-        final ObjectId doc1Id = new ObjectId();
-        final DocumentBuilder doc1 = BuilderFactory.start();
-        doc1.addObjectId("_id", doc1Id);
+        // Would have to find the right system.profile collection.
+        if (!isShardedConfiguration()) {
+            final ObjectId doc1Id = new ObjectId();
+            final DocumentBuilder doc1 = BuilderFactory.start();
+            doc1.addObjectId("_id", doc1Id);
 
-        final ObjectId doc2Id = new ObjectId();
-        final DocumentBuilder doc2 = BuilderFactory.start();
-        doc2.addObjectId("_id", doc2Id);
+            final ObjectId doc2Id = new ObjectId();
+            final DocumentBuilder doc2 = BuilderFactory.start();
+            doc2.addObjectId("_id", doc2Id);
 
-        myCollection.insert(Durability.ACK, doc1, doc2);
+            myCollection.insert(Durability.ACK, doc1, doc2);
 
-        final Find.Builder find = new Find.Builder();
+            final Find.Builder find = new Find.Builder();
 
-        find.setQuery(where("_id").equals(doc1Id).comment("Test comment"));
+            find.setQuery(where("_id").equals(doc1Id).comment("Test comment"));
 
-        myDb.setProfilingStatus(ProfilingStatus.ON);
-        MongoIterator<Document> iter = myCollection.find(find.build());
-        try {
-            assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
-            assertFalse(iter.hasNext());
-        }
-        finally {
-            myDb.setProfilingStatus(ProfilingStatus.OFF);
-            iter.close();
-        }
+            myDb.setProfilingStatus(ProfilingStatus.ON);
+            MongoIterator<Document> iter = myCollection.find(find.build());
+            try {
+                assertTrue(iter.hasNext());
+                assertEquals(doc1.build(), iter.next());
+                assertFalse(iter.hasNext());
+            }
+            finally {
+                myDb.setProfilingStatus(ProfilingStatus.OFF);
+                iter.close();
+            }
 
-        final MongoCollection profile = myDb.getCollection("system.profile");
-        iter = profile.find(where("query.$comment").equals("Test comment"));
-        try {
-            assertTrue(iter.hasNext());
-            iter.next();
-            assertFalse(iter.hasNext());
-        }
-        finally {
-            iter.close();
+            final MongoCollection profile = myDb
+                    .getCollection("system.profile");
+            iter = profile.find(where("query.$comment").equals("Test comment"));
+            try {
+                assertTrue(iter.hasNext());
+                iter.next();
+                assertFalse(iter.hasNext());
+            }
+            finally {
+                iter.close();
+            }
         }
     }
 

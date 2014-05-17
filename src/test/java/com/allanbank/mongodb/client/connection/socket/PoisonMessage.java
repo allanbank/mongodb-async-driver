@@ -71,6 +71,17 @@ public class PoisonMessage implements Message {
 
     /**
      * {@inheritDoc}
+     * <p>
+     * Overridden to return zero.
+     * </p>
+     */
+    @Override
+    public int size() {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void validateSize(final SizeOfVisitor visitor,

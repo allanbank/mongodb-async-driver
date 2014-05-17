@@ -134,6 +134,23 @@ public class KillCursors extends AbstractMessage {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the size of the {@link KillCursors}.
+     * </p>
+     */
+    @Override
+    public int size() {
+
+        int size = HEADER_SIZE + 8; // See below.
+        // size += 4; // 0 - reserved
+        // size += 4; // number of cursors.
+        size += (8 * myCursorIds.length);
+
+        return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overrridden to ensure the size of the cursors ids array is not too large.
      * </p>
      */
@@ -160,7 +177,7 @@ public class KillCursors extends AbstractMessage {
         int size = HEADER_SIZE;
         size += 4; // 0 - reserved
         size += 4; // number of cursors.
-        size += 8 * myCursorIds.length;
+        size += (8 * myCursorIds.length);
 
         writeHeader(out, messageId, 0, Operation.KILL_CURSORS, size);
         out.writeInt(0);

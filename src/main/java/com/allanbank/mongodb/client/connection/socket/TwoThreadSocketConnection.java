@@ -9,6 +9,8 @@ import java.net.SocketException;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
+import com.allanbank.mongodb.bson.io.RandomAccessOutputStream;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.AddressAware;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
@@ -38,6 +40,9 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
+    /** The writer for BSON documents. */
+    protected final BufferingBsonOutputStream myBsonOut;
+
     /** The queue of messages to be sent. */
     protected final PendingMessageQueue myToSendQueue;
 
@@ -63,6 +68,11 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
             final MongoClientConfiguration config) throws SocketException,
             IOException {
         super(server, config);
+
+        myBsonOut = new BufferingBsonOutputStream(
+                new RandomAccessOutputStream());
+        myBsonOut.setMaxCachedStringEntries(config.getMaxCachedStringEntries());
+        myBsonOut.setMaxCachedStringLength(config.getMaxCachedStringLength());
 
         myToSendQueue = new PendingMessageQueue(
                 config.getMaxPendingOperationsPerConnection(),
@@ -320,7 +330,11 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
 
             if (took) {
                 myNeedToFlush = true;
-                send(myPendingMessage);
+
+                myPendingMessage.getMessage().write(
+                        myPendingMessage.getMessageId(), myBsonOut);
+
+                send(myPendingMessage, myBsonOut.getOutput());
 
                 // We have handed the message off. Not our problem any more.
                 // We could legitimately do this before the send but in the case

@@ -12,6 +12,7 @@ import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -167,6 +168,26 @@ public class Delete extends AbstractMessage {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the size of the {@link Delete}.
+     * </p>
+     */
+    @Override
+    public int size() {
+        int size = HEADER_SIZE + 10; // See below.
+        // size += 4; // reserved - 0;
+        size += StringEncoder.utf8Size(myDatabaseName);
+        // size += 1; // StringEncoder.utf8Size(".");
+        size += StringEncoder.utf8Size(myCollectionName);
+        // size += 1; // \0 on the CString.
+        // size += 4; // flags
+        size += myQuery.size();
+
+        return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to ensure the query document is not too large.
      * </p>
      */
@@ -203,7 +224,7 @@ public class Delete extends AbstractMessage {
         size += 4; // reserved - 0;
         size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
         size += 4; // flags
-        size += out.sizeOf(myQuery);
+        size += out.sizeOf(myQuery); // Seeds the size list for later use.
 
         writeHeader(out, messageId, 0, Operation.DELETE, size);
         out.writeInt(0);

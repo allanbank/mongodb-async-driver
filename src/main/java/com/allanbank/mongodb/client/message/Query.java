@@ -12,6 +12,7 @@ import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -430,6 +431,31 @@ public class Query extends AbstractMessage implements CursorableMessage {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the size of the {@link Query}.
+     * </p>
+     */
+    @Override
+    public int size() {
+
+        int size = HEADER_SIZE + 14; // See below.
+        // size += 4; // flags;
+        size += StringEncoder.utf8Size(myDatabaseName);
+        // size += 1; // StringEncoder.utf8Size(".");
+        size += StringEncoder.utf8Size(myCollectionName);
+        // size += 1; // \0 on the CString.
+        // size += 4; // numberToSkip
+        // size += 4; // numberToReturn
+        size += myQuery.size();
+        if (myReturnFields != null) {
+            size += myReturnFields.size();
+        }
+
+        return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to ensure the inserted documents are not too large in
      * aggregate.
      * </p>
@@ -474,9 +500,10 @@ public class Query extends AbstractMessage implements CursorableMessage {
         size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
         size += 4; // numberToSkip
         size += 4; // numberToReturn
-        size += out.sizeOf(myQuery);
+        size += out.sizeOf(myQuery); // Seeds the size list for later use.
         if (myReturnFields != null) {
-            size += out.sizeOf(myReturnFields);
+            size += out.sizeOf(myReturnFields); // Seeds the size list for later
+                                                // use.
         }
 
         writeHeader(out, messageId, 0, Operation.QUERY, size);

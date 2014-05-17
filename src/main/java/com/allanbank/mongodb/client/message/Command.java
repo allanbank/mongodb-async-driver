@@ -15,6 +15,7 @@ import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.SizeOfVisitor;
+import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -249,6 +250,27 @@ public class Command extends AbstractMessage {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the size of the {@link Command}.
+     * </p>
+     */
+    @Override
+    public int size() {
+        int size = HEADER_SIZE + 18; // See below.
+        // size += 4; // flags;
+        size += StringEncoder.utf8Size(myDatabaseName);
+        // size += 1; // StringEncoder.utf8Size(".");
+        // size += 4; // StringEncoder.utf8Size(COMMAND_COLLECTION);
+        // size += 1; // \0 on the CString.
+        // size += 4; // numberToSkip
+        // size += 4; // numberToReturn
+        size += myCommand.size();
+
+        return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return a human readable form of the command.
      * </p>
      */
@@ -324,7 +346,7 @@ public class Command extends AbstractMessage {
         size += out.sizeOfCString(myDatabaseName, ".", COMMAND_COLLECTION);
         size += 4; // numberToSkip
         size += 4; // numberToReturn
-        size += out.sizeOf(myCommand);
+        size += out.sizeOf(myCommand); // Seeds the size list for later use.
 
         writeHeader(out, messageId, 0, Operation.QUERY, size);
         out.writeInt(flags);

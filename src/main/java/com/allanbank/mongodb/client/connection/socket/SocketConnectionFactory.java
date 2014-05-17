@@ -5,6 +5,7 @@
 package com.allanbank.mongodb.client.connection.socket;
 
 import java.io.IOException;
+import java.lang.ref.Reference;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.Version;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -42,6 +44,14 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     private static final Log LOG = LogFactory
             .getLog(SocketConnectionFactory.class);
 
+    /**
+     * The buffers used by the single threaded connections. Each buffer is
+     * shared by all connections but there can be up to 1 buffer per application
+     * thread. We use a reference to the buffer to allow the garbage collector
+     * To clean up the stream.
+     */
+    private ThreadLocal<Reference<BufferingBsonOutputStream>> myBuffers;
+
     /** The MongoDB client configuration. */
     private final MongoClientConfiguration myConfig;
 
@@ -62,6 +72,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         myConfig = config;
         myState = new Cluster(config);
         myServerSelector = new LatencyServerSelector(myState, true);
+        myBuffers = new ThreadLocal<Reference<BufferingBsonOutputStream>>();
     }
 
     /**
@@ -73,6 +84,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     @Override
     public void close() {
         // Nothing.
+        myBuffers = null; // Let the ThreadLocal's weak reference go.
     }
 
     /**
@@ -151,7 +163,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
             break;
         }
         default: { // and RECEIVER_THREAD
-            connection = new SocketConnection(server, myConfig);
+            connection = new SocketConnection(server, myConfig, myBuffers);
             break;
         }
         }

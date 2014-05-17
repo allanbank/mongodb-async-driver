@@ -5,11 +5,15 @@
 package com.allanbank.mongodb.client.connection.socket;
 
 import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.net.Socket;
 import java.net.SocketException;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
+import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
+import com.allanbank.mongodb.bson.io.RandomAccessOutputStream;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.AddressAware;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
@@ -39,11 +43,17 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class SocketConnection extends AbstractSocketConnection {
 
+    /**
+     * The buffers used each connection. Each buffer is shared by all
+     * connections but there can be up to 1 buffer per application thread.
+     */
+    private final ThreadLocal<Reference<BufferingBsonOutputStream>> myBuffers;
+
     /** The thread receiving replies. */
-    final Thread myReceiver;
+    private final Thread myReceiver;
 
     /** The sequence for serializing sends. */
-    final Sequence mySendSequence;
+    private final Sequence mySendSequence;
 
     /**
      * Creates a new SocketConnection to a MongoDB server.
@@ -60,9 +70,35 @@ public class SocketConnection extends AbstractSocketConnection {
     public SocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
+        this(server, config,
+                new ThreadLocal<Reference<BufferingBsonOutputStream>>());
+    }
+
+    /**
+     * Creates a new SocketConnection to a MongoDB server.
+     * 
+     * @param server
+     *            The MongoDB server to connect to.
+     * @param config
+     *            The configuration for the Connection to the MongoDB server.
+     * @param buffers
+     *            The buffers used each connection. Each buffer is shared by all
+     *            connections but there can be up to 1 buffer per application
+     *            thread.
+     * @throws SocketException
+     *             On a failure connecting to the MongoDB server.
+     * @throws IOException
+     *             On a failure to read or write data to the MongoDB server.
+     */
+    public SocketConnection(final Server server,
+            final MongoClientConfiguration config,
+            final ThreadLocal<Reference<BufferingBsonOutputStream>> buffers)
+            throws SocketException, IOException {
         super(server, config);
 
-        mySendSequence = new Sequence(1L);
+        myBuffers = buffers;
+
+        mySendSequence = new Sequence(1L, config.getLockType());
 
         myReceiver = config.getThreadFactory().newThread(
                 new ReceiveRunnable(this));
@@ -130,19 +166,40 @@ public class SocketConnection extends AbstractSocketConnection {
         boolean sawError = false;
         final PendingMessage pendingMessage = new PendingMessage();
         try {
+
+            // Serialize the messages now so the critical section becomes close
+            // to a write(byte[]) (with a little accounting overhead).
+            final Reference<BufferingBsonOutputStream> outRef = myBuffers.get();
+            BufferingBsonOutputStream out = (outRef != null) ? outRef.get()
+                    : null;
+            if (out == null) {
+                out = new BufferingBsonOutputStream(
+                        new RandomAccessOutputStream());
+                out.setMaxCachedStringEntries(myConfig
+                        .getMaxCachedStringEntries());
+                out.setMaxCachedStringLength(myConfig
+                        .getMaxCachedStringLength());
+                myBuffers
+                        .set(new SoftReference<BufferingBsonOutputStream>(out));
+            }
+
+            message1.write((int) (seq & 0xFFFFFF), out);
+            if (message2 != null) {
+                message2.write((int) ((seq + 1) & 0xFFFFFF), out);
+            }
+
+            // Now stand in line.
             mySendSequence.waitFor(seq);
 
             if (count == 1) {
                 pendingMessage.set((int) (seq & 0xFFFFFF), message1,
                         replyCallback);
-                send(pendingMessage);
+                send(pendingMessage, out.getOutput());
             }
             else {
-                pendingMessage.set((int) (seq & 0xFFFFFF), message1, null);
-                send(pendingMessage);
                 pendingMessage.set((int) ((seq + 1) & 0xFFFFFF), message2,
                         replyCallback);
-                send(pendingMessage);
+                send(pendingMessage, out.getOutput());
             }
 
             // If no-one is waiting we need to flush the message.

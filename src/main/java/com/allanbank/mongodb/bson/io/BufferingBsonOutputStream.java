@@ -26,6 +26,7 @@ import com.allanbank.mongodb.bson.Visitor;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BufferingBsonOutputStream extends FilterOutputStream {
+
     /** The {@link Visitor} to write the BSON documents. */
     private final RandomAccessOutputStream myOutput;
 
@@ -98,6 +99,15 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     }
 
     /**
+     * Returns the output buffer.
+     * 
+     * @return The output buffer.
+     */
+    public RandomAccessOutputStream getOutput() {
+        return myOutput;
+    }
+
+    /**
      * Returns the current position in the stream.
      * 
      * @return The current position in the stream.
@@ -130,6 +140,46 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     public void setMaxCachedStringLength(final int maxlength) {
         myVisitor.setMaxCachedStringLength(maxlength);
 
+    }
+
+    /**
+     * Writes <code>b.length</code> bytes to this output stream.
+     * <p>
+     * Calls the write(byte[]) of the underlying stream.
+     * </p>
+     * 
+     * @param b
+     *            the data to be written.
+     * @exception IOException
+     *                if an I/O error occurs.
+     * @see java.io.FilterOutputStream#write(byte[], int, int)
+     */
+    @Override
+    public void write(final byte b[]) throws IOException {
+        out.write(b);
+    }
+
+    /**
+     * Writes <code>len</code> bytes from the specified <code>byte</code> array
+     * starting at offset <code>off</code> to this output stream.
+     * <p>
+     * Calls the write(byte[],int,int) of the underlying stream.
+     * </p>
+     * 
+     * @param b
+     *            the data.
+     * @param off
+     *            the start offset in the data.
+     * @param len
+     *            the number of bytes to write.
+     * @exception IOException
+     *                if an I/O error occurs.
+     * @see java.io.FilterOutputStream#write(int)
+     */
+    @Override
+    public void write(final byte b[], final int off, final int len)
+            throws IOException {
+        out.write(b, off, len);
     }
 
     /**

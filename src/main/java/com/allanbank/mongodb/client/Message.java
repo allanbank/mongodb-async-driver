@@ -59,6 +59,13 @@ public interface Message {
     public VersionRange getRequiredVersionRange();
 
     /**
+     * Returns the total size of the message on the wire.
+     * 
+     * @return The size of the message on the wire.
+     */
+    public int size();
+
+    /**
      * Validates that the documents with the message do not exceed the maximum
      * document size specified.
      * 

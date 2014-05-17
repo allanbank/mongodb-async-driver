@@ -477,7 +477,7 @@ public class RandomAccessOutputStream extends OutputStream {
      */
     public void writeTo(final OutputStream out) throws IOException {
         for (int i = 0; i < myCurrentBufferIndex; ++i) {
-            out.write(myBuffers.get(i));
+            out.write(myBuffers.get(i), 0, BUFFER_SIZE);
         }
         out.write(myCurrentBuffer, 0, myCurrentBufferOffset);
     }
