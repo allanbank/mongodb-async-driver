@@ -8723,7 +8723,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                 assertThat(
                         error.getMessage(),
                         anyOf(containsString("timeout"),
-                                containsString("timed out waiting for slaves")));
+                                containsString("timed out waiting for slaves"),
+                                containsString("waiting for replication timed out")));
 
                 // But the update should have happened.
                 final Document found = myCollection.findOne(doc);
@@ -8809,7 +8810,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final DocumentToLargeException dtle) {
             // Good.
             assertEquals(Client.MAX_DOCUMENT_SIZE, dtle.getMaximumSize());
-            assertEquals(BuilderFactory.start().build(), dtle.getDocument());
+            assertEquals(builder.build(), dtle.getDocument());
         }
     }
 

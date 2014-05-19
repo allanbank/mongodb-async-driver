@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.allanbank.mongodb.Callback;
+import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoDbException;
-import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
@@ -27,7 +27,7 @@ import com.allanbank.mongodb.builder.BatchedWrite.Bundle;
 import com.allanbank.mongodb.builder.BatchedWriteMode;
 import com.allanbank.mongodb.builder.write.WriteOperation;
 import com.allanbank.mongodb.client.Client;
-import com.allanbank.mongodb.client.VersionRange;
+import com.allanbank.mongodb.client.message.BatchedWriteCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.BatchedWriteException;
@@ -186,15 +186,32 @@ public class BatchedWriteCallback extends ReplyLongCallback {
 
         // Batches....
         for (final BatchedWrite.Bundle bundle : toSendBundles) {
-            final Command commandMsg = new Command(myDatabaseName,
-                    myCollectionName, bundle.getCommand(),
-                    ReadPreference.PRIMARY,
-                    VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+            final Command commandMsg = new BatchedWriteCommand(myDatabaseName,
+                    myCollectionName, bundle);
 
             // Our documents may be bigger than normally allowed...
             commandMsg.setAllowJumbo(true);
 
-            myClient.send(commandMsg, new BundleCallback(bundle));
+            if (myWrite.getDurability() == Durability.NONE) {
+                // Fake reply.
+                final Document doc = BuilderFactory.start().add("ok", 1)
+                        .add("n", -1).build();
+                final Reply reply = new Reply(0, 0, 0,
+                        Collections.singletonList(doc), false, false, false,
+                        false);
+
+                myClient.send(commandMsg, NoOpCallback.NO_OP);
+                publish(bundle, reply);
+            }
+            else {
+                myClient.send(commandMsg, new BundleCallback(bundle));
+
+            }
+        }
+
+        if ((myWrite.getDurability() == Durability.NONE)
+                && myPendingBundles.isEmpty() && (myForwardCallback != null)) {
+            myForwardCallback.callback(-1L);
         }
     }
 
@@ -415,8 +432,19 @@ public class BatchedWriteCallback extends ReplyLongCallback {
             }
 
             if (myForwardCallback != null) {
-                myForwardCallback.exception(new BatchedWriteException(myWrite,
-                        myN, mySkippedOperations, myFailedOperations));
+                // If there is only 1 operation and it failed then just publish
+                // that error.
+                if ((myBundles.size() == 1)
+                        && (myBundles.get(0).getWrites().size() == 1)
+                        && (myFailedOperations.size() == 1)) {
+                    myForwardCallback.exception(myFailedOperations.values()
+                            .iterator().next());
+                }
+                else {
+                    myForwardCallback.exception(new BatchedWriteException(
+                            myWrite, myN, mySkippedOperations,
+                            myFailedOperations));
+                }
             }
             else {
                 // Publish to each callback.

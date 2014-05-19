@@ -147,8 +147,10 @@ public class UpdateTest {
 
             message.write(1234, bOut);
 
-            final ByteArrayInputStream in = new ByteArrayInputStream(
-                    out.toByteArray());
+            final byte[] bytes = out.toByteArray();
+            assertThat(message.size(), is(bytes.length));
+
+            final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
             final BsonInputStream bIn = new BsonInputStream(in);
 
             final Header header = new Header(bIn);
@@ -233,11 +235,37 @@ public class UpdateTest {
                 update, multiUpdate, upsert);
 
         try {
-            message.validateSize(new SizeOfVisitor(), 1);
+            message.validateSize(null, 1);
         }
         catch (final DocumentToLargeException dtle) {
             assertEquals(1, dtle.getMaximumSize());
-            assertEquals(10, dtle.getSize());
+            assertEquals(5, dtle.getSize());
+            assertSame(query, dtle.getDocument());
+        }
+    }
+
+    /**
+     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     */
+    @Test
+    public void testValidateSizeThrowsOnUpdate() {
+        final Random random = new Random(System.currentTimeMillis());
+
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().add("i", 1).build();
+        final boolean multiUpdate = random.nextBoolean();
+        final boolean upsert = random.nextBoolean();
+        final Update message = new Update(databaseName, collectionName, query,
+                update, multiUpdate, upsert);
+
+        try {
+            message.validateSize(null, 6);
+        }
+        catch (final DocumentToLargeException dtle) {
+            assertEquals(6, dtle.getMaximumSize());
+            assertEquals(12, dtle.getSize());
             assertSame(update, dtle.getDocument());
         }
     }
@@ -258,7 +286,7 @@ public class UpdateTest {
         final Update message = new Update(databaseName, collectionName, query,
                 update, multiUpdate, upsert);
 
-        message.validateSize(new SizeOfVisitor(), 1);
+        message.validateSize(null, 1);
 
         // Should be able to call again without visitor since size is cached.
         message.validateSize(null, 1);

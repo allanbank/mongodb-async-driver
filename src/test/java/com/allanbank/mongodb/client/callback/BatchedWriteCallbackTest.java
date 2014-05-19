@@ -38,6 +38,7 @@ import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.BatchedWriteException;
+import com.allanbank.mongodb.error.ReplyException;
 
 /**
  * BatchedWriteCallbackTest provides tests for the {@link BatchedWriteCallback}
@@ -151,7 +152,7 @@ public class BatchedWriteCallbackTest {
         final Callback<Reply> mockReplyCallback2 = createMock(Callback.class);
         final Callback<Reply> mockReplyCallback3 = createMock(Callback.class);
         final BatchedWrite write = BatchedWrite.builder().insert(doc)
-                .update(doc, doc).delete(doc).durability(Durability.NONE)
+                .update(doc, doc).delete(doc).durability(Durability.ACK)
                 .build();
         final Client mockClient = createMock(Client.class);
         final List<BatchedWrite.Bundle> bundles = write.toBundles("foo",
@@ -217,6 +218,62 @@ public class BatchedWriteCallbackTest {
      */
     @SuppressWarnings("unchecked")
     @Test
+    public void testBatchedWriteCallbackForAsyncInterfaceAndNullCallbackDurabilityNone() {
+        final Document doc = d().build();
+
+        final String databaseName = "db";
+        final Callback<Reply> replyCallback1 = null;
+        final Callback<Reply> mockReplyCallback2 = createMock(Callback.class);
+        final Callback<Reply> mockReplyCallback3 = createMock(Callback.class);
+        final BatchedWrite write = BatchedWrite.builder().insert(doc)
+                .update(doc, doc).delete(doc).durability(Durability.NONE)
+                .build();
+        final Client mockClient = createMock(Client.class);
+        final List<BatchedWrite.Bundle> bundles = write.toBundles("foo",
+                Client.MAX_DOCUMENT_SIZE, 1000);
+
+        final Document replyDoc = BuilderFactory.start().add("ok", 1)
+                .add("n", -1).build();
+        final Reply reply = new Reply(0, 0, 0,
+                Collections.singletonList(replyDoc), false, false, false, false);
+
+        replay(mockReplyCallback2, mockReplyCallback3, mockClient);
+        final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
+                "foo", Arrays.asList(replyCallback1, mockReplyCallback2,
+                        mockReplyCallback3), write, bundles);
+        cb.setClient(mockClient);
+
+        assertThat(cb.getForwardCallback(), nullValue());
+        verify(mockReplyCallback2, mockReplyCallback3, mockClient);
+
+        final Capture<ReplyCallback> capture1 = new Capture<ReplyCallback>();
+        final Capture<ReplyCallback> capture2 = new Capture<ReplyCallback>();
+        final Capture<ReplyCallback> capture3 = new Capture<ReplyCallback>();
+
+        // Send the requests and get instant replies of -1.
+        reset(mockReplyCallback2, mockReplyCallback3, mockClient);
+        mockClient.send(anyObject(Message.class), capture(capture1));
+        expectLastCall();
+        mockClient.send(anyObject(Message.class), capture(capture2));
+        expectLastCall();
+        mockClient.send(anyObject(Message.class), capture(capture3));
+        expectLastCall();
+        mockReplyCallback2.callback(reply);
+        expectLastCall();
+        mockReplyCallback3.callback(reply);
+        expectLastCall();
+        replay(mockReplyCallback2, mockReplyCallback3, mockClient);
+        cb.send();
+        verify(mockReplyCallback2, mockReplyCallback3, mockClient);
+    }
+
+    /**
+     * Test method for
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,List, BatchedWrite, java.util.List)}
+     * . This version is used when by the batching async collection interface.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
     public void testBatchedWriteCallbackForAsyncInterfaceInsufficientReplyCallbacks() {
         final Document doc = d().build();
 
@@ -244,6 +301,64 @@ public class BatchedWriteCallbackTest {
             verify(mockReplyCallback1, mockReplyCallback2, mockClient);
         }
 
+    }
+
+    /**
+     * Test method for
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,List, BatchedWrite, java.util.List)}
+     * . This version is used when by the batching async collection interface.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBatchedWriteCallbackForAsyncInterfaceSingleWriteAndError() {
+        final Document doc = d().build();
+
+        final String databaseName = "db";
+        final Callback<Reply> mockReplyCallback1 = createMock(Callback.class);
+        final BatchedWrite write = BatchedWrite.builder().insert(doc).build();
+        final Client mockClient = createMock(Client.class);
+        final List<BatchedWrite.Bundle> bundles = write.toBundles("foo",
+                Client.MAX_DOCUMENT_SIZE, 1000);
+
+        final DocumentBuilder replyErrorDoc = BuilderFactory.start()
+                .add("ok", 1).add("n", 0);
+        replyErrorDoc.pushArray("writeErrors").push().add("index", 0)
+                .add("code", 1234).add("errmsg", "Write Error");
+        final Reply replyError = new Reply(0, 0, 0,
+                Collections.singletonList(replyErrorDoc.build()), false, false,
+                false, false);
+
+        replay(mockReplyCallback1, mockClient);
+        final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
+                "foo", Arrays.asList(mockReplyCallback1), write, bundles);
+        cb.setClient(mockClient);
+
+        assertThat(cb.getForwardCallback(), nullValue());
+        verify(mockReplyCallback1, mockClient);
+
+        final Capture<ReplyCallback> capture1 = new Capture<ReplyCallback>();
+
+        // Send the requests.
+        reset(mockReplyCallback1, mockClient);
+        mockClient.send(anyObject(Message.class), capture(capture1));
+        expectLastCall();
+        replay(mockReplyCallback1, mockClient);
+        cb.send();
+        verify(mockReplyCallback1, mockClient);
+
+        // Now the results.
+        final Capture<Throwable> caughtError = new Capture<Throwable>();
+        reset(mockReplyCallback1, mockClient);
+        mockReplyCallback1.exception(capture(caughtError));
+        expectLastCall();
+        replay(mockReplyCallback1, mockClient);
+        capture1.getValue().callback(replyError);
+        verify(mockReplyCallback1, mockClient);
+
+        final Throwable caught = caughtError.getValue();
+        assertThat(caught, instanceOf(ReplyException.class));
+        final ReplyException error = (ReplyException) caught;
+        assertThat(error.getMessage(), is("Write Error"));
     }
 
     /**
@@ -585,6 +700,66 @@ public class BatchedWriteCallbackTest {
      */
     @SuppressWarnings("unchecked")
     @Test
+    public void testBatchedWriteUsingWriteCommandsDurabilityNone() {
+        final Document doc = d().build();
+
+        final String databaseName = "db";
+        final Callback<Long> mockResults = createMock(Callback.class);
+        final BatchedWrite write = BatchedWrite.builder().insert(doc)
+                .update(doc, doc).delete(doc).durability(Durability.NONE)
+                .build();
+        final Client mockClient = createMock(Client.class);
+        final List<BatchedWrite.Bundle> bundles = write.toBundles("foo",
+                Client.MAX_DOCUMENT_SIZE, 1000);
+
+        final Document replyDoc = BuilderFactory.start().add("ok", 1)
+                .add("n", 1).build();
+        final Reply reply = new Reply(0, 0, 0,
+                Collections.singletonList(replyDoc), false, false, false, false);
+
+        replay(mockResults, mockClient);
+        final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
+                "foo", mockResults, write, mockClient, bundles);
+        assertThat(cb.getForwardCallback(), sameInstance(mockResults));
+        verify(mockResults, mockClient);
+
+        final Capture<ReplyCallback> capture1 = new Capture<ReplyCallback>();
+        final Capture<ReplyCallback> capture2 = new Capture<ReplyCallback>();
+        final Capture<ReplyCallback> capture3 = new Capture<ReplyCallback>();
+
+        // Send the requests.
+        reset(mockResults, mockClient);
+        mockClient.send(anyObject(Message.class), capture(capture1));
+        expectLastCall();
+        mockClient.send(anyObject(Message.class), capture(capture2));
+        expectLastCall();
+        mockClient.send(anyObject(Message.class), capture(capture3));
+        expectLastCall();
+        mockResults.callback(Long.valueOf(-1));
+        expectLastCall();
+        replay(mockResults, mockClient);
+        cb.send();
+        verify(mockResults, mockClient);
+
+        // Now the results.
+        reset(mockResults, mockClient);
+        replay(mockResults, mockClient);
+        capture1.getValue().callback(reply);
+        capture2.getValue().callback(reply);
+        capture3.getValue().callback(reply);
+        verify(mockResults, mockClient);
+
+        assertThat(capture1.getValue().isLightWeight(), is(true));
+    }
+
+    /**
+     * Test method for
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
+     * . This constructor is used for a set of write operations that do use the
+     * write commands. e.g., the server is on or after MongoDB 2.6.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
     public void testBatchedWriteUsingWriteCommandsFailure() {
         final Document doc = d().build();
 
@@ -817,6 +992,60 @@ public class BatchedWriteCallbackTest {
         assertThat(batchError.getSkipped().size(), is(0));
         assertThat(batchError.getWrite(), sameInstance(write));
 
+    }
+
+    /**
+     * Test method for
+     * {@link BatchedWriteCallback#BatchedWriteCallback(String, String,Callback, BatchedWrite, Client, List)}
+     * . This constructor is used for a set of write operations that do use the
+     * write commands. e.g., the server is on or after MongoDB 2.6.
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testBatchedWriteUsingWriteCommandsReplyFailureSingleWrite() {
+        final Document doc = d().build();
+
+        final String databaseName = "db";
+        final Callback<Long> mockResults = createMock(Callback.class);
+        final BatchedWrite write = BatchedWrite.builder().insert(doc).build();
+        final Client mockClient = createMock(Client.class);
+        final List<BatchedWrite.Bundle> bundles = write.toBundles("foo",
+                Client.MAX_DOCUMENT_SIZE, 1000);
+
+        final Document replyErrorDoc = BuilderFactory.start().add("ok", 0)
+                .add("errmsg", "Something bad happened.").build();
+        final Reply replyError = new Reply(0, 0, 0,
+                Collections.singletonList(replyErrorDoc), false, false, false,
+                false);
+
+        replay(mockResults, mockClient);
+        final BatchedWriteCallback cb = new BatchedWriteCallback(databaseName,
+                "foo", mockResults, write, mockClient, bundles);
+        assertThat(cb.getForwardCallback(), sameInstance(mockResults));
+        verify(mockResults, mockClient);
+
+        final Capture<ReplyCallback> capture1 = new Capture<ReplyCallback>();
+
+        // Send the requests.
+        reset(mockResults, mockClient);
+        mockClient.send(anyObject(Message.class), capture(capture1));
+        expectLastCall();
+        replay(mockResults, mockClient);
+        cb.send();
+        verify(mockResults, mockClient);
+
+        // Now the results.
+        final Capture<Throwable> caughtError = new Capture<Throwable>();
+        reset(mockResults, mockClient);
+        mockResults.exception(capture(caughtError));
+        replay(mockResults, mockClient);
+        capture1.getValue().callback(replyError);
+        verify(mockResults, mockClient);
+
+        final Throwable caught = caughtError.getValue();
+        assertThat(caught, instanceOf(ReplyException.class));
+        final ReplyException error = (ReplyException) caught;
+        assertThat(error.getMessage(), is("Something bad happened."));
     }
 
     /**

@@ -60,6 +60,8 @@ public class CommandTest {
                 out2);
         command.write(1000, bsonOut2);
 
+        assertThat(command.size(), is(out2.toByteArray().length));
+
         assertArrayEquals(out1.toByteArray(), out2.toByteArray());
     }
 

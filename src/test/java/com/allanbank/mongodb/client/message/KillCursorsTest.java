@@ -114,8 +114,10 @@ public class KillCursorsTest {
 
             message.write(1234, bOut);
 
-            final ByteArrayInputStream in = new ByteArrayInputStream(
-                    out.toByteArray());
+            final byte[] bytes = out.toByteArray();
+            assertThat(message.size(), is(bytes.length));
+
+            final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
             final BsonInputStream bIn = new BsonInputStream(in);
 
             final Header header = new Header(bIn);

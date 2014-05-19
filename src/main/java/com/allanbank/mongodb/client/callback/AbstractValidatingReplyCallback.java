@@ -308,6 +308,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
                     || doc.contains("wnote")
                     || doc.contains("jnote")
                     || doc.contains("badGLE")
+                    || errorMessage.startsWith("cannot use 'j' option")
                     || errorMessage
                             .startsWith("could not enforce write concern");
         }

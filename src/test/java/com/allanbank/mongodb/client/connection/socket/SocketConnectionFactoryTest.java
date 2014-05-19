@@ -244,7 +244,7 @@ public class SocketConnectionFactoryTest {
         final DocumentBuilder builder = BuilderFactory.start();
         builder.pushArray("versionArray").add(1).add(2L).add(3.0);
 
-        myTestFactory.getState().add(ourServer.getInetSocketAddress())
+        myTestFactory.getCluster().add(ourServer.getInetSocketAddress())
                 .update(builder.build());
     }
 }

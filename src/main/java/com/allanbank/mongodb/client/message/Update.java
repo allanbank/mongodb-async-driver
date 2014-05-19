@@ -49,11 +49,6 @@ public class Update extends AbstractMessage {
     public static final int UPSERT_FLAG_BIT = 0x01;
 
     /**
-     * The size of the message. If negative then the size has not been computed.
-     */
-    private int myMessageSize;
-
-    /**
      * If true then all documents matching the query should be updated,
      * otherwise only the first document should be updated.
      */
@@ -88,8 +83,6 @@ public class Update extends AbstractMessage {
 
         myUpsert = (flags & UPSERT_FLAG_BIT) == UPSERT_FLAG_BIT;
         myMultiUpdate = (flags & MULTIUPDATE_FLAG_BIT) == MULTIUPDATE_FLAG_BIT;
-
-        myMessageSize = -1;
     }
 
     /**
@@ -118,7 +111,6 @@ public class Update extends AbstractMessage {
         myUpdate = update;
         myMultiUpdate = multiUpdate;
         myUpsert = upsert;
-        myMessageSize = -1;
     }
 
     /**
@@ -247,22 +239,15 @@ public class Update extends AbstractMessage {
     @Override
     public void validateSize(final SizeOfVisitor visitor,
             final int maxDocumentSize) throws DocumentToLargeException {
-        if (myMessageSize < 0) {
-            visitor.reset();
-
-            if (myQuery != null) {
-                myQuery.accept(visitor);
-            }
-            if (myUpdate != null) {
-                myUpdate.accept(visitor);
-            }
-
-            myMessageSize = visitor.getSize();
+        final long querySize = (myQuery != null) ? myQuery.size() : 0;
+        if (maxDocumentSize < querySize) {
+            throw new DocumentToLargeException((int) querySize,
+                    maxDocumentSize, myQuery);
         }
-
-        if (maxDocumentSize < myMessageSize) {
-            throw new DocumentToLargeException(myMessageSize, maxDocumentSize,
-                    myUpdate);
+        final long updateSize = (myUpdate != null) ? myUpdate.size() : 0;
+        if (maxDocumentSize < updateSize) {
+            throw new DocumentToLargeException((int) updateSize,
+                    maxDocumentSize, myUpdate);
         }
     }
 

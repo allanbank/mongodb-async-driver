@@ -160,7 +160,7 @@ public class GetMore extends AbstractMessage {
      */
     @Override
     public int size() {
-        int size = HEADER_SIZE + 16; // See below.
+        int size = HEADER_SIZE + 18; // See below.
         // size += 4; // reserved - 0;
         size += StringEncoder.utf8Size(myDatabaseName);
         // size += 1; // StringEncoder.utf8Size(".");

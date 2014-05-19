@@ -166,6 +166,19 @@ public class BatchedAsyncMongoCollectionImpl extends
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return false to force the {@link AbstractMongoOperations}
+     * class to always use the legacy {@link Insert}, {@link Update}, and
+     * {@link Delete} messages. The {@code CaptureClientHandler.optimize()} will
+     * convert those operations to bulk write commands as appropriate.
+     */
+    @Override
+    protected boolean useWriteCommand() {
+        return false;
+    }
+
+    /**
      * CaptureClientHandler provides an {@link InvocationHandler} to capture all
      * send requests and defer them until flushed.
      * 

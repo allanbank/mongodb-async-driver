@@ -52,14 +52,14 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     private ThreadLocal<Reference<BufferingBsonOutputStream>> myBuffers;
 
+    /** The state of the cluster. */
+    private final Cluster myCluster;
+
     /** The MongoDB client configuration. */
     private final MongoClientConfiguration myConfig;
 
     /** The server selector. */
     private final ServerSelector myServerSelector;
-
-    /** The state of the cluster. */
-    private final Cluster myState;
 
     /**
      * Creates a new {@link SocketConnectionFactory}.
@@ -70,8 +70,8 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     public SocketConnectionFactory(final MongoClientConfiguration config) {
         super();
         myConfig = config;
-        myState = new Cluster(config);
-        myServerSelector = new LatencyServerSelector(myState, true);
+        myCluster = new Cluster(config);
+        myServerSelector = new LatencyServerSelector(myCluster, true);
         myBuffers = new ThreadLocal<Reference<BufferingBsonOutputStream>>();
     }
 
@@ -105,7 +105,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         Collections.shuffle(servers);
         for (final InetSocketAddress address : servers) {
             try {
-                final Server server = myState.add(address);
+                final Server server = myCluster.add(address);
                 final Connection conn = connect(server, myConfig);
 
                 // Get the state of the server updated.
@@ -175,6 +175,15 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     }
 
     /**
+     * Returns the cluster state.
+     * 
+     * @return The cluster state.
+     */
+    public Cluster getCluster() {
+        return myCluster;
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return the {@link Cluster}.
@@ -182,7 +191,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public ClusterStats getClusterStats() {
-        return myState;
+        return myCluster;
     }
 
     /**
@@ -208,17 +217,8 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         strategy.setConfig(myConfig);
         strategy.setConnectionFactory(this);
         strategy.setSelector(myServerSelector);
-        strategy.setState(myState);
+        strategy.setState(myCluster);
 
         return strategy;
-    }
-
-    /**
-     * Returns the cluster state.
-     * 
-     * @return The cluster state.
-     */
-    protected Cluster getState() {
-        return myState;
     }
 }

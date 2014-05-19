@@ -61,6 +61,7 @@ import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.builder.BatchedWriteMode;
 import com.allanbank.mongodb.builder.ConditionBuilder;
 import com.allanbank.mongodb.builder.Count;
 import com.allanbank.mongodb.builder.Distinct;
@@ -80,6 +81,7 @@ import com.allanbank.mongodb.client.callback.ReplyLongCallback;
 import com.allanbank.mongodb.client.callback.ReplyResultCallback;
 import com.allanbank.mongodb.client.callback.SingleDocumentCallback;
 import com.allanbank.mongodb.client.message.AggregateCommand;
+import com.allanbank.mongodb.client.message.BatchedWriteCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
@@ -105,6 +107,9 @@ public class MongoCollectionImplTest {
     /** The parent database for the collection. */
     private MongoDatabase myMockDatabase = null;
 
+    /** The stats for the cluster. */
+    private ClusterStats myMockStats = null;
+
     /** The instance under test. */
     private SynchronousMongoCollectionImpl myTestInstance = null;
 
@@ -115,6 +120,7 @@ public class MongoCollectionImplTest {
     public void setUp() {
         myMockClient = EasyMock.createMock(Client.class);
         myMockDatabase = EasyMock.createMock(MongoDatabase.class);
+        myMockStats = EasyMock.createMock(ClusterStats.class);
 
         myTestInstance = new SynchronousMongoCollectionImpl(myMockClient,
                 myMockDatabase, "test");
@@ -130,6 +136,7 @@ public class MongoCollectionImplTest {
     public void tearDown() {
         myMockClient = null;
         myMockDatabase = null;
+        myMockStats = null;
 
         myTestInstance = null;
     }
@@ -1311,9 +1318,13 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(4);
-
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(queryMessage), callback(reply()));
         expectLastCall();
 
@@ -1542,6 +1553,10 @@ public class MongoCollectionImplTest {
 
         final Capture<Insert> insert = new Capture<Insert>();
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(capture(insert), eq(expectedLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -1593,6 +1608,10 @@ public class MongoCollectionImplTest {
         expectLastCall();
 
         final Capture<Insert> insert = new Capture<Insert>();
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(capture(insert), eq(expectedLastError),
                 callback(reply(replyDoc)));
@@ -1646,6 +1665,10 @@ public class MongoCollectionImplTest {
 
         final Capture<Insert> insert = new Capture<Insert>();
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(capture(insert), eq(expectedLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -1677,6 +1700,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -1710,6 +1737,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -1738,6 +1769,51 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
+        myMockClient.send(eq(message), eq(getLastError),
+                anyObject(ReplyLongCallback.class));
+        expectLastCall();
+
+        replay(mockCountCallback);
+
+        myTestInstance
+                .deleteAsync(mockCountCallback, doc, true, Durability.ACK);
+
+        verify(mockCountCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
+     * .
+     */
+    @Test
+    public void testDeleteAsyncCallbackOfLongDocumentBooleanDurabilityWith2_6WriteCommand() {
+
+        final Callback<Long> mockCountCallback = createMock(Callback.class);
+        final Document doc = BuilderFactory.start().build();
+
+        final Delete message = new Delete("test", "test", doc, true);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 1, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -1764,6 +1840,10 @@ public class MongoCollectionImplTest {
         final Delete message = new Delete("test", "test", doc, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -1800,6 +1880,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -1833,6 +1917,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -1865,6 +1953,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -1893,6 +1985,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
 
@@ -1919,6 +2015,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -1951,6 +2051,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -1978,6 +2082,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -2003,6 +2111,10 @@ public class MongoCollectionImplTest {
         final Delete message = new Delete("test", "test", doc, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -2035,6 +2147,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -2065,6 +2181,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -2093,6 +2213,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -2116,6 +2240,10 @@ public class MongoCollectionImplTest {
         final Delete message = new Delete("test", "test", doc, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -4763,6 +4891,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -4797,6 +4929,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -4827,6 +4963,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -4854,6 +4994,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -4885,6 +5029,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -4912,6 +5060,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -4941,6 +5093,11 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
 
@@ -4972,6 +5129,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -5002,6 +5163,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -5029,6 +5194,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -5060,6 +5229,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -5087,6 +5260,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -5118,6 +5295,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -5146,6 +5327,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -5177,6 +5362,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -5207,8 +5396,53 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+
+        assertEquals(2, myTestInstance.insert(doc));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#insert(DocumentAssignable...)} .
+     */
+    @Test
+    public void testInsertDocumentArrayWith2_6WriteCommand() {
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 2)
+                .build();
+
+        final BatchedWrite.Builder write = BatchedWrite.builder().insert(doc)
+                .durability(Durability.ACK)
+                .mode(BatchedWriteMode.SERIALIZE_AND_STOP);
+        final BatchedWrite.Bundle bundle = write.build()
+                .toBundles("test", 100000, 10000000).get(0);
+
+        final Command commandMsg = new BatchedWriteCommand("test", "test",
+                bundle);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6))
+                .times(2);
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
+                100);
+
+        myMockClient.send(eq(commandMsg), callback(reply(replyDoc)));
         expectLastCall();
 
         replay();
@@ -5235,6 +5469,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -6008,6 +6246,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -6036,6 +6278,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -6069,6 +6315,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -6101,6 +6351,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -6132,6 +6386,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -6160,6 +6418,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -6190,6 +6452,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -6218,6 +6484,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -7139,6 +7409,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -7169,6 +7443,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -7201,6 +7479,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -7231,6 +7513,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -7263,6 +7549,11 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
 
@@ -7298,6 +7589,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -7336,6 +7631,10 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -7346,6 +7645,54 @@ public class MongoCollectionImplTest {
                 Long.valueOf(1L),
                 myTestInstance.updateAsync(doc, update, true, true,
                         Durability.ACK).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testUpdateAsyncDocumentDocumentBooleanBooleanUsingWriteCommandWith2_6WriteCommand()
+            throws Exception {
+        final Document doc = BuilderFactory.start().add("_id", 1).build();
+        final Document update = BuilderFactory.start().addInteger("foo", 1)
+                .build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+
+        final BatchedWrite.Builder write = BatchedWrite.builder()
+                .update(doc, update, true, true).durability(Durability.ACK);
+        final BatchedWrite.Bundle bundle = write.build()
+                .toBundles("test", 100000, 10000000).get(0);
+
+        final Command commandMsg = new BatchedWriteCommand("test", "test",
+                bundle);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6))
+                .times(2);
+        expect(myMockStats.getSmallestMaxBsonObjectSize()).andReturn(
+                (long) Client.MAX_DOCUMENT_SIZE);
+        expect(myMockStats.getSmallestMaxBatchedWriteOperations()).andReturn(
+                100);
+
+        myMockClient.send(eq(commandMsg), callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+
+        assertEquals(Long.valueOf(1L),
+                myTestInstance.updateAsync(doc, update, true, true).get());
 
         verify();
     }
@@ -7372,6 +7719,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -7405,6 +7756,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -7436,6 +7791,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
         expectLastCall();
@@ -7465,6 +7824,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -7496,6 +7859,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 anyObject(ReplyLongCallback.class));
@@ -7530,6 +7897,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -7562,6 +7933,10 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(2);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
 
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
         expectLastCall();
@@ -7592,6 +7967,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -7624,6 +8003,10 @@ public class MongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), eq(getLastError),
                 callback(reply(replyDoc)));
@@ -7710,9 +8093,8 @@ public class MongoCollectionImplTest {
         final BatchedWrite.Bundle bundle = write.build()
                 .toBundles("test", 100000, 10000000).get(0);
 
-        final Command commandMsg = new Command("test", "test",
-                bundle.getCommand(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command commandMsg = new BatchedWriteCommand("test", "test",
+                bundle);
 
         expect(myMockClient.getClusterStats()).andReturn(mockStats);
         expect(mockStats.getServerVersionRange()).andReturn(
@@ -7754,9 +8136,10 @@ public class MongoCollectionImplTest {
         final GetLastError getLastError = new GetLastError("test", false,
                 false, 1, 0);
 
-        expect(myMockClient.getClusterStats()).andReturn(mockStats);
+        expect(myMockClient.getClusterStats()).andReturn(mockStats).times(2);
         expect(mockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4))
+                .times(2);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
 
@@ -7885,7 +8268,7 @@ public class MongoCollectionImplTest {
      */
     private void replay(final Object... mocks) {
         EasyMock.replay(mocks);
-        EasyMock.replay(myMockClient, myMockDatabase);
+        EasyMock.replay(myMockClient, myMockDatabase, myMockStats);
     }
 
     /**
@@ -7909,6 +8292,6 @@ public class MongoCollectionImplTest {
      */
     private void verify(final Object... mocks) {
         EasyMock.verify(mocks);
-        EasyMock.verify(myMockClient, myMockDatabase);
+        EasyMock.verify(myMockClient, myMockDatabase, myMockStats);
     }
 }

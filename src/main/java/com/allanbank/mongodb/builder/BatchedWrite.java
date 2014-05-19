@@ -90,6 +90,86 @@ public class BatchedWrite implements Serializable {
         return new Builder();
     }
 
+    /**
+     * Create a batched write with a single delete operation. Users can just use
+     * the {@link MongoCollection#delete} variants and the driver will convert
+     * the deletes to batched writes as appropriate.
+     * <p>
+     * This method avoids the construction of a builder.
+     * </p>
+     * 
+     * @param query
+     *            The query to find the documents to delete.
+     * @param singleDelete
+     *            If true then only a single document will be deleted. If
+     *            running in a sharded environment then this field must be false
+     *            or the query must contain the shard key.
+     * @param durability
+     *            The durability of the delete.
+     * @return The BatchedWrite with the single delete.
+     */
+    public static BatchedWrite delete(final DocumentAssignable query,
+            final boolean singleDelete, final Durability durability) {
+        final DeleteOperation op = new DeleteOperation(query, singleDelete);
+        return new BatchedWrite(op, BatchedWriteMode.SERIALIZE_AND_CONTINUE,
+                durability);
+    }
+
+    /**
+     * Create a batched write with a single inserts operation. Users can just
+     * use the {@link MongoCollection#insert} variants and the driver will
+     * convert the inserts to batched writes as appropriate.
+     * <p>
+     * This method avoids the construction of a builder.
+     * </p>
+     * 
+     * @param continueOnError
+     *            If the insert should continue if one of the documents causes
+     *            an error.
+     * @param durability
+     *            The durability for the insert.
+     * @param documents
+     *            The documents to add to the collection.
+     * @return The BatchedWrite with the inserts.
+     */
+    public static BatchedWrite insert(final boolean continueOnError,
+            final Durability durability, final DocumentAssignable... documents) {
+        final List<WriteOperation> ops = new ArrayList<WriteOperation>(
+                documents.length);
+        for (final DocumentAssignable doc : documents) {
+            ops.add(new InsertOperation(doc));
+        }
+        return new BatchedWrite(ops,
+                continueOnError ? BatchedWriteMode.SERIALIZE_AND_CONTINUE
+                        : BatchedWriteMode.SERIALIZE_AND_STOP, durability);
+    }
+
+    /**
+     * Create a batched write with a single update operation. Users can just use
+     * the {@link MongoCollection#update} variants and the driver will convert
+     * the updates to batched writes as appropriate.
+     * 
+     * @param query
+     *            The query for the update.
+     * @param update
+     *            The update for the update.
+     * @param multiUpdate
+     *            If true then the update will update multiple documents.
+     * @param upsert
+     *            If no document is found then upsert the document.
+     * @param durability
+     *            The durability of the update.
+     * @return The BatchedWrite with the single update.
+     */
+    public static BatchedWrite update(final DocumentAssignable query,
+            final DocumentAssignable update, final boolean multiUpdate,
+            final boolean upsert, final Durability durability) {
+        final UpdateOperation op = new UpdateOperation(query, update,
+                multiUpdate, upsert);
+        return new BatchedWrite(op, BatchedWriteMode.SERIALIZE_AND_CONTINUE,
+                durability);
+    }
+
     /** The durability for the writes. */
     private final Durability myDurability;
 
@@ -110,6 +190,38 @@ public class BatchedWrite implements Serializable {
                 builder.myWrites));
         myMode = builder.myMode;
         myDurability = builder.myDurability;
+    }
+
+    /**
+     * Creates a new BatchedWrite.
+     * 
+     * @param ops
+     *            The operations for the batch.
+     * @param mode
+     *            The mode for the batch.
+     * @param durability
+     *            The durability for the batch.
+     */
+    private BatchedWrite(final List<WriteOperation> ops,
+            final BatchedWriteMode mode, final Durability durability) {
+        myWrites = Collections.unmodifiableList(ops);
+        myMode = mode;
+        myDurability = durability;
+    }
+
+    /**
+     * Creates a new BatchedWrite.
+     * 
+     * @param op
+     *            The single operation for the batch.
+     * @param mode
+     *            The mode for the batch.
+     * @param durability
+     *            The durability for the batch.
+     */
+    private BatchedWrite(final WriteOperation op, final BatchedWriteMode mode,
+            final Durability durability) {
+        this(Collections.singletonList(op), mode, durability);
     }
 
     /**
@@ -268,6 +380,10 @@ public class BatchedWrite implements Serializable {
         case UPDATE: {
             final UpdateOperation updateOperation = (UpdateOperation) operation;
             doc = updateOperation.getQuery();
+            final Document update = updateOperation.getUpdate();
+            if (doc.size() < update.size()) {
+                doc = update;
+            }
             break;
         }
         case DELETE: {

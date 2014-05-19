@@ -85,14 +85,19 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * </p>
      */
     public void bootstrap() {
-        ProxiedConnectionFactory factory = new SocketConnectionFactory(myConfig);
+        final SocketConnectionFactory socketFactory = new SocketConnectionFactory(
+                myConfig);
+        ProxiedConnectionFactory factory = socketFactory;
+
         // Authentication has to be right on top of the physical
         // connection.
         if (myConfig.isAuthenticating()) {
             factory = new AuthenticationConnectionFactory(factory, myConfig);
         }
+
         try {
-            final Cluster cluster = new Cluster(myConfig);
+            // Use the socket factories cluster.
+            final Cluster cluster = socketFactory.getCluster();
             for (final InetSocketAddress addr : myConfig.getServerAddresses()) {
                 Connection conn = null;
                 final FutureReplyCallback future = new FutureReplyCallback();
@@ -111,10 +116,12 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
                         if (isMongos(doc)) {
                             LOG.debug("Sharded bootstrap to {}.", addr);
+                            cluster.clear(); // not needed.
                             myDelegate = bootstrapSharded(factory);
                         }
                         else if (isReplicationSet(doc)) {
                             LOG.debug("Replica-set bootstrap to {}.", addr);
+                            cluster.clear(); // not needed.
                             myDelegate = bootstrapReplicaSet(factory);
                         }
                         else {

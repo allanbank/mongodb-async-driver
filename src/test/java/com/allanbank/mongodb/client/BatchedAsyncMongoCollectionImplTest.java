@@ -34,13 +34,12 @@ import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDatabase;
-import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ObjectId;
-import com.allanbank.mongodb.builder.BatchedWrite;
+import com.allanbank.mongodb.client.message.BatchedWriteCommand;
 import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
@@ -179,8 +178,6 @@ public class BatchedAsyncMongoCollectionImplTest {
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
                 3);
 
-        expectLastCall();
-
         replay();
         final Future<Long> future1 = myTestInstance.deleteAsync(doc);
         final Future<Long> future2 = myTestInstance.deleteAsync(doc);
@@ -227,6 +224,7 @@ public class BatchedAsyncMongoCollectionImplTest {
                 false, 1, 0);
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(3);
 
         replay();
         final Future<Long> future1 = myTestInstance.updateAsync(doc, update,
@@ -277,9 +275,8 @@ public class BatchedAsyncMongoCollectionImplTest {
                         a(d(e("q", doc), e("limit", 0)),
                                 d(e("q", doc), e("limit", 0)),
                                 d(e("q", doc), e("limit", 0)))));
-        final Command deleteMessage = new Command("test", "test",
-                deleteCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command deleteMessage = new BatchedWriteCommand("test", "test",
+                deleteCommand.asDocument());
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
@@ -339,11 +336,11 @@ public class BatchedAsyncMongoCollectionImplTest {
                         a(d(e("q", doc), e("u", update)),
                                 d(e("q", doc), e("u", update)),
                                 d(e("q", doc), e("u", update)))));
-        final Command updateMessage = new Command("test", "test",
-                updateCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command updateMessage = new BatchedWriteCommand("test", "test",
+                updateCommand.asDocument());
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(3);
 
         replay();
         final Future<Long> future1 = myTestInstance.updateAsync(doc, update,
@@ -398,6 +395,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
                 3);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(3);
 
         replay();
 
@@ -446,13 +444,13 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc, doc, doc)));
-        final Command insertMessage = new Command("test", "test",
-                insertCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command insertMessage = new BatchedWriteCommand("test", "test",
+                insertCommand.asDocument());
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
                 3);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(3);
 
         replay();
 
@@ -504,9 +502,8 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test", "test",
-                insertCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command insertMessage = new BatchedWriteCommand("test", "test",
+                insertCommand.asDocument());
 
         final Update updateMessage = new Update("test", "test", doc, update,
                 false, false);
@@ -517,6 +514,7 @@ public class BatchedAsyncMongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
                 3);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
 
         replay();
 
@@ -576,9 +574,8 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test", "test",
-                insertCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command insertMessage = new BatchedWriteCommand("test", "test",
+                insertCommand.asDocument());
 
         final DocumentAssignable deleteCommand = d(
                 e("delete", "test"),
@@ -587,13 +584,13 @@ public class BatchedAsyncMongoCollectionImplTest {
                 e("deletes",
                         a(d(e("q", doc), e("limit", 0)),
                                 d(e("q", doc), e("limit", 0)))));
-        final Command deleteMessage = new Command("test", "test",
-                deleteCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command deleteMessage = new BatchedWriteCommand("test", "test",
+                deleteCommand.asDocument());
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
                 3);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
 
         replay();
 
@@ -652,27 +649,25 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test", "test",
-                insertCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command insertMessage = new BatchedWriteCommand("test", "test",
+                insertCommand.asDocument());
 
         final DocumentAssignable updateCommand = d(e("update", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("updates", a(d(e("q", doc), e("u", update)))));
-        final Command updateMessage = new Command("test", "test",
-                updateCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command updateMessage = new BatchedWriteCommand("test", "test",
+                updateCommand.asDocument());
 
         final DocumentAssignable deleteCommand = d(e("delete", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("deletes", a(d(e("q", doc), e("limit", 0)))));
-        final Command deleteMessage = new Command("test", "test",
-                deleteCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command deleteMessage = new BatchedWriteCommand("test", "test",
+                deleteCommand.asDocument());
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
                 3);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(2);
 
         replay();
 
@@ -733,9 +728,8 @@ public class BatchedAsyncMongoCollectionImplTest {
         final DocumentAssignable insertCommand = d(e("insert", "test"),
                 e("ordered", false), e("writeConcern", d(e("w", 1))),
                 e("documents", a(doc)));
-        final Command insertMessage = new Command("test", "test",
-                insertCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command insertMessage = new BatchedWriteCommand("test", "test",
+                insertCommand.asDocument());
 
         final DocumentAssignable updateCommand = d(
                 e("update", "test"),
@@ -744,13 +738,13 @@ public class BatchedAsyncMongoCollectionImplTest {
                 e("updates",
                         a(d(e("q", doc), e("u", update)),
                                 d(e("q", doc), e("u", update)))));
-        final Command updateMessage = new Command("test", "test",
-                updateCommand.asDocument(), ReadPreference.PRIMARY,
-                VersionRange.minimum(BatchedWrite.REQUIRED_VERSION));
+        final Command updateMessage = new BatchedWriteCommand("test", "test",
+                updateCommand.asDocument());
 
         expect(myMockDatabase.getName()).andReturn("test").times(6);
         expect(myMockDatabase.getDurability()).andReturn(Durability.ACK).times(
                 3);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats).times(3);
 
         replay();
 

@@ -213,16 +213,25 @@ public abstract class AbstractMongoOperations {
             final DocumentAssignable query, final boolean singleDelete,
             final Durability durability) throws MongoDbException {
 
-        final Delete deleteMessage = new Delete(getDatabaseName(), myName,
-                query.asDocument(), singleDelete);
+        if (useWriteCommand() && isWriteCommandsSupported(null)) {
 
-        if (Durability.NONE.equals(durability)) {
-            myClient.send(deleteMessage, null);
-            results.callback(Long.valueOf(-1));
+            final BatchedWrite write = BatchedWrite.delete(query, singleDelete,
+                    durability);
+
+            writeAsync(results, write);
         }
         else {
-            myClient.send(deleteMessage, asGetLastError(durability),
-                    new ReplyLongCallback(results));
+            final Delete deleteMessage = new Delete(getDatabaseName(), myName,
+                    query.asDocument(), singleDelete);
+
+            if (Durability.NONE.equals(durability)) {
+                myClient.send(deleteMessage, null);
+                results.callback(Long.valueOf(-1));
+            }
+            else {
+                myClient.send(deleteMessage, asGetLastError(durability),
+                        new ReplyLongCallback(results));
+            }
         }
     }
 
@@ -887,16 +896,26 @@ public abstract class AbstractMongoOperations {
             final boolean multiUpdate, final boolean upsert,
             final Durability durability) throws MongoDbException {
 
-        final Update updateMessage = new Update(getDatabaseName(), myName,
-                query.asDocument(), update.asDocument(), multiUpdate, upsert);
+        final ClusterStats stats = myClient.getClusterStats();
+        if (useWriteCommand() && isWriteCommandsSupported(stats)) {
+            final BatchedWrite write = BatchedWrite.update(query, update,
+                    multiUpdate, upsert, durability);
 
-        if (Durability.NONE == durability) {
-            myClient.send(updateMessage, null);
-            results.callback(Long.valueOf(-1));
+            doWriteAsync(stats, results, write);
         }
         else {
-            myClient.send(updateMessage, asGetLastError(durability),
-                    new ReplyLongCallback(results));
+            final Update updateMessage = new Update(getDatabaseName(), myName,
+                    query.asDocument(), update.asDocument(), multiUpdate,
+                    upsert);
+
+            if (Durability.NONE == durability) {
+                myClient.send(updateMessage, null);
+                results.callback(Long.valueOf(-1));
+            }
+            else {
+                myClient.send(updateMessage, asGetLastError(durability),
+                        new ReplyLongCallback(results));
+            }
         }
     }
 
@@ -918,39 +937,8 @@ public abstract class AbstractMongoOperations {
     public void writeAsync(final Callback<Long> results,
             final BatchedWrite write) throws MongoDbException {
         final ClusterStats stats = myClient.getClusterStats();
-        final Version minVersion = stats.getServerVersionRange()
-                .getLowerBounds();
 
-        if (BatchedWrite.REQUIRED_VERSION.compareTo(minVersion) <= 0) {
-
-            final List<BatchedWrite.Bundle> bundles = write.toBundles(
-                    getName(), stats.getSmallestMaxBsonObjectSize(),
-                    stats.getSmallestMaxBatchedWriteOperations());
-            if (bundles.isEmpty()) {
-                results.callback(Long.valueOf(0));
-                return;
-            }
-
-            final BatchedWriteCallback callback = new BatchedWriteCallback(
-                    getDatabaseName(), getName(), results, write, myClient,
-                    bundles);
-
-            // Push the messages out.
-            callback.send();
-        }
-        else {
-            final List<WriteOperation> operations = write.getWrites();
-            if (operations.isEmpty()) {
-                results.callback(Long.valueOf(0));
-                return;
-            }
-
-            final BatchedNativeWriteCallback callback = new BatchedNativeWriteCallback(
-                    results, write, this, operations);
-
-            // Push the messages out.
-            callback.send();
-        }
+        doWriteAsync(stats, results, write);
     }
 
     /**
@@ -1030,27 +1018,101 @@ public abstract class AbstractMongoOperations {
             final Version requiredServerVersion,
             final DocumentAssignable... documents) throws MongoDbException {
 
-        // Make sure the documents have an _id.
-        final List<Document> docs = new ArrayList<Document>(documents.length);
-        for (final DocumentAssignable docAssignable : documents) {
-            final Document doc = docAssignable.asDocument();
-            if (!doc.contains(ID_FIELD_NAME) && (doc instanceof RootDocument)) {
-                ((RootDocument) doc).injectId();
-            }
-            docs.add(doc);
-        }
+        final ClusterStats stats = myClient.getClusterStats();
+        if (useWriteCommand() && isWriteCommandsSupported(stats)) {
+            final BatchedWrite write = BatchedWrite.insert(continueOnError,
+                    durability, documents);
 
-        final Insert insertMessage = new Insert(getDatabaseName(), myName,
-                docs, continueOnError,
-                VersionRange.minimum(requiredServerVersion));
-        if (Durability.NONE == durability) {
-            myClient.send(insertMessage, null);
-            results.callback(Integer.valueOf(-1));
+            doWriteAsync(stats, new LongToIntCallback(results), write);
         }
         else {
-            myClient.send(insertMessage, asGetLastError(durability),
-                    new ReplyIntegerCallback(results));
+            // Make sure the documents have an _id.
+            final List<Document> docs = new ArrayList<Document>(
+                    documents.length);
+            for (final DocumentAssignable docAssignable : documents) {
+                final Document doc = docAssignable.asDocument();
+                if (!doc.contains(ID_FIELD_NAME)
+                        && (doc instanceof RootDocument)) {
+                    ((RootDocument) doc).injectId();
+                }
+                docs.add(doc);
+            }
+
+            final Insert insertMessage = new Insert(getDatabaseName(), myName,
+                    docs, continueOnError,
+                    VersionRange.minimum(requiredServerVersion));
+            if (Durability.NONE == durability) {
+                myClient.send(insertMessage, null);
+                results.callback(Integer.valueOf(-1));
+            }
+            else {
+                myClient.send(insertMessage, asGetLastError(durability),
+                        new ReplyIntegerCallback(results));
+            }
         }
+    }
+
+    /**
+     * Performs a async write operation.
+     * 
+     * @param stats
+     *            The stats for verifying the server support write commands.
+     * @param results
+     *            The callback for the write.
+     * @param write
+     *            The write to send.
+     */
+    protected void doWriteAsync(final ClusterStats stats,
+            final Callback<Long> results, final BatchedWrite write) {
+        if (isWriteCommandsSupported(stats)) {
+
+            final List<BatchedWrite.Bundle> bundles = write.toBundles(
+                    getName(), stats.getSmallestMaxBsonObjectSize(),
+                    stats.getSmallestMaxBatchedWriteOperations());
+            if (bundles.isEmpty()) {
+                results.callback(Long.valueOf(0));
+                return;
+            }
+
+            final BatchedWriteCallback callback = new BatchedWriteCallback(
+                    getDatabaseName(), getName(), results, write, myClient,
+                    bundles);
+
+            // Push the messages out.
+            callback.send();
+        }
+        else {
+            final List<WriteOperation> operations = write.getWrites();
+            if (operations.isEmpty()) {
+                results.callback(Long.valueOf(0));
+                return;
+            }
+
+            final BatchedNativeWriteCallback callback = new BatchedNativeWriteCallback(
+                    results, write, this, operations);
+
+            // Push the messages out.
+            callback.send();
+        }
+    }
+
+    /**
+     * Determines if all of the servers in the cluster support the write
+     * commands.
+     * 
+     * @param stats
+     *            The cluster stats if they have already been retrieved.
+     * @return True if all servers in the cluster are at least the
+     *         {@link BatchedWrite#REQUIRED_VERSION}.
+     */
+    protected boolean isWriteCommandsSupported(final ClusterStats stats) {
+        final ClusterStats clusterStats = (stats == null) ? myClient
+                .getClusterStats() : stats;
+        final VersionRange serverVersionRange = clusterStats
+                .getServerVersionRange();
+        final Version minServerVersion = serverVersionRange.getLowerBounds();
+
+        return (BatchedWrite.REQUIRED_VERSION.compareTo(minServerVersion) <= 0);
     }
 
     /**
@@ -1149,5 +1211,26 @@ public abstract class AbstractMongoOperations {
         }
 
         return readPreference;
+    }
+
+    /**
+     * Extension point for derived classes to force the
+     * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
+     * ,
+     * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
+     * , and
+     * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
+     * methods to use the legacy {@link Insert}, {@link Update}, and
+     * {@link Delete} messages regardless of the server version.
+     * <p>
+     * This version of the method always returns true.
+     * </p>
+     * 
+     * @return Return true to allow the use of the write commands added in
+     *         MongoDB 2.6. Use false to force the use of the {@link Insert},
+     *         {@link Update}, and {@link Delete}
+     */
+    protected boolean useWriteCommand() {
+        return true;
     }
 }

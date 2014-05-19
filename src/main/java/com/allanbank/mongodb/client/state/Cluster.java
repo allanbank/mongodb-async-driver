@@ -162,6 +162,15 @@ public class Cluster implements ClusterStats {
     }
 
     /**
+     * Removes all of the servers from the cluster.
+     */
+    public void clear() {
+        for (final Server server : myServers.values()) {
+            remove(server);
+        }
+    }
+
+    /**
      * Returns the set of servers that can be used based on the provided
      * {@link ReadPreference}.
      * 
@@ -275,6 +284,24 @@ public class Cluster implements ClusterStats {
      */
     public List<Server> getWritableServers() {
         return new ArrayList<Server>(myWritableServers);
+    }
+
+    /**
+     * Removes the specified server from the cluster.
+     * 
+     * @param server
+     *            The server to remove from the cluster.
+     */
+    public void remove(final Server server) {
+
+        final Server removed = myServers.remove(server.getCanonicalName());
+        if (removed != null) {
+            removed.removeListener(myListener);
+            myNonWritableServers.remove(removed);
+            myWritableServers.remove(removed);
+
+            updateVersions();
+        }
     }
 
     /**
@@ -647,5 +674,4 @@ public class Cluster implements ClusterStats {
             }
         }
     }
-
 }
