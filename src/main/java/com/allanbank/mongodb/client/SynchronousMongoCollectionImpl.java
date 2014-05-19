@@ -37,6 +37,9 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
+import com.allanbank.mongodb.client.callback.FutureReplyCallback;
+import com.allanbank.mongodb.client.callback.ValidatingReplyCallback;
+import com.allanbank.mongodb.client.message.CreateIndexCommand;
 import com.allanbank.mongodb.util.FutureUtils;
 
 /**
@@ -238,7 +241,7 @@ public class SynchronousMongoCollectionImpl extends
      * {@inheritDoc}
      * <p>
      * Overridden to insert the index document into the 'system.indexes'
-     * collection.
+     * collection or use the {@code createIndexes} command as appropriate.
      * </p>
      * 
      * @see MongoCollection#createIndex(String,DocumentAssignable,Element...)
@@ -248,36 +251,49 @@ public class SynchronousMongoCollectionImpl extends
             final DocumentAssignable options, final Element... keys)
             throws MongoDbException {
 
-        String indexName = name;
-        if ((name == null) || name.isEmpty()) {
-            indexName = buildIndexName(keys);
-        }
+        if (isCreateIndexesSupported()) {
+            final CreateIndexCommand command = new CreateIndexCommand(
+                    getDatabaseName(), getName(), keys, name, options);
 
-        final DocumentBuilder indexEntryBuilder = BuilderFactory.start();
-        indexEntryBuilder.addString("name", indexName);
-        indexEntryBuilder.addString("ns", getDatabaseName() + "." + getName());
-
-        final DocumentBuilder keyBuilder = indexEntryBuilder.push("key");
-        for (final Element key : keys) {
-            keyBuilder.add(key);
-        }
-
-        for (final Element option : options.asDocument()) {
-            indexEntryBuilder.add(option);
-        }
-
-        final SynchronousMongoCollectionImpl indexCollection = new SynchronousMongoCollectionImpl(
-                myClient, myDatabase, "system.indexes");
-        final Document indexDocument = indexEntryBuilder.build();
-        if (indexCollection.findOne(indexDocument) == null) {
-
-            final Version requiredServerVersion = determineIndexServerVersion(keys);
-
-            final FutureCallback<Integer> callback = new FutureCallback<Integer>();
-            indexCollection.doInsertAsync(callback, false, Durability.ACK,
-                    requiredServerVersion, indexDocument);
+            final FutureReplyCallback callback = new FutureReplyCallback();
+            myClient.send(command, new ValidatingReplyCallback(callback));
 
             FutureUtils.unwrap(callback);
+        }
+        else {
+
+            String indexName = name;
+            if ((name == null) || name.isEmpty()) {
+                indexName = CreateIndexCommand.buildIndexName(keys);
+            }
+
+            final DocumentBuilder indexEntryBuilder = BuilderFactory.start();
+            indexEntryBuilder.addString("name", indexName);
+            indexEntryBuilder.addString("ns", getDatabaseName() + "."
+                    + getName());
+
+            final DocumentBuilder keyBuilder = indexEntryBuilder.push("key");
+            for (final Element key : keys) {
+                keyBuilder.add(key);
+            }
+
+            for (final Element option : options.asDocument()) {
+                indexEntryBuilder.add(option);
+            }
+
+            final SynchronousMongoCollectionImpl indexCollection = new SynchronousMongoCollectionImpl(
+                    myClient, myDatabase, "system.indexes");
+            final Document indexDocument = indexEntryBuilder.build();
+            if (indexCollection.findOne(indexDocument) == null) {
+
+                final Version requiredServerVersion = determineIndexServerVersion(keys);
+
+                final FutureCallback<Integer> callback = new FutureCallback<Integer>();
+                indexCollection.doInsertAsync(callback, false, Durability.ACK,
+                        requiredServerVersion, indexDocument);
+
+                FutureUtils.unwrap(callback);
+            }
         }
     }
 
@@ -399,7 +415,7 @@ public class SynchronousMongoCollectionImpl extends
     @Override
     public boolean dropIndex(final IntegerElement... keys)
             throws MongoDbException {
-        return dropIndex(buildIndexName(keys));
+        return dropIndex(CreateIndexCommand.buildIndexName(keys));
     }
 
     /**
@@ -1048,31 +1064,6 @@ public class SynchronousMongoCollectionImpl extends
     }
 
     /**
-     * Generates a name for the index based on the keys.
-     * 
-     * @param keys
-     *            The keys for the index.
-     * @return The name for the index.
-     */
-    protected String buildIndexName(final Element... keys) {
-        final StringBuilder nameBuilder = new StringBuilder();
-        for (final Element key : keys) {
-            if (nameBuilder.length() > 0) {
-                nameBuilder.append('_');
-            }
-            nameBuilder.append(key.getName().replace(' ', '_'));
-            nameBuilder.append("_");
-            if (key instanceof NumericElement) {
-                nameBuilder.append(((NumericElement) key).getIntValue());
-            }
-            else {
-                nameBuilder.append(key.getValueAsString());
-            }
-        }
-        return nameBuilder.toString();
-    }
-
-    /**
      * Determines the minimum server version required to support the provided
      * index keys and options.
      * 
@@ -1099,5 +1090,21 @@ public class SynchronousMongoCollectionImpl extends
         }
 
         return result;
+    }
+
+    /**
+     * Determines if all of the servers in the cluster support the
+     * {@code createIndexes} command.
+     * 
+     * @return True if all servers in the cluster are at least the
+     *         {@link BatchedWrite#REQUIRED_VERSION}.
+     */
+    protected boolean isCreateIndexesSupported() {
+        final ClusterStats clusterStats = myClient.getClusterStats();
+        final VersionRange serverVersionRange = clusterStats
+                .getServerVersionRange();
+        final Version minServerVersion = serverVersionRange.getLowerBounds();
+
+        return (CreateIndexCommand.REQUIRED_VERSION.compareTo(minServerVersion) <= 0);
     }
 }

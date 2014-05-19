@@ -55,9 +55,6 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.ArrayElement;
-import com.allanbank.mongodb.bson.element.DoubleElement;
-import com.allanbank.mongodb.bson.element.StringElement;
-import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Aggregate;
 import com.allanbank.mongodb.builder.BatchedWrite;
@@ -83,6 +80,7 @@ import com.allanbank.mongodb.client.callback.SingleDocumentCallback;
 import com.allanbank.mongodb.client.message.AggregateCommand;
 import com.allanbank.mongodb.client.message.BatchedWriteCommand;
 import com.allanbank.mongodb.client.message.Command;
+import com.allanbank.mongodb.client.message.CreateIndexCommand;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
@@ -543,23 +541,6 @@ public class MongoCollectionImplTest {
         myTestInstance.aggregateAsync(mockCallback, request);
 
         verify(mockCallback);
-    }
-
-    /**
-     * Test method for
-     * {@link SynchronousMongoCollectionImpl#buildIndexName(Element...)} .
-     */
-    @Test
-    public void testBuildIndexName() {
-        String name = myTestInstance
-                .buildIndexName(new DoubleElement("l", 1.2));
-        assertEquals("l_1", name);
-
-        name = myTestInstance.buildIndexName(new StringElement("l", "true"));
-        assertEquals("l_true", name);
-
-        name = myTestInstance.buildIndexName(new SymbolElement("l", "true"));
-        assertEquals("l_true", name);
     }
 
     /**
@@ -1239,6 +1220,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1274,6 +1258,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1320,6 +1307,9 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test").times(4);
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockClient.getClusterStats()).andReturn(myMockStats);
         expect(myMockStats.getServerVersionRange()).andReturn(
@@ -1359,6 +1349,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1394,6 +1387,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1429,6 +1425,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1465,9 +1464,47 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
+
+        myMockClient.send(eq(queryMessage),
+                callback(reply(indexDocBuilder.build())));
+        expectLastCall();
+
+        replay();
+
+        myTestInstance.createIndex(
+                AbstractMongoOperations.UNIQUE_INDEX_OPTIONS, Index.asc("k"),
+                Index.desc("l"));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#createIndex(boolean, Element...)} .
+     */
+    @Test
+    public void testCreateIndexWithOptionsServer2_6() {
+
+        final DocumentBuilder indexDocBuilder = BuilderFactory.start();
+        indexDocBuilder.addString("name", "k_1_l_-1");
+        indexDocBuilder.addString("ns", "test.test");
+        indexDocBuilder.push("key").addInteger("k", 1).addInteger("l", -1);
+        indexDocBuilder.addBoolean("unique", true);
+
+        final Command queryMessage = new CreateIndexCommand("test", "test",
+                new Element[] { Index.asc("k"), Index.desc("l") }, "k_1_l_-1",
+                AbstractMongoOperations.UNIQUE_INDEX_OPTIONS);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_6, Version.VERSION_2_6));
 
         myMockClient.send(eq(queryMessage),
                 callback(reply(indexDocBuilder.build())));
@@ -1501,6 +1538,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1545,6 +1585,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(4);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1601,6 +1644,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(4);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
@@ -1657,6 +1703,9 @@ public class MongoCollectionImplTest {
                 false /* awaitData */, false /* exhaust */, false /* partial */);
 
         expect(myMockDatabase.getName()).andReturn("test").times(4);
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         expect(myMockDatabase.getReadPreference()).andReturn(
                 ReadPreference.PRIMARY);
