@@ -5,6 +5,8 @@
 
 package com.allanbank.mongodb.client.connection.socket;
 
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.Condition;
@@ -50,6 +52,12 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
     /** The atomic array of long values. */
     private final AtomicLongArray myPaddedValue = new AtomicLongArray(30);
 
+    /**
+     * The map of waiters and the condition they are waiting on to avoid the
+     * thundering herd. Only access while holding the {@link #myLock lock}.
+     */
+    private final SortedMap<Long, Condition> myWaiters;
+
     /** Tracks how many threads are waiting for a message or a space to open. */
     private final AtomicInteger myWaiting;
 
@@ -77,9 +85,10 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
 
         myLockType = lockType;
 
-        myLock = new ReentrantLock();
+        myLock = new ReentrantLock(true);
         myCondition = myLock.newCondition();
         myWaiting = new AtomicInteger(0);
+        myWaiters = new TreeMap<Long, Condition>();
     }
 
     /**
@@ -167,17 +176,31 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
 
             // Block.
             if (releaseValue != wanted) {
+                final Long key = Long.valueOf(wanted);
+                Condition localCondition = myCondition;
                 try {
-                    myWaiting.incrementAndGet();
+                    final int waitCount = myWaiting.incrementAndGet();
                     myLock.lock();
+
+                    // Check for more than 1 waiter. If so stand in line via
+                    // the waiters map. (This will wake threads in the order
+                    // they should be processed.)
+                    if (waitCount > 1) {
+                        localCondition = myLock.newCondition();
+                        myWaiters.put(key, localCondition);
+                    }
 
                     releaseValue = myPaddedValue.get(RELEASE_OFFSET);
                     while (releaseValue != wanted) {
-                        myCondition.awaitUninterruptibly();
+                        localCondition.awaitUninterruptibly();
                         releaseValue = myPaddedValue.get(RELEASE_OFFSET);
                     }
                 }
                 finally {
+                    if (localCondition != myCondition) {
+                        myWaiters.remove(key);
+                    }
+
                     myLock.unlock();
                     myWaiting.decrementAndGet();
                 }
@@ -222,7 +245,15 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
         if (myWaiting.get() > 0) {
             try {
                 myLock.lock();
+
+                // Wake the reused condition.
                 myCondition.signalAll();
+
+                // Wake up the condition with the lowest wanted.
+                // No Thundering Herd!
+                if (!myWaiters.isEmpty()) {
+                    myWaiters.get(myWaiters.firstKey()).signalAll();
+                }
             }
             finally {
                 myLock.unlock();
