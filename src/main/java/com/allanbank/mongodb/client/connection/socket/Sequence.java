@@ -182,25 +182,29 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
                     final int waitCount = myWaiting.incrementAndGet();
                     myLock.lock();
 
-                    // Check for more than 1 waiter. If so stand in line via
-                    // the waiters map. (This will wake threads in the order
-                    // they should be processed.)
-                    if (waitCount > 1) {
-                        localCondition = myLock.newCondition();
-                        myWaiters.put(key, localCondition);
-                    }
+                    // Second tier try for FindBugs to see the unlock.
+                    try {
+                        // Check for more than 1 waiter. If so stand in line via
+                        // the waiters map. (This will wake threads in the order
+                        // they should be processed.)
+                        if (waitCount > 1) {
+                            localCondition = myLock.newCondition();
+                            myWaiters.put(key, localCondition);
+                        }
 
-                    releaseValue = myPaddedValue.get(RELEASE_OFFSET);
-                    while (releaseValue != wanted) {
-                        localCondition.awaitUninterruptibly();
                         releaseValue = myPaddedValue.get(RELEASE_OFFSET);
+                        while (releaseValue != wanted) {
+                            localCondition.awaitUninterruptibly();
+                            releaseValue = myPaddedValue.get(RELEASE_OFFSET);
+                        }
+                    }
+                    finally {
+                        if (localCondition != myCondition) {
+                            myWaiters.remove(key);
+                        }
                     }
                 }
                 finally {
-                    if (localCondition != myCondition) {
-                        myWaiters.remove(key);
-                    }
-
                     myLock.unlock();
                     myWaiting.decrementAndGet();
                 }
