@@ -88,6 +88,13 @@ import com.allanbank.mongodb.builder.expression.Expressions;
 public class Aggregate {
 
     /**
+     * The first version of MongoDB to support the {@code $geoNear} pipeline
+     * operator.
+     */
+    public static final Version ALLOW_DISK_USAGE_REQUIRED_VERSION = Version
+            .parse("2.6");
+
+    /**
      * The first version of MongoDB to support the {@code aggregate} command
      * using a cursor.
      */
@@ -100,10 +107,23 @@ public class Aggregate {
     public static final Version EXPLAIN_VERSION = Version.parse("2.5.3");
 
     /**
+     * The first version of MongoDB to support the {@code $geoNear} pipeline
+     * operator.
+     */
+    public static final Version GEO_NEAR_REQUIRED_VERSION = Version.VERSION_2_4;
+
+    /**
      * The first version of MongoDB to support the {@code aggregate} command
      * with the ability to limit the execution time on the server.
      */
     public static final Version MAX_TIMEOUT_VERSION = Find.MAX_TIMEOUT_VERSION;
+
+    /**
+     * The first version of MongoDB to support the {@code $redact} pipeline
+     * operator.
+     */
+    public static final Version REDACT_REQUIRED_VERSION = Version
+            .parse("2.5.2");
 
     /** The first version of MongoDB to support the {@code aggregate} command. */
     public static final Version REQUIRED_VERSION = Version.parse("2.1.0");
@@ -138,6 +158,9 @@ public class Aggregate {
     /** The read preference to use. */
     private final ReadPreference myReadPreference;
 
+    /** The version required for the aggregation. */
+    private final Version myRequiredVersion;
+
     /** Set to true if the aggregation results should be returned as a cursor. */
     private final boolean myUseCursor;
 
@@ -155,6 +178,7 @@ public class Aggregate {
         myUseCursor = builder.myUseCursor;
         myAllowDiskUsage = builder.myAllowDiskUsage;
         myReadPreference = builder.myReadPreference;
+        myRequiredVersion = builder.myRequiredVersion;
         myMaximumTimeMilliseconds = builder.myMaximumTimeMilliseconds;
     }
 
@@ -214,6 +238,15 @@ public class Aggregate {
      */
     public ReadPreference getReadPreference() {
         return myReadPreference;
+    }
+
+    /**
+     * Returns the version required for the aggregation.
+     * 
+     * @return The version required for the aggregation.
+     */
+    public Version getRequiredVersion() {
+        return myRequiredVersion;
     }
 
     /**
@@ -319,6 +352,12 @@ public class Aggregate {
 
         /** The read preference to use. */
         protected ReadPreference myReadPreference;
+
+        /**
+         * The version required for the aggregation. This is computed
+         * automatically based on the pipeline constructed.
+         */
+        protected Version myRequiredVersion;
 
         /**
          * Set to true if the aggregation results should be returned as a
@@ -442,6 +481,9 @@ public class Aggregate {
          * @since MongoDB 2.4
          */
         public Builder geoNear(final AggregationGeoNear geoNear) {
+            myRequiredVersion = Version.later(myRequiredVersion,
+                    GEO_NEAR_REQUIRED_VERSION);
+
             return step("$geoNear", geoNear.asDocument());
         }
 
@@ -814,6 +856,8 @@ public class Aggregate {
          */
         public Builder redact(final DocumentAssignable ifExpression,
                 final RedactOption thenOption, final RedactOption elseOption) {
+            myRequiredVersion = Version.later(myRequiredVersion,
+                    REDACT_REQUIRED_VERSION);
 
             final DocumentBuilder doc = BuilderFactory.start();
             doc.push(Expressions.CONDITION)
@@ -841,6 +885,8 @@ public class Aggregate {
          */
         public Builder redact(final Expression ifExpression,
                 final RedactOption thenOption, final RedactOption elseOption) {
+            myRequiredVersion = Version.later(myRequiredVersion,
+                    REDACT_REQUIRED_VERSION);
 
             final DocumentBuilder doc = BuilderFactory.start();
             doc.push(Expressions.CONDITION).add(ifExpression.toElement("if"))
@@ -863,6 +909,7 @@ public class Aggregate {
             myLimit = 0;
             myUseCursor = false;
             myAllowDiskUsage = false;
+            myRequiredVersion = REQUIRED_VERSION;
 
             return this;
         }
@@ -879,6 +926,9 @@ public class Aggregate {
          * @return This builder for chaining method calls.
          */
         public Builder setAllowDiskUsage(final boolean allowDiskUsage) {
+            myRequiredVersion = Version.later(myRequiredVersion,
+                    ALLOW_DISK_USAGE_REQUIRED_VERSION);
+
             myAllowDiskUsage = allowDiskUsage;
             return setUseCursor(true);
         }
@@ -929,6 +979,9 @@ public class Aggregate {
          */
         public Builder setMaximumTimeMilliseconds(
                 final long maximumTimeMilliseconds) {
+            myRequiredVersion = Version.later(myRequiredVersion,
+                    MAX_TIMEOUT_VERSION);
+
             myMaximumTimeMilliseconds = maximumTimeMilliseconds;
             return this;
         }
@@ -963,6 +1016,8 @@ public class Aggregate {
          * @return This builder for chaining method calls.
          */
         public Builder setUseCursor(final boolean useCursor) {
+            myRequiredVersion = Version
+                    .later(myRequiredVersion, CURSOR_VERSION);
             myUseCursor = useCursor;
             return this;
         }

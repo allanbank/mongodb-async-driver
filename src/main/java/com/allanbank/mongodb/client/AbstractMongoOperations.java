@@ -1127,7 +1127,7 @@ public abstract class AbstractMongoOperations {
      */
     protected AggregateCommand toCommand(final Aggregate command,
             final boolean explain) {
-        Version minVersion = Aggregate.REQUIRED_VERSION;
+        Version minVersion = command.getRequiredVersion();
 
         final DocumentBuilder builder = BuilderFactory.start();
 
@@ -1139,25 +1139,22 @@ public abstract class AbstractMongoOperations {
             pipeline.add(e);
         }
 
-        // Options - 2.6 on...
-        if (command.getMaximumTimeMilliseconds() > 0) {
-            minVersion = Version.later(minVersion,
-                    Aggregate.MAX_TIMEOUT_VERSION);
-            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
+        // Options
+        if (command.isAllowDiskUsage()) {
+            builder.add("allowDiskUsage", true);
         }
         if (command.isUseCursor()) {
-            minVersion = Version.later(minVersion, Aggregate.CURSOR_VERSION);
             final DocumentBuilder cursor = builder.push("cursor");
             if (command.getBatchSize() > 0) {
                 cursor.add("batchSize", command.getBatchSize());
-            }
-            if (command.isAllowDiskUsage()) {
-                cursor.add("allowDiskUsage", true);
             }
         }
         if (explain) {
             minVersion = Version.later(minVersion, Aggregate.EXPLAIN_VERSION);
             builder.add("explain", true);
+        }
+        if (command.getMaximumTimeMilliseconds() > 0) {
+            builder.add("maxTimeMS", command.getMaximumTimeMilliseconds());
         }
 
         // Should be last since might wrap command in a $query element.

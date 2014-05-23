@@ -823,7 +823,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Aggregate.REQUIRED_VERSION));
+                    greaterThanOrEqualTo(Aggregate.GEO_NEAR_REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
