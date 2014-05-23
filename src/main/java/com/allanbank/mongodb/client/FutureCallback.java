@@ -201,11 +201,12 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
             }
         }
 
+        final long shortPause = TimeUnit.MILLISECONDS.toNanos(10);
         while (true) {
             try {
                 // Either the value is available and the get() will not block
                 // or we have spun for long enough and it is time to block.
-                return mySync.get(TimeUnit.MILLISECONDS.toNanos(10));
+                return mySync.get(shortPause);
             }
             catch (final TimeoutException te) {
                 ReplyHandler.tryReceive();
@@ -221,10 +222,11 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
             throws InterruptedException, TimeoutException, ExecutionException {
         long now = System.nanoTime();
         final long deadline = now + unit.toNanos(timeout);
+        final long shortPause = TimeUnit.MILLISECONDS.toNanos(10);
         while (true) {
             try {
                 // Wait for the result.
-                return mySync.get(TimeUnit.MILLISECONDS.toNanos(10));
+                return mySync.get(Math.min((deadline - now), shortPause));
             }
             catch (final TimeoutException te) {
                 // Check if we should receive.
