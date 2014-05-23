@@ -116,6 +116,7 @@ import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
+import com.allanbank.mongodb.builder.MiscellaneousOperator;
 import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.builder.Sort;
@@ -1632,8 +1633,18 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         builder.setUpdate(update.build());
         builder.setReturnNew(true);
 
-        final Document newDoc = myCollection.findAndModify(builder.build());
-        assertNull(newDoc);
+        try {
+            final Document newDoc = myCollection.findAndModify(builder.build());
+            assertNull(newDoc);
+        }
+        catch (final ReplyException re) {
+            // MongoDB 1.8.X returns an error: No matching object found
+            assumeThat(re.getMessage(),
+                    not(containsString("No matching object found")));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw re;
+        }
     }
 
     /**
@@ -1755,16 +1766,28 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myCollection.insert(Durability.ACK, doc1, doc2);
 
         final Find.Builder find = new Find.Builder();
-
         find.setQuery(where("_id").equals(doc1Id).comment("Test comment"));
-        final MongoIterator<Document> iter = myCollection.find(find.build());
+
         try {
-            assertTrue(iter.hasNext());
-            assertEquals(doc1.build(), iter.next());
-            assertFalse(iter.hasNext());
+            final MongoIterator<Document> iter = myCollection
+                    .find(find.build());
+            try {
+                assertTrue(iter.hasNext());
+                assertEquals(doc1.build(), iter.next());
+                assertFalse(iter.hasNext());
+            }
+            finally {
+                iter.close();
+            }
         }
-        finally {
-            iter.close();
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(MiscellaneousOperator.COMMENT
+                            .getVersion()));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
         }
     }
 
@@ -1786,24 +1809,37 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             myCollection.insert(Durability.ACK, doc1, doc2);
 
             final Find.Builder find = new Find.Builder();
-
             find.setQuery(where("_id").equals(doc1Id).comment("Test comment"));
 
             myDb.setProfilingStatus(ProfilingStatus.ON);
-            MongoIterator<Document> iter = myCollection.find(find.build());
+
             try {
-                assertTrue(iter.hasNext());
-                assertEquals(doc1.build(), iter.next());
-                assertFalse(iter.hasNext());
+                final MongoIterator<Document> iter = myCollection.find(find
+                        .build());
+                try {
+                    assertTrue(iter.hasNext());
+                    assertEquals(doc1.build(), iter.next());
+                    assertFalse(iter.hasNext());
+                }
+                finally {
+                    myDb.setProfilingStatus(ProfilingStatus.OFF);
+                    iter.close();
+                }
             }
-            finally {
-                myDb.setProfilingStatus(ProfilingStatus.OFF);
-                iter.close();
+            catch (final ServerVersionException sve) {
+                // Check if we are talking to a recent MongoDB instance.
+                assumeThat(sve.getActualVersion(),
+                        greaterThanOrEqualTo(MiscellaneousOperator.COMMENT
+                                .getVersion()));
+
+                // Humm - Should have worked. Rethrow the error.
+                throw sve;
             }
 
             final MongoCollection profile = myDb
                     .getCollection("system.profile");
-            iter = profile.find(where("query.$comment").equals("Test comment"));
+            final MongoIterator<Document> iter = profile.find(where(
+                    "query.$comment").equals("Test comment"));
             try {
                 assertTrue(iter.hasNext());
                 iter.next();
@@ -2364,6 +2400,39 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
 
         assertEquals(LARGE_COLLECTION_COUNT, count);
+        cb.check();
+    }
+
+    /**
+     * Verifies that the MongoDB iteration over a large collection works as
+     * expected.
+     * 
+     * @throws InterruptedException
+     *             On a failure of the test to wait.
+     * @throws ExecutionException
+     *             On a test failure.
+     */
+    @Test
+    public void testIteratorAsyncRead() throws InterruptedException,
+            ExecutionException {
+        // Adjust the configuration to keep the connection count down
+        // and let the inserts happen asynchronously.
+        myConfig.setDefaultDurability(Durability.ACK);
+        myConfig.setMaxConnectionCount(1);
+
+        final MongoCollection collection = largeCollection(myMongo);
+
+        // Now go find all of them.
+        final Find.Builder findBuilder = new Find.Builder(BuilderFactory
+                .start().build());
+        findBuilder.setProjection(BuilderFactory.start()
+                .addBoolean("_id", true).build());
+
+        final TestIterateInAsyncCallback cb = new TestIterateInAsyncCallback();
+        collection.findAsync(cb, findBuilder.build());
+
+        cb.check(); // Blocks.
+        assertEquals(LARGE_COLLECTION_COUNT, cb.count());
         cb.check();
     }
 
@@ -7047,7 +7116,22 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         // Find on a slightly deformed square
         MongoIterator<Document> iter = null;
@@ -7059,17 +7143,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                             new Point2D.Double(maxx, maxy + 0.75),
                             new Point2D.Double(minx, maxy)));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7258,19 +7339,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(x + 3).addDouble(y + 3);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7304,24 +7397,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(x + 3).addDouble(y + 3);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").within(x, y, radius, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7372,19 +7477,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7426,24 +7543,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").within(x1, y1, x2, y2, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7485,19 +7614,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addInteger(x + 3).addInteger(y + 3);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7530,24 +7671,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addInteger(x + 3).addInteger(y + 3);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").within(x, y, radius, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7597,19 +7750,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addInteger(minx - 1).addInteger(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7651,24 +7816,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addInteger(minx - 1).addInteger(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").within(x1, y1, x2, y2, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7710,19 +7887,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addLong(x + 3).addLong(y + 3);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x, y, radius));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7756,24 +7945,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addLong(x + 3).addLong(y + 3);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").within(x, y, radius, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7823,19 +8024,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addLong(minx - 1).addLong(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").within(x1, y1, x2, y2));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7877,24 +8090,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addLong(minx - 1).addLong(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").within(x1, y1, x2, y2, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7937,19 +8162,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(x + 50).addDouble(y + 50);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -7983,24 +8220,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(x + 50).addDouble(y + 50);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").withinOnSphere(x, y, radius, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -8042,19 +8291,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addInteger(x + 50).addInteger(y + 50);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -8088,24 +8349,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addInteger(x + 50).addInteger(y + 50);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").withinOnSphere(x, y, radius, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -8148,19 +8421,31 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addLong(x + 50).addLong(y + 50);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         final MongoIterator<Document> iter = getGeoCollection().find(
                 where("p").withinOnSphere(x, y, radius));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -8194,24 +8479,36 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addLong(x + 50).addLong(y + 50);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").withinOnSphere(x, y, radius, false));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -8254,25 +8551,37 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(x + 50).addDouble(y + 50);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         MongoIterator<Document> iter = null;
         try {
             iter = getGeoCollection().find(
                     where("p").withinOnSphere(x, y, radius));
 
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
-        catch (final QueryFailedException expected) {
+        catch (final QueryFailedException ok) {
             // OK, I guess. Would fail pre-2.5.5.
         }
         finally {
@@ -8316,7 +8625,21 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         doc3.addObjectId("_id", new ObjectId());
         doc3.pushArray("p").addDouble(minx - 1).addDouble(miny - 1);
 
-        getGeoCollection().insert(Durability.ACK, doc1, doc2, doc3);
+        final List<Document> expected = new ArrayList<Document>();
+        try {
+            getGeoCollection().insert(Durability.ACK, doc1);
+            expected.add(doc1.build());
+        }
+        catch (final ReplyException re) {
+            // Check if we are talking to a older MongoDB instance
+            // That does not support arrays of points (e.g., 1.8.X and before).
+            if (!re.getMessage().contains("geo values have to be numbers")) {
+                // Humm - Should have worked. Rethrow the error.
+                throw re;
+            }
+        }
+        getGeoCollection().insert(Durability.ACK, doc2, doc3);
+        expected.add(doc2.build());
 
         // Find on a slightly deformed square
         final MongoIterator<Document> iter = getGeoCollection().find(
@@ -8325,14 +8648,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                         new Point2D.Double(maxx, maxy + 0.5),
                         new Point2D.Double(minx, maxy)));
         try {
-            final List<Document> expected = new ArrayList<Document>();
-            expected.add(doc1.build());
-            expected.add(doc2.build());
-
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
-            assertTrue(iter.hasNext());
-            assertTrue(expected.remove(iter.next()));
+            if (!expected.isEmpty()) {
+                assertTrue(iter.hasNext());
+                assertTrue(expected.remove(iter.next()));
+            }
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
@@ -8955,7 +9276,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         if (myGeoSphereCollection == null) {
             myGeoSphereCollection = myDb.getCollection(GEO_TEST_COLLECTION_NAME
                     + "_" + (++ourUniqueId));
-            myGeoSphereCollection.createIndex(Index.geo2dSphere("p"));
+            try {
+                myGeoSphereCollection.createIndex(Index.geo2dSphere("p"));
+            }
+            catch (final ServerVersionException sve) {
+                // Check if we are talking to a recent MongoDB instance.
+                assumeThat(sve.getActualVersion(),
+                        greaterThanOrEqualTo(Version.VERSION_2_4));
+
+                // Humm - Should have worked. Rethrow the error.
+                throw sve;
+            }
         }
         return myGeoSphereCollection;
     }
@@ -9178,6 +9509,82 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * 
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    static class TestIterateInAsyncCallback implements
+            Callback<MongoIterator<Document>> {
+
+        /** The number of times the callback methods have been invoked. */
+        private int myCalls = 0;
+
+        /** The number of documents received from the iterator. */
+        private int myCount = 0;
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to save the iterator and increment the call count.
+         * </p>
+         */
+        @Override
+        public synchronized void callback(final MongoIterator<Document> result) {
+            while (result.hasNext()) {
+                result.next();
+                myCount += 1;
+            }
+            myCalls += 1;
+            notifyAll();
+        }
+
+        /**
+         * Checks the number of times the callback is invoked. Will wait for the
+         * first call.
+         * 
+         * @throws InterruptedException
+         *             On a failure to wait.
+         */
+        public void check() throws InterruptedException {
+            synchronized (this) {
+                while (myCalls <= 0) {
+                    this.wait();
+                }
+            }
+
+            Thread.sleep(500);
+
+            synchronized (this) {
+                if (myCalls > 1) {
+                    throw new IllegalArgumentException(
+                            "Called more than once: " + myCalls);
+                }
+            }
+        }
+
+        /**
+         * Returns number of documents returned by the iterator.
+         * 
+         * @return The number of documents returned by the iterator.
+         */
+        public synchronized int count() {
+            return myCount;
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to increment the called count.
+         * </p>
+         */
+        @Override
+        public synchronized void exception(final Throwable thrown) {
+            myCalls += 1;
+            this.notifyAll();
+        }
+    }
+
+    /**
+     * TestIteratorAsyncCallback provides a test callback.
+     * 
+     * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+     */
     static class TestIteratorAsyncCallback implements
             Callback<MongoIterator<Document>> {
 
@@ -9213,15 +9620,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         public void check() throws InterruptedException {
             synchronized (this) {
                 while (myCalls <= 0) {
-                    this.wait();
+                    this.wait(TimeUnit.MINUTES.toMillis(1));
                 }
             }
 
             Thread.sleep(500);
 
-            if (myCalls > 1) {
-                throw new IllegalArgumentException("Called more than once: "
-                        + myCalls);
+            synchronized (this) {
+                if (myCalls > 1) {
+                    throw new IllegalArgumentException(
+                            "Called more than once: " + myCalls);
+                }
             }
         }
 

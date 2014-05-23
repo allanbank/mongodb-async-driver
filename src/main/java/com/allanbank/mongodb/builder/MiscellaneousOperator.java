@@ -23,8 +23,12 @@ public enum MiscellaneousOperator implements Operator {
      */
     ALL("$all"),
 
-    /** A pseudo-operator to add a comment to a query. */
-    COMMENT("$comment"),
+    /**
+     * A pseudo-operator to add a comment to a query.
+     * 
+     * @since MongoDB 2.2
+     */
+    COMMENT("$comment", Version.VERSION_2_2),
 
     /** Provides the ability to match an entire array element at once. */
     ELEMENT_MATCH("$elemMatch"),

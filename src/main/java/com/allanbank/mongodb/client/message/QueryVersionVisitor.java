@@ -99,6 +99,10 @@ public class QueryVersionVisitor extends VisitorAdapter {
             myRequiredServerVersion = Version.later(myRequiredServerVersion,
                     Find.MAX_TIMEOUT_VERSION);
         }
+        else if (MiscellaneousOperator.COMMENT.getToken().equals(name)) {
+            myRequiredServerVersion = Version.later(myRequiredServerVersion,
+                    MiscellaneousOperator.COMMENT.getVersion());
+        }
         else if (MiscellaneousOperator.TEXT.getToken().equals(name)) {
             myRequiredServerVersion = Version.later(myRequiredServerVersion,
                     MiscellaneousOperator.TEXT.getVersion());

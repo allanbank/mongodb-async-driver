@@ -280,7 +280,7 @@ public class ServerTest {
         server.update(builder.build());
         assertThat(server.getVersion(), is(Version.parse("1.2.3")));
 
-        // Clear the tags.
+        // Clear the version.
         builder.reset();
         builder.pushArray("versionArray");
         server.update(builder.build());
@@ -292,9 +292,36 @@ public class ServerTest {
         server.update(builder.build());
         assertThat(server.getVersion(), is(Version.parse("2.3.4")));
 
-        // A document without tags has no effect (still set).
+        // A document without version has no effect (still set).
         builder.reset();
         server.update(builder.build());
         assertThat(server.getVersion(), is(Version.parse("2.3.4")));
+
+        // A document with a string version updates.
+        builder.reset();
+        builder.add("version", "0.1.2");
+        server.update(builder.build());
+        assertThat(server.getVersion(), is(Version.parse("0.1.2")));
+
+        // A document with a wire version pushes forward.
+        builder.reset();
+        builder.add("maxWireVersion", 2);
+        server.update(builder.build());
+        assertThat(server.getVersion(), is(Version.forWireVersion(2)));
+
+        // A document with a wire version pushes forward but not back.
+        builder.reset();
+        builder.add("maxWireVersion", 1);
+        server.update(builder.build());
+        assertThat(server.getVersion(), is(Version.forWireVersion(2)));
+
+        // A document with a wire version clears unknown.
+        final Server server2 = new Server(new InetSocketAddress("foo", 27017));
+        assertThat(server2.getVersion(), is(Version.UNKNOWN));
+
+        builder.reset();
+        builder.add("maxWireVersion", 1);
+        server2.update(builder.build());
+        assertThat(server2.getVersion(), is(Version.forWireVersion(1)));
     }
 }

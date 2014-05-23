@@ -57,6 +57,12 @@ public class QueryVersionVisitorTest {
                         .add("$maxTimeMS", 1).build()),
                 is(VersionRange.range(Find.MAX_TIMEOUT_VERSION, null)));
 
+        assertThat(
+                QueryVersionVisitor.version(BuilderFactory.start()
+                        .add(MiscellaneousOperator.COMMENT.getToken(), 1)
+                        .build()),
+                is(VersionRange.range(
+                        MiscellaneousOperator.COMMENT.getVersion(), null)));
     }
 
     /**

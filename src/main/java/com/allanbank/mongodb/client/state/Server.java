@@ -72,6 +72,9 @@ public class Server {
     /** The name for the Server's state property: {@value} . */
     public static final String STATE_PROP = "state";
 
+    /** The string element type. */
+    public static final Class<StringElement> STRING_TYPE = StringElement.class;
+
     /** The name for the Server's tags property: {@value} . */
     public static final String TAGS_PROP = "tags";
 
@@ -743,22 +746,33 @@ public class Server {
             myLastVersionUpdate = System.currentTimeMillis();
         }
         else {
-            // Use the wire version if present.
-            final NumericElement wireVersion = buildInfoReply.findFirst(
-                    NUMERIC_TYPE, "maxWireVersion");
-            if (wireVersion != null) {
-                final Version version = Version.forWireVersion(wireVersion
-                        .getIntValue());
+            // Use the String version if present.
+            final StringElement stringVersion = buildInfoReply.findFirst(
+                    STRING_TYPE, "version");
+            if (stringVersion != null) {
+                myVersion = Version.parse(stringVersion.getValue());
+                myLastVersionUpdate = System.currentTimeMillis();
+            }
+            else {
+                // Use the wire version if present.
+                final NumericElement wireVersion = buildInfoReply.findFirst(
+                        NUMERIC_TYPE, "maxWireVersion");
+                if (wireVersion != null) {
+                    final Version version = Version.forWireVersion(wireVersion
+                            .getIntValue());
 
-                // Don't want to update the version if we are getting the value
-                // some other way since the wire protocol version requires
-                // interpretation and really just provides a "floor" version.
-                // Check for an unknown or lower version.
-                if (oldValue.equals(Version.UNKNOWN)
-                        || (oldValue.compareTo(version) < 0)) {
-                    myVersion = version;
-                    // Don't update the myLastVersionUpdate time so we still try
-                    // and get the precise version.
+                    // Don't want to update the version if we are getting the
+                    // value
+                    // some other way since the wire protocol version requires
+                    // interpretation and really just provides a "floor"
+                    // version.
+                    // Check for an unknown or lower version.
+                    if (oldValue.equals(Version.UNKNOWN)
+                            || (oldValue.compareTo(version) < 0)) {
+                        myVersion = version;
+                        // Don't update the myLastVersionUpdate time so we still
+                        // try and get the precise version.
+                    }
                 }
             }
         }
