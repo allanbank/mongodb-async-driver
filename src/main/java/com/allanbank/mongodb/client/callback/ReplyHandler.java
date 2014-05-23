@@ -18,6 +18,9 @@ import com.allanbank.mongodb.client.message.Reply;
  */
 public class ReplyHandler implements Runnable {
 
+    /** The socket that we are receiving for. */
+    private static final ThreadLocal<Receiver> ourReceiver = new ThreadLocal<Receiver>();
+
     /**
      * Raise an error on the callback, if any. Will execute the request on a
      * background thread if provided.
@@ -50,6 +53,8 @@ public class ReplyHandler implements Runnable {
     /**
      * Updates to set the reply for the callback, if any.
      * 
+     * @param receiver
+     *            The socket receiving the message.
      * @param reply
      *            The reply.
      * @param replyCallback
@@ -57,7 +62,7 @@ public class ReplyHandler implements Runnable {
      * @param executor
      *            The executor to use for the back-grounding the reply handling.
      */
-    public static void reply(final Reply reply,
+    public static void reply(final Receiver receiver, final Reply reply,
             final ReplyCallback replyCallback, final Executor executor) {
         if (replyCallback != null) {
             // We know the FutureCallback will not block or take long to process
@@ -69,12 +74,45 @@ public class ReplyHandler implements Runnable {
                 }
                 catch (final RejectedExecutionException rej) {
                     // Run on this thread.
-                    replyCallback.callback(reply);
+                    run(receiver, reply, replyCallback);
                 }
             }
             else {
-                replyCallback.callback(reply);
+                run(receiver, reply, replyCallback);
             }
+        }
+    }
+
+    /**
+     * If there is a pending reply tries to process that reply.
+     */
+    public static void tryReceive() {
+        final Receiver receiver = ourReceiver.get();
+
+        if (receiver != null) {
+            receiver.tryReceive();
+        }
+    }
+
+    /**
+     * Runs the callback on the current thread.
+     * 
+     * @param receiver
+     *            The receiver to be run.
+     * @param reply
+     *            The reply to the provide to the callback.
+     * @param replyCallback
+     *            The reply callback.
+     */
+    private static void run(final Receiver receiver, final Reply reply,
+            final ReplyCallback replyCallback) {
+        final Receiver before = ourReceiver.get();
+        try {
+            ourReceiver.set(receiver);
+            replyCallback.callback(reply);
+        }
+        finally {
+            ourReceiver.set(before);
         }
     }
 
@@ -127,7 +165,7 @@ public class ReplyHandler implements Runnable {
     @Override
     public void run() {
         if (myReply != null) {
-            reply(myReply, myReplyCallback, null);
+            reply(null, myReply, myReplyCallback, null);
         }
         else if (myError != null) {
             raiseError(myError, myReplyCallback, null);

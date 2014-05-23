@@ -114,7 +114,7 @@ public class ReplyHandlerTest {
 
     /**
      * Test method for
-     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * {@link ReplyHandler#reply(Receiver, Reply, ReplyCallback, Executor)} .
      */
     @Test
     public void testReply() {
@@ -133,14 +133,14 @@ public class ReplyHandlerTest {
 
         replay(mockMessage, mockCallback);
 
-        ReplyHandler.reply(reply, mockCallback, executor);
+        ReplyHandler.reply(null, reply, mockCallback, executor);
 
         verify(mockMessage, mockCallback);
     }
 
     /**
      * Test method for
-     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * {@link ReplyHandler#reply(Receiver, Reply, ReplyCallback, Executor)} .
      */
     @Test
     public void testReplyWhenRejected() {
@@ -159,14 +159,14 @@ public class ReplyHandlerTest {
 
         replay(mockMessage, mockCallback);
 
-        ReplyHandler.reply(reply, mockCallback, executor);
+        ReplyHandler.reply(null, reply, mockCallback, executor);
 
         verify(mockMessage, mockCallback);
     }
 
     /**
      * Test method for
-     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * {@link ReplyHandler#reply(Receiver, Reply, ReplyCallback, Executor)} .
      * 
      * @throws ExecutionException
      *             On a test failure.
@@ -190,14 +190,14 @@ public class ReplyHandlerTest {
 
         replay(mockMessage, mockExecutor, callback);
 
-        ReplyHandler.reply(reply, callback, mockExecutor);
+        ReplyHandler.reply(null, reply, callback, mockExecutor);
 
         verify(mockMessage, mockExecutor, callback);
     }
 
     /**
      * Test method for
-     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * {@link ReplyHandler#reply(Receiver, Reply, ReplyCallback, Executor)} .
      * 
      * @throws ExecutionException
      *             On a test failure.
@@ -222,14 +222,14 @@ public class ReplyHandlerTest {
 
         replay(mockMessage, mockExecutor, callback);
 
-        ReplyHandler.reply(reply, callback, mockExecutor);
+        ReplyHandler.reply(null, reply, callback, mockExecutor);
 
         verify(mockMessage, mockExecutor, callback);
     }
 
     /**
      * Test method for
-     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * {@link ReplyHandler#reply(Receiver, Reply, ReplyCallback, Executor)} .
      * 
      * @throws ExecutionException
      *             On a test failure.
@@ -252,14 +252,14 @@ public class ReplyHandlerTest {
 
         replay(mockMessage, callback);
 
-        ReplyHandler.reply(reply, callback, null);
+        ReplyHandler.reply(null, reply, callback, null);
 
         verify(mockMessage, callback);
     }
 
     /**
      * Test method for
-     * {@link ReplyHandler#reply(Reply, ReplyCallback, Executor)}.
+     * {@link ReplyHandler#reply(Receiver, Reply, ReplyCallback, Executor)} .
      */
     @Test
     public void testReplyWithoutCallback() {
@@ -270,7 +270,7 @@ public class ReplyHandlerTest {
         final Reply reply = new Reply(0, 0, 0, docs, false, false, false, false);
 
         replay(executor);
-        ReplyHandler.reply(reply, null, executor);
+        ReplyHandler.reply(null, reply, null, executor);
         verify(executor);
     }
 

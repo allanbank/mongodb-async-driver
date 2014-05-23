@@ -17,6 +17,7 @@ import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.ListenableFuture;
 import com.allanbank.mongodb.LockType;
+import com.allanbank.mongodb.client.callback.ReplyHandler;
 import com.allanbank.mongodb.util.Assertions;
 import com.allanbank.mongodb.util.log.Log;
 import com.allanbank.mongodb.util.log.LogFactory;
@@ -200,9 +201,16 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
             }
         }
 
-        // Either the value is available and the get() will not block
-        // or we have spun for long enough and it is time to block.
-        return mySync.get();
+        while (true) {
+            try {
+                // Either the value is available and the get() will not block
+                // or we have spun for long enough and it is time to block.
+                return mySync.get(TimeUnit.MILLISECONDS.toNanos(10));
+            }
+            catch (final TimeoutException te) {
+                ReplyHandler.tryReceive();
+            }
+        }
     }
 
     /**
@@ -211,7 +219,24 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
     @Override
     public V get(final long timeout, final TimeUnit unit)
             throws InterruptedException, TimeoutException, ExecutionException {
-        return mySync.get(unit.toNanos(timeout));
+        long now = System.nanoTime();
+        final long deadline = now + unit.toNanos(timeout);
+        while (true) {
+            try {
+                // Wait for the result.
+                return mySync.get(TimeUnit.MILLISECONDS.toNanos(10));
+            }
+            catch (final TimeoutException te) {
+                // Check if we should receive.
+                now = System.nanoTime();
+                if (now < deadline) {
+                    ReplyHandler.tryReceive();
+                }
+                else {
+                    throw te;
+                }
+            }
+        }
     }
 
     /**

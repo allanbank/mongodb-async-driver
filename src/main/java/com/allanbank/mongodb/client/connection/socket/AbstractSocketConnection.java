@@ -34,6 +34,7 @@ import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.client.callback.NoOpCallback;
+import com.allanbank.mongodb.client.callback.Receiver;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.callback.ReplyHandler;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -65,7 +66,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractSocketConnection implements Connection {
+public abstract class AbstractSocketConnection implements Connection, Receiver {
 
     /** The length of the message header in bytes. */
     public static final int HEADER_LENGTH = 16;
@@ -331,6 +332,31 @@ public abstract class AbstractSocketConnection implements Connection {
     /**
      * {@inheritDoc}
      * <p>
+     * If there is a pending flush then flushes.
+     * </p>
+     * <p>
+     * If there is any available data then does a single receive.
+     * </p>
+     */
+    @Override
+    public void tryReceive() {
+        try {
+            doReceiverFlush();
+
+            if ((myBsonIn.available() > 0) || (myInput.available() > 0)) {
+                doReceiveOne();
+            }
+        }
+        catch (final IOException error) {
+            myLog.info(
+                    "Received an error when checking for pending messages: {}.",
+                    error.getMessage());
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Waits for the connections pending queues to empty.
      * </p>
      */
@@ -429,19 +455,7 @@ public abstract class AbstractSocketConnection implements Connection {
      */
     protected void doReceiveOne() {
 
-        // Check if the handler for a message dropped data in the send buffer
-        // that it did not flush to avoid a deadlock with the server.
-        try {
-            final int unflushedMessages = myReaderNeedsToFlush.get();
-            if ((unflushedMessages != 0)
-                    && (myPendingQueue.size() <= unflushedMessages)) {
-                flush();
-            }
-        }
-        catch (final IOException ignored) {
-            myLog.warn("Error flushing data to the server: "
-                    + ignored.getMessage());
-        }
+        doReceiverFlush();
 
         final Message received = doReceive();
         if (received instanceof Reply) {
@@ -591,7 +605,7 @@ public abstract class AbstractSocketConnection implements Connection {
         }
 
         final ReplyCallback callback = pendingMessage.getReplyCallback();
-        ReplyHandler.reply(reply, callback, myExecutor);
+        ReplyHandler.reply(this, reply, callback, myExecutor);
     }
 
     /**
@@ -727,6 +741,25 @@ public abstract class AbstractSocketConnection implements Connection {
         }
         catch (final IOException e) {
             myLog.warn(e, "I/O exception trying to shutdown the connection.");
+        }
+    }
+
+    /**
+     * Check if the handler for a message dropped data in the send buffer that
+     * it did not flush to avoid a deadlock with the server. If so then flush
+     * that message.
+     */
+    private void doReceiverFlush() {
+        try {
+            final int unflushedMessages = myReaderNeedsToFlush.get();
+            if ((unflushedMessages != 0)
+                    && (myPendingQueue.size() <= unflushedMessages)) {
+                flush();
+            }
+        }
+        catch (final IOException ignored) {
+            myLog.warn("Error flushing data to the server: "
+                    + ignored.getMessage());
         }
     }
 
