@@ -2,11 +2,11 @@
             Changes in MongoDB Asynchronous Java Driver 2.0.0
             ------
             ------
-            2014-04-12
+            2014-05-30
 
 Upgrading
 
-  This version is not binary compatible with the 1.2.3 version of the driver. 
+  This version is not binary compatible with the 1.2.4 version of the driver. 
 
   To fully support the aggregation command cursors the return type for all methods
 of a collection that had returned a List now return a 

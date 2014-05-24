@@ -1,0 +1,15 @@
+            ------
+            Changes in MongoDB Asynchronous Java Driver 1.2.4
+            ------
+            ------
+            2013-06-09
+
+Upgrading
+
+  This version is binary compatible with the 1.2.3 version of the driver.  
+    
+Updates and Improvements:
+
+* Bug Fixes
+
+  * Fixed a deadlock condition caused when a callback uses the synchronous interfaces.
