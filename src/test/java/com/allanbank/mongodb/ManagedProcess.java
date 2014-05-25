@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * ManagedProcess provides the ability to manage a process.
@@ -113,25 +115,28 @@ public class ManagedProcess {
      * Waits for the log file to contain the specified token {@code count}
      * times.
      * 
-     * @param token
-     *            The token to search for.
+     * @param tokenRegex
+     *            The token regular expression to search for.
      * @param count
      *            The number of instances of the token to find.
      * @param waitMs
      *            How long to wait before giving up.
      */
-    public void waitFor(final String token, final int count, final long waitMs) {
+    public void waitFor(final String tokenRegex, final int count,
+            final long waitMs) {
 
         int seen = 0;
         long now = System.currentTimeMillis();
         final long deadline = now + waitMs;
+        final Pattern pattern = Pattern.compile(tokenRegex);
         while (now < deadline) {
             seen = 0;
 
             final String line = getOutput();
+            final Matcher matcher = pattern.matcher(line);
             int offset = 0;
-            while (line.indexOf(token, offset) >= 0) {
-                offset = (line.indexOf(token, offset) + token.length());
+            while (matcher.find(offset)) {
+                offset = matcher.end();
                 seen += 1;
             }
 
@@ -146,8 +151,9 @@ public class ManagedProcess {
             now = System.currentTimeMillis();
         }
 
-        throw new AssertionError("Did not find '" + token + "' in the output '"
-                + count + "' times.  Only '" + seen + "' times: " + getOutput());
+        throw new AssertionError("Did not find '" + tokenRegex
+                + "' in the output '" + count + "' times.  Only '" + seen
+                + "' times: " + getOutput());
     }
 
     /**

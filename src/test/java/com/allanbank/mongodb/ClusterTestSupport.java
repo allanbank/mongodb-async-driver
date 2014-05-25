@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.state.Cluster;
@@ -384,7 +385,7 @@ public class ClusterTestSupport {
         final long deadline = now + TimeUnit.MINUTES.toMillis(2);
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.REPLICA_SET);
         while ((now < deadline) && cluster.getWritableServers().isEmpty()) {
             for (int port = startPort; port < (startPort + replicas + 1); ++port) {
                 SocketConnection connection = null;
@@ -538,12 +539,14 @@ public class ClusterTestSupport {
             config2.waitFor();
 
             // Use the Arbiter to tell when everyone is in the right state.
-            arbiter.waitFor("is now in state PRIMARY",
+            arbiter.waitFor(
+                    "is now in state PRIMARY|replSet member .* PRIMARY",
                     TimeUnit.MINUTES.toMillis(3));
 
             // Each replica will be a secondary at some point.
-            arbiter.waitFor("is now in state SECONDARY", replicas - 1,
-                    TimeUnit.MINUTES.toMillis(3));
+            arbiter.waitFor(
+                    "is now in state SECONDARY|replSet member .* SECONDARY",
+                    replicas - 1, TimeUnit.MINUTES.toMillis(3));
         }
         catch (final IOException ioe) {
             fail("Could not write the replica set config.", ioe);
