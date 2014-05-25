@@ -28,6 +28,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.builder.Find;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.AbstractProxyMultipleConnection;
@@ -54,7 +55,7 @@ public class ShardedConnectionTest {
     @Test
     public void testConnection() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -95,7 +96,7 @@ public class ShardedConnectionTest {
     @Test
     public void testConnectServer() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
         final Server server2 = cluster.add("localhost:27018");
 
@@ -148,7 +149,7 @@ public class ShardedConnectionTest {
     @Test
     public void testConnectServerAlreadyConnected() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -195,7 +196,7 @@ public class ShardedConnectionTest {
     @Test
     public void testFindPotentialKeysForFirstMessage() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
         final Server server2 = cluster.add("localhost:27018");
 
@@ -244,7 +245,7 @@ public class ShardedConnectionTest {
     @Test
     public void testFindPotentialKeysForNeitherMessage() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Message msg1 = new Command("db", "coll", Find.ALL);
@@ -291,7 +292,7 @@ public class ShardedConnectionTest {
     @Test
     public void testFindPotentialKeysForNullSecond() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Message msg1 = new Command("db", "coll", Find.ALL);
@@ -337,7 +338,7 @@ public class ShardedConnectionTest {
     @Test
     public void testFindPotentialKeysForSecondMessage() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
         final Server server2 = cluster.add("localhost:27018");
 
@@ -387,7 +388,7 @@ public class ShardedConnectionTest {
     public void testGetConnectionType() throws IOException {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -428,7 +429,7 @@ public class ShardedConnectionTest {
     @Test
     public void testGetPendingCount() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -471,7 +472,7 @@ public class ShardedConnectionTest {
     @Test
     public void testGetServerName() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -512,7 +513,7 @@ public class ShardedConnectionTest {
     @Test
     public void testIsIdle() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -559,7 +560,7 @@ public class ShardedConnectionTest {
     @Test
     public void testListeners() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final PropertyChangeListener mockListener = createMock(PropertyChangeListener.class);
@@ -602,7 +603,7 @@ public class ShardedConnectionTest {
     @Test
     public void testRaiseErrors() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
         final MongoDbException error = new MongoDbException();
 
@@ -647,7 +648,7 @@ public class ShardedConnectionTest {
     @Test
     public void testReconnectMain() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
         final Server server2 = cluster.add("localhost:27018");
 
@@ -695,7 +696,7 @@ public class ShardedConnectionTest {
     @Test
     public void testReconnectMainThrows() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
         final Server server2 = cluster.add("localhost:27018");
 
@@ -745,7 +746,7 @@ public class ShardedConnectionTest {
     @Test
     public void testShutdown() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -789,7 +790,7 @@ public class ShardedConnectionTest {
     @Test
     public void testWaitForClosed() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);
@@ -833,7 +834,7 @@ public class ShardedConnectionTest {
     @Test
     public void testWaitForClosedWithZeroDeadline() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.SHARDED);
         final Server server = cluster.add("localhost:27017");
 
         final Connection mockConnection = createMock(Connection.class);

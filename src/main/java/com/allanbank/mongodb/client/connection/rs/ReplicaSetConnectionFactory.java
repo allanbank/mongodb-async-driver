@@ -74,9 +74,8 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
             final MongoClientConfiguration config) {
         myConnectionFactory = factory;
         myConfig = config;
-        myCluster = new Cluster(config);
-        myPinger = new ClusterPinger(myCluster, ClusterType.REPLICA_SET,
-                factory, config);
+        myCluster = new Cluster(config, ClusterType.REPLICA_SET);
+        myPinger = new ClusterPinger(myCluster, factory, config);
 
         myStrategy = new ReplicaSetReconnectStrategy();
         myStrategy.setConfig(myConfig);
@@ -97,7 +96,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
         // Last thing is to start the ping of servers. This will
         // locate the primary, and get the tags and latencies updated.
-        myPinger.initialSweep();
+        myPinger.initialSweep(myCluster);
         myPinger.start();
     }
 

@@ -55,6 +55,7 @@ import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
 import com.allanbank.mongodb.client.message.Reply;
@@ -887,7 +888,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         int count = 0;
         try {
             final InetSocketAddress defaultAddr = createAddress();
-            final Cluster cluster = new Cluster(myConfig);
+            final Cluster cluster = new Cluster(myConfig, ClusterType.SHARDED);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {
@@ -949,7 +950,7 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         int count = 0;
         try {
             final InetSocketAddress defaultAddr = createAddress();
-            final Cluster cluster = new Cluster(myConfig);
+            final Cluster cluster = new Cluster(myConfig, ClusterType.SHARDED);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
                 SocketConnection conn = null;
                 try {

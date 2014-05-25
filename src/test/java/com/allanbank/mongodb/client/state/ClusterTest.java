@@ -40,6 +40,7 @@ import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
+import com.allanbank.mongodb.client.ClusterType;
 
 /**
  * ClusterTest provides tests for the {@link Cluster}.
@@ -85,7 +86,8 @@ public class ClusterTest {
      */
     @Test
     public void testAdd() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -141,7 +143,8 @@ public class ClusterTest {
 
         final double relativeSum = 1 + 1 + (1D / 2) + (1D / 2) + (1D / 10);
 
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         Collections.shuffle(servers);
         final double[] cdf = myState.cdf(servers);
 
@@ -165,7 +168,8 @@ public class ClusterTest {
      */
     @Test
     public void testFindCandidateServersNearest() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server s1 = myState.add("localhost:27017");
         final Server s2 = myState.add("localhost:27018");
         final Server s3 = myState.add("localhost:27019");
@@ -205,7 +209,8 @@ public class ClusterTest {
      */
     @Test
     public void testFindCandidateServersPrimary() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server s1 = myState.add("localhost:27017");
         final Server s2 = myState.add("localhost:27018");
         final Server s3 = myState.add("localhost:27019");
@@ -238,7 +243,8 @@ public class ClusterTest {
      */
     @Test
     public void testFindCandidateServersPrimaryPreferred() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server s1 = myState.add("localhost:27017");
         final Server s2 = myState.add("localhost:27018");
         final Server s3 = myState.add("localhost:27019");
@@ -303,7 +309,8 @@ public class ClusterTest {
      */
     @Test
     public void testFindCandidateServersSecondary() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server s1 = myState.add("localhost:27017");
         final Server s2 = myState.add("localhost:27018");
         final Server s3 = myState.add("localhost:27019");
@@ -355,7 +362,8 @@ public class ClusterTest {
      */
     @Test
     public void testFindCandidateServersSecondaryPreferred() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server s1 = myState.add("localhost:27017");
         final Server s2 = myState.add("localhost:27018");
         final Server s3 = myState.add("localhost:27019");
@@ -398,7 +406,8 @@ public class ClusterTest {
      */
     @Test
     public void testFindCandidateServersSecondaryPreferredWithVeryLateServer() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server s1 = myState.add("localhost:27017");
         final Server s2 = myState.add("localhost:27018");
         final Server s3 = myState.add("localhost:27019");
@@ -438,7 +447,8 @@ public class ClusterTest {
      */
     @Test
     public void testFindCandidateServersServer() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server s1 = myState.add("localhost:27017");
         final Server s2 = myState.add("localhost:27018");
         final Server s3 = myState.add("localhost:27019");
@@ -465,7 +475,8 @@ public class ClusterTest {
      */
     @Test
     public void testGet() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -499,7 +510,8 @@ public class ClusterTest {
      */
     @Test
     public void testGetNonWritableServers() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final Server ss = myState.add("foo");
         assertEquals("foo:27017", ss.getCanonicalName());
@@ -530,7 +542,8 @@ public class ClusterTest {
      */
     @Test
     public void testMarkNotWritable() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -573,7 +586,8 @@ public class ClusterTest {
      */
     @Test
     public void testMarkWritable() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -614,7 +628,8 @@ public class ClusterTest {
      */
     @Test
     public void testRemoveListener() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -660,7 +675,8 @@ public class ClusterTest {
      */
     @Test
     public void testServerNameChange() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final PropertyChangeListener mockListener = EasyMock
                 .createMock(PropertyChangeListener.class);
@@ -713,7 +729,8 @@ public class ClusterTest {
      */
     @Test
     public void testServerNameChangeRemovesDuplicateServer() {
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         final Server ss = myState.add("foo");
         assertEquals("foo:27017", ss.getCanonicalName());
@@ -777,7 +794,8 @@ public class ClusterTest {
             servers.add(server);
         }
 
-        myState = new Cluster(new MongoClientConfiguration());
+        myState = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         for (int i = 0; i < 100; ++i) {
             Collections.shuffle(servers);
 

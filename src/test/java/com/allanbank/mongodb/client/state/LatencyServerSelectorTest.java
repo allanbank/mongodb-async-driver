@@ -17,6 +17,7 @@ import org.junit.Test;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.client.ClusterType;
 
 /**
  * LatencyServerSelectorTest provides tests for the
@@ -37,7 +38,8 @@ public class LatencyServerSelectorTest {
         final Document secondary = BuilderFactory.start()
                 .add("ismaster", false).add("secondary", true).build();
 
-        final Cluster cluster = new Cluster(new MongoClientConfiguration());
+        final Cluster cluster = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         cluster.add("localhost:27017").updateAverageLatency(100);
         cluster.add("localhost:27018").updateAverageLatency(50);
@@ -75,7 +77,8 @@ public class LatencyServerSelectorTest {
         final Document secondary = BuilderFactory.start()
                 .add("ismaster", false).add("secondary", true).build();
 
-        final Cluster cluster = new Cluster(new MongoClientConfiguration());
+        final Cluster cluster = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         cluster.add("localhost:27017").updateAverageLatency(100);
         cluster.add("localhost:27018").updateAverageLatency(50);
@@ -107,7 +110,8 @@ public class LatencyServerSelectorTest {
         final Document secondary = BuilderFactory.start()
                 .add("ismaster", false).add("secondary", true).build();
 
-        final Cluster cluster = new Cluster(new MongoClientConfiguration());
+        final Cluster cluster = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
 
         cluster.add("localhost:27017").updateAverageLatency(100);
         cluster.add("localhost:27018").updateAverageLatency(50);

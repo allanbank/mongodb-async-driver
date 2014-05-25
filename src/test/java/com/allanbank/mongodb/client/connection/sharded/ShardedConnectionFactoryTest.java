@@ -575,6 +575,41 @@ public class ShardedConnectionFactoryTest {
     }
 
     /**
+     * Test method for {@link ShardedConnectionFactory#connect()}.
+     * 
+     * @throws IOException
+     *             On a failure.
+     */
+    @Test
+    public void testConnectTwoServers() throws IOException {
+        final String serverName = ourServer.getInetSocketAddress()
+                .getHostName()
+                + ":"
+                + ourServer.getInetSocketAddress().getPort();
+
+        final DocumentBuilder mongosServerBuilder = BuilderFactory.start();
+        mongosServerBuilder.add("_id", serverName).add("dbgrid", true)
+                .add("ismaster", true);
+
+        ourServer.setReplies(reply(start(BUILD_INFO)),
+                reply(mongosServerBuilder), reply(mongosServerBuilder));
+
+        final MongoClientConfiguration config = new MongoClientConfiguration(
+                ourServer.getInetSocketAddress(),
+                ourServer.getInetSocketAddress());
+        final ProxiedConnectionFactory socketFactory = new SocketConnectionFactory(
+                config);
+
+        myTestFactory = new ShardedConnectionFactory(socketFactory, config);
+
+        final Connection connection = myTestFactory.connect();
+        IOUtils.close(connection);
+
+        assertThat(connection, instanceOf(ShardedConnection.class));
+        assertThat(connection.toString(), startsWith("Sharded(MongoDB("));
+    }
+
+    /**
      * Test method for {@link ShardedConnectionFactory#getClusterType()}.
      */
     @Test

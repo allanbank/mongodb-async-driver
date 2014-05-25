@@ -122,7 +122,7 @@ public class AuthenticationConnectionFactoryTest {
 
         replay(mockFactory, mockConnection);
 
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final AuthenticatingConnection conn = myTestFactory.connect(
                 cluster.add(new InetSocketAddress("localhost", 27017)), config);
         assertSame(mockConnection, conn.getProxiedConnection());

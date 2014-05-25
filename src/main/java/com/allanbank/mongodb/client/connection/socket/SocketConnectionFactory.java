@@ -70,7 +70,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     public SocketConnectionFactory(final MongoClientConfiguration config) {
         super();
         myConfig = config;
-        myCluster = new Cluster(config);
+        myCluster = new Cluster(config, ClusterType.STAND_ALONE);
         myServerSelector = new LatencyServerSelector(myCluster, true);
         myBuffers = new ThreadLocal<Reference<BufferingBsonOutputStream>>();
     }

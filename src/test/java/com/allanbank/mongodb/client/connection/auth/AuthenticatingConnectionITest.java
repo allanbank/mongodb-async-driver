@@ -20,6 +20,7 @@ import com.allanbank.mongodb.ServerTestDriverSupport;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
@@ -66,7 +67,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         try {
             socketFactory = new SocketConnectionFactory(config);
 
-            final Cluster cluster = new Cluster(config);
+            final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 
@@ -115,7 +116,7 @@ public class AuthenticatingConnectionITest extends ServerTestDriverSupport {
         try {
             socketFactory = new SocketConnectionFactory(config);
 
-            final Cluster cluster = new Cluster(config);
+            final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
             final Document doc = BuilderFactory.start()
                     .addObjectId("_id", new ObjectId()).build();
 

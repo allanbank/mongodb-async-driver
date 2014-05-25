@@ -8,8 +8,12 @@ package com.allanbank.mongodb.client.state;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -59,11 +63,8 @@ public class ClusterPinger implements Runnable, Closeable {
         return PINGER.ping(server, conn);
     }
 
-    /** The state of the cluster. */
-    private final Cluster myCluster;
-
-    /** The type of the cluster. */
-    private final ClusterType myClusterType;
+    /** The state of the clusters. */
+    private final List<Cluster> myClusters;
 
     /** The configuration for the connections. */
     private final MongoClientConfiguration myConfig;
@@ -72,10 +73,10 @@ public class ClusterPinger implements Runnable, Closeable {
     private final ProxiedConnectionFactory myConnectionFactory;
 
     /** The units for the ping sweep intervals. */
-    private volatile TimeUnit myIntervalUnits = TimeUnit.SECONDS;
+    private volatile TimeUnit myIntervalUnits;
 
     /** The interval for a ping sweep across all of the servers. */
-    private volatile int myPingSweepInterval = DEFAULT_PING_INTERVAL_SECONDS;
+    private volatile int myPingSweepInterval;
 
     /** The thread that is pinging the servers for latency. */
     private final Thread myPingThread;
@@ -88,28 +89,40 @@ public class ClusterPinger implements Runnable, Closeable {
      * 
      * @param cluster
      *            The state of the cluster.
-     * @param clusterType
-     *            The type of cluster being managed.
      * @param factory
      *            The factory for creating connections to the servers.
      * @param config
      *            The configuration for the connections.
      */
-    public ClusterPinger(final Cluster cluster, final ClusterType clusterType,
+    public ClusterPinger(final Cluster cluster,
             final ProxiedConnectionFactory factory,
             final MongoClientConfiguration config) {
         super();
 
-        myCluster = cluster;
-        myClusterType = clusterType;
         myConnectionFactory = factory;
         myConfig = config;
         myRunning = true;
+
+        myClusters = new CopyOnWriteArrayList<Cluster>();
+        myClusters.add(cluster);
+
+        myIntervalUnits = TimeUnit.SECONDS;
+        myPingSweepInterval = DEFAULT_PING_INTERVAL_SECONDS;
 
         myPingThread = myConfig.getThreadFactory().newThread(this);
         myPingThread.setDaemon(true);
         myPingThread.setName("MongoDB Pinger");
         myPingThread.setPriority(Thread.MIN_PRIORITY);
+    }
+
+    /**
+     * Adds a new cluster to the set of tracked clusters.
+     * 
+     * @param cluster
+     *            A new cluster to the set of tracked clusters.
+     */
+    public void addCluster(final Cluster cluster) {
+        myClusters.add(cluster);
     }
 
     /**
@@ -149,9 +162,12 @@ public class ClusterPinger implements Runnable, Closeable {
      * This method will not return until at least 50% of the servers have
      * replied (which may be a failure) to the initial ping.
      * </p>
+     * 
+     * @param cluster
+     *            The cluster of servers to ping.
      */
-    public void initialSweep() {
-        final List<Server> servers = myCluster.getServers();
+    public void initialSweep(final Cluster cluster) {
+        final List<Server> servers = cluster.getServers();
         final List<Future<Reply>> replies = new ArrayList<Future<Reply>>(
                 servers.size());
         final List<Connection> connections = new ArrayList<Connection>(
@@ -164,10 +180,10 @@ public class ClusterPinger implements Runnable, Closeable {
                 try {
                     conn = myConnectionFactory.connect(server, myConfig);
 
-                    // Use a server status request to measure latency. It is
+                    // Use a isMaster request to measure latency. It is
                     // a best case since it does not require any locks.
-                    final Future<Reply> reply = PINGER.pingAsync(myClusterType,
-                            server, conn);
+                    final Future<Reply> reply = PINGER.pingAsync(
+                            cluster.getType(), server, conn);
                     replies.add(reply);
                 }
                 catch (final IOException e) {
@@ -228,7 +244,7 @@ public class ClusterPinger implements Runnable, Closeable {
     public void run() {
         while (myRunning) {
             try {
-                final List<Server> servers = myCluster.getServers();
+                final Map<Server, ClusterType> servers = extractAllServers();
 
                 final long interval = getIntervalUnits().toMillis(
                         getPingSweepInterval());
@@ -240,9 +256,12 @@ public class ClusterPinger implements Runnable, Closeable {
                 // causing confusion and delay.
                 Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
 
-                for (final Server server : servers) {
+                startSweep();
 
+                for (final Map.Entry<Server, ClusterType> entry : servers
+                        .entrySet()) {
                     // Ping the current server.
+                    final Server server = entry.getKey();
                     final String name = server.getCanonicalName();
                     Connection conn = null;
                     try {
@@ -250,7 +269,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
                         conn = myConnectionFactory.connect(server, myConfig);
 
-                        pingAsync(server, conn);
+                        PINGER.pingAsync(entry.getValue(), server, conn);
 
                         // Sleep a little between the servers.
                         Thread.sleep(TimeUnit.MILLISECONDS
@@ -318,20 +337,27 @@ public class ClusterPinger implements Runnable, Closeable {
     }
 
     /**
-     * Performs a ping of the server.
-     * <p>
-     * This method also serves as an extension point for derived classes to do
-     * other periodic work.
-     * </p>
-     * 
-     * @param server
-     *            The server to ping.
-     * @param conn
-     *            The connection to use to ping the server.
+     * Extension point to notify derived classes that a new sweep is starting.
      */
-    protected void pingAsync(final Server server, final Connection conn) {
-        // Ping to update the latency and tags.
-        PINGER.pingAsync(myClusterType, server, conn);
+    protected void startSweep() {
+        // Nothing.
+    }
+
+    /**
+     * Extracts the complete list of servers in all clusters.
+     * 
+     * @return The complete list of servers across all clusters.
+     */
+    private Map<Server, ClusterType> extractAllServers() {
+        final Map<Server, ClusterType> servers = new HashMap<Server, ClusterType>();
+
+        for (final Cluster cluster : myClusters) {
+            for (final Server server : cluster.getServers()) {
+                servers.put(server, cluster.getType());
+            }
+        }
+
+        return Collections.unmodifiableMap(servers);
     }
 
     /**

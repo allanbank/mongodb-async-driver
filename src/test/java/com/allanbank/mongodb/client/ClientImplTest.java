@@ -729,7 +729,7 @@ public class ClientImplTest {
     public void testReconnectFails() throws IOException {
         final Message message = new Command("db", Command.COMMAND_COLLECTION,
                 BuilderFactory.start().build());
-        final Cluster cluster = new Cluster(myConfig);
+        final Cluster cluster = new Cluster(myConfig, ClusterType.STAND_ALONE);
         final Server server = cluster.add(new InetSocketAddress("localhost",
                 27017));
         final Capture<PropertyChangeListener> propListenerCapture = new Capture<PropertyChangeListener>();

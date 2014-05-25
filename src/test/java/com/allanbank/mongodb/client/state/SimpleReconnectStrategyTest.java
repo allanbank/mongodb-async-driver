@@ -28,6 +28,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
@@ -56,7 +57,7 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnect() throws IOException, InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add("foo:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);
@@ -104,7 +105,7 @@ public class SimpleReconnectStrategyTest {
     public void testReconnectBackWorks() throws IOException,
             InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add("foo:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);
@@ -142,7 +143,7 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnectFails() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add("foo:27017");
 
         final Connection mockOldConnection = createMock(Connection.class);
@@ -182,7 +183,7 @@ public class SimpleReconnectStrategyTest {
     public void testReconnectFirstFails() throws IOException,
             InterruptedException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(new InetSocketAddress("foo", 27017));
 
         final Connection mockOldConnection = createMock(Connection.class);
@@ -234,7 +235,7 @@ public class SimpleReconnectStrategyTest {
     @Test
     public void testReconnectPingFails() throws IOException {
         final MongoClientConfiguration config = new MongoClientConfiguration();
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(new InetSocketAddress("foo", 27017));
 
         final Connection mockOldConnection = createMock(Connection.class);

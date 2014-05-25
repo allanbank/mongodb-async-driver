@@ -67,6 +67,7 @@ import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.client.Client;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
@@ -145,8 +146,8 @@ public class SocketConnectionTest {
      */
     @Before
     public void setUp() {
-        myTestServer = new Cluster(new MongoClientConfiguration())
-                .add(ourServer.getInetSocketAddress());
+        myTestServer = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE).add(ourServer.getInetSocketAddress());
 
         // Disable the re-request of build information.
         myTestServer.update(BUILD_INFO);
@@ -2626,7 +2627,7 @@ public class SocketConnectionTest {
         replay(mockFactory, mockSocket);
 
         config.setSocketFactory(mockFactory);
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(ourServer.getInetSocketAddress());
 
         try {
@@ -2678,7 +2679,8 @@ public class SocketConnectionTest {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
 
         // Force to the wrong port.
-        final Cluster cluster = new Cluster(new MongoClientConfiguration());
+        final Cluster cluster = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
         final Server wrongPort = cluster.add(new InetSocketAddress(addr
                 .getAddress(), addr.getPort() + 1));
         myTestConnection = new SocketConnection(wrongPort,
@@ -2717,7 +2719,7 @@ public class SocketConnectionTest {
         replay(mockFactory, mockSocket);
 
         config.setSocketFactory(mockFactory);
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(ourServer.getInetSocketAddress());
 
         try {
@@ -2763,7 +2765,7 @@ public class SocketConnectionTest {
         replay(mockFactory, mockSocket);
 
         config.setSocketFactory(mockFactory);
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(ourServer.getInetSocketAddress());
 
         try {
@@ -2798,7 +2800,7 @@ public class SocketConnectionTest {
         final MongoClientConfiguration config = new MongoClientConfiguration();
         config.setSocketFactory(mockFactory);
 
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(ourServer.getInetSocketAddress());
 
         try {
@@ -2845,7 +2847,7 @@ public class SocketConnectionTest {
         replay(mockFactory, mockSocket);
 
         config.setSocketFactory(mockFactory);
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(ourServer.getInetSocketAddress());
 
         try {
@@ -2902,7 +2904,7 @@ public class SocketConnectionTest {
         replay(mockFactory, mockSocket);
 
         config.setSocketFactory(mockFactory);
-        final Cluster cluster = new Cluster(config);
+        final Cluster cluster = new Cluster(config, ClusterType.STAND_ALONE);
         final Server server = cluster.add(ourServer.getInetSocketAddress());
 
         myTestConnection = new SocketConnection(server, config);

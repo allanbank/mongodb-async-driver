@@ -37,6 +37,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -79,7 +80,7 @@ public class ReplicaSetConnectionTest {
     @Before
     public void setUp() {
         myConfig = new MongoClientConfiguration();
-        myCluster = new Cluster(myConfig);
+        myCluster = new Cluster(myConfig, ClusterType.REPLICA_SET);
 
         myServer = myCluster.get("localhost:27017");
         myServer.update(PRIMARY_UPDATE);

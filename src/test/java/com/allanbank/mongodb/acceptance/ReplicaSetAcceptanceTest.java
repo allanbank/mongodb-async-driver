@@ -34,6 +34,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.QueryBuilder;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
 import com.allanbank.mongodb.client.message.Reply;
@@ -144,7 +145,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         myConfig.setDefaultDurability(Durability.replicaDurable(2, 1000));
 
         final InetSocketAddress defaultAddr = createAddress();
-        final Cluster cluster = new Cluster(myConfig);
+        final Cluster cluster = new Cluster(myConfig, ClusterType.REPLICA_SET);
         for (int i = 0; i < PORTS.length; ++i) {
             final int port = PORTS[i];
 

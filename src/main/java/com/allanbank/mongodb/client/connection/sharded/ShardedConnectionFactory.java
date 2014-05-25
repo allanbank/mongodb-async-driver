@@ -133,7 +133,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
         // Last thing is to start the ping of servers. This will get the tags
         // and latencies updated.
-        myPinger.initialSweep();
+        myPinger.initialSweep(myCluster);
         myPinger.start(); // TODO - Needed?
     }
 
@@ -238,7 +238,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * @return The {@link Cluster} to track the servers across the cluster.
      */
     protected Cluster createCluster(final MongoClientConfiguration config) {
-        return new Cluster(config);
+        return new Cluster(config, ClusterType.SHARDED);
     }
 
     /**
@@ -256,8 +256,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     protected ClusterPinger createClusterPinger(
             final ProxiedConnectionFactory factory,
             final MongoClientConfiguration config) {
-        return new ClusterPinger(myCluster, ClusterType.SHARDED, factory,
-                config);
+        return new ClusterPinger(myCluster, factory, config);
     }
 
     /**
@@ -302,7 +301,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      */
     protected boolean findMongosServers(final Connection conn)
             throws InterruptedException, ExecutionException {
-        final boolean found = false;
+        boolean found = false;
 
         // Create a query to pull all of the mongos servers out of the
         // config database.
@@ -328,6 +327,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
                 final StringElement id = (StringElement) idElem;
 
                 myCluster.add(id.getValue());
+                found = true;
 
                 LOG.debug("Adding shard mongos: {}", id.getValue());
             }

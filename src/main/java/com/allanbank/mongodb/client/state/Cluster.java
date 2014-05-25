@@ -20,6 +20,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.client.ClusterStats;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
@@ -51,6 +52,9 @@ public class Cluster implements ClusterStats {
     /** The property name for if there is a writable server. */
     public static final String WRITABLE_PROP = "writable";
 
+    /** The configuration for connecting to the servers. */
+    protected final MongoClientConfiguration myConfig;
+
     /** The complete list of servers. */
     protected final ConcurrentMap<String, Server> myServers;
 
@@ -75,17 +79,20 @@ public class Cluster implements ClusterStats {
     /** The complete list of writable servers. */
     /* package */final CopyOnWriteArrayList<Server> myWritableServers;
 
-    /** The configuration for connecting to the servers. */
-    private final MongoClientConfiguration myConfig;
+    /** The type of the cluster. */
+    private final ClusterType myType;
 
     /**
      * Creates a new CLusterState.
      * 
      * @param config
      *            The configuration for the cluster.
+     * @param type
+     *            The type of the cluster.
      */
-    public Cluster(final MongoClientConfiguration config) {
+    public Cluster(final MongoClientConfiguration config, final ClusterType type) {
         myConfig = config;
+        myType = type;
         myChangeSupport = new PropertyChangeSupport(this);
         myServers = new ConcurrentHashMap<String, Server>();
         myWritableServers = new CopyOnWriteArrayList<Server>();
@@ -274,6 +281,15 @@ public class Cluster implements ClusterStats {
     @Override
     public long getSmallestMaxBsonObjectSize() {
         return mySmallestMaxBsonObjectSize;
+    }
+
+    /**
+     * Returns the type of cluster.
+     * 
+     * @return The type of cluster.
+     */
+    public ClusterType getType() {
+        return myType;
     }
 
     /**
