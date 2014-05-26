@@ -15,15 +15,17 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
-import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
+import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.state.Cluster;
@@ -134,7 +136,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         // Last thing is to start the ping of servers. This will get the tags
         // and latencies updated.
         myPinger.initialSweep(myCluster);
-        myPinger.start(); // TODO - Needed?
+        myPinger.start();
     }
 
     /**
@@ -305,35 +307,45 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
         // Create a query to pull all of the mongos servers out of the
         // config database.
-        final Query query = new Query("config", "mongos", BuilderFactory
-                .start().build(), /* fields= */null, /* batchSize= */0,
+        Message message = new Query("config", "mongos", Find.ALL,
+        /* fields= */null, /* batchSize= */0,
         /* limit= */0, /* numberToSkip= */0, /* tailable= */false,
                 ReadPreference.PRIMARY, /* noCursorTimeout= */false,
                 /* awaitData= */false, /* exhaust= */false, /* partial= */
                 false);
 
-        // Send the request...
-        final FutureReplyCallback future = new FutureReplyCallback();
-        conn.send(query, future);
+        while (message != null) {
+            // Send the request...
+            final FutureReplyCallback future = new FutureReplyCallback();
+            conn.send(message, future);
 
-        // Receive the response.
-        final Reply reply = future.get();
+            // Don's send it again.
+            message = null;
 
-        // Validate and pull out the response information.
-        final List<Document> docs = reply.getResults();
-        for (final Document doc : docs) {
-            final Element idElem = doc.get("_id");
-            if (idElem instanceof StringElement) {
-                final StringElement id = (StringElement) idElem;
+            // Receive the response.
+            final Reply reply = future.get();
 
-                myCluster.add(id.getValue());
-                found = true;
+            // Validate and pull out the response information.
+            final List<Document> docs = reply.getResults();
+            for (final Document doc : docs) {
+                final Element idElem = doc.get("_id");
+                if (idElem instanceof StringElement) {
+                    final StringElement id = (StringElement) idElem;
 
-                LOG.debug("Adding shard mongos: {}", id.getValue());
+                    myCluster.add(id.getValue());
+                    found = true;
+
+                    LOG.debug("Adding shard mongos: {}", id.getValue());
+                }
+            }
+
+            // Cursor?
+            if (reply.getCursorId() != 0) {
+                // Send a GetMore.
+                message = new GetMore("config", "mongos", reply.getCursorId(),
+                        0, ReadPreference.PRIMARY);
             }
         }
-
-        // TODO - Cursor?
 
         return found;
     }
