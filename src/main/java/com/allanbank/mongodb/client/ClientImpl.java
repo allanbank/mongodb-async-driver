@@ -12,13 +12,11 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -52,12 +50,6 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClientImpl extends AbstractClient {
-
-    /**
-     * The maximum number of connections to scan looking for idle/lightly used
-     * connections.
-     */
-    public static final int MAX_CONNECTION_SCAN = 5;
 
     /** The logger for the {@link ClientImpl}. */
     protected static final Log LOG = LogFactory.getLog(ClientImpl.class);
@@ -110,7 +102,7 @@ public class ClientImpl extends AbstractClient {
     private final BlockingQueue<Connection> myConnectionsToClose;
 
     /** The sequence of the connection that was last used. */
-    private final AtomicInteger myNextConnectionSequence = new AtomicInteger(0);
+    private final AtomicLong myNextConnectionSequence = new AtomicLong(0);
 
     /**
      * Create a new ClientImpl.
@@ -326,16 +318,16 @@ public class ClientImpl extends AbstractClient {
      * is to look at the number of messages waiting to be sent. The basic logic
      * for finding a connection is:
      * <ol>
-     * <li>Scan the list of connection looking for an idle connection. If one is
-     * found use it.</li>
+     * <li>Look at the current connection and the next connection. If either is
+     * idle, use it.</li>
      * <li>If there are no idle connections determine the maximum number of
      * allowed connections and if there are fewer that the maximum allowed then
      * take the connection creation lock, create a new connection, use it, and
      * add to the set of available connections and release the lock.</li>
-     * <li>If there are is still not a connection idle then sort the connections
-     * based on a snapshot of pending messages and use the connection with the
-     * least messages.</li>
-     * <ul>
+     * <li>Neither of the above works then increment the connection index and
+     * use the previous or next connection based on which has the fewest pending
+     * connections.</li>
+     * <ol>
      */
     @Override
     protected Connection findConnection(final Message message1,
@@ -462,16 +454,16 @@ public class ClientImpl extends AbstractClient {
      * is to look at the number of messages waiting to be sent. The basic logic
      * for finding a connection is:
      * <ol>
-     * <li>Scan the list of connection looking for an idle connection. If one is
-     * found use it.</li>
+     * <li>Look at the current connection and the next connection. If either is
+     * idle, use it.</li>
      * <li>If there are no idle connections determine the maximum number of
      * allowed connections and if there are fewer that the maximum allowed then
      * take the connection creation lock, create a new connection, use it, and
      * add to the set of available connections and release the lock.</li>
-     * <li>If there are is still not a connection idle then sort the connections
-     * based on a snapshot of pending messages and use the connection with the
-     * least messages.</li>
-     * <ul>
+     * <li>Neither of the above works then increment the connection index and
+     * use the previous or next connection based on which has the fewest pending
+     * connections.</li>
+     * <ol>
      * 
      * @param message1
      *            The first message that will be sent. The connection return
@@ -529,25 +521,22 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
-     * Tries to find an idle connection to use from up to the next
-     * {@value #MAX_CONNECTION_SCAN} items.
+     * Tries to find an idle connection to use from the current and next
+     * connection..
      * 
      * @return The idle connection, if found.
      */
     private Connection findIdleConnection() {
         if (!myConnections.isEmpty()) {
-            final int toScan = Math.min(myConnections.size(),
-                    MAX_CONNECTION_SCAN);
-            for (int loop = 0; loop < toScan; ++loop) {
+            // Only get() here to try and reuse idle connections.
+            final long connSequence = myNextConnectionSequence.get();
+            for (int loop = 0; loop < Math.min(2, myConnections.size()); ++loop) {
 
-                // * Cast to a long to make sure the Math.abs() works for
+                // Cast to a long to make sure the Math.abs() works for
                 // Integer.MIN_VALUE
-                // * Only get() here to try and reuse idle connections.
-                final long connSequence = myNextConnectionSequence.get();
-                final long sequence = Math.abs(connSequence);
+                final long sequence = Math.abs(connSequence + loop);
                 final int size = myConnections.size();
                 final int index = (int) (sequence % size);
-
                 try {
                     final Connection conn = myConnections.get(index);
                     if (conn.isAvailable() && (conn.getPendingCount() == 0)) {
@@ -555,14 +544,10 @@ public class ClientImpl extends AbstractClient {
                     }
                 }
                 catch (final ArrayIndexOutOfBoundsException aiob) {
-                    // Race between the size and get.
-                    // Next loop should fix.
+                    // Race between the size and get and someone closing a
+                    // connection. Next loop should fix.
                     aiob.getCause(); // Shhh - PMD.
                 }
-
-                // Increment for the next loop since the last connection was not
-                // idle.
-                myNextConnectionSequence.incrementAndGet();
             }
         }
 
@@ -570,28 +555,24 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
-     * Locates the most idle connection to use from up to the next
-     * {@value #MAX_CONNECTION_SCAN} items.
+     * Locates the most idle connection to use from the current and next
+     * connection.
      * 
      * @return The most idle connection.
      */
     private Connection findMostIdleConnection() {
         if (!myConnections.isEmpty()) {
-            final SortedMap<Integer, Connection> connections = new TreeMap<Integer, Connection>();
-            final int toScan = Math.min(myConnections.size(),
-                    MAX_CONNECTION_SCAN);
-            for (int loop = 0; loop < toScan; ++loop) {
-                final int size = myConnections.size();
-                final long sequence = Math.abs((long) myNextConnectionSequence
-                        .getAndIncrement());
-                final int index = (int) (sequence % size);
+            final long next = (myConnections.size() <= 1) ? 1
+                    : myNextConnectionSequence.incrementAndGet();
+            final long previous = next - 1;
 
+            Connection previousConn = null;
+            Connection nextConn = null;
+            while ((previousConn == null) || (nextConn == null)) {
                 try {
-                    final Connection conn = myConnections.get(index);
-                    if (conn.isAvailable()) {
-                        connections.put(
-                                Integer.valueOf(conn.getPendingCount()), conn);
-                    }
+                    final int size = myConnections.size();
+                    previousConn = myConnections.get((int) (previous % size));
+                    nextConn = myConnections.get((int) (next % size));
                 }
                 catch (final ArrayIndexOutOfBoundsException aiob) {
                     // Race between the size and get.
@@ -600,8 +581,22 @@ public class ClientImpl extends AbstractClient {
                 }
             }
 
-            if (!connections.isEmpty()) {
-                return connections.get(connections.firstKey());
+            if (previousConn == nextConn) {
+                if (previousConn.isAvailable()) {
+                    return previousConn;
+                }
+            }
+            else if (previousConn.isAvailable()) {
+                if (nextConn.isAvailable()) {
+                    if (previousConn.getPendingCount() < nextConn
+                            .getPendingCount()) {
+                        return previousConn;
+                    }
+                    return nextConn;
+                }
+            }
+            else if (nextConn.isAvailable()) {
+                return nextConn;
             }
         }
 

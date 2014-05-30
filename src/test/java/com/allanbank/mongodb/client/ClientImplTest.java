@@ -367,11 +367,11 @@ public class ClientImplTest {
                 mockConnection4, mockConnection5, mockConnection6,
                 mockConnection7);
 
-        // Third Request - start at sequence 1.
-        expect(mockConnection2.isAvailable()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
+        // Third Request - Still at sequence zero.
         expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
+        expect(mockConnection2.isAvailable()).andReturn(true);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection3);
         mockConnection3
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -390,13 +390,11 @@ public class ClientImplTest {
                 mockConnection4, mockConnection5, mockConnection6,
                 mockConnection7);
 
-        // Fourth Request - start at sequence 3.
+        // Fourth Request - Still at sequence zero.
         expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection3.isAvailable()).andReturn(true);
-        expect(mockConnection3.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection4);
         mockConnection4
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -415,11 +413,7 @@ public class ClientImplTest {
                 mockConnection4, mockConnection5, mockConnection6,
                 mockConnection7);
 
-        // Fifth request - start at sequence 6.
-        expect(mockConnection3.isAvailable()).andReturn(true);
-        expect(mockConnection3.getPendingCount()).andReturn(1);
-        expect(mockConnection4.isAvailable()).andReturn(true);
-        expect(mockConnection4.getPendingCount()).andReturn(1);
+        // Fourth Request - Still at sequence zero.
         expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(mockConnection2.isAvailable()).andReturn(true);
@@ -442,17 +436,11 @@ public class ClientImplTest {
                 mockConnection4, mockConnection5, mockConnection6,
                 mockConnection7);
 
-        // Sixth request - start at sequence 10.
+        // Fourth Request - Still at sequence zero.
         expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
-        expect(mockConnection3.isAvailable()).andReturn(true);
-        expect(mockConnection3.getPendingCount()).andReturn(1);
-        expect(mockConnection4.isAvailable()).andReturn(true);
-        expect(mockConnection4.getPendingCount()).andReturn(1);
-        expect(mockConnection5.isAvailable()).andReturn(true);
-        expect(mockConnection5.getPendingCount()).andReturn(1);
         expect(myMockConnectionFactory.connect()).andReturn(mockConnection6);
         mockConnection6
                 .addPropertyChangeListener(anyObject(PropertyChangeListener.class));
@@ -471,13 +459,7 @@ public class ClientImplTest {
                 mockConnection4, mockConnection5, mockConnection6,
                 mockConnection7);
 
-        // Seventh Request - last connection - start at sequence 15.
-        expect(mockConnection4.isAvailable()).andReturn(true);
-        expect(mockConnection4.getPendingCount()).andReturn(1);
-        expect(mockConnection5.isAvailable()).andReturn(true);
-        expect(mockConnection5.getPendingCount()).andReturn(1);
-        expect(mockConnection6.isAvailable()).andReturn(true);
-        expect(mockConnection6.getPendingCount()).andReturn(1);
+        // Fourth Request - Still at sequence zero.
         expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(mockConnection2.isAvailable()).andReturn(true);
@@ -500,30 +482,41 @@ public class ClientImplTest {
                 mockConnection4, mockConnection5, mockConnection6,
                 mockConnection7);
 
-        // Eighth request - Most idle - start at sequence 20.
-        // First pass for idle.
-        expect(mockConnection7.isAvailable()).andReturn(true);
-        expect(mockConnection7.getPendingCount()).andReturn(1);
+        // Fourth Request - Still at sequence zero.
         expect(mockConnection1.isAvailable()).andReturn(true);
         expect(mockConnection1.getPendingCount()).andReturn(1);
         expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
+        // Second for most idle.
+        expect(mockConnection1.isAvailable()).andReturn(true);
+        expect(mockConnection1.getPendingCount()).andReturn(3);
+        expect(mockConnection2.isAvailable()).andReturn(true);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
+        mockConnection2.send(message, null);
+        expectLastCall();
+
+        replay(mockConnection1, mockConnection2, mockConnection3,
+                mockConnection4, mockConnection5, mockConnection6,
+                mockConnection7);
+        myTestInstance.send(message, null);
+        verify(mockConnection1, mockConnection2, mockConnection3,
+                mockConnection4, mockConnection5, mockConnection6,
+                mockConnection7);
+        reset(mockConnection1, mockConnection2, mockConnection3,
+                mockConnection4, mockConnection5, mockConnection6,
+                mockConnection7);
+
+        // Fifth Request - Now at sequence one.
+        expect(mockConnection2.isAvailable()).andReturn(true);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection3.isAvailable()).andReturn(true);
         expect(mockConnection3.getPendingCount()).andReturn(1);
-        expect(mockConnection4.isAvailable()).andReturn(true);
-        expect(mockConnection4.getPendingCount()).andReturn(1);
         // Second for most idle.
-        expect(mockConnection5.isAvailable()).andReturn(true);
-        expect(mockConnection5.getPendingCount()).andReturn(2);
-        expect(mockConnection6.isAvailable()).andReturn(true);
-        expect(mockConnection6.getPendingCount()).andReturn(1);
-        expect(mockConnection7.isAvailable()).andReturn(true);
-        expect(mockConnection7.getPendingCount()).andReturn(5);
-        expect(mockConnection1.isAvailable()).andReturn(true);
-        expect(mockConnection1.getPendingCount()).andReturn(4);
         expect(mockConnection2.isAvailable()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(3);
-        mockConnection6.send(message, null);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
+        expect(mockConnection3.isAvailable()).andReturn(true);
+        expect(mockConnection3.getPendingCount()).andReturn(3);
+        mockConnection2.send(message, null);
         expectLastCall();
 
         replay(mockConnection1, mockConnection2, mockConnection3,
@@ -1376,14 +1369,14 @@ public class ClientImplTest {
         expectLastCall();
 
         expect(mockConnection2.isAvailable()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(0);
+        expect(mockConnection2.getPendingCount()).andReturn(1);
+        expect(mockConnection2.isAvailable()).andReturn(true);
         mockConnection2.send(message, null);
         expectLastCall();
 
         expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isAvailable()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
         mockConnection2.send(message, null);
         expectLastCall();
 
@@ -1450,7 +1443,7 @@ public class ClientImplTest {
         expect(mockConnection2.isAvailable()).andReturn(true);
         expect(mockConnection2.getPendingCount()).andReturn(1);
         expect(mockConnection2.isAvailable()).andReturn(true);
-        expect(mockConnection2.getPendingCount()).andReturn(1);
+        // expect(mockConnection2.getPendingCount()).andReturn(1);
         mockConnection2.send(message, null);
         expectLastCall();
 
