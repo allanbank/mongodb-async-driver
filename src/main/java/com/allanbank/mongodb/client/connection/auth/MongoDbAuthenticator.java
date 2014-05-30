@@ -302,7 +302,7 @@ public class MongoDbAuthenticator implements Authenticator {
 
                 final DocumentBuilder builder = BuilderFactory.start();
                 builder.addInteger("authenticate", 1);
-                builder.add(nonce.getName(), nonce.getValue());
+                builder.add(nonce);
                 builder.addString("user", myCredential.getUserName());
                 builder.addString("key", IOUtils.toHex(bytes));
 
