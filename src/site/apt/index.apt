@@ -4,7 +4,7 @@
             ------
 
   The MongoDB Asynchronous Java Driver provides a high performance alternative to the
-10gen driver.  This driver has been created to ensure maximum utilization of
+MongoDB Inc. driver.  This driver has been created to ensure maximum utilization of
 resources on the client, in the network, on the server, and in the developer's IDE.
 
 Usability
@@ -27,12 +27,12 @@ In addition  to the commands there is also a
 that provides a very natural mechanism for defining queries:
 
 +----------------------------------------+
- Document query =  where("f").greaterThan(23).lessThan(42).and("g").lessThan(3);
+ DocumentAssignable query =  where("f").greaterThan(23).lessThan(42).and("g").lessThan(3);
 +----------------------------------------+
 
   Similar effort has been placed in making sure that command construction is as clear as possible.
 A good example is the aggregate command which presents a lot of functionality in a single command 
-but is also complex and difficult to construct in a clear and concise way.  Consider the 10gen example
+but is also complex and difficult to construct in a clear and concise way.  Consider the MongoDB Inc. example
 provided
 {{{http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state}here}}
 and compare to the same pipeline using the expressive power of this drivers helper classes.
@@ -65,7 +65,7 @@ Performance
 
   While the usability of the driver is critical, its primary reason for existing is to enable maximum
 performance from a MongoDB server.  A series of benchmarks have been created to measure the performance 
-of the Asynchronous driver relative to the 10gen supported (legacy) driver.
+of the Asynchronous driver relative to the MongoDB Inc. supported (legacy) driver.
 
   YCSB (Yahoo! Cloud Server Benchmark) provides a standard set of workloads to try and compare the performance
 of various data stores.  Instead of benchmarking different data stores we have used the benchmark to compare
@@ -141,7 +141,7 @@ by either a mock support library or the creation of stubs.
 
 Motivation
 
-  Why expend the effort to create a new driver?  Why not use the effort to improve the 10gen 
+  Why expend the effort to create a new driver?  Why not use the effort to improve the MongoDB Inc. 
 supported (legacy) Java driver? Those are very good questions.  To get to the answer we have 
 to look at the very core of the legacy driver's processing model.  
 
@@ -162,7 +162,7 @@ latency induced can be simply overcome by using more connections.  For either hi
 or high performance applications the connection explosion that occurs induces performance and 
 scheduler issues on the MongoDB servers that limits the utility of this approach.
 
-  Rather than try to force a more asynchronous model on the 10gen driver the MongoDB Asynchronous 
+  Rather than try to force a more asynchronous model on the MongoDB Inc. driver the MongoDB Asynchronous 
 Java Driver instead creates a completely new driver that at its very core is asynchronous.  The
 interface to the driver still provides synchronous methods but they are implemented using the 
 asynchronous variants of the methods.

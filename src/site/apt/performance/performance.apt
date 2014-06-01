@@ -4,7 +4,7 @@
             ------
 
   The performance of driver is central to the reason for its existence.  A series of benchmarks have been 
-created to measure the performance of the Asynchronous driver relative to the 10gen supported (legacy) driver.
+created to measure the performance of the Asynchronous driver relative to the MongoDB Inc. supported (legacy) driver.
 These benchmarks are divided into insert and update benchmarks.
 
   The Asynchronous driver provides three modes for almost all methods of the MongoCollection interface.
@@ -20,13 +20,13 @@ These benchmarks are divided into insert and update benchmarks.
   The first shows the relative performance of the legacy driver's vs. the Asynchronous
 driver when inserting documents with only a sequential _id integer value.  
 
-[../images/MongoDbPerfInsert_2012_06_15.jpg] Figure 1 - Relative Performance of the 10gen (legacy) and Asynchronous drivers Inserting documents.
+[../images/MongoDbPerfInsert_2012_06_15.jpg] Figure 1 - Relative Performance of the MongoDB Inc. (legacy) and Asynchronous drivers Inserting documents.
 
   The next chart shows the relative performance of the legacy driver's \vs. the Asynchronous
 driver when updating a single document's non-indexed 'c' long field.  The update's query is based 
 on the _id field of the document.  
 
-[../images/MongoDbPerfUpdate_2012_06_15.jpg] Figure 2 - Relative Performance of the 10gen (legacy) and Asynchronous drivers Updating documents.
+[../images/MongoDbPerfUpdate_2012_06_15.jpg] Figure 2 - Relative Performance of the MongoDB Inc. (legacy) and Asynchronous drivers Updating documents.
 
 Test Environment
 

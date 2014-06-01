@@ -128,9 +128,9 @@ public final class Index {
      * Creates an 'text' index specification, e.g.,
      * <tt>{ &lt;field&gt; : "text" }</tt>.
      * <p>
-     * <b>Note:</b> 10gen considers text indexes to be an experimental feature
-     * in the 2.4 release. Use with <b>extreme</b> caution. At a minimum make
-     * sure you have read the <a
+     * <b>Note:</b> MongoDB Inc. considers text indexes to be an experimental
+     * feature in the 2.4 release. Use with <b>extreme</b> caution. At a minimum
+     * make sure you have read the <a
      * href="http://docs.mongodb.org/manual/release-notes/2.4/#text-indexes"
      * >MongoDB Text Index Documentation</a>.
      * </p>

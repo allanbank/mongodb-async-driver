@@ -60,8 +60,9 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  * @api.no <b>This class is NOT part of the Public API.</b> This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  *         This class <b>WILL</b>, eventually, be part of the driver's API.
- *         Until 10gen finalizes the text query interface we are keeping this
- *         class out of the Public API so we can track any changes more closely.
+ *         Until MongoDB Inc. finalizes the text query interface we are keeping
+ *         this class out of the Public API so we can track any changes more
+ *         closely.
  * @see <a
  *      href="http://docs.mongodb.org/manual/release-notes/2.4/#text-queries">
  *      MongoDB Text Queries</a>

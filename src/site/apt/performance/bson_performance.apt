@@ -5,7 +5,7 @@
 
   The performance of the BSON library in reading and writing complex documents is critical
 to ensuring that the driver has the best possible performance.  A series of performance/benchmark 
-JUnit tests have been created to compare the driver to the 10gen supported (legacy) driver.  These
+JUnit tests have been created to compare the driver to the MongoDB Inc. supported (legacy) driver.  These
 benchmarks are provided as part of the tests for the driver.
 
   The chart below shows the relative performance of the legacy driver's BSON library vs. the Asynchronous
@@ -18,10 +18,10 @@ sizes of various documents and fields can be written at the start of each.  The 
 needed for the size prefixes in the BSON document specification. This use of a visitor with 
 careful caching of the intermediate results for reuse completely removes the been for buffer 
 management within the I/O library and the complexity and performance impacts it has. As can 
-be seen in  {{Figure_1}} the unbuffered I/O library out performs the legacy 10gen driver's 
+be seen in  {{Figure_1}} the unbuffered I/O library out performs the legacy MongoDB Inc. driver's 
 library for both reading and writing even highly complex documents. 
 
-[../images/MongoDbPerf_2012_06_12.jpg] Figure 1 - Relative Performance of the 10gen (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
+[../images/MongoDbPerf_2012_06_12.jpg] Figure 1 - Relative Performance of the MongoDB Inc. (legacy) and Asynchronous drivers BSON libraries when reading and writing documents of various sizes.
 
 Test Environment
 
