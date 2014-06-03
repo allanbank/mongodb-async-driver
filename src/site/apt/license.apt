@@ -1,3 +1,22 @@
+~~~
+~~ #%L
+~~ license.apt - mongodb-async-driver - Allanbank Consulting, Inc.
+~~ %%
+~~ Copyright (C) 2011 - 2014 Allanbank Consulting, Inc.
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
             ------
             MongoDB Asynchronous Java Driver - Licenses
             ------
@@ -5,31 +24,63 @@
 
 Overview 
 
-  Licenses listed for the MongoDB Asynchronous Java Driver, not of dependencies.
+  Licenses listed are for the MongoDB Asynchronous Java Driver, not of dependencies.
   
 Project Licenses
 
-  This project is provided under multiple licenses:
+* Open Source License
 
-  * {{Commercial}}
-  
-  * {{{Creative_Commons_Attribution-NonCommercial_3.0_Unported}Creative Commons Attribution-NonCommercial 3.0 Unported}}
-  
-  []
+  The core driver (mongodb-async-driver.jar) is licensed under the 
+{{{http://www.apache.org/licenses/LICENSE-2.0.txt}Apache License, Version 2.0}}.
 
-* Commercial
+* Commercial License
+
+  In addition to the core driver we also provide a set of extensions that support the MongoDB enterprise 
+security features and other enhancements to the driver. The driver's extensions (mongodb-async-extensions.jar) 
+is available under a commercial license. The commercial license also covers the core driver for organizations 
+that cannot use Apache Licensed software. The commercial license includes access to the complete source for 
+the driver and extensions including both test suites. It also includes direct email support and immediate 
+patch releases to Correct identified issues.
+
+** Pricing
+
+  * The pricing of the commercial license is based on the number of data-bearing (i.e., mongod) nodes. 
+  Nodes for routing and configuration (i.e., config servers, arbiters and mongos) do not require subscriptions. 
   
-  * Provides complete source for the driver and test suite.
+  * The base price for the driver is $1500.00 (US) and covers use with up to 5 nodes.  Additional nodes are then
+  priced based on a discount schedule in the table below.  The maximum license fee is capped at $25,000.00 for
+  136 or more nodes.
   
-  * Per node and per developer/tester pricing available.
   
+*--------------------*------------------------:
+|| Number of Nodes   || Price (US$)           |
+*--------------------*------------------------:
+| The first 5        | $1500.00 total         |
+*--------------------+------------------------:
+| The next 5 - 10    | $285.00 per node       |
+*--------------------+------------------------:
+| The next 11 - 25   | $255.00 per node       |
+*--------------------+------------------------:
+| The next 26 - 50   | $210.00 per node       |
+*--------------------+------------------------:
+| The next 51 - 100  | $165.00 per node       |
+*--------------------+------------------------:
+| The next 100 - 135 | $135.00 per node       |
+*--------------------+------------------------:
+| 136 or more        | $25,000.00 total       |
+*--------------------+------------------------:
+  
+  A complete price break down per node count is also {{{./mongodb_async_driver_price_schedule.pdf}provided}}.
+  
+  * The licenses provides support and upgrades for 1 year and a perpetual right to use any version released during that year.
+  
+  * These prices are available when using our standard terms for the agreement.
+  
+  * Nodes are counted per physical server except in public cloud systems where they are counted per virtual machine.
+  
+  * Provides the complete source for the driver and extensions including all test suites.
+
+  * The above pricing schedule is for individual End Users and shall not apply cumulatively to all 
+    licenses purchased by a Reseller or organization bundling the driver into a product .
+
   * For more information contact {{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Commercial%20License%20Inquiry}Allanbank Consulting, Inc.}}.
-
-* Creative Commons Attribution-NonCommercial 3.0 Unported 
-
-  * For non-profit organizations, students, universities, public schools and non-commercial applications.
-
-  * For all other use cases and organizations you may only develop and test applications under the 
-{{{http://creativecommons.org/licenses/by-nc/3.0/legalcode}Creative Commons Attribution-NonCommercial 3.0 Unported}} license.
-
-
