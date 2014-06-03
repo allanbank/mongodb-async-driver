@@ -213,7 +213,8 @@ public abstract class AbstractMongoOperations {
             final DocumentAssignable query, final boolean singleDelete,
             final Durability durability) throws MongoDbException {
 
-        if (useWriteCommand() && isWriteCommandsSupported(null)) {
+        if ((durability != Durability.NONE) && useWriteCommand()
+                && isWriteCommandsSupported(null)) {
 
             final BatchedWrite write = BatchedWrite.delete(query, singleDelete,
                     durability);
@@ -897,7 +898,8 @@ public abstract class AbstractMongoOperations {
             final Durability durability) throws MongoDbException {
 
         final ClusterStats stats = myClient.getClusterStats();
-        if (useWriteCommand() && isWriteCommandsSupported(stats)) {
+        if ((durability != Durability.NONE) && useWriteCommand()
+                && isWriteCommandsSupported(stats)) {
             final BatchedWrite write = BatchedWrite.update(query, update,
                     multiUpdate, upsert, durability);
 
@@ -1019,7 +1021,8 @@ public abstract class AbstractMongoOperations {
             final DocumentAssignable... documents) throws MongoDbException {
 
         final ClusterStats stats = myClient.getClusterStats();
-        if (useWriteCommand() && isWriteCommandsSupported(stats)) {
+        if ((durability != Durability.NONE) && useWriteCommand()
+                && isWriteCommandsSupported(stats)) {
             final BatchedWrite write = BatchedWrite.insert(continueOnError,
                     durability, documents);
 

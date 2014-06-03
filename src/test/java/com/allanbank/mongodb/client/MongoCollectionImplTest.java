@@ -1750,10 +1750,6 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
 
-        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
-
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
 
@@ -1889,10 +1885,6 @@ public class MongoCollectionImplTest {
         final Delete message = new Delete("test", "test", doc, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -2034,10 +2026,6 @@ public class MongoCollectionImplTest {
 
         expect(myMockDatabase.getName()).andReturn("test");
 
-        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
-
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
 
@@ -2064,10 +2052,6 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getName()).andReturn("test");
 
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
-
-        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -2160,10 +2144,6 @@ public class MongoCollectionImplTest {
         final Delete message = new Delete("test", "test", doc, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -2283,16 +2263,44 @@ public class MongoCollectionImplTest {
      * .
      */
     @Test
-    public void testDeleteDocumentDurability() {
+    public void testDeleteDocumentDurabilityAck() {
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+
+        final Delete message = new Delete("test", "test", doc, false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 1, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+
+        assertEquals(1L, myTestInstance.delete(doc, Durability.ACK));
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#delete(DocumentAssignable, Durability)}
+     * .
+     */
+    @Test
+    public void testDeleteDocumentDurabilityNone() {
         final Document doc = BuilderFactory.start().build();
 
         final Delete message = new Delete("test", "test", doc, false);
 
         expect(myMockDatabase.getName()).andReturn("test");
-
-        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -5144,8 +5152,6 @@ public class MongoCollectionImplTest {
         expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
 
         expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
 
         myMockClient.send(eq(message), isNull(ReplyCallback.class));
         expectLastCall();
@@ -5153,6 +5159,43 @@ public class MongoCollectionImplTest {
         replay();
 
         assertEquals(Integer.valueOf(-1), myTestInstance.insertAsync(doc).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#insertAsync(DocumentAssignable...)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testInsertAsyncDocumentArrayAck() throws Exception {
+        final Document doc = BuilderFactory.start().build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+
+        final Insert message = new Insert("test", "test",
+                Collections.singletonList(doc), false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 1, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+
+        assertEquals(Integer.valueOf(1), myTestInstance.insertAsync(doc).get());
 
         verify();
     }
@@ -7581,41 +7624,6 @@ public class MongoCollectionImplTest {
 
     /**
      * Test method for
-     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable)}
-     * .
-     * 
-     * @throws Exception
-     *             On an error.
-     */
-    @Test
-    public void testUpdateAsyncDocumentDocument() throws Exception {
-        final Document doc = BuilderFactory.start().build();
-        final Document update = BuilderFactory.start().addInteger("foo", 1)
-                .build();
-
-        final Update message = new Update("test", "test", doc, update, false,
-                false);
-
-        expect(myMockDatabase.getName()).andReturn("test");
-        expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
-
-        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
-        expect(myMockStats.getServerVersionRange()).andReturn(
-                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
-
-        myMockClient.send(eq(message), isNull(ReplyCallback.class));
-        expectLastCall();
-
-        replay();
-
-        assertEquals(Long.valueOf(-1L), myTestInstance.updateAsync(doc, update)
-                .get());
-
-        verify();
-    }
-
-    /**
-     * Test method for
      * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable, boolean, boolean)}
      * .
      * 
@@ -7781,6 +7789,81 @@ public class MongoCollectionImplTest {
 
         assertEquals(Long.valueOf(1L),
                 myTestInstance.updateAsync(doc, update, Durability.ACK).get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testUpdateAsyncDocumentDocumentWithDurabilityAck()
+            throws Exception {
+        final Document doc = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().addInteger("foo", 1)
+                .build();
+        final Document replyDoc = BuilderFactory.start().addInteger("n", 1)
+                .build();
+
+        final Update message = new Update("test", "test", doc, update, false,
+                false);
+        final GetLastError getLastError = new GetLastError("test", false,
+                false, 1, 0);
+
+        expect(myMockDatabase.getName()).andReturn("test").times(2);
+        expect(myMockDatabase.getDurability()).andReturn(Durability.ACK);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+        expect(myMockStats.getServerVersionRange()).andReturn(
+                VersionRange.range(Version.VERSION_2_4, Version.VERSION_2_4));
+
+        myMockClient.send(eq(message), eq(getLastError),
+                callback(reply(replyDoc)));
+        expectLastCall();
+
+        replay();
+
+        assertEquals(Long.valueOf(1L), myTestInstance.updateAsync(doc, update)
+                .get());
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link SynchronousMongoCollectionImpl#updateAsync(DocumentAssignable, DocumentAssignable)}
+     * .
+     * 
+     * @throws Exception
+     *             On an error.
+     */
+    @Test
+    public void testUpdateAsyncDocumentDocumentWithDurabilityNone()
+            throws Exception {
+        final Document doc = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().addInteger("foo", 1)
+                .build();
+
+        final Update message = new Update("test", "test", doc, update, false,
+                false);
+
+        expect(myMockDatabase.getName()).andReturn("test");
+        expect(myMockDatabase.getDurability()).andReturn(Durability.NONE);
+
+        expect(myMockClient.getClusterStats()).andReturn(myMockStats);
+
+        myMockClient.send(eq(message), isNull(ReplyCallback.class));
+        expectLastCall();
+
+        replay();
+
+        assertEquals(Long.valueOf(-1L), myTestInstance.updateAsync(doc, update)
+                .get());
 
         verify();
     }
