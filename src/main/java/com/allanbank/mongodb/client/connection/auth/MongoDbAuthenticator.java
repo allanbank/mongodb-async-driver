@@ -267,18 +267,19 @@ public class MongoDbAuthenticator implements Authenticator {
         /**
          * {@inheritDoc}
          * <p>
-         * Overridden to return false.
+         * Overridden to return true to make sure the authentication is
+         * processed on a thread we control.
          * </p>
          */
         @Override
         public boolean isLightWeight() {
-            return false;
+            return true;
         }
 
         /**
          * {@inheritDoc}
          * <p>
-         * Overridden to retreive the nonce from the reply and request
+         * Overridden to retrieve the nonce from the reply and request
          * authentication.
          * </p>
          */
