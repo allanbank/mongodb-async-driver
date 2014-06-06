@@ -47,9 +47,9 @@ patch releases to Correct identified issues.
   * The pricing of the commercial license is based on the number of data-bearing (i.e., mongod) nodes. 
   Nodes for routing and configuration (i.e., config servers, arbiters and mongos) do not require subscriptions. 
   
-  * The base price for the driver is $1500.00 (US) and covers use with up to 5 nodes.  Additional nodes are then
-  priced based on a discount schedule in the table below.  The maximum license fee is capped at $25,000.00 for
-  136 or more nodes.
+  * The base price for the driver is $1500.00 (US) and covers use with up to 5 operational nodes.  
+  Additional operational nodes are then priced based on a discount schedule in the table below.  
+  The maximum license fee is capped at $25,000.00 for 136 or more operational nodes.
   
   
 *--------------------*------------------------:
