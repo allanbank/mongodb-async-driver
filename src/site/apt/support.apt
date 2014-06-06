@@ -1,0 +1,45 @@
+~~~
+~~ #%L
+~~ support.apt - mongodb-async-driver - Allanbank Consulting, Inc.
+~~ %%
+~~ Copyright (C) 2011 - 2014 Allanbank Consulting, Inc.
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+            ------
+            MongoDB Asynchronous Java Driver Support Options
+            ------
+            ------
+
+Support Options
+
+* Commercial Support
+
+  The commercial license provides email support. Please contact 
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Commercial%20Support%20Inquiry}Allanbank Consulting, Inc.}}
+for information on the commercial support.
+
+* Google Group
+
+  We actively monitor the {{{https://groups.google.com/forum/#!forum/mongodb-user}mongodb-user}} Google group
+for questions about the driver. To help us find you question please include 'java' and/or 'async' in the subject
+of the message.
+
+  Please also note that your first posting to the group must be approved by a moderator. That usually happens
+within a few hours but can take up to a few days.
+
+* Stack Overflow
+
+  We also monitor the {{{http://stackoverflow.com/questions/tagged/mongodb-java}Stack Overflow}} site for 
+questions.  For Stack Overflow we recommend using the 'mongodb-java' tag to help us find your question.
