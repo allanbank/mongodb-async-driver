@@ -752,7 +752,7 @@ public class ClusterTestSupport {
         standalone.waitFor(port, TimeUnit.SECONDS.toMillis(30));
 
         // Wait for everything to be calm.
-        sleep(TimeUnit.SECONDS.toMillis(1));
+        sleep(TimeUnit.MILLISECONDS.toMillis(500));
     }
 
     /**

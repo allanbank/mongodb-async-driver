@@ -23,6 +23,10 @@ package com.allanbank.mongodb;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
@@ -47,6 +51,9 @@ public class ManagedProcess {
     /** The log for the process. */
     protected final Lock myLock;
 
+    /** The condition to notify listeners that the log has been updated. */
+    protected final Condition myLogUpdated;
+
     /** The output of the process. */
     protected final StringBuilder myOutput;
 
@@ -67,7 +74,9 @@ public class ManagedProcess {
     public ManagedProcess(final String executable, final Process process) {
         myProcess = process;
         myOutput = new StringBuilder();
+
         myLock = new ReentrantLock();
+        myLogUpdated = myLock.newCondition();
 
         myReader = new BufferedReader(new InputStreamReader(
                 myProcess.getInputStream()));
@@ -114,8 +123,7 @@ public class ManagedProcess {
     }
 
     /**
-     * Waits for the log file to contain the standard message that mongod is
-     * waiting on the specified port.
+     * Waits for the specified port to start accepting connections.
      * 
      * @param port
      *            The port to search for.
@@ -123,7 +131,37 @@ public class ManagedProcess {
      *            How long to wait before giving up.
      */
     public void waitFor(final int port, final long waitMs) {
-        waitFor("waiting for connections on port " + port, 1, waitMs);
+
+        final InetSocketAddress connectTo = new InetSocketAddress(port);
+
+        long now = System.currentTimeMillis();
+        final long deadline = now + waitMs;
+        while (now < deadline) {
+            final Socket socket = new Socket();
+            try {
+                socket.connect(connectTo);
+
+                // Excellent - Done waiting.
+                return;
+            }
+            catch (final IOException okTryAgain) {
+                // Try again.
+                sleep(1);
+            }
+            finally {
+                try {
+                    socket.close();
+                }
+                catch (final IOException oops) {
+                    // Ignore.
+                }
+            }
+            now = System.currentTimeMillis();
+        }
+
+        throw new AssertionError("Socket on port '" + port
+                + "' did not open within the expected time (" + waitMs
+                + " ms).\n" + getOutput());
     }
 
     /**
@@ -147,20 +185,29 @@ public class ManagedProcess {
         while (now < deadline) {
             seen = 0;
 
-            final String line = getOutput();
-            final Matcher matcher = pattern.matcher(line);
-            int offset = 0;
-            while (matcher.find(offset)) {
-                offset = matcher.end();
-                seen += 1;
-            }
+            myLock.lock();
+            try {
+                final String line = getOutput();
+                final Matcher matcher = pattern.matcher(line);
+                int offset = 0;
+                while (matcher.find(offset)) {
+                    offset = matcher.end();
+                    seen += 1;
+                }
 
-            if (seen >= count) {
-                return;
-            }
+                if (seen >= count) {
+                    return;
+                }
 
-            if (!hasGrown(line.length())) {
-                sleep(100);
+                if (!hasGrown(line.length())) {
+                    myLogUpdated.await(deadline - now, TimeUnit.MILLISECONDS);
+                }
+            }
+            catch (final InterruptedException e) {
+                // Spurious wake-up. Ignore.
+            }
+            finally {
+                myLock.unlock();
             }
 
             now = System.currentTimeMillis();
@@ -235,6 +282,7 @@ public class ManagedProcess {
                                 System.out.print(new String(buffer, 0, read));
                             }
                             myOutput.append(buffer, 0, read);
+                            myLogUpdated.signalAll();
                         }
                         finally {
                             myLock.unlock();
