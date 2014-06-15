@@ -1,0 +1,64 @@
+~~~
+~~ #%L
+~~ advanced_routing.apt - mongodb-async-driver - Allanbank Consulting, Inc. - 2,011
+~~ %%
+~~ Copyright (C) 2011 - 2014 Allanbank Consulting, Inc.
+~~ %%
+~~ Licensed under the Apache License, Version 2.0 (the "License");
+~~ you may not use this file except in compliance with the License.
+~~ You may obtain a copy of the License at
+~~ 
+~~      http://www.apache.org/licenses/LICENSE-2.0
+~~ 
+~~ Unless required by applicable law or agreed to in writing, software
+~~ distributed under the License is distributed on an "AS IS" BASIS,
+~~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~~ See the License for the specific language governing permissions and
+~~ limitations under the License.
+~~ #L%
+~~~
+            ------
+            MongoDB Asynchronous Java Driver: Advanced Routing
+            ------
+            ------
+            2014-05-03
+
+Advanced Routing
+
+  * <<Note:>> The driver's advanced routing capability is provided as part of the extensions jar. 
+    See the {{Notes}} at the bottom of this documentation for details.
+    
+  []
+
+* Why Advanced Routing?
+
+  For information on the logic behind the advanced routing and the design for the solution see our
+series of {{{http://www.allanbank.com/blog/2014/06/03/the-need-for-speed/}blog posts}}.
+
+* Configuration
+
+  By default the extensions will not automatically enable the use of the advanced routing in sharded environments. 
+Users must enable the specific type of routing they want to use. 
+
+  * The '''default''' mode is provided by the core driver and has the driver connect to the closest '''mongos'''. 
+    This is the default mode and requires no additional configuration.
+  
+  * The '''targeted''' mode enables the driver to look for a '''mongos''' on the same server as the driver has 
+    determined will be used by the '''mongos''' to service the request. In the cases the driver cannot determine
+    the appropriate shard server then the driver will fallback to using the clostest '''mongos''' it can find.
+    
+    To enable '''targeted''' mode simply set either the system property '''mongodb.shard.connection.mode''' or 
+    the environment variable '''MONGODB_SHARDING_MODE''' to '''targeted'''. The comparison is case-insensitive 
+    and any other value will revert the connection to the '''default''' mode.
+
+  []
+  
+  Future versions of the driver and extensions will move the setting to the normal configuration class and
+also enable additional modes.
+  
+Notes
+
+  The advanced routing capability is provided via the driver's extensions jar available to license holders. Please contact 
+{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
+for information on licensing the driver and obtaining the extensions jar.
+ 
