@@ -4,5 +4,8 @@
 */bin/
 /target
 .settings
-TODO.txt
+.classpath
+.project
 
+TODO.txt
+release_build.sh
