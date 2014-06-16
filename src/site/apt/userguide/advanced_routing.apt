@@ -41,17 +41,19 @@ series of {{{http://www.allanbank.com/blog/2014/06/03/the-need-for-speed/}blog p
 Users must enable the specific type of routing they want to use. 
 
   * The '''default''' mode is provided by the core driver and has the driver connect to the closest '''mongos'''. 
-    This is the default mode and requires no additional configuration.
+    As the default mode it requires no additional configuration.
   
   * The '''targeted''' mode enables the driver to look for a '''mongos''' on the same server as the driver has 
     determined will be used by the '''mongos''' to service the request. In the cases the driver cannot determine
-    the appropriate shard server then the driver will fallback to using the clostest '''mongos''' it can find.
+    the appropriate shard server then the driver will fall-back to using the closest '''mongos''' it can find.
     
-    To enable '''targeted''' mode simply set either the system property '''mongodb.shard.connection.mode''' or 
-    the environment variable '''MONGODB_SHARDING_MODE''' to '''targeted'''. The comparison is case-insensitive 
-    and any other value will revert the connection to the '''default''' mode.
-
   []
+  
+  To enable '''targeted''' mode simply set either the system property '''mongodb.shard.connection.mode''' or 
+the environment variable '''MONGODB_SHARDING_MODE''' to '''targeted'''. The comparison is case-insensitive 
+and any other value will revert the connection to the '''default''' mode.
+
+
   
   Future versions of the driver and extensions will move the setting to the normal configuration class and
 also enable additional modes.

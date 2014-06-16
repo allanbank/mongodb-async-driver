@@ -93,6 +93,8 @@ Updates and Improvements:
     * Support for a custom service name with Kerberos and Plan SASL authentication.
     
     * Initial support for removing the <<<mongos>>> bottleneck in a sharded cluster. 
+      See this series of {{{http://www.allanbank.com/blog/2014/06/03/the-need-for-speed/}blog posts}}
+      for details.
   
   * Other Notable Changes
     
@@ -135,6 +137,9 @@ Updates and Improvements:
   * {{{../userguide/x509.html}x.509 Authentication Users Guide}}
   
   * {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}}
+  
+  * A series of {{{http://www.allanbank.com/blog/2014/06/03/the-need-for-speed/}blog posts}} on advanced 
+    routing and a {{{../userguide/advanced_routing.html}user guide}} on enabling the feature.
  
 Deprecations
 
