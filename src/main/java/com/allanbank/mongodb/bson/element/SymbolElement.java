@@ -123,6 +123,11 @@ public class SymbolElement extends AbstractElement {
      * will return equal based on the type. Care is taken here to make sure that
      * the values return the same value regardless of comparison order.
      * </p>
+     * <p>
+     * Note: Comparison of strings in MongoDB does not use a collator. This
+     * class emulates the MongoDB behavior and orders the string elements based
+     * on the UTF-8 encoding of the strings.
+     * </p>
      */
     @Override
     public int compareTo(final Element otherElement) {
@@ -133,12 +138,12 @@ public class SymbolElement extends AbstractElement {
             final ElementType otherType = otherElement.getType();
 
             if (otherType == ElementType.SYMBOL) {
-                result = mySymbol.compareTo(((SymbolElement) otherElement)
-                        .getSymbol());
+                result = StringElement.utf8Compare(mySymbol,
+                        ((SymbolElement) otherElement).getSymbol());
             }
             else {
-                result = mySymbol.compareTo(((StringElement) otherElement)
-                        .getValue());
+                result = StringElement.utf8Compare(mySymbol,
+                        ((StringElement) otherElement).getValue());
             }
         }
 

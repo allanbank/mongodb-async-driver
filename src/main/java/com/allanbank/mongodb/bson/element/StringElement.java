@@ -44,6 +44,44 @@ public class StringElement extends AbstractElement {
     private static final long serialVersionUID = 2279503881395893379L;
 
     /**
+     * Performs a comparison of the strings based strictly on the UTF-8 encoding
+     * of the two strings. Normal Java comparisons use a collator.
+     * 
+     * @param lhs
+     *            The left-hand-side of the comparison.
+     * @param rhs
+     *            The right-hand-side of the comparison.
+     * @return A value less than zero if the {@code lhs} is less than the
+     *         {@code rhs}. A value greater than zero if the {@code lhs} is
+     *         greater than the {@code rhs}. Zero if the {@code lhs} is equal to
+     *         the {@code rhs}.
+     */
+    /* package */static int utf8Compare(final String lhs, final String rhs) {
+
+        final int lhsLength = lhs.length();
+        final int rhsLength = rhs.length();
+
+        int lhsIndex = 0;
+        int rhsIndex = 0;
+        while ((lhsIndex < lhsLength) && (rhsIndex < rhsLength)) {
+            final int lhsCodePoint = Character.codePointAt(lhs, lhsIndex);
+            final int rhsCodePoint = Character.codePointAt(rhs, rhsIndex);
+
+            final int compare = compare(lhsCodePoint, rhsCodePoint);
+            if (compare != 0) {
+                return compare;
+            }
+
+            // Move to the next character.
+            lhsIndex += Character.charCount(lhsCodePoint);
+            rhsIndex += Character.charCount(rhsCodePoint);
+        }
+
+        // The shorter string is "less than".
+        return compare(lhsLength, rhsLength);
+    }
+
+    /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
      * 
@@ -123,6 +161,11 @@ public class StringElement extends AbstractElement {
      * will return equal based on the type. Care is taken here to make sure that
      * the values return the same value regardless of comparison order.
      * </p>
+     * <p>
+     * Note: Comparison of strings in MongoDB does not use a collator. This
+     * class emulates the MongoDB behavior and orders the string elements based
+     * on the UTF-8 encoding of the strings.
+     * </p>
      */
     @Override
     public int compareTo(final Element otherElement) {
@@ -133,12 +176,12 @@ public class StringElement extends AbstractElement {
             final ElementType otherType = otherElement.getType();
 
             if (otherType == ElementType.SYMBOL) {
-                result = myValue.compareTo(((SymbolElement) otherElement)
-                        .getSymbol());
+                result = utf8Compare(myValue,
+                        ((SymbolElement) otherElement).getSymbol());
             }
             else {
-                result = myValue.compareTo(((StringElement) otherElement)
-                        .getValue());
+                result = utf8Compare(myValue,
+                        ((StringElement) otherElement).getValue());
             }
         }
 
