@@ -93,6 +93,16 @@ public class UpdateOperationTest {
     }
 
     /**
+     * Test method for {@link UpdateOperation#getRoutingDocument()}.
+     */
+    @Test
+    public void testGetRoutingDocument() {
+        final UpdateOperation update = new UpdateOperation(d(e("a", 1)), d(e(
+                "b", 1)), false, false);
+        assertThat(update.getRoutingDocument(), is(update.getQuery()));
+    }
+
+    /**
      * Test method for {@link UpdateOperation#toString()}.
      */
     @Test

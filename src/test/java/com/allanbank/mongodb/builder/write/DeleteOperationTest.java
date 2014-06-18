@@ -86,6 +86,15 @@ public class DeleteOperationTest {
     }
 
     /**
+     * Test method for {@link DeleteOperation#getRoutingDocument()}.
+     */
+    @Test
+    public void testGetRoutingDocument() {
+        final DeleteOperation delete = new DeleteOperation(d(e("a", 1)), false);
+        assertThat(delete.getRoutingDocument(), is(delete.getQuery()));
+    }
+
+    /**
      * Test method for {@link DeleteOperation#toString()}.
      */
     @Test

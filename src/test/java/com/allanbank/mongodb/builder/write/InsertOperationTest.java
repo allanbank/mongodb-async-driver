@@ -86,6 +86,16 @@ public class InsertOperationTest {
     }
 
     /**
+     * Test method for {@link InsertOperation#getRoutingDocument()}.
+     */
+    @Test
+    public void testGetRoutingDocument() {
+        final Document doc = d(e("_id", 1)).build();
+        final InsertOperation insert = new InsertOperation(doc);
+        assertThat(insert.getRoutingDocument(), is(insert.getDocument()));
+    }
+
+    /**
      * Test method for {@link InsertOperation#toString()}.
      */
     @Test

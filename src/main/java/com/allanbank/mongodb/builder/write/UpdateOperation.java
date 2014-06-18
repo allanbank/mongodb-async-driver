@@ -110,6 +110,17 @@ public class UpdateOperation implements WriteOperation {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the query for the update.
+     * </p>
+     */
+    @Override
+    public Document getRoutingDocument() {
+        return myQuery;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return {@link WriteOperationType#UPDATE}.
      * </p>
      */

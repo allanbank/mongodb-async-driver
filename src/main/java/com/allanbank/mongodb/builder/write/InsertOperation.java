@@ -89,6 +89,17 @@ public class InsertOperation implements WriteOperation {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the document to insert.
+     * </p>
+     */
+    @Override
+    public Document getRoutingDocument() {
+        return myDocument;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return {@link WriteOperationType#INSERT}.
      * </p>
      */

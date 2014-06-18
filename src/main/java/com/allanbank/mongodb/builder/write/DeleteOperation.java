@@ -95,6 +95,17 @@ public class DeleteOperation implements WriteOperation {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the query for the delete.
+     * </p>
+     */
+    @Override
+    public Document getRoutingDocument() {
+        return myQuery;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return {@link WriteOperationType#DELETE}.
      * </p>
      */

@@ -22,6 +22,8 @@ package com.allanbank.mongodb.builder.write;
 
 import java.io.Serializable;
 
+import com.allanbank.mongodb.bson.Document;
+
 /**
  * WriteOperation provides a common interface for all types of writes:
  * {@link InsertOperation inserts}, {@link UpdateOperation updates}, and
@@ -34,6 +36,13 @@ import java.io.Serializable;
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public interface WriteOperation extends Serializable {
+    /**
+     * Returns the document that should be used to route the write operation.
+     * 
+     * @return The document that should be used to route the write operation.
+     */
+    public Document getRoutingDocument();
+
     /**
      * Returns the type of write. Can be used to avoid instance of calls and in
      * switch statements.
