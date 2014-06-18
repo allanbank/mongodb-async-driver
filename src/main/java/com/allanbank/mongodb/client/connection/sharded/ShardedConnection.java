@@ -144,7 +144,7 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
     @Override
     protected List<Server> findPotentialKeys(final Message message1,
             final Message message2) throws MongoDbException {
-        List<Server> servers = resolveForReadPreferenceServer(message1,
+        List<Server> servers = resolveServerReadPreference(message1,
                 message2);
 
         if (servers.isEmpty()) {
@@ -156,7 +156,7 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
                 final ConnectionInfo<Server> newConnInfo = reconnectMain();
                 if (newConnInfo != null) {
                     updateMain(newConnInfo);
-                    servers = resolveForReadPreferenceServer(message1, message2);
+                    servers = resolveServerReadPreference(message1, message2);
                 }
             }
 
@@ -212,7 +212,7 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
      *            The second message to send. May be <code>null</code>.
      * @return The servers that can be used.
      */
-    private List<Server> resolveForReadPreferenceServer(final Message message1,
+    private List<Server> resolveServerReadPreference(final Message message1,
             final Message message2) {
 
         List<Server> servers = Collections.emptyList();
