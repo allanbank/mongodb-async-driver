@@ -21,8 +21,6 @@
 package com.allanbank.mongodb.client.connection.rs;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -133,7 +131,7 @@ public class ReplicaSetConnection extends
     @Override
     protected List<Server> findPotentialKeys(final Message message1,
             final Message message2) throws MongoDbException {
-        List<Server> servers = findReplicaSetMembers(message1, message2);
+        List<Server> servers = myCluster.findServers(message1, message2);
 
         if (servers.isEmpty()) {
             // If we get here and a reconnect is in progress then
@@ -144,7 +142,7 @@ public class ReplicaSetConnection extends
                 final ConnectionInfo<Server> newConnInfo = reconnectMain();
                 if (newConnInfo != null) {
                     updateMain(newConnInfo);
-                    servers = findReplicaSetMembers(message1, message2);
+                    servers = myCluster.findServers(message1, message2);
                 }
             }
 
@@ -178,32 +176,4 @@ public class ReplicaSetConnection extends
         return myReconnectStrategy.reconnectPrimary();
     }
 
-    /**
-     * Locates the set of servers that can be used to send the specified
-     * messages.
-     * 
-     * @param message1
-     *            The first message to send.
-     * @param message2
-     *            The second message to send. May be <code>null</code>.
-     * @return The servers that can be used.
-     */
-    private List<Server> findReplicaSetMembers(final Message message1,
-            final Message message2) {
-        List<Server> servers = Collections.emptyList();
-
-        if (message1 != null) {
-            List<Server> potentialServers = myCluster
-                    .findCandidateServers(message1.getReadPreference());
-            servers = potentialServers;
-
-            if (message2 != null) {
-                servers = new ArrayList<Server>(potentialServers);
-                potentialServers = myCluster.findCandidateServers(message2
-                        .getReadPreference());
-                servers.retainAll(potentialServers);
-            }
-        }
-        return servers;
-    }
 }

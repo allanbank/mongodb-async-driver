@@ -36,6 +36,7 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
+import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
@@ -229,6 +230,35 @@ public class Cluster implements ClusterStats {
         }
 
         return results;
+    }
+
+    /**
+     * Locates the set of servers that can be used to send the specified
+     * messages.
+     * 
+     * @param message1
+     *            The first message to send.
+     * @param message2
+     *            The second message to send. May be <code>null</code>.
+     * @return The servers that can be used.
+     */
+    public List<Server> findServers(final Message message1,
+            final Message message2) {
+        List<Server> servers = Collections.emptyList();
+
+        if (message1 != null) {
+            List<Server> potentialServers = findCandidateServers(message1
+                    .getReadPreference());
+            servers = potentialServers;
+
+            if (message2 != null) {
+                servers = new ArrayList<Server>(potentialServers);
+                potentialServers = findCandidateServers(message2
+                        .getReadPreference());
+                servers.retainAll(potentialServers);
+            }
+        }
+        return servers;
     }
 
     /**

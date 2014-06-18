@@ -144,8 +144,7 @@ public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
     @Override
     protected List<Server> findPotentialKeys(final Message message1,
             final Message message2) throws MongoDbException {
-        List<Server> servers = resolveServerReadPreference(message1,
-                message2);
+        List<Server> servers = resolveServerReadPreference(message1, message2);
 
         if (servers.isEmpty()) {
             // If we get here and a reconnect is in progress then
