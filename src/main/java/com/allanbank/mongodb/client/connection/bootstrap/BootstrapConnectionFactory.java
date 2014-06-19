@@ -99,7 +99,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * connection factory is used.
      * </p>
      */
-    public void bootstrap() {
+    public synchronized void bootstrap() {
         final SocketConnectionFactory socketFactory = new SocketConnectionFactory(
                 myConfig);
         ProxiedConnectionFactory factory = socketFactory;
@@ -265,7 +265,11 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      */
     protected ConnectionFactory getDelegate() {
         if (myDelegate == null) {
-            bootstrap();
+            synchronized (this) {
+                if (myDelegate == null) {
+                    bootstrap();
+                }
+            }
             if (myDelegate == null) {
                 LOG.warn("Could not bootstrap a connection to the MongoDB servers.");
                 throw new CannotConnectException(
