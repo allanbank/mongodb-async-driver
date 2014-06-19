@@ -156,6 +156,17 @@ public class SocketConnection extends AbstractSocketConnection {
      * </p>
      */
     @Override
+    public int getPendingCount() {
+        return super.getPendingCount() + mySendSequence.getWaitersCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * True if the send and pending queues are empty.
+     * </p>
+     */
+    @Override
     public boolean isIdle() {
         return super.isIdle() && mySendSequence.isIdle();
     }
