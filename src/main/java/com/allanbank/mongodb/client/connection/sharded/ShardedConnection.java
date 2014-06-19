@@ -49,7 +49,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
 public class ShardedConnection extends AbstractProxyMultipleConnection<Server> {
 
     /** The logger for the {@link ShardedConnection}. */
-    protected static final Log LOG = LogFactory.getLog(ShardedConnection.class);
+    private static final Log LOG = LogFactory.getLog(ShardedConnection.class);
 
     /** The selector for the server when we need to reconnect. */
     private final ServerSelector mySelector;

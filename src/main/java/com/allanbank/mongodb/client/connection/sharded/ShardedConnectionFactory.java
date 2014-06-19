@@ -111,12 +111,11 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     public void bootstrap() {
         final BootstrapState state = createBootstrapState();
         if (!state.done()) {
-            for (final String addr : myConfig.getServers()) {
+            for (final Server addr : myCluster.getServers()) {
                 Connection conn = null;
                 try {
                     // Send the request...
-                    conn = myConnectionFactory.connect(myCluster.add(addr),
-                            myConfig);
+                    conn = myConnectionFactory.connect(addr, myConfig);
 
                     update(state, conn);
 
