@@ -21,7 +21,7 @@
             Changes in MongoDB Asynchronous Java Driver 2.0.0
             ------
             ------
-            2014-05-30
+            2014-06-20
 
 Upgrading
 
@@ -77,6 +77,9 @@ Updates and Improvements:
     * The driver now, by default, uses a single read thread per connection 
       instead of 2 threads (read/write) per connection.  This further reduced
       the latency of operations.
+      
+    * We have rerun the {{{../performance/ycsb.html}YCSB}}, {{{../performance/bson_performance.html}BSON}} 
+      and {{{../performance/performance.html}basic}} benchmarks and published the updated results.
 
   * Introduction of the {{{https://github.com/allanbank/mongodb-async-examples}mongodb-async-examples}} 
     project on GitHub which contains a number demonstration applications for the driver's features. 
@@ -128,6 +131,12 @@ Updates and Improvements:
       
     * Support for {{{http://www.ietf.org/rfc/rfc2732.txt}RFC-2732}} IPv6 addresses.
     
+  * License Change
+  
+    * The core driver is now released under the Apache License, Version 2.0. The extensions jar is 
+      only available under the commercial license agreement. See the {{{../license.html}project license} 
+      for details.   
+  
 * Documentation
 
   * {{{../userguide/tls.html}TLS/SSL Users Guide}}
@@ -139,7 +148,7 @@ Updates and Improvements:
   * {{{../userguide/batched_async.html}BatchedAsyncMongoCollection Users Guide}}
   
   * A series of {{{http://www.allanbank.com/blog/2014/06/03/the-need-for-speed/}blog posts}} on advanced 
-    routing and a {{{../userguide/advanced_routing.html}user guide}} on enabling the feature.
+    routing and a {{{../userguide/advanced_routing.html}user guide}} on enabling this feature.
  
 Deprecations
 

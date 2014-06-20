@@ -121,8 +121,8 @@ to model a threaded discussion of clustered comments.
 of records has been increased to 1,000,000 and the number of operations has been increased to 250,000.
 
   This workload reads large volumes of data from the MongoDB servers.  <<<mongostat>>> regularly reported in excess of
-100MB/second <<<netout>>> during the Asynchronous Java Driver runs.  The relatively flat throughput is primarily due 
-to the limitations in bandwidth (1Gb/s) between the client machine and server.
+100MB/second <<<netout>>> during the Asynchronous Java Driver runs.  We suspect the relatively flat throughput is primarily due 
+to the limitations in bandwidth between the machines.
 
 [../images/ycsb/2014-05/workload_e_throughput.png] Workload E - Throughput.
 
@@ -151,7 +151,7 @@ Test Environment
 
   The test client was run on an Amazon EC2 m3.xlarge instance within the US East (Virginia) Zone #12.
 The MongoDB provided {{{http://docs.mongodb.org/ecosystem/platforms/amazon-ec2/}ami-b0ba55d8}} 
-which is configured to use MongoDB 2.4 with 4000 IOPS. JDK 1.7 was used.
+which is configured to use MongoDB 2.6.1 with 4000 IOPS. Open JDK 1.7.0_55 was used.
 
   The MongoDB server was a standalone mongod also running an Amazon EC2 m3.xlarge instance within 
 the US East (Virginia) Zone #12. It also used the same AMI as the client. Average ping times between 
