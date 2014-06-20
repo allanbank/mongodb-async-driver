@@ -71,8 +71,18 @@ public enum GeospatialOperator implements Operator {
     /** The name for the GeoJSON region with a {@link #INTERSECT} query. */
     public static final String GEOMETRY = "$geometry";
 
-    /** The name for the polygon region with a {@link #WITHIN} query. */
+    /**
+     * The name for the polygon region with a {@link #WITHIN} query.
+     * 
+     * @since MongoDB 2.0
+     */
     public static final String POLYGON = "$polygon";
+
+    /**
+     * The version (2.0) of the MongoDB server that added support for the
+     * {@value #POLYGON} modifier of {@link #WITHIN $within}
+     */
+    public static final Version POLYGON_VERSION = Version.parse("2.0");
 
     /**
      * The name for the circular region on a sphere with a {@link #WITHIN}

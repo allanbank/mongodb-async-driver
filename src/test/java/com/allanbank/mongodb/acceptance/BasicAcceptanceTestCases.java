@@ -3679,7 +3679,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         try {
             iter = myCollection.find(where("a").equalsMongoTimestamp(v1));
             iter.hasNext();
-            fail("Expected to throw.");
+            fail("Expected to throw."); // But not in 1.8.
         }
         catch (final QueryFailedException expected) {
             // Bug in MongoDB 2.2.0
@@ -8657,12 +8657,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         expected.add(doc2.build());
 
         // Find on a slightly deformed square
-        final MongoIterator<Document> iter = getGeoCollection().find(
-                where("p").within(new Point2D.Double(minx - 0.5, miny),
-                        new Point2D.Double(maxx, miny),
-                        new Point2D.Double(maxx, maxy + 0.5),
-                        new Point2D.Double(minx, maxy)));
+        MongoIterator<Document> iter = null;
         try {
+            iter = getGeoCollection().find(
+                    where("p").within(new Point2D.Double(minx - 0.5, miny),
+                            new Point2D.Double(maxx, miny),
+                            new Point2D.Double(maxx, maxy + 0.5),
+                            new Point2D.Double(minx, maxy)));
+
             assertTrue(iter.hasNext());
             assertTrue(expected.remove(iter.next()));
             if (!expected.isEmpty()) {
@@ -8672,8 +8674,20 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             assertFalse(iter.hasNext());
             assertEquals(0, expected.size());
         }
+        catch (final ServerVersionException sve) {
+            // See if a version after to 2.0 which added $polygon support.
+
+            // Check if we are talking to a older MongoDB instance.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(GeospatialOperator.POLYGON_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
         finally {
-            iter.close();
+            if (iter != null) {
+                iter.close();
+            }
         }
     }
 
@@ -9199,28 +9213,38 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         Document result = myCollection
                 .validate(MongoCollection.ValidateMode.INDEX_ONLY);
-        assertEquals(new BooleanElement("valid", true), result.get("valid"));
-        Element element = result.get("warning");
-        if (isShardedConfiguration()) {
-            element = result.findFirst("raw", ".*", "warning");
+
+        // Pre 2.0 returns a different document format.
+        if (result.contains("valid")) {
+            assertEquals(new BooleanElement("valid", true), result.get("valid"));
+            Element element = result.get("warning");
+            if (isShardedConfiguration()) {
+                element = result.findFirst("raw", ".*", "warning");
+            }
+            assertNotNull(element);
         }
-        assertNotNull(element);
 
         result = myCollection.validate(MongoCollection.ValidateMode.NORMAL);
-        assertEquals(new BooleanElement("valid", true), result.get("valid"));
-        element = result.get("warning");
-        if (isShardedConfiguration()) {
-            element = result.findFirst("raw", ".*", "warning");
+        // Pre 2.0 returns a different document format.
+        if (result.contains("valid")) {
+            assertEquals(new BooleanElement("valid", true), result.get("valid"));
+            Element element = result.get("warning");
+            if (isShardedConfiguration()) {
+                element = result.findFirst("raw", ".*", "warning");
+            }
+            assertNotNull(element);
         }
-        assertNotNull(element);
 
         result = myCollection.validate(MongoCollection.ValidateMode.FULL);
-        assertEquals(new BooleanElement("valid", true), result.get("valid"));
-        element = result.get("warning");
-        if (isShardedConfiguration()) {
-            element = result.findFirst("raw", ".*", "warning");
+        // Pre 2.0 returns a different document format.
+        if (result.contains("valid")) {
+            assertEquals(new BooleanElement("valid", true), result.get("valid"));
+            Element element = result.get("warning");
+            if (isShardedConfiguration()) {
+                element = result.findFirst("raw", ".*", "warning");
+            }
+            assertNull(element);
         }
-        assertNull(element);
     }
 
     /**

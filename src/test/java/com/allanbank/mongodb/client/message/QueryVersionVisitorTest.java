@@ -78,6 +78,11 @@ public class QueryVersionVisitorTest {
                         .build()),
                 is(VersionRange.range(
                         MiscellaneousOperator.COMMENT.getVersion(), null)));
+
+        assertThat(
+                QueryVersionVisitor.version(BuilderFactory.start()
+                        .add(GeospatialOperator.POLYGON, 1).build()),
+                is(VersionRange.range(GeospatialOperator.POLYGON_VERSION, null)));
     }
 
     /**

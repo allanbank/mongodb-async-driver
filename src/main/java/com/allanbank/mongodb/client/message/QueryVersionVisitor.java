@@ -109,6 +109,10 @@ public class QueryVersionVisitor extends VisitorAdapter {
             myRequiredServerVersion = Version.later(myRequiredServerVersion,
                     GeospatialOperator.INTERSECT.getVersion());
         }
+        else if (GeospatialOperator.POLYGON.equals(name)) {
+            myRequiredServerVersion = Version.later(myRequiredServerVersion,
+                    GeospatialOperator.POLYGON_VERSION);
+        }
         else if ("$maxTimeMS".equals(name)) {
             myRequiredServerVersion = Version.later(myRequiredServerVersion,
                     Find.MAX_TIMEOUT_VERSION);
