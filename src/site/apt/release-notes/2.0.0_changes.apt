@@ -134,7 +134,7 @@ Updates and Improvements:
   * License Change
   
     * The core driver is now released under the Apache License, Version 2.0. The extensions jar is 
-      only available under the commercial license agreement. See the {{{../license.html}project license} 
+      only available under the commercial license agreement. See the {{{../license.html}project license}}
       for details.   
   
 * Documentation
