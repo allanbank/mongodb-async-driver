@@ -1839,7 +1839,7 @@ public class ClientImplTest {
         // Wait for the reconnect.
 
         // After reconnect timeout.
-        expect(mockConnection.isAvailable()).andReturn(false).times(4);
+        expect(mockConnection.isAvailable()).andReturn(false).times(2, 4);
 
         replay(mockConnection, mockConnection2);
 
