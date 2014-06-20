@@ -35,7 +35,7 @@ the asynchronous driver.  The enhancements are beyond the scope of this document
 feel is the optimal, realistic, configuration for both drivers.  We have also simplified the YCSB configuration to
 be based on the MongoDB URI only. All of the changes are available from the 
 {{{https://github.com/allanbank/YCSB/tree/async-mongodb-driver}GitHub Repository}}. We have also created a 
-{{{https://github.com/brianfrankcooper/YCSB/pull/95}YCSB Pull Request}} containing all of the updates 
+{{{https://github.com/brianfrankcooper/YCSB/pull/180}YCSB Pull Request}} containing all of the updates 
 so they will be included in the upstream releases.
 
   The results of the benchmark for the 6 provided workloads (A-F) show clearly that the MongoDB Asynchronous 
