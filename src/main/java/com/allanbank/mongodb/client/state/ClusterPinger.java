@@ -211,15 +211,17 @@ public class ClusterPinger implements Runnable, Closeable {
                 }
             }
 
-            final int maxRemaining = Math.max(1, replies.size() / 2);
-            while (maxRemaining <= replies.size()) {
+            long now = System.currentTimeMillis();
+            final long deadline = now
+                    + Math.max(5000, myConfig.getConnectTimeout());
+            while ((now < deadline) && !replies.isEmpty()) {
                 final Iterator<Future<Reply>> iter = replies.iterator();
-                while (iter.hasNext()) {
+                while (iter.hasNext() && (now < deadline)) {
                     Future<Reply> future = iter.next();
                     try {
                         if (future != null) {
                             // Pause...
-                            future.get(10, TimeUnit.MILLISECONDS);
+                            future.get(deadline - now, TimeUnit.MILLISECONDS);
                         }
 
                         // A good reply or we could not connect to the server.
@@ -237,6 +239,8 @@ public class ClusterPinger implements Runnable, Closeable {
                         // No reply yet.
                         future = null;
                     }
+
+                    now = System.currentTimeMillis();
                 }
             }
         }
