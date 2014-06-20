@@ -37,10 +37,9 @@
 		</developer>
 	</developers>
 	<scm>
-		<url>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</url>
-		<connection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</connection>
-		<tag>master</tag>
-		<developerConnection>scm:git:ssh://${user.name}@pooh.allanbank.lan/home/rjmoore/git-repos/mongodb-async-driver.git/</developerConnection>
+		<connection>scm:git:https://github.com/allanbank/mongodb-async-driver.git</connection>
+		<url>https://github.com/allanbank/mongodb-async-driver</url>
+		<developerConnection>scm:git:git@github.com:allanbank/mongodb-async-driver.git</developerConnection>
 	</scm>
 	<distributionManagement>
 		<repository>
