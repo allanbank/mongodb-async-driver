@@ -6,7 +6,7 @@ MongoDB Asynchronous Java Driver
 
 This project contains the Asynchronous Java Driver.
 
-For more information see the driver's [website](http://www.allanbank.com/mongod-async-driver/).
+For more information see the driver's [website](http://www.allanbank.com/mongodb-async-driver/).
 
 
 
