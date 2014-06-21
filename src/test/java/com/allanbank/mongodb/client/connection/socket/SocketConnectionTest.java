@@ -204,6 +204,8 @@ public class SocketConnectionTest {
     @Test
     public void testAutoClose() throws IOException, InterruptedException,
             ExecutionException, TimeoutException {
+        // Don't run on travis.
+        assumeThat(getenv("TRAVIS"), either(not(is("true"))).or(nullValue()));
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
