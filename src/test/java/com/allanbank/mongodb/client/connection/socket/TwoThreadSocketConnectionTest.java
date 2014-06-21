@@ -19,6 +19,7 @@
  */
 package com.allanbank.mongodb.client.connection.socket;
 
+import static java.lang.System.getenv;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -28,6 +29,9 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -37,6 +41,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeThat;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -1311,6 +1316,8 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testRaiseError() throws IOException, InterruptedException {
+        // Don't run on travis.
+        assumeThat(getenv("TRAVIS"), either(not(is("true"))).or(nullValue()));
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
@@ -1865,6 +1872,8 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testShutdown() throws IOException, InterruptedException {
+        // Don't run on travis.
+        assumeThat(getenv("TRAVIS"), either(not(is("true"))).or(nullValue()));
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
@@ -2061,6 +2070,9 @@ public class TwoThreadSocketConnectionTest {
      */
     @Test
     public void testStop() throws IOException, InterruptedException {
+
+        // Don't run on travis.
+        assumeThat(getenv("TRAVIS"), either(not(is("true"))).or(nullValue()));
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,

@@ -1,6 +1,4 @@
 language: java
-env: 
-  - "MAVEN_OPTS=-Xmx2048m"
 jdk:
   - oraclejdk8
   - oraclejdk7
