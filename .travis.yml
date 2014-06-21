@@ -1,7 +1,6 @@
 language: java
-before_script:
-  - "echo $JAVA_OPTS"
-  - "export JAVA_OPTS=-Xmx2048m"
+env: 
+  - "MAVEN_OPTS=-Xmx2048m"
 jdk:
   - oraclejdk8
   - oraclejdk7
