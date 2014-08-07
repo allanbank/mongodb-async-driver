@@ -29,9 +29,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -1317,7 +1315,7 @@ public class TwoThreadSocketConnectionTest {
     @Test
     public void testRaiseError() throws IOException, InterruptedException {
         // Don't run on travis.
-        assumeThat(getenv("TRAVIS"), either(not(is("true"))).or(nullValue()));
+        assumeThat(getenv("TRAVIS"), not(is("true")));
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
@@ -1873,7 +1871,7 @@ public class TwoThreadSocketConnectionTest {
     @Test
     public void testShutdown() throws IOException, InterruptedException {
         // Don't run on travis.
-        assumeThat(getenv("TRAVIS"), either(not(is("true"))).or(nullValue()));
+        assumeThat(getenv("TRAVIS"), not(is("true")));
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
@@ -2072,7 +2070,7 @@ public class TwoThreadSocketConnectionTest {
     public void testStop() throws IOException, InterruptedException {
 
         // Don't run on travis.
-        assumeThat(getenv("TRAVIS"), either(not(is("true"))).or(nullValue()));
+        assumeThat(getenv("TRAVIS"), not(is("true")));
 
         // From the BSON specification.
         final byte[] helloWorld = new byte[] { 0x16, 0x00, 0x00, 0x00, 0x02,
