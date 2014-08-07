@@ -29,7 +29,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -264,16 +263,15 @@ public class Insert extends AbstractMessage {
      * </p>
      */
     @Override
-    public void validateSize(final SizeOfVisitor visitor,
-            final int maxDocumentSize) throws DocumentToLargeException {
+    public void validateSize(final int maxDocumentSize)
+            throws DocumentToLargeException {
         if (myDocumentsSize < 0) {
-            visitor.reset();
-
+            long size = 0;
             for (final Document doc : myDocuments) {
-                doc.accept(visitor);
+                size += doc.size();
             }
 
-            myDocumentsSize = visitor.getSize();
+            myDocumentsSize = (int) size;
         }
 
         if (maxDocumentSize < myDocumentsSize) {
@@ -299,7 +297,7 @@ public class Insert extends AbstractMessage {
         size += 4; // flags
         size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
         for (final Document document : myDocuments) {
-            size += out.sizeOf(document); // Seeds length list for later use.
+            size += document.size();
         }
 
         writeHeader(out, messageId, 0, Operation.INSERT, size);

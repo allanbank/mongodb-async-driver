@@ -48,7 +48,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * Creates a new {@link BufferingWriteVisitor}.
      */
     public BufferingWriteVisitor() {
-        this(new RandomAccessOutputStream());
+        this(new StringEncoderCache());
     }
 
     /**
@@ -62,12 +62,26 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     }
 
     /**
+     * Creates a new {@link BufferingWriteVisitor}.
+     * 
+     * @param cache
+     *            The cache for encoding strings
+     */
+    public BufferingWriteVisitor(final StringEncoderCache cache) {
+        this(new RandomAccessOutputStream(cache));
+    }
+
+    /**
      * Returns the maximum number of strings that may have their encoded form
      * cached.
      * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringEntries() {
         return myOutputBuffer.getMaxCachedStringEntries();
     }
@@ -78,7 +92,11 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringLength() {
         return myOutputBuffer.getMaxCachedStringLength();
     }
@@ -106,7 +124,11 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringEntries(final int maxCacheEntries) {
         myOutputBuffer.setMaxCachedStringEntries(maxCacheEntries);
     }
@@ -119,7 +141,11 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringLength(final int maxlength) {
         myOutputBuffer.setMaxCachedStringLength(maxlength);
 

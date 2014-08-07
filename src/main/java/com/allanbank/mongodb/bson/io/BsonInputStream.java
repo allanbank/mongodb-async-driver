@@ -84,7 +84,7 @@ public class BsonInputStream extends InputStream {
     private final InputStream myInput;
 
     /** The decoder for strings. */
-    private final StringDecoder myStringDecoder = new StringDecoder();
+    private final StringDecoder myStringDecoder;
 
     /**
      * Creates a BSON document reader.
@@ -108,11 +108,43 @@ public class BsonInputStream extends InputStream {
      */
     public BsonInputStream(final InputStream input,
             final int expectedMaxDocumentSize) {
+        this(input, expectedMaxDocumentSize, new StringDecoderCache());
+    }
+
+    /**
+     * Creates a BSON document reader.
+     * 
+     * @param input
+     *            the underlying stream to read from.
+     * @param expectedMaxDocumentSize
+     *            The expected maximum size for a document. If this guess is
+     *            wrong then there may be incremental allocations of the read
+     *            buffer.
+     * @param cache
+     *            The cache to use for decoded strings.
+     */
+    public BsonInputStream(final InputStream input,
+            final int expectedMaxDocumentSize, final StringDecoderCache cache) {
         myInput = input;
         myBuffer = new byte[expectedMaxDocumentSize];
         myBufferOffset = 0;
         myBufferLimit = 0;
         myBytesRead = 0;
+
+        myStringDecoder = new StringDecoder(cache);
+    }
+
+    /**
+     * Creates a BSON document reader.
+     * 
+     * @param input
+     *            the underlying stream to read from.
+     * @param cache
+     *            The cache to use for decoded strings.
+     */
+    public BsonInputStream(final InputStream input,
+            final StringDecoderCache cache) {
+        this(input, 8 * 1024, cache); // 8K to start.
     }
 
     /**
@@ -153,9 +185,13 @@ public class BsonInputStream extends InputStream {
      * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
+     * @deprecated The cache {@link StringDecoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringEntries() {
-        return myStringDecoder.getMaxCacheEntries();
+        return myStringDecoder.getCache().getMaxCacheEntries();
     }
 
     /**
@@ -164,9 +200,13 @@ public class BsonInputStream extends InputStream {
      * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
+     * @deprecated The cache {@link StringDecoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringLength() {
-        return myStringDecoder.getMaxCacheLength();
+        return myStringDecoder.getCache().getMaxCacheLength();
     }
 
     /**
@@ -403,9 +443,13 @@ public class BsonInputStream extends InputStream {
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
+     * @deprecated The cache {@link StringDecoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringEntries(final int maxCacheEntries) {
-        myStringDecoder.setMaxCacheEntries(maxCacheEntries);
+        myStringDecoder.getCache().setMaxCacheEntries(maxCacheEntries);
     }
 
     /**
@@ -416,9 +460,13 @@ public class BsonInputStream extends InputStream {
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
+     * @deprecated The cache {@link StringDecoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringLength(final int maxlength) {
-        myStringDecoder.setMaxCacheLength(maxlength);
+        myStringDecoder.getCache().setMaxCacheLength(maxlength);
 
     }
 

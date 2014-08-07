@@ -22,13 +22,6 @@ package com.allanbank.mongodb.bson.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import com.allanbank.mongodb.util.log.Log;
-import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * StringEncoder provides a single location for the string encoding and sizing
@@ -36,29 +29,33 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * <p>
  * The cache is controlled via two parameters:
  * 
+ * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
+ *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StringEncoder {
-    /** The default maximum number of strings to keep in the trie cache. */
-    public static final int DEFAULT_MAX_CACHE_ENTRIES = 128;
 
-    /** The default maximum length byte array to cache. */
-    public static final int DEFAULT_MAX_CACHE_LENGTH = 25;
+    /**
+     * Returns the visitor's output buffer.
+     * 
+     * @param string
+     *            The 'C' string to determine the size of.
+     * @return The visitor's output buffer.
+     */
+    public static int computeCStringSize(final String string) {
+        return utf8Size(string) + 1;
+    }
 
-    /** The logger for the {@link StringEncoder}. */
-    protected static final Log LOG = LogFactory.getLog(StringEncoder.class);
-
-    /** The byte value limit for a ASCII character. */
-    /* package */static final int ASCII_LIMIT = 0x80;
-
-    /** An empty array of bytes. */
-    /* package */static final byte[] EMPTY = new byte[0];
-
-    /** The byte value limit for a two byte encoded characters. */
-    /* package */static final int TWO_BYTE_LIMIT = 0x800;
-
-    /** UTF-8 Character set for encoding strings. */
-    /* package */final static Charset UTF8 = Charset.forName("UTF-8");
+    /**
+     * Returns the visitor's output buffer.
+     * 
+     * @param string
+     *            The 'UTF8' string to determine the size of.
+     * @return The visitor's output buffer.
+     */
+    public static int computeStringSize(final String string) {
+        return 4 + utf8Size(string) + 1;
+    }
 
     /**
      * Computes the size of the encoded UTF8 String based on the table below.
@@ -105,38 +102,27 @@ public class StringEncoder {
         return length;
     }
 
-    /** The maximum number of strings to have in the cache. */
-    protected int myMaxCachEntries;
-
     /** A private buffer for encoding strings. */
     private final byte[] myBuffer = new byte[1024];
 
     /** The cache of strings to bytes. */
-    private final Map<String, byte[]> myCache;
-
-    /**
-     * The maximum length of a string to add to the cache. This can be used to
-     * stop a long strings from pushing useful values out of the cache.
-     */
-    private int myMaxCacheLength;
+    private final StringEncoderCache myCache;
 
     /**
      * Creates a new StringEncoder.
      */
     public StringEncoder() {
-        myCache = new LinkedHashMap<String, byte[]>(10, 0.75f, true) {
-            /** Serialization version for the class. */
-            private static final long serialVersionUID = -3018944379241796804L;
+        this(new StringEncoderCache());
+    }
 
-            @Override
-            protected boolean removeEldestEntry(
-                    final Map.Entry<String, byte[]> eldest) {
-                return size() > myMaxCachEntries;
-            }
-        };
-
-        myMaxCacheLength = DEFAULT_MAX_CACHE_LENGTH;
-        myMaxCachEntries = DEFAULT_MAX_CACHE_ENTRIES;
+    /**
+     * Creates a new StringEncoder.
+     * 
+     * @param cache
+     *            The cache for the encoder to use.
+     */
+    public StringEncoder(final StringEncoderCache cache) {
+        myCache = cache;
     }
 
     /**
@@ -155,14 +141,14 @@ public class StringEncoder {
             throws IOException {
 
         if (!string.isEmpty()) {
-            byte[] encoded = myCache.get(string);
+            final byte[] encoded = myCache.find(string);
+
             if (encoded == null) {
-                encoded = fastEncode(string, out);
-                if (encoded.length != 0) {
-                    myCache.put(string, encoded);
-                }
+                // Cache miss - write the bytes straight to the stream.
+                fastEncode(string, out);
             }
             else {
+                myCache.used(string, encoded, 0, encoded.length);
                 out.write(encoded);
             }
         }
@@ -196,71 +182,25 @@ public class StringEncoder {
             return 0;
         }
 
-        final byte[] cached = myCache.get(string);
+        final byte[] cached = myCache.find(string);
         if (cached != null) {
+            // Don't count this as a usage. Just bonus speed.
             return cached.length;
-        }
-        else if (string.length() < myMaxCacheLength) {
-            try {
-                final byte[] encoded = fastEncode(string, null);
-                if (encoded.length != 0) {
-                    return encoded.length;
-                }
-            }
-            catch (final IOException ioe) {
-                // No I/O so should not happen. Fall through.
-                LOG.warn("Error encoding the string '{}'.", string);
-            }
         }
         return utf8Size(string);
     }
 
     /**
-     * Returns the maximum number of strings that can be cached.
+     * Returns the cache value.
      * 
-     * @return The maximum number of strings that can be cached.
+     * @return The cache value.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directly. This method will be removed after the 2.1.0
+     *             release.
      */
-    public int getMaxCacheEntries() {
-        return myMaxCachEntries;
-    }
-
-    /**
-     * Returns the maximum length for a string that the encoder is allowed to
-     * cache.
-     * 
-     * @return The maximum length for a string that the encoder is allowed to
-     *         cache.
-     */
-    public int getMaxCacheLength() {
-        return myMaxCacheLength;
-    }
-
-    /**
-     * Sets the value of maximum number of cached strings.
-     * 
-     * @param maxCacheEntries
-     *            The new value for the maximum number of cached strings.
-     */
-    public void setMaxCacheEntries(final int maxCacheEntries) {
-        myMaxCachEntries = maxCacheEntries;
-    }
-
-    /**
-     * Sets the value of length for a string that the encoder is allowed to
-     * cache to the new value. This can be used to stop a single long string
-     * from pushing useful values out of the cache.
-     * 
-     * @param maxlength
-     *            The new value for the length for a string that the encoder is
-     *            allowed to cache.
-     */
-    public void setMaxCacheLength(final int maxlength) {
-        myMaxCacheLength = maxlength;
-
-        // The user has turned the cache off. Release all of the memory.
-        if (maxlength <= 0) {
-            myCache.clear();
-        }
+    @Deprecated
+    public StringEncoderCache getCache() {
+        return myCache;
     }
 
     /**
@@ -272,17 +212,16 @@ public class StringEncoder {
      *            The string to encode.
      * @param out
      *            The stream to write to.
-     * @return The encoded bytes shorted that the internal buffer.
      * @throws IOException
      *             On a failure to write the bytes.
      */
-    protected byte[] fastEncode(final String string, final OutputStream out)
+    protected void fastEncode(final String string, final OutputStream out)
             throws IOException {
         // 4 = max encoded bytes/code point.
         final int writeUpTo = myBuffer.length - 4;
         final int strLength = string.length();
 
-        boolean returnBytes = (strLength <= myMaxCacheLength);
+        boolean bufferHasAllBytes = true;
 
         int bufferOffset = 0;
         int codePoint;
@@ -290,7 +229,7 @@ public class StringEncoder {
 
             // Check for buffer overflow.
             if (writeUpTo < bufferOffset) {
-                returnBytes = false;
+                bufferHasAllBytes = false;
                 if (out != null) {
                     out.write(myBuffer, 0, bufferOffset);
                 }
@@ -323,10 +262,9 @@ public class StringEncoder {
             out.write(myBuffer, 0, bufferOffset);
         }
 
-        // ... and return a copy to cache.
-        if (returnBytes) {
-            return Arrays.copyOf(myBuffer, bufferOffset);
+        // ... and try and save it in the cache.
+        if (bufferHasAllBytes) {
+            myCache.used(string, myBuffer, 0, bufferOffset);
         }
-        return EMPTY;
     }
 }

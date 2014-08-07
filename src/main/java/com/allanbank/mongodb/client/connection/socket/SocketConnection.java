@@ -29,6 +29,8 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.RandomAccessOutputStream;
+import com.allanbank.mongodb.bson.io.StringDecoderCache;
+import com.allanbank.mongodb.bson.io.StringEncoderCache;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.AddressAware;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
@@ -85,7 +87,8 @@ public class SocketConnection extends AbstractSocketConnection {
     public SocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
-        this(server, config,
+        this(server, config, new StringEncoderCache(),
+                new StringDecoderCache(),
                 new ThreadLocal<Reference<BufferingBsonOutputStream>>());
     }
 
@@ -96,6 +99,10 @@ public class SocketConnection extends AbstractSocketConnection {
      *            The MongoDB server to connect to.
      * @param config
      *            The configuration for the Connection to the MongoDB server.
+     * @param encoderCache
+     *            Cache used for encoding strings.
+     * @param decoderCache
+     *            Cache used for decoding strings.
      * @param buffers
      *            The buffers used each connection. Each buffer is shared by all
      *            connections but there can be up to 1 buffer per application
@@ -107,9 +114,11 @@ public class SocketConnection extends AbstractSocketConnection {
      */
     public SocketConnection(final Server server,
             final MongoClientConfiguration config,
+            final StringEncoderCache encoderCache,
+            final StringDecoderCache decoderCache,
             final ThreadLocal<Reference<BufferingBsonOutputStream>> buffers)
             throws SocketException, IOException {
-        super(server, config);
+        super(server, config, encoderCache, decoderCache);
 
         myBuffers = buffers;
 
@@ -200,11 +209,7 @@ public class SocketConnection extends AbstractSocketConnection {
                     : null;
             if (out == null) {
                 out = new BufferingBsonOutputStream(
-                        new RandomAccessOutputStream());
-                out.setMaxCachedStringEntries(myConfig
-                        .getMaxCachedStringEntries());
-                out.setMaxCachedStringLength(myConfig
-                        .getMaxCachedStringLength());
+                        new RandomAccessOutputStream(myEncoderCache));
                 myBuffers
                         .set(new SoftReference<BufferingBsonOutputStream>(out));
             }

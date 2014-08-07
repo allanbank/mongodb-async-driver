@@ -41,7 +41,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -220,7 +219,7 @@ public class InsertTest {
     }
 
     /**
-     * Test method for {@link KillCursors#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link KillCursors#validateSize(int)} .
      */
     @Test
     public void testValidateSize() {
@@ -239,14 +238,14 @@ public class InsertTest {
         final String collection = "collection";
         final Insert message = new Insert(db, collection, docs, false);
 
-        message.validateSize(new SizeOfVisitor(), 1024);
+        message.validateSize(1024);
 
         // Should be able to call again without visitor since size is cached.
-        message.validateSize(null, 1024);
+        message.validateSize(1024);
     }
 
     /**
-     * Test method for {@link KillCursors#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link KillCursors#validateSize(int)} .
      */
     @Test
     public void testValidateSizeThrows() {
@@ -266,7 +265,7 @@ public class InsertTest {
         final Insert message = new Insert(db, collection, docs, false);
 
         try {
-            message.validateSize(new SizeOfVisitor(), 1);
+            message.validateSize(1);
         }
         catch (final DocumentToLargeException dtle) {
             assertEquals(1, dtle.getMaximumSize());

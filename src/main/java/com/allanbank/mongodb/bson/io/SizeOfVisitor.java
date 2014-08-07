@@ -30,23 +30,7 @@ import com.allanbank.mongodb.bson.element.BinaryElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
- * A visitor to determine the size of the documents it visits. Intermediate
- * document sizes are cached for faster access later.
- * <p>
- * Caching is accomplished via a simple singly linked list of the cached
- * documents. This works since the document will be written in the same in-order
- * traversal of the document tree that this visitor follows. As each level of
- * the tree is written this visitor should have {@link #rewind()} called to set
- * the size back to zero and also remove the head from the document cache list.
- * If the next document written is the expected in-order traversal there is a
- * cache hit and the size is simply read from the cache's head node. Rinse,
- * repeat.
- * </p>
- * <p>
- * A custom list {@link CachedSizeNode node type} is used instead of a generic
- * linked list to remove the overhead of extra object allocations for the node
- * and the value.
- * </p>
+ * A visitor to determine the size of the documents it visits.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
@@ -54,19 +38,13 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  */
 public class SizeOfVisitor implements Visitor {
     /** UTF-8 Character set for encoding strings. */
-    public final static Charset UTF8 = Charset.forName("UTF-8");
-
-    /** The head of the list of cached sizes. */
-    private CachedSizeNode myHead = null;
+    public final static Charset UTF8 = StringDecoder.UTF8;
 
     /** The computed size. */
     private int mySize;
 
     /** The encoder for strings. */
     private final StringEncoder myStringEncoder;
-
-    /** The tail of the list of cached sizes. */
-    private CachedSizeNode myTail = null;
 
     /**
      * Creates a new SizeOfVisitor.
@@ -125,7 +103,6 @@ public class SizeOfVisitor implements Visitor {
      */
     public void reset() {
         mySize = 0;
-        myHead = myTail = null;
     }
 
     /**
@@ -134,9 +111,6 @@ public class SizeOfVisitor implements Visitor {
      */
     public void rewind() {
         mySize = 0;
-        if (myHead != null) {
-            myHead = myHead.myNext;
-        }
     }
 
     /**
@@ -172,40 +146,18 @@ public class SizeOfVisitor implements Visitor {
      */
     @Override
     public void visit(final List<Element> elements) {
-
-        if ((myHead != null) && (myHead.myElements == elements)) {
-            mySize += myHead.mySize;
-        }
-        else {
-            // int - 4
-            // elements...
-            // byte
-
-            final CachedSizeNode mine = new CachedSizeNode(elements);
-            if (myHead == null) {
-                myHead = myTail = mine;
+        mySize += 4;
+        for (final Element element : elements) {
+            // Optimization to avoid the array copy.
+            if (element.getType() == ElementType.BINARY) {
+                final BinaryElement be = (BinaryElement) element;
+                doVisitBinary(be.getName(), be.getSubType(), be.length());
             }
             else {
-                myTail.setNext(mine);
-                myTail = mine;
+                element.accept(this);
             }
-
-            final int beforeSize = mySize;
-            mySize += 4;
-            for (final Element element : elements) {
-                // Optimization to avoid the array copy.
-                if (element.getType() == ElementType.BINARY) {
-                    final BinaryElement be = (BinaryElement) element;
-                    doVisitBinary(be.getName(), be.getSubType(), be.length());
-                }
-                else {
-                    element.accept(this);
-                }
-            }
-            mySize += 1;
-
-            mine.setSize(mySize - beforeSize);
         }
+        mySize += 1;
     }
 
     /**
@@ -434,83 +386,6 @@ public class SizeOfVisitor implements Visitor {
         default:
             mySize += (4 + 1 + dataLength);
             break;
-        }
-    }
-
-    /**
-     * CachedSizeNode provides a node in a singly linked list that forms the
-     * cache for the sizes of lists of elements.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    protected static final class CachedSizeNode {
-
-        /** The elements we are caching the size of. */
-        /* package */List<Element> myElements;
-
-        /** The next node in the singly linked list. */
-        /* package */CachedSizeNode myNext;
-
-        /** The cached size. */
-        /* package */int mySize;
-
-        /**
-         * Creates a new CachedSizeNode.
-         * 
-         * @param elements
-         *            The elements to cache the size of.
-         */
-        public CachedSizeNode(final List<Element> elements) {
-            myElements = elements;
-            mySize = 0;
-            myNext = null;
-        }
-
-        /**
-         * Returns the elements value.
-         * 
-         * @return The elements value.
-         */
-        public List<Element> getElements() {
-            return myElements;
-        }
-
-        /**
-         * Returns the next value.
-         * 
-         * @return The next value.
-         */
-        public CachedSizeNode getNext() {
-            return myNext;
-        }
-
-        /**
-         * Returns the size value.
-         * 
-         * @return The size value.
-         */
-        public int getSize() {
-            return mySize;
-        }
-
-        /**
-         * Sets the value of next to the new value.
-         * 
-         * @param next
-         *            The new value for the next.
-         */
-        public void setNext(final CachedSizeNode next) {
-            myNext = next;
-        }
-
-        /**
-         * Sets the value of size to the new value.
-         * 
-         * @param size
-         *            The new value for the size.
-         */
-        public void setSize(final int size) {
-            mySize = size;
         }
     }
 }

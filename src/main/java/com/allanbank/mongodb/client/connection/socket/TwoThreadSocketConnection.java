@@ -26,6 +26,8 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.RandomAccessOutputStream;
+import com.allanbank.mongodb.bson.io.StringDecoderCache;
+import com.allanbank.mongodb.bson.io.StringEncoderCache;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.AddressAware;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
@@ -82,12 +84,34 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
     public TwoThreadSocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
-        super(server, config);
+        this(server, config, new StringEncoderCache(), new StringDecoderCache());
+    }
 
-        myBsonOut = new BufferingBsonOutputStream(
-                new RandomAccessOutputStream());
-        myBsonOut.setMaxCachedStringEntries(config.getMaxCachedStringEntries());
-        myBsonOut.setMaxCachedStringLength(config.getMaxCachedStringLength());
+    /**
+     * Creates a new SocketConnection to a MongoDB server.
+     * 
+     * @param server
+     *            The MongoDB server to connect to.
+     * @param config
+     *            The configuration for the Connection to the MongoDB server.
+     * @param encoderCache
+     *            Cache used for encoding strings.
+     * @param decoderCache
+     *            Cache used for decoding strings.
+     * @throws SocketException
+     *             On a failure connecting to the MongoDB server.
+     * @throws IOException
+     *             On a failure to read or write data to the MongoDB server.
+     */
+    public TwoThreadSocketConnection(final Server server,
+            final MongoClientConfiguration config,
+            final StringEncoderCache encoderCache,
+            final StringDecoderCache decoderCache) throws SocketException,
+            IOException {
+        super(server, config, encoderCache, decoderCache);
+
+        myBsonOut = new BufferingBsonOutputStream(new RandomAccessOutputStream(
+                encoderCache));
 
         myToSendQueue = new PendingMessageQueue(
                 config.getMaxPendingOperationsPerConnection(),

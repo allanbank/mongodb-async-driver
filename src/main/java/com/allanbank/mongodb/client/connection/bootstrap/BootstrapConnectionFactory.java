@@ -81,6 +81,63 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to close the delegate {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public void close() {
+        IOUtils.close(myDelegate);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Delegates the connection to the setup delegate.
+     * </p>
+     */
+    @Override
+    public Connection connect() throws IOException {
+        return getDelegate().connect();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the cluster stats of the proxied
+     * {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public ClusterStats getClusterStats() {
+        return getDelegate().getClusterStats();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the cluster type of the delegate
+     * {@link ConnectionFactory}.
+     * </p>
+     */
+    @Override
+    public ClusterType getClusterType() {
+        return getDelegate().getClusterType();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the delegates strategy.
+     * </p>
+     */
+    @Override
+    public ReconnectStrategy getReconnectStrategy() {
+        return getDelegate().getReconnectStrategy();
+    }
+
+    /**
      * Re-bootstraps the environment. Normally this method is only called once
      * during the constructor of the factory to initialize the delegate but
      * users can reset the delegate by manually invoking this method.
@@ -166,63 +223,6 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
         finally {
             IOUtils.close(factory);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to close the delegate {@link ConnectionFactory}.
-     * </p>
-     */
-    @Override
-    public void close() {
-        IOUtils.close(myDelegate);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Delegates the connection to the setup delegate.
-     * </p>
-     */
-    @Override
-    public Connection connect() throws IOException {
-        return getDelegate().connect();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return the cluster stats of the proxied
-     * {@link ConnectionFactory}.
-     * </p>
-     */
-    @Override
-    public ClusterStats getClusterStats() {
-        return getDelegate().getClusterStats();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return the cluster type of the delegate
-     * {@link ConnectionFactory}.
-     * </p>
-     */
-    @Override
-    public ClusterType getClusterType() {
-        return getDelegate().getClusterType();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return the delegates strategy.
-     * </p>
-     */
-    @Override
-    public ReconnectStrategy getReconnectStrategy() {
-        return getDelegate().getReconnectStrategy();
     }
 
     /**

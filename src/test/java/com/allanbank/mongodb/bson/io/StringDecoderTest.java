@@ -21,21 +21,18 @@
 package com.allanbank.mongodb.bson.io;
 
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Test;
 
 /**
  * StringDecoderTest provides tests for the {@link StringDecoder}.
  * 
- * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StringDecoderTest {
 
@@ -49,10 +46,6 @@ public class StringDecoderTest {
     public void testDecode() throws IOException {
 
         final StringDecoder decoder = new StringDecoder();
-        assertThat(decoder.getMaxCacheLength(),
-                is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
-        assertThat(decoder.getMaxCacheEntries(),
-                is(StringDecoder.DEFAULT_MAX_CACHE_ENTRIES));
 
         // Short circuits.
         assertThat(decoder.decode(null, 0, 0), is(""));
@@ -63,6 +56,9 @@ public class StringDecoderTest {
         String result = decoder.decode(data, 0, data.length);
         assertThat(result, is("a"));
         // And cached...
+        for (int i = 0; i < AbstractStringCache.MAX_MULTIPLIER; ++i) {
+            result = decoder.decode(data, 0, data.length);
+        }
         assertThat(decoder.decode(data, 0, data.length), sameInstance(result));
 
         // A bit longer.
@@ -70,6 +66,9 @@ public class StringDecoderTest {
         result = decoder.decode(data, 0, data.length);
         assertThat(result, is("abcdefg"));
         // And cached...
+        for (int i = 0; i < AbstractStringCache.MAX_MULTIPLIER; ++i) {
+            result = decoder.decode(data, 0, data.length);
+        }
         assertThat(decoder.decode(data, 0, data.length), sameInstance(result));
 
         // A bit different.
@@ -77,6 +76,19 @@ public class StringDecoderTest {
         result = decoder.decode(data, 0, data.length);
         assertThat(result, is("ABCDEFG"));
         // And cached...
+        for (int i = 0; i < AbstractStringCache.MAX_MULTIPLIER; ++i) {
+            result = decoder.decode(data, 0, data.length);
+        }
+        assertThat(decoder.decode(data, 0, data.length), sameInstance(result));
+
+        // Non-ascii
+        data = "ABCDEF\u00ff\u0000".getBytes(StringDecoder.UTF8);
+        result = decoder.decode(data, 0, data.length);
+        assertThat(result, is("ABCDEF\u00ff"));
+        // And cached...
+        for (int i = 0; i < AbstractStringCache.MAX_MULTIPLIER; ++i) {
+            result = decoder.decode(data, 0, data.length);
+        }
         assertThat(decoder.decode(data, 0, data.length), sameInstance(result));
     }
 
@@ -94,131 +106,4 @@ public class StringDecoderTest {
         final byte[] data = new byte[] { 'a', 'b' };
         decoder.decode(data, 0, data.length);
     }
-
-    /**
-     * Test method for {@link StringDecoder#getMaxCacheLength()}.
-     * 
-     * @throws IOException
-     *             On a test failure.
-     */
-    @Test
-    public void testGetMaxDepth() throws IOException {
-        final StringDecoder decoder = new StringDecoder();
-        assertThat(decoder.getMaxCacheLength(),
-                is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
-        assertThat(decoder.getMaxCacheEntries(),
-                is(StringDecoder.DEFAULT_MAX_CACHE_ENTRIES));
-
-        // Simple.
-        final byte[] data = new byte[] { 'a', 0 };
-        final String result = decoder.decode(data, 0, data.length);
-        assertThat(result, is("a"));
-        // And cached...
-        assertThat(decoder.decode(data, 0, data.length), sameInstance(result));
-
-        // Turn off the cache.
-        decoder.setMaxCacheLength(0);
-
-        // Should not return the same value but still the right value.
-        assertThat(decoder.decode(data, 0, data.length),
-                not(sameInstance(result)));
-        assertThat(decoder.decode(data, 0, data.length), is("a"));
-
-        // Turn the cache back on...
-        decoder.setMaxCacheLength(data.length);
-
-        // And we are back to caching but not the original value still. (e.g.,
-        // the cache was cleared before)
-        final String result2 = decoder.decode(data, 0, data.length);
-        assertThat(result2, not(sameInstance(result)));
-        assertThat(result2, is("a"));
-        // And cached...
-        assertThat(decoder.decode(data, 0, data.length), sameInstance(result2));
-
-    }
-
-    /**
-     * Test method for {@link StringDecoder#getMaxCacheEntries()}.
-     * 
-     * @throws IOException
-     *             On a test failure.
-     */
-    @Test
-    public void testGetMaxNodeCount() throws IOException {
-        final StringDecoder decoder = new StringDecoder();
-        assertThat(decoder.getMaxCacheLength(),
-                is(StringDecoder.DEFAULT_MAX_CACHE_LENGTH));
-        assertThat(decoder.getMaxCacheEntries(),
-                is(StringDecoder.DEFAULT_MAX_CACHE_ENTRIES));
-
-        // Set the number of entries to 26 * 2.
-        decoder.setMaxCacheEntries(26 * 2);
-
-        // Decode 512 bytes of data...
-        final List<String> decoded = new ArrayList<String>();
-        final byte[] data = new byte[3];
-        for (int i = 'a'; i <= 'b'; ++i) {
-            for (int j = 'a'; j <= 'z'; ++j) {
-                data[0] = (byte) i;
-                data[1] = (byte) j;
-
-                decoded.add(decoder.decode(data, 0, data.length));
-            }
-        }
-
-        // And we should hold all of those in the cache.
-        int index = 0;
-        for (int i = 'a'; i <= 'b'; ++i) {
-            for (int j = 'a'; j <= 'z'; ++j) {
-                data[0] = (byte) i;
-                data[1] = (byte) j;
-
-                assertThat(decoder.decode(data, 0, data.length),
-                        sameInstance(decoded.get(index)));
-
-                index += 1;
-            }
-        }
-
-        // Now add another entry.
-        final byte[] extra = new byte[] { 'a', 0 };
-        final String extraDecoded = decoder.decode(extra, 0, extra.length);
-        assertThat(extraDecoded, is("a"));
-
-        // Everyone but the first node should be in the cache.
-        index = 0;
-        for (int i = 'a'; i <= 'b'; ++i) {
-            for (int j = 'a'; j <= 'z'; ++j) {
-                if (index != 0) {
-                    data[0] = (byte) i;
-                    data[1] = (byte) j;
-
-                    assertThat(decoder.decode(data, 0, data.length),
-                            sameInstance(decoded.get(index)));
-                }
-                index += 1;
-            }
-        }
-
-        // And so should the extra entry.
-        assertThat(decoder.decode(extra, 0, extra.length),
-                sameInstance(extraDecoded));
-
-        // Now if we access the original set in order each member should be
-        // kicked out in order.
-        index = 0;
-        for (int i = 'a'; i <= 'b'; ++i) {
-            for (int j = 'a'; j <= 'z'; ++j) {
-                data[0] = (byte) i;
-                data[1] = (byte) j;
-
-                assertThat(decoder.decode(data, 0, data.length),
-                        not(sameInstance(decoded.get(index))));
-
-                index += 1;
-            }
-        }
-
-    }
-
 }

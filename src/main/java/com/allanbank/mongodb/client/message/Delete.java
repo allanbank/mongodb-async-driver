@@ -26,7 +26,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -62,12 +61,6 @@ public class Delete extends AbstractMessage {
     private final Document myQuery;
 
     /**
-     * The size of the query document. If negative then the size if currently
-     * unknown.
-     */
-    private int myQuerySize;
-
-    /**
      * If true, only the first document found should be deleted, otherwise all
      * matching documents should be deleted.
      */
@@ -87,7 +80,6 @@ public class Delete extends AbstractMessage {
         final int flags = in.readInt();
         myQuery = in.readDocument();
         mySingleDelete = (flags & SINGLE_DELETE_BIT) == SINGLE_DELETE_BIT;
-        myQuerySize = -1;
     }
 
     /**
@@ -108,7 +100,6 @@ public class Delete extends AbstractMessage {
         super(databaseName, collectionName, ReadPreference.PRIMARY);
         myQuery = query;
         mySingleDelete = singleDelete;
-        myQuerySize = -1;
     }
 
     /**
@@ -207,17 +198,11 @@ public class Delete extends AbstractMessage {
      * </p>
      */
     @Override
-    public void validateSize(final SizeOfVisitor visitor,
-            final int maxDocumentSize) throws DocumentToLargeException {
-        if (myQuerySize < 0) {
-            visitor.reset();
-            myQuery.accept(visitor);
-
-            myQuerySize = visitor.getSize();
-        }
-
-        if (maxDocumentSize < myQuerySize) {
-            throw new DocumentToLargeException(myQuerySize, maxDocumentSize,
+    public void validateSize(final int maxDocumentSize)
+            throws DocumentToLargeException {
+        final long size = myQuery.size();
+        if (maxDocumentSize < size) {
+            throw new DocumentToLargeException((int) size, maxDocumentSize,
                     myQuery);
         }
     }
@@ -239,7 +224,7 @@ public class Delete extends AbstractMessage {
         size += 4; // reserved - 0;
         size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
         size += 4; // flags
-        size += out.sizeOf(myQuery); // Seeds the size list for later use.
+        size += myQuery.size();
 
         writeHeader(out, messageId, 0, Operation.DELETE, size);
         out.writeInt(0);

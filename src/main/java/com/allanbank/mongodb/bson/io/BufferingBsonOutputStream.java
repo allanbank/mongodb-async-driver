@@ -66,6 +66,22 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * 
      * @param output
      *            The stream to write to.
+     * @param cache
+     *            The cache for encoding strings.
+     */
+    public BufferingBsonOutputStream(final OutputStream output,
+            final StringEncoderCache cache) {
+        super(output);
+
+        myVisitor = new BufferingWriteVisitor(cache);
+        myOutput = myVisitor.getOutputBuffer();
+    }
+
+    /**
+     * Creates a new {@link BufferingBsonOutputStream}.
+     * 
+     * @param output
+     *            The stream to write to.
      */
     public BufferingBsonOutputStream(final RandomAccessOutputStream output) {
         super(output);
@@ -97,7 +113,11 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringEntries() {
         return myVisitor.getMaxCachedStringEntries();
     }
@@ -108,7 +128,11 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringLength() {
         return myVisitor.getMaxCachedStringLength();
     }
@@ -138,7 +162,11 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringEntries(final int maxCacheEntries) {
         myVisitor.setMaxCachedStringEntries(maxCacheEntries);
     }
@@ -151,7 +179,11 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringLength(final int maxlength) {
         myVisitor.setMaxCachedStringLength(maxlength);
 

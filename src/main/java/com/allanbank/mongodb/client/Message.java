@@ -24,7 +24,6 @@ import java.io.IOException;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 
 /**
@@ -84,15 +83,14 @@ public interface Message {
      * Validates that the documents with the message do not exceed the maximum
      * document size specified.
      * 
-     * @param visitor
-     *            The {@link SizeOfVisitor} to compute the size of the document.
      * @param maxDocumentSize
      *            The maximum document size to validate against.
+     * 
      * @throws DocumentToLargeException
      *             If one of the documents in the message is too large or the
      *             documents in aggregate are too large.
      */
-    public void validateSize(SizeOfVisitor visitor, int maxDocumentSize)
+    public void validateSize(int maxDocumentSize)
             throws DocumentToLargeException;
 
     /**

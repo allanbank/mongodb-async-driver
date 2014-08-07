@@ -79,6 +79,28 @@ public class DocumentElementTest {
     }
 
     /**
+     * Test method for
+     * {@link DocumentElement#accept(com.allanbank.mongodb.bson.Visitor)}.
+     */
+    @Test
+    public void testAcceptWithSizeAware() {
+        final BooleanElement subElement = new BooleanElement("1", false);
+        final DocumentElement element = new DocumentElement("foo", subElement);
+
+        final SizeAwareVisitor mockVisitor = createMock(SizeAwareVisitor.class);
+
+        mockVisitor.visitDocument("foo",
+                Collections.singletonList((Element) subElement), 14);
+        expectLastCall();
+
+        replay(mockVisitor);
+
+        element.accept(mockVisitor);
+
+        verify(mockVisitor);
+    }
+
+    /**
      * Test method for {@link DocumentElement#asDocumentReference()}.
      */
     @Test

@@ -42,7 +42,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -212,7 +211,7 @@ public class UpdateTest {
     }
 
     /**
-     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Update#validateSize(int)} .
      */
     @Test
     public void testValidateSize() {
@@ -227,14 +226,14 @@ public class UpdateTest {
         final Update message = new Update(databaseName, collectionName, query,
                 update, multiUpdate, upsert);
 
-        message.validateSize(new SizeOfVisitor(), 1024);
+        message.validateSize(1024);
 
         // Should be able to call again without visitor since size is cached.
-        message.validateSize(null, 1024);
+        message.validateSize(1024);
     }
 
     /**
-     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Update#validateSize(int)} .
      */
     @Test
     public void testValidateSizeThrows() {
@@ -250,7 +249,7 @@ public class UpdateTest {
                 update, multiUpdate, upsert);
 
         try {
-            message.validateSize(null, 1);
+            message.validateSize(1);
         }
         catch (final DocumentToLargeException dtle) {
             assertEquals(1, dtle.getMaximumSize());
@@ -260,7 +259,7 @@ public class UpdateTest {
     }
 
     /**
-     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Update#validateSize(int)} .
      */
     @Test
     public void testValidateSizeThrowsOnUpdate() {
@@ -276,7 +275,7 @@ public class UpdateTest {
                 update, multiUpdate, upsert);
 
         try {
-            message.validateSize(null, 6);
+            message.validateSize(6);
         }
         catch (final DocumentToLargeException dtle) {
             assertEquals(6, dtle.getMaximumSize());
@@ -286,7 +285,7 @@ public class UpdateTest {
     }
 
     /**
-     * Test method for {@link Update#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Update#validateSize(int)} .
      */
     @Test
     public void testValidateSizeWithNullQueryAndUpdate() {
@@ -301,10 +300,10 @@ public class UpdateTest {
         final Update message = new Update(databaseName, collectionName, query,
                 update, multiUpdate, upsert);
 
-        message.validateSize(null, 1);
+        message.validateSize(1);
 
         // Should be able to call again without visitor since size is cached.
-        message.validateSize(null, 1);
+        message.validateSize(1);
     }
 
 }

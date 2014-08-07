@@ -26,7 +26,6 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -170,8 +169,8 @@ public class KillCursors extends AbstractMessage {
      * </p>
      */
     @Override
-    public void validateSize(final SizeOfVisitor visitor,
-            final int maxDocumentSize) throws DocumentToLargeException {
+    public void validateSize(final int maxDocumentSize)
+            throws DocumentToLargeException {
         if (maxDocumentSize < (myCursorIds.length * 8)) {
             throw new DocumentToLargeException((myCursorIds.length * 8),
                     maxDocumentSize, null);
