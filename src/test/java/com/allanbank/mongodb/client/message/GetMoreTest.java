@@ -41,7 +41,6 @@ import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 
@@ -192,7 +191,7 @@ public class GetMoreTest {
     }
 
     /**
-     * Test method for {@link GetMore#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link GetMore#validateSize(int)} .
      */
     @Test
     public void testValidateSize() {
@@ -207,6 +206,6 @@ public class GetMoreTest {
                 numberToReturn, ReadPreference.PRIMARY);
 
         // Never throws.
-        message.validateSize(null, -1);
+        message.validateSize(-1);
     }
 }

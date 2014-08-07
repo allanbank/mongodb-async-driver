@@ -26,27 +26,24 @@ import java.util.List;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
-import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.element.ObjectId;
+import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
 
 /**
  * A visitor to myOutput.write the BSON document to a {@link OutputStream}. The
  * BSON specification uses prefixed length integers in several locations. This
- * myOutput.write visitor uses a {@link SizeOfVisitor} to compute the size item
- * about to be written removing the requirements to buffer the data being
- * written.
+ * visitor uses a {@link StringEncoder} and the {@link Element#size()} to
+ * compute the size item about to be written removing the requirements to buffer
+ * the data being written.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class WriteVisitor implements Visitor {
+/* package */class WriteVisitor implements SizeAwareVisitor {
 
     /** Stream to myOutput.write to. */
     protected final BsonOutputStream myOutput;
-
-    /** Visitor for computing the size of documents. */
-    protected final SizeOfVisitor mySizeVisitor;
 
     /**
      * Creates a new {@link WriteVisitor}.
@@ -56,7 +53,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      */
     public WriteVisitor(final BsonOutputStream output) {
         myOutput = output;
-        mySizeVisitor = new SizeOfVisitor(output.getStringEncoder());
     }
 
     /**
@@ -92,7 +88,6 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * document.
      */
     public void reset() {
-        mySizeVisitor.reset();
         myOutput.reset();
     }
 
@@ -103,12 +98,12 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * @param doc
      *            The document to determine the size of.
      * @return The number of bytes require to Write the document.
+     * @deprecated Replaced with {@link Document#size()}. This method will be
+     *             removed after the 2.2.0 release.
      */
+    @Deprecated
     public int sizeOf(final Document doc) {
-        mySizeVisitor.rewind();
-        doc.accept(mySizeVisitor);
-
-        return mySizeVisitor.getSize();
+        return (int) doc.size();
     }
 
     /**
@@ -117,10 +112,10 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
-     * @see SizeOfVisitor#utf8Size(String)
+     * @see StringEncoder#utf8Size(String)
      */
     public int utf8Size(final String string) {
-        return mySizeVisitor.utf8Size(string);
+        return StringEncoder.utf8Size(string);
     }
 
     /**
@@ -129,14 +124,12 @@ import com.allanbank.mongodb.bson.element.ObjectId;
     @Override
     public void visit(final List<Element> elements) {
 
-        mySizeVisitor.rewind();
-        mySizeVisitor.visit(elements);
-
-        myOutput.writeInt(mySizeVisitor.getSize());
+        int size = 4 + 1; // Length (int,4) and null.
         for (final Element element : elements) {
-            element.accept(this);
+            size += element.size();
         }
-        myOutput.writeByte((byte) 0);
+
+        writeElements(elements, size);
     }
 
     /**
@@ -147,6 +140,18 @@ import com.allanbank.mongodb.bson.element.ObjectId;
         myOutput.writeByte(ElementType.ARRAY.getToken());
         myOutput.writeCString(name);
         visit(elements);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void visitArray(final String name, final List<Element> elements,
+            final long totalSize) {
+        myOutput.writeByte(ElementType.ARRAY.getToken());
+        myOutput.writeCString(name);
+        writeElements(elements,
+                ((int) totalSize) - (myOutput.sizeOfCString(name) + 1));
     }
 
     /**
@@ -215,6 +220,18 @@ import com.allanbank.mongodb.bson.element.ObjectId;
      * {@inheritDoc}
      */
     @Override
+    public void visitDocument(final String name, final List<Element> elements,
+            final long totalSize) {
+        myOutput.writeByte(ElementType.DOCUMENT.getToken());
+        myOutput.writeCString(name);
+        writeElements(elements,
+                ((int) totalSize) - (myOutput.sizeOfCString(name) + 1));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void visitDouble(final String name, final double value) {
         myOutput.writeByte(ElementType.DOUBLE.getToken());
         myOutput.writeCString(name);
@@ -250,11 +267,8 @@ import com.allanbank.mongodb.bson.element.ObjectId;
         myOutput.writeByte(ElementType.JAVA_SCRIPT_WITH_SCOPE.getToken());
         myOutput.writeCString(name);
 
-        mySizeVisitor.rewind();
-        scope.accept(mySizeVisitor);
-
-        myOutput.writeInt(4 + mySizeVisitor.computeStringSize(code)
-                + mySizeVisitor.getSize());
+        myOutput.writeInt(4 + StringEncoder.computeStringSize(code)
+                + (int) scope.size());
         myOutput.writeString(code);
 
         scope.accept(this);
@@ -359,6 +373,22 @@ import com.allanbank.mongodb.bson.element.ObjectId;
         myOutput.writeByte(ElementType.UTC_TIMESTAMP.getToken());
         myOutput.writeCString(name);
         myOutput.writeLong(timestamp);
+    }
+
+    /**
+     * Writes a list of elements.
+     * 
+     * @param elements
+     *            The sub elements of the document.
+     * @param size
+     *            The size of the elements.
+     */
+    protected void writeElements(final List<Element> elements, final int size) {
+        myOutput.writeInt(size);
+        for (final Element element : elements) {
+            element.accept(this);
+        }
+        myOutput.writeByte((byte) 0);
     }
 
 }

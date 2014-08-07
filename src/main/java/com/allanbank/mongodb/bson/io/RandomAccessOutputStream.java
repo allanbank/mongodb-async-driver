@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class RandomAccessOutputStream extends OutputStream {
     /** UTF-8 Character set for encoding strings. */
-    public final static Charset UTF8;
+    public final static Charset UTF8 = StringDecoder.UTF8;
 
     /** The maximum size buffer to allocate. Must be a power of 2. */
     private static final int BUFFER_SIZE;
@@ -54,8 +54,6 @@ public class RandomAccessOutputStream extends OutputStream {
     private static final int BUFFER_SIZE_SHIFT;
 
     static {
-        UTF8 = Charset.forName("UTF-8");
-
         BUFFER_SIZE = Integer.highestOneBit(8192);
         BUFFER_SIZE_MASK = BUFFER_SIZE - 1;
         BUFFER_SIZE_SHIFT = Integer.numberOfTrailingZeros(BUFFER_SIZE);
@@ -87,16 +85,28 @@ public class RandomAccessOutputStream extends OutputStream {
     private long mySize;
 
     /** The offset into the current buffer. */
-    private final StringEncoder myStringEncoder = new StringEncoder();
+    private final StringEncoder myStringEncoder;
 
     /**
      * Creates a new {@link RandomAccessOutputStream}.
      */
     public RandomAccessOutputStream() {
+        this(new StringEncoderCache());
+    }
+
+    /**
+     * Creates a new {@link RandomAccessOutputStream}.
+     * 
+     * @param cache
+     *            The cache for encoding string.
+     */
+    public RandomAccessOutputStream(final StringEncoderCache cache) {
         mySize = 0;
         myCurrentBufferOffset = 0;
         myCurrentBufferIndex = 0;
         myCurrentBuffer = new byte[BUFFER_SIZE];
+
+        myStringEncoder = new StringEncoder(cache);
 
         myBuffers = new ArrayList<byte[]>();
         myBuffers.add(myCurrentBuffer);
@@ -126,9 +136,13 @@ public class RandomAccessOutputStream extends OutputStream {
      * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringEntries() {
-        return myStringEncoder.getMaxCacheEntries();
+        return myStringEncoder.getCache().getMaxCacheEntries();
     }
 
     /**
@@ -137,9 +151,13 @@ public class RandomAccessOutputStream extends OutputStream {
      * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringLength() {
-        return myStringEncoder.getMaxCacheLength();
+        return myStringEncoder.getCache().getMaxCacheLength();
     }
 
     /**
@@ -179,9 +197,13 @@ public class RandomAccessOutputStream extends OutputStream {
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringEntries(final int maxCacheEntries) {
-        myStringEncoder.setMaxCacheEntries(maxCacheEntries);
+        myStringEncoder.getCache().setMaxCacheEntries(maxCacheEntries);
     }
 
     /**
@@ -192,9 +214,13 @@ public class RandomAccessOutputStream extends OutputStream {
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringLength(final int maxlength) {
-        myStringEncoder.setMaxCacheLength(maxlength);
+        myStringEncoder.getCache().setMaxCacheLength(maxlength);
 
     }
 

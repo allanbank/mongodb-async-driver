@@ -43,7 +43,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -218,14 +217,13 @@ public class CommandTest {
      */
     @Test
     public void testValidateSize() {
-        final SizeOfVisitor visitor = new SizeOfVisitor();
 
         final Command command = new Command("db", "coll", BuilderFactory
                 .start().add("foo", 1).build(), ReadPreference.PRIMARY,
                 VersionRange.range(Version.VERSION_2_2, Version.VERSION_2_4));
 
         try {
-            command.validateSize(visitor, 1);
+            command.validateSize(1);
             fail("Should have thrown a DocumentToLargeException.");
         }
         catch (final DocumentToLargeException error) {
@@ -235,11 +233,11 @@ public class CommandTest {
         }
 
         // Should not throw.
-        command.validateSize(visitor, 1000000);
+        command.validateSize(1000000);
 
         // Should not throw if Jumbo either
         command.setAllowJumbo(true);
-        command.validateSize(visitor, 1);
+        command.validateSize(1);
 
         final Command bigCommand = new Command("db", "coll", BuilderFactory
                 .start().add("foo", new byte[16 * 1024]).build(),
@@ -248,14 +246,14 @@ public class CommandTest {
         // Should throw if Jumbo still too big
         try {
             bigCommand.setAllowJumbo(true);
-            bigCommand.validateSize(visitor, 1);
+            bigCommand.validateSize(1);
             fail("Should have thrown a DocumentToLargeException.");
         }
         catch (final DocumentToLargeException error) {
             assertThat(error.getDocument(), is(bigCommand.getCommand()));
             assertThat(error.getMaximumSize(), is((16 * 1024) + 1));
             assertThat(error.getSize(),
-                    is((int) bigCommand.getCommand().size() + 4));
+                    is((int) bigCommand.getCommand().size()));
         }
 
     }

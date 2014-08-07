@@ -82,7 +82,7 @@ public class GridFs {
     public static final String CHUNK_NUMBER_FIELD = "n";
 
     /** The amount of overhead in a chunk document in bytes: {@value} */
-    public static final int CHUNK_OVERHEAD = 58;
+    public static final int CHUNK_OVERHEAD = 62;
 
     /**
      * The field in the {@link #FILES_SUFFIX files} collection containing the

@@ -40,7 +40,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 
@@ -271,7 +270,7 @@ public class ReplyTest {
     }
 
     /**
-     * Test method for {@link Reply#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Reply#validateSize(int)} .
      */
     @Test
     public void testValidateSize() {
@@ -301,7 +300,7 @@ public class ReplyTest {
                 shardConfigStale);
 
         // Never throws.
-        message.validateSize(null, -1);
+        message.validateSize(-1);
     }
 
 }

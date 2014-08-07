@@ -43,7 +43,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -590,7 +589,7 @@ public class QueryTest {
     }
 
     /**
-     * Test method for {@link Query#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Query#validateSize(int)} .
      */
     @Test
     public void testValidateSize() {
@@ -617,14 +616,14 @@ public class QueryTest {
                 returnFields, batchSize, limit, numberToSkip, tailable,
                 readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
-        message.validateSize(new SizeOfVisitor(), 1024);
+        message.validateSize(1024);
 
         // Should be able to call again without visitor since size is cached.
-        message.validateSize(null, 1024);
+        message.validateSize(1024);
     }
 
     /**
-     * Test method for {@link Query#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Query#validateSize(int)} .
      */
     @Test
     public void testValidateSizeNoQueryNoFields() {
@@ -649,14 +648,14 @@ public class QueryTest {
                 returnFields, batchSize, limit, numberToSkip, tailable,
                 readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
-        message.validateSize(new SizeOfVisitor(), 1);
+        message.validateSize(1);
 
         // Should be able to call again without visitor since size is cached.
-        message.validateSize(null, 1024);
+        message.validateSize(1024);
     }
 
     /**
-     * Test method for {@link Query#validateSize(SizeOfVisitor, int)} .
+     * Test method for {@link Query#validateSize(int)} .
      */
     @Test
     public void testValidateSizeThrows() {
@@ -684,7 +683,7 @@ public class QueryTest {
                 readPreference, noCursorTimeout, awaitData, exhaust, partial);
 
         try {
-            message.validateSize(new SizeOfVisitor(), 1);
+            message.validateSize(1);
         }
         catch (final DocumentToLargeException dtle) {
             assertEquals(1, dtle.getMaximumSize());

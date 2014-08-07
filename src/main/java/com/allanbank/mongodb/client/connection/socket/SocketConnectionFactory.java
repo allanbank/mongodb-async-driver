@@ -19,6 +19,8 @@
  */
 package com.allanbank.mongodb.client.connection.socket;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.net.InetSocketAddress;
@@ -30,6 +32,8 @@ import java.util.concurrent.ExecutionException;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
+import com.allanbank.mongodb.bson.io.StringDecoderCache;
+import com.allanbank.mongodb.bson.io.StringEncoderCache;
 import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.Connection;
@@ -51,7 +55,7 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
- * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
@@ -73,6 +77,15 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /** The MongoDB client configuration. */
     private final MongoClientConfiguration myConfig;
 
+    /** The MongoDB client configuration. */
+    private final ConfigurationListener myConfigListener;
+
+    /** Cache used for decoding strings. */
+    private final StringDecoderCache myDecoderCache;
+
+    /** Cache used for encoding strings. */
+    private final StringEncoderCache myEncoderCache;
+
     /** The server selector. */
     private final ServerSelector myServerSelector;
 
@@ -88,6 +101,17 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         myCluster = new Cluster(config, ClusterType.STAND_ALONE);
         myServerSelector = new LatencyServerSelector(myCluster, true);
         myBuffers = new ThreadLocal<Reference<BufferingBsonOutputStream>>();
+
+        myConfigListener = new ConfigurationListener();
+        myConfig.addPropertyChangeListener(myConfigListener);
+
+        myDecoderCache = new StringDecoderCache();
+        myDecoderCache.setMaxCacheEntries(config.getMaxCachedStringEntries());
+        myDecoderCache.setMaxCacheLength(config.getMaxCachedStringLength());
+
+        myEncoderCache = new StringEncoderCache();
+        myEncoderCache.setMaxCacheEntries(config.getMaxCachedStringEntries());
+        myEncoderCache.setMaxCacheLength(config.getMaxCachedStringLength());
     }
 
     /**
@@ -98,8 +122,12 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public void close() {
-        // Nothing.
         myBuffers = null; // Let the ThreadLocal's weak reference go.
+        myConfig.removePropertyChangeListener(myConfigListener);
+
+        // Release the cached entries too.
+        myDecoderCache.setMaxCacheEntries(0);
+        myDecoderCache.setMaxCacheLength(0);
     }
 
     /**
@@ -174,11 +202,13 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
         switch (myConfig.getConnectionModel()) {
         case SENDER_RECEIVER_THREAD: {
-            connection = new TwoThreadSocketConnection(server, myConfig);
+            connection = new TwoThreadSocketConnection(server, myConfig,
+                    myEncoderCache, myDecoderCache);
             break;
         }
         default: { // and RECEIVER_THREAD
-            connection = new SocketConnection(server, myConfig, myBuffers);
+            connection = new SocketConnection(server, myConfig, myEncoderCache,
+                    myDecoderCache, myBuffers);
             break;
         }
         }
@@ -235,5 +265,42 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         strategy.setState(myCluster);
 
         return strategy;
+    }
+
+    /**
+     * Notification of a change to the configuration of the client.
+     * 
+     * @param evt
+     *            The details of the configuration change.
+     */
+    protected void configurationChanged(final PropertyChangeEvent evt) {
+        final String name = evt.getPropertyName();
+        final Object value = evt.getNewValue();
+        if ("maxCachedStringEntries".equals(name) && (value instanceof Number)) {
+            myDecoderCache.setMaxCacheEntries(((Number) value).intValue());
+            myEncoderCache.setMaxCacheEntries(((Number) value).intValue());
+        }
+        else if ("maxCachedStringLength".equals(name)
+                && (value instanceof Number)) {
+            myDecoderCache.setMaxCacheLength(((Number) value).intValue());
+            myEncoderCache.setMaxCacheLength(((Number) value).intValue());
+        }
+    }
+
+    /**
+     * ConfigurationListener provides a listener for changes in the client's
+     * configuration.
+     * 
+     * @api.no This class is <b>NOT</b> part of the drivers API. This class may
+     *         be mutated in incompatible ways between any two releases of the
+     *         driver.
+     * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    protected final class ConfigurationListener implements
+            PropertyChangeListener {
+        @Override
+        public void propertyChange(final PropertyChangeEvent evt) {
+            configurationChanged(evt);
+        }
     }
 }

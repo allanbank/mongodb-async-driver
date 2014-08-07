@@ -26,7 +26,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -476,19 +475,18 @@ public class Query extends AbstractMessage implements CursorableMessage {
      * </p>
      */
     @Override
-    public void validateSize(final SizeOfVisitor visitor,
-            final int maxDocumentSize) throws DocumentToLargeException {
+    public void validateSize(final int maxDocumentSize)
+            throws DocumentToLargeException {
         if (myMessageSize < 0) {
-            visitor.reset();
-
+            long size = 0;
             if (myQuery != null) {
-                myQuery.accept(visitor);
+                size += myQuery.size();
             }
             if (myReturnFields != null) {
-                myReturnFields.accept(visitor);
+                size += myReturnFields.size();
             }
 
-            myMessageSize = visitor.getSize();
+            myMessageSize = (int) size;
         }
 
         if (maxDocumentSize < myMessageSize) {
@@ -515,10 +513,9 @@ public class Query extends AbstractMessage implements CursorableMessage {
         size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
         size += 4; // numberToSkip
         size += 4; // numberToReturn
-        size += out.sizeOf(myQuery); // Seeds the size list for later use.
+        size += myQuery.size();
         if (myReturnFields != null) {
-            size += out.sizeOf(myReturnFields); // Seeds the size list for later
-                                                // use.
+            size += myReturnFields.size();
         }
 
         writeHeader(out, messageId, 0, Operation.QUERY, size);

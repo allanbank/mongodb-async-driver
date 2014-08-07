@@ -252,7 +252,13 @@ public class DocumentElement extends AbstractElement implements Document {
      */
     @Override
     public void accept(final Visitor visitor) {
-        visitor.visitDocument(getName(), getElements());
+        if (visitor instanceof SizeAwareVisitor) {
+            ((SizeAwareVisitor) visitor).visitDocument(getName(),
+                    getElements(), size());
+        }
+        else {
+            visitor.visitDocument(getName(), getElements());
+        }
     }
 
     /**

@@ -22,6 +22,8 @@ package com.allanbank.mongodb;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
@@ -51,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
-import com.allanbank.mongodb.bson.io.StringEncoder;
+import com.allanbank.mongodb.bson.io.StringEncoderCache;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -82,10 +84,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * The default maximum number of strings to keep in the string encoder and
      * decoder cache.
      */
-    protected static final int DEFAULT_MAX_STRING_CACHE_ENTRIES = StringEncoder.DEFAULT_MAX_CACHE_ENTRIES;
+    protected static final int DEFAULT_MAX_STRING_CACHE_ENTRIES = 1024;
 
     /** The default maximum length byte array / string to cache. */
-    protected static final int DEFAULT_MAX_STRING_CACHE_LENGTH = StringEncoder.DEFAULT_MAX_CACHE_LENGTH;
+    protected static final int DEFAULT_MAX_STRING_CACHE_LENGTH = StringEncoderCache.DEFAULT_MAX_CACHE_LENGTH;
 
     /** The logger for the {@link MongoClientConfiguration}. */
     private static final Log LOG = LogFactory
@@ -245,6 +247,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private int myMinConnectionCount = 0;
 
     /**
+     * Support for emitting property change events to listeners. Not final for
+     * clone.
+     */
+    private PropertyChangeSupport myPropSupport;
+
+    /**
      * Determines how long to wait (in milliseconds) for a socket read to
      * complete.
      * <p>
@@ -291,6 +299,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
         myThreadFactory = Executors.defaultThreadFactory();
         myCredentials = new ConcurrentHashMap<String, Credential>();
+        myPropSupport = new PropertyChangeSupport(this);
     }
 
     /**
@@ -552,6 +561,9 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void addCredential(final Credential credentials)
             throws IllegalArgumentException {
+        final List<Credential> old = new ArrayList<Credential>(
+                myCredentials.values());
+
         try {
             credentials.loadAuthenticator();
 
@@ -574,6 +586,9 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
             throw new IllegalArgumentException(
                     "Could not load the credentials authenticator.", iae);
         }
+
+        myPropSupport.firePropertyChange("credentials", old,
+                new ArrayList<Credential>(myCredentials.values()));
     }
 
     /**
@@ -592,13 +607,47 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Add a {@link PropertyChangeListener} from the configuration. The listener
+     * will receive notification of all changes to the configuration.
+     * 
+     * @param listener
+     *            The {@link PropertyChangeListener} to be added
+     */
+    public synchronized void addPropertyChangeListener(
+            final PropertyChangeListener listener) {
+        myPropSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Add a {@link PropertyChangeListener} from the configuration. The listener
+     * will receive notification of all changes to the configuration's specified
+     * property.
+     * 
+     * @param propertyName
+     *            The name of the property to listen on.
+     * @param listener
+     *            The {@link PropertyChangeListener} to be added
+     */
+
+    public synchronized void addPropertyChangeListener(
+            final String propertyName, final PropertyChangeListener listener) {
+        myPropSupport.addPropertyChangeListener(propertyName, listener);
+    }
+
+    /**
      * Adds a server to initially attempt to connect to.
      * 
      * @param server
      *            The server to add.
      */
     public void addServer(final InetSocketAddress server) {
+        final List<InetSocketAddress> old = new ArrayList<InetSocketAddress>(
+                myServers);
+
         myServers.add(server);
+
+        myPropSupport.firePropertyChange("servers", old,
+                Collections.unmodifiableList(myServers));
     }
 
     /**
@@ -608,7 +657,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The server to add.
      */
     public void addServer(final String server) {
-        myServers.add(ServerNameUtils.parse(server));
+        addServer(ServerNameUtils.parse(server));
     }
 
     /**
@@ -683,6 +732,8 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
             for (final InetSocketAddress addr : getServerAddresses()) {
                 clone.addServer(addr);
             }
+
+            clone.myPropSupport = new PropertyChangeSupport(clone);
         }
         catch (final CloneNotSupportedException shouldNotHappen) {
             clone = new MongoClientConfiguration(this);
@@ -1097,6 +1148,35 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Removes a {@link PropertyChangeListener} from the configuration. The
+     * listener will no longer receive notification of all changes to the
+     * configuration.
+     * 
+     * @param listener
+     *            The {@link PropertyChangeListener} to be removed
+     */
+    public synchronized void removePropertyChangeListener(
+            final PropertyChangeListener listener) {
+        myPropSupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Removes a {@link PropertyChangeListener} from the configuration. The
+     * listener will no longer receive notification of all changes to the
+     * configuration's specified property.
+     * 
+     * @param propertyName
+     *            The name of the property that was listened on.
+     * @param listener
+     *            The {@link PropertyChangeListener} to be removed
+     */
+
+    public synchronized void removePropertyChangeListener(
+            final String propertyName, final PropertyChangeListener listener) {
+        myPropSupport.removePropertyChangeListener(propertyName, listener);
+    }
+
+    /**
      * Sets if additional servers are auto discovered or if connections are
      * limited to the ones manually configured.
      * <p>
@@ -1107,7 +1187,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The new value for auto-discovering servers.
      */
     public void setAutoDiscoverServers(final boolean autoDiscoverServers) {
+        final boolean old = myAutoDiscoverServers;
+
         myAutoDiscoverServers = autoDiscoverServers;
+
+        myPropSupport.firePropertyChange("autoDiscoverServers", old,
+                myAutoDiscoverServers);
     }
 
     /**
@@ -1121,7 +1206,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            connections.
      */
     public void setConnectionModel(final ConnectionModel connectionModel) {
+        final ConnectionModel old = myConnectionModel;
+
         myConnectionModel = connectionModel;
+
+        myPropSupport.firePropertyChange("connectionModel", old,
+                myConnectionModel);
     }
 
     /**
@@ -1133,7 +1223,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            complete.
      */
     public void setConnectTimeout(final int connectTimeout) {
+        final int old = myConnectTimeout;
+
         myConnectTimeout = connectTimeout;
+
+        myPropSupport.firePropertyChange("connectTimeout", old,
+                myConnectTimeout);
     }
 
     /**
@@ -1148,10 +1243,16 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *             credentials specified database.
      */
     public void setCredentials(final Collection<Credential> credentials) {
+        final List<Credential> old = new ArrayList<Credential>(
+                myCredentials.values());
+
         myCredentials.clear();
         for (final Credential credential : credentials) {
             addCredential(credential);
         }
+
+        myPropSupport.firePropertyChange("credentials", old,
+                new ArrayList<Credential>(myCredentials.values()));
     }
 
     /**
@@ -1171,16 +1272,26 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     @Deprecated
     public void setDefaultDatabase(final String defaultDatabase) {
+        final String old = myDefaultDatabase;
+
         myDefaultDatabase = defaultDatabase;
 
         if (myLegacyCredential != null) {
+            final List<Credential> oldCredentials = new ArrayList<Credential>(
+                    myCredentials.values());
             myCredentials.remove(myLegacyCredential.getDatabase());
+            myPropSupport.firePropertyChange("credentials", oldCredentials,
+                    new ArrayList<Credential>(myCredentials.values()));
+
             myLegacyCredential = Credential.builder()
                     .userName(myLegacyCredential.getUserName())
                     .password(myLegacyCredential.getPassword())
                     .database(defaultDatabase).mongodbCR().build();
             addCredential(myLegacyCredential);
         }
+
+        myPropSupport.firePropertyChange("defaultDatabase", old,
+                myDefaultDatabase);
     }
 
     /**
@@ -1191,7 +1302,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The default durability for write operations on the server.
      */
     public void setDefaultDurability(final Durability defaultDurability) {
+        final Durability old = myDefaultDurability;
+
         myDefaultDurability = defaultDurability;
+
+        myPropSupport.firePropertyChange("defaultDurability", old,
+                myDefaultDurability);
     }
 
     /**
@@ -1205,12 +1321,17 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void setDefaultReadPreference(
             final ReadPreference defaultReadPreference) {
+        final ReadPreference old = myDefaultReadPreference;
+
         if (defaultReadPreference == null) {
             myDefaultReadPreference = ReadPreference.PRIMARY;
         }
         else {
             myDefaultReadPreference = defaultReadPreference;
         }
+
+        myPropSupport.firePropertyChange("defaultReadPreference", old,
+                myDefaultReadPreference);
     }
 
     /**
@@ -1231,7 +1352,11 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The new value for the executor.
      */
     public void setExecutor(final Executor executor) {
+        final Executor old = myExecutor;
+
         myExecutor = executor;
+
+        myPropSupport.firePropertyChange("executor", old, myExecutor);
     }
 
     /**
@@ -1245,7 +1370,11 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The new value for the type of hand off lock used.
      */
     public void setLockType(final LockType lockType) {
+        final LockType old = myLockType;
+
         myLockType = lockType;
+
+        myPropSupport.firePropertyChange("lockType", old, myLockType);
     }
 
     /**
@@ -1255,9 +1384,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_ENTRIES}.
      * </p>
      * <p>
-     * Note: The caches are maintained per connection and there is a cache for
-     * the encoder and another for the decoder. The results is that caching 25
-     * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
+     * Note: The caches are maintained per {@link MongoClient} instance.
      * </p>
      * 
      * @param maxCacheEntries
@@ -1265,7 +1392,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            their encoded form cached.
      */
     public void setMaxCachedStringEntries(final int maxCacheEntries) {
+        final int old = myMaxCachedStringEntries;
+
         myMaxCachedStringEntries = maxCacheEntries;
+
+        myPropSupport.firePropertyChange("maxCachedStringEntries", old,
+                myMaxCachedStringEntries);
     }
 
     /**
@@ -1276,9 +1408,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_LENGTH}.
      * </p>
      * <p>
-     * Note: The caches are maintained per connection and there is a cache for
-     * the encoder and another for the decoder. The results is that caching 25
-     * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
+     * Note: The caches are maintained per {@link MongoClient} instance.
      * </p>
      * 
      * @param maxlength
@@ -1286,7 +1416,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            allowed to cache.
      */
     public void setMaxCachedStringLength(final int maxlength) {
+        final int old = myMaxCachedStringLength;
+
         myMaxCachedStringLength = maxlength;
+
+        myPropSupport.firePropertyChange("maxCachedStringLength", old,
+                myMaxCachedStringLength);
     }
 
     /**
@@ -1305,7 +1440,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            New maximum number of connections to use.
      */
     public void setMaxConnectionCount(final int maxConnectionCount) {
+        final int old = myMaxConnectionCount;
+
         myMaxConnectionCount = maxConnectionCount;
+
+        myPropSupport.firePropertyChange("maxConnectionCount", old,
+                myMaxConnectionCount);
     }
 
     /**
@@ -1317,7 +1457,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            closing the connection.
      */
     public void setMaxIdleTickCount(final int idleTickCount) {
+        final int old = myMaxIdleTickCount;
+
         myMaxIdleTickCount = idleTickCount;
+
+        myPropSupport.firePropertyChange("maxIdleTickCount", old,
+                myMaxIdleTickCount);
     }
 
     /**
@@ -1333,7 +1478,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public void setMaxPendingOperationsPerConnection(
             final int maxPendingOperationsPerConnection) {
+        final int old = myMaxPendingOperationsPerConnection;
+
         myMaxPendingOperationsPerConnection = maxPendingOperationsPerConnection;
+
+        myPropSupport.firePropertyChange("maxPendingOperationsPerConnection",
+                old, myMaxPendingOperationsPerConnection);
     }
 
     /**
@@ -1350,7 +1500,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            excluded from being used for queries on secondaries.
      */
     public void setMaxSecondaryLag(final long maxSecondaryLag) {
+        final long old = myMaxSecondaryLag;
+
         myMaxSecondaryLag = maxSecondaryLag;
+
+        myPropSupport.firePropertyChange("maxSecondaryLag", Long.valueOf(old),
+                Long.valueOf(myMaxSecondaryLag));
     }
 
     /**
@@ -1361,7 +1516,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            keep open.
      */
     public void setMinConnectionCount(final int minimumConnectionCount) {
+        final int old = myMinConnectionCount;
+
         myMinConnectionCount = minimumConnectionCount;
+
+        myPropSupport.firePropertyChange("minConnectionCount", old,
+                myMinConnectionCount);
     }
 
     /**
@@ -1370,7 +1530,11 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            complete.
      */
     public void setReadTimeout(final int readTimeout) {
+        final int old = myReadTimeout;
+
         myReadTimeout = readTimeout;
+
+        myPropSupport.firePropertyChange("readTimeout", old, myReadTimeout);
     }
 
     /**
@@ -1382,7 +1546,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            reconnect.
      */
     public void setReconnectTimeout(final int connectTimeout) {
+        final int old = myReconnectTimeout;
+
         myReconnectTimeout = connectTimeout;
+
+        myPropSupport.firePropertyChange("reconnectTimeout", old,
+                myReconnectTimeout);
     }
 
     /**
@@ -1392,12 +1561,18 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The servers to connect to.
      */
     public void setServers(final List<InetSocketAddress> servers) {
+        final List<InetSocketAddress> old = new ArrayList<InetSocketAddress>(
+                myServers);
+
         myServers.clear();
         if (servers != null) {
             for (final InetSocketAddress server : servers) {
                 addServer(server);
             }
         }
+
+        myPropSupport.firePropertyChange("servers", old,
+                Collections.unmodifiableList(myServers));
     }
 
     /**
@@ -1458,12 +1633,16 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *      Project</a>
      */
     public void setSocketFactory(final SocketFactory socketFactory) {
+        final SocketFactory old = mySocketFactory;
+
         if (socketFactory == null) {
             mySocketFactory = SocketFactory.getDefault();
         }
         else {
             mySocketFactory = socketFactory;
         }
+
+        myPropSupport.firePropertyChange("socketFactory", old, mySocketFactory);
     }
 
     /**
@@ -1473,7 +1652,11 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The thread factory for managing connections.
      */
     public void setThreadFactory(final ThreadFactory factory) {
+        final ThreadFactory old = myThreadFactory;
+
         myThreadFactory = factory;
+
+        myPropSupport.firePropertyChange("threadFactory", old, myThreadFactory);
     }
 
     /**
@@ -1487,7 +1670,12 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *            The new value for using SO_KEEPALIVE.
      */
     public void setUsingSoKeepalive(final boolean usingSoKeepalive) {
+        final boolean old = myUsingSoKeepalive;
+
         myUsingSoKeepalive = usingSoKeepalive;
+
+        myPropSupport.firePropertyChange("usingSoKeepalive", old,
+                myUsingSoKeepalive);
     }
 
     /**

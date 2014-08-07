@@ -26,7 +26,6 @@ import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
@@ -252,8 +251,8 @@ public class Update extends AbstractMessage {
      * </p>
      */
     @Override
-    public void validateSize(final SizeOfVisitor visitor,
-            final int maxDocumentSize) throws DocumentToLargeException {
+    public void validateSize(final int maxDocumentSize)
+            throws DocumentToLargeException {
         final long querySize = (myQuery != null) ? myQuery.size() : 0;
         if (maxDocumentSize < querySize) {
             throw new DocumentToLargeException((int) querySize,
@@ -284,8 +283,8 @@ public class Update extends AbstractMessage {
         size += 4; // 0 - reserved.
         size += out.sizeOfCString(myDatabaseName, ".", myCollectionName);
         size += 4; // flags
-        size += out.sizeOf(myQuery); // Seeds the size list for later use.
-        size += out.sizeOf(myUpdate); // Seeds the size list for later use.
+        size += myQuery.size();
+        size += myUpdate.size();
 
         writeHeader(out, messageId, 0, Operation.UPDATE, size);
         out.writeInt(0);

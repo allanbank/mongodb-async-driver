@@ -159,7 +159,12 @@ public class ArrayElement extends AbstractElement {
             final List<Element> elements = new ArrayList<Element>(length);
             int index = 0;
             for (final Element element : entries) {
-                elements.add(element.withName(nameFor(index)));
+                final Element withCorrectName = element
+                        .withName(nameFor(index));
+                if (element != withCorrectName) {
+                    System.out.println(element);
+                }
+                elements.add(withCorrectName);
                 index += 1;
             }
 
@@ -178,7 +183,13 @@ public class ArrayElement extends AbstractElement {
      */
     @Override
     public void accept(final Visitor visitor) {
-        visitor.visitArray(getName(), getEntries());
+        if (visitor instanceof SizeAwareVisitor) {
+            ((SizeAwareVisitor) visitor).visitArray(getName(), getEntries(),
+                    size());
+        }
+        else {
+            visitor.visitArray(getName(), getEntries());
+        }
     }
 
     /**

@@ -79,6 +79,28 @@ public class ArrayElementTest {
     }
 
     /**
+     * Test method for
+     * {@link ArrayElement#accept(com.allanbank.mongodb.bson.Visitor)} .
+     */
+    @Test
+    public void testAcceptWithSizeAware() {
+        final BooleanElement subElement = new BooleanElement("0", false);
+        final ArrayElement element = new ArrayElement("foo", subElement);
+
+        final SizeAwareVisitor mockVisitor = createMock(SizeAwareVisitor.class);
+
+        mockVisitor.visitArray("foo",
+                Collections.singletonList((Element) subElement), 14);
+        expectLastCall();
+
+        replay(mockVisitor);
+
+        element.accept(mockVisitor);
+
+        verify(mockVisitor);
+    }
+
+    /**
      * Test method for {@link ArrayElement#compareTo(Element)}.
      */
     @Test

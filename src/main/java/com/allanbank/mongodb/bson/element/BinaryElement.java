@@ -64,7 +64,8 @@ public class BinaryElement extends AbstractElement {
      */
     private static long computeSize(final String name, final byte subType,
             final int bytesLength) {
-        long result = 3; // type (1) + name null byte (1) + subtype (1).
+        long result = 7; // type (1) + name null byte (1) + data length (4) +
+                         // subtype (1).
         result += StringEncoder.utf8Size(name);
         result += bytesLength;
 

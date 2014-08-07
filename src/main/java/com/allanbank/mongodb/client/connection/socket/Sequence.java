@@ -107,6 +107,18 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
     }
 
     /**
+     * Returns an estimate of the number of waiters.
+     * 
+     * @return The waiters.
+     */
+    public int getWaitersCount() {
+        final long reserve = myPaddedValue.get(RESERVE_OFFSET);
+        final long release = myPaddedValue.get(RELEASE_OFFSET);
+
+        return (int) (release - reserve);
+    }
+
+    /**
      * Returns true if the sequence is idle (reserve == release).
      * 
      * @return True if the sequence is idle.
@@ -278,17 +290,5 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
                 myLock.unlock();
             }
         }
-    }
-
-    /**
-     * Returns an estimate of the number of waiters.
-     * 
-     * @return The waiters.
-     */
-    public int getWaitersCount() {
-        final long reserve = myPaddedValue.get(RESERVE_OFFSET);
-        final long release = myPaddedValue.get(RELEASE_OFFSET);
-
-        return (int) (release - reserve);
     }
 }

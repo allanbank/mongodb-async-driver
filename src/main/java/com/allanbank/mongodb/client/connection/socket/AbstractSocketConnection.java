@@ -44,7 +44,8 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.RandomAccessOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
+import com.allanbank.mongodb.bson.io.StringDecoderCache;
+import com.allanbank.mongodb.bson.io.StringEncoderCache;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
@@ -92,6 +93,9 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
     /** The connections configuration. */
     protected final MongoClientConfiguration myConfig;
 
+    /** The cache for the encoding of strings. */
+    protected final StringEncoderCache myEncoderCache;
+
     /** Support for emitting property change events. */
     protected final PropertyChangeSupport myEventSupport;
 
@@ -138,18 +142,25 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
      *            The MongoDB server to connect to.
      * @param config
      *            The configuration for the Connection to the MongoDB server.
+     * @param encoderCache
+     *            Cache used for encoding strings.
+     * @param decoderCache
+     *            Cache used for decoding strings.
      * @throws SocketException
      *             On a failure connecting to the MongoDB server.
      * @throws IOException
      *             On a failure to read or write data to the MongoDB server.
      */
     public AbstractSocketConnection(final Server server,
-            final MongoClientConfiguration config) throws SocketException,
+            final MongoClientConfiguration config,
+            final StringEncoderCache encoderCache,
+            final StringDecoderCache decoderCache) throws SocketException,
             IOException {
         super();
 
         myServer = server;
         myConfig = config;
+        myEncoderCache = encoderCache;
 
         myLog = LogFactory.getLog(getClass());
 
@@ -164,9 +175,7 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
         myOpen.set(true);
 
         myInput = mySocket.getInputStream();
-        myBsonIn = new BsonInputStream(myInput);
-        myBsonIn.setMaxCachedStringEntries(myConfig.getMaxCachedStringEntries());
-        myBsonIn.setMaxCachedStringLength(myConfig.getMaxCachedStringLength());
+        myBsonIn = new BsonInputStream(myInput, decoderCache);
 
         // Careful with the size of the buffer here. Seems Java likes to call
         // madvise(..., MADV_DONTNEED) for buffers over a certain size.
@@ -731,17 +740,14 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
     protected void validate(final Message message1, final Message message2)
             throws DocumentToLargeException, ServerVersionException {
 
-        final SizeOfVisitor visitor = new SizeOfVisitor();
-
         final Version serverVersion = myServer.getVersion();
         final int maxBsonSize = myServer.getMaxBsonObjectSize();
 
-        message1.validateSize(visitor, maxBsonSize);
+        message1.validateSize(maxBsonSize);
         validateVersion(message1, serverVersion);
 
         if (message2 != null) {
-            visitor.reset();
-            message2.validateSize(visitor, maxBsonSize);
+            message2.validateSize(maxBsonSize);
             validateVersion(message1, serverVersion);
         }
     }

@@ -28,7 +28,6 @@ import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.SizeOfVisitor;
 import com.allanbank.mongodb.bson.io.StringEncoder;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.VersionRange;
@@ -59,11 +58,6 @@ public class Command extends AbstractMessage {
 
     /** The command's document. */
     private final Document myCommand;
-
-    /**
-     * The size of the message. If negative then the size has not been computed.
-     */
-    private int myMessageSize;
 
     /** The command's document to use in routing decisions. */
     private final Document myRoutingDocument;
@@ -115,7 +109,6 @@ public class Command extends AbstractMessage {
 
         myCommand = commandDocument;
         myRoutingDocument = routingDocument;
-        myMessageSize = -1;
     }
 
     /**
@@ -318,26 +311,18 @@ public class Command extends AbstractMessage {
      * </p>
      */
     @Override
-    public void validateSize(final SizeOfVisitor visitor,
-            final int maxDocumentSize) throws DocumentToLargeException {
-        if (myMessageSize < 0) {
-            visitor.reset();
-
-            if (myCommand != null) {
-                myCommand.accept(visitor);
-            }
-
-            myMessageSize = visitor.getSize();
-        }
+    public void validateSize(final int maxDocumentSize)
+            throws DocumentToLargeException {
+        final long size = myCommand.size();
 
         if (isAllowJumbo()) {
-            if ((maxDocumentSize + HEADROOM) < myMessageSize) {
-                throw new DocumentToLargeException(myMessageSize,
-                        maxDocumentSize + HEADROOM, myCommand);
+            if ((maxDocumentSize + HEADROOM) < size) {
+                throw new DocumentToLargeException((int) size, maxDocumentSize
+                        + HEADROOM, myCommand);
             }
         }
-        else if (maxDocumentSize < myMessageSize) {
-            throw new DocumentToLargeException(myMessageSize, maxDocumentSize,
+        else if (maxDocumentSize < size) {
+            throw new DocumentToLargeException((int) size, maxDocumentSize,
                     myCommand);
         }
     }
@@ -360,7 +345,7 @@ public class Command extends AbstractMessage {
         size += out.sizeOfCString(myDatabaseName, ".", COMMAND_COLLECTION);
         size += 4; // numberToSkip
         size += 4; // numberToReturn
-        size += out.sizeOf(myCommand); // Seeds the size list for later use.
+        size += myCommand.size();
 
         writeHeader(out, messageId, 0, Operation.QUERY, size);
         out.writeInt(flags);

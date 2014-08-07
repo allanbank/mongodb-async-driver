@@ -37,7 +37,7 @@ import com.allanbank.mongodb.bson.Document;
 public class BsonOutputStream {
 
     /** UTF-8 Character set for encoding strings. */
-    public final static Charset UTF8 = Charset.forName("UTF-8");
+    public final static Charset UTF8 = StringDecoder.UTF8;
 
     /** Any thrown exceptions. */
     protected IOException myError;
@@ -45,7 +45,7 @@ public class BsonOutputStream {
     /** Output buffer for spooling the written document. */
     protected final OutputStream myOutput;
 
-    /** The visitor for writing BSON documents. */
+    /** The encoder for strings. */
     protected final StringEncoder myStringEncoder;
 
     /** The visitor for writing BSON documents. */
@@ -58,8 +58,21 @@ public class BsonOutputStream {
      *            The underlying Stream to write to.
      */
     public BsonOutputStream(final OutputStream output) {
+        this(output, new StringEncoderCache());
+    }
+
+    /**
+     * Creates a new {@link BsonOutputStream}.
+     * 
+     * @param output
+     *            The underlying Stream to write to.
+     * @param cache
+     *            The cache for encoding string.
+     */
+    public BsonOutputStream(final OutputStream output,
+            final StringEncoderCache cache) {
         myOutput = output;
-        myStringEncoder = new StringEncoder();
+        myStringEncoder = new StringEncoder(cache);
         myWriteVisitor = new WriteVisitor(this);
     }
 
@@ -78,9 +91,13 @@ public class BsonOutputStream {
      * 
      * @return The maximum number of strings that may have their encoded form
      *         cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringEntries() {
-        return myStringEncoder.getMaxCacheEntries();
+        return myStringEncoder.getCache().getMaxCacheEntries();
     }
 
     /**
@@ -89,9 +106,13 @@ public class BsonOutputStream {
      * 
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
+     * @deprecated The cache {@link StringDecoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public int getMaxCachedStringLength() {
-        return myStringEncoder.getMaxCacheLength();
+        return myStringEncoder.getCache().getMaxCacheLength();
     }
 
     /**
@@ -126,9 +147,13 @@ public class BsonOutputStream {
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringEntries(final int maxCacheEntries) {
-        myStringEncoder.setMaxCacheEntries(maxCacheEntries);
+        myStringEncoder.getCache().setMaxCacheEntries(maxCacheEntries);
     }
 
     /**
@@ -139,9 +164,13 @@ public class BsonOutputStream {
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
+     * @deprecated The cache {@link StringEncoderCache} should be controlled
+     *             directory. This method will be removed after the 2.1.0
+     *             release.
      */
+    @Deprecated
     public void setMaxCachedStringLength(final int maxlength) {
-        myStringEncoder.setMaxCacheLength(maxlength);
+        myStringEncoder.getCache().setMaxCacheLength(maxlength);
 
     }
 
@@ -151,9 +180,12 @@ public class BsonOutputStream {
      * @param document
      *            The document to determine the size of.
      * @return The size of the writing {@link Document} as a BSON document.
+     * @deprecated Replaced with {@link Document#size()}. This method will be
+     *             removed after the 2.2.0 release.
      */
+    @Deprecated
     public int sizeOf(final Document document) {
-        return myWriteVisitor.sizeOf(document);
+        return (int) document.size();
     }
 
     /**
@@ -293,7 +325,7 @@ public class BsonOutputStream {
      *            The String to write.
      */
     public void writeString(final String string) {
-        writeInt(myWriteVisitor.utf8Size(string) + 1);
+        writeInt(myStringEncoder.encodeSize(string) + 1);
         writeUtf8(string);
         writeByte((byte) 0);
     }
