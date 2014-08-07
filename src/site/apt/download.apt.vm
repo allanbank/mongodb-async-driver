@@ -29,10 +29,26 @@ Download
   [Release Notes] {{{./release-notes/${projectVersion}_changes.html}${projectVersion} Changes}}
 
   [Jar] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}.jar}${projectArtifactId}-${projectVersion}.jar}}
+
+  [Source Jar] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-sources.jar}${projectArtifactId}-${projectVersion}-sources.jar}}
   
   [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/${projectArtifactId}/${projectVersion}/${projectArtifactId}-${projectVersion}-javadoc.jar}${projectArtifactId}-${projectVersion}-javadoc.jar}} and {{{./apidocs/index.html}online}}.
 
+  [Source] {{{https://github.com/allanbank/mongodb-async-driver/releases/tag/rel_${projectVersion}}On GitHub}}.
+
 Past Releases
+
+* 2.0.0 - June 20, 2014
+
+  [Release Notes] {{{./release-notes/2.0.0_changes.html}2.0.0 Changes}}
+
+  [Jar] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/2.0.0/mongodb-async-driver-2.0.0.jar}mongodb-async-driver-2.0.0.jar}}
+
+  [Source Jar] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/2.0.0/mongodb-async-driver-2.0.0-sources.jar}mongodb-async-driver-2.0.0-sources.jar}}
+
+  [JavaDoc] {{{http://www.allanbank.com/repo/com/allanbank/mongodb-async-driver/2.0.0/mongodb-async-driver-2.0.0-javadoc.jar}mongodb-async-driver-2.0.0-javadoc.jar}} and {{{http://www.allanbank.com/mongodb-async-driver/apidocs-2.0.0/index.html}online}}.
+
+  [Source] {{{https://github.com/allanbank/mongodb-async-driver/releases/tag/rel_2.0.0}On GitHub}}.
 
 * 1.2.4 - May 24, 2013
 
