@@ -70,6 +70,7 @@
 				<item name="TLS/SSL" href="userguide/tls.html" />
 				<item name="UNIX Domain Sockets" href="userguide/unix_domain_sockets.html" />
 			</item>
+			<item name="Blog" href="http://www.allanbank.com/blog/" />
 			<item name="Support" href="support.html" />
 			<item name="Performance" href="index.html#Performance">
 				<item name="YCSB Results" href="performance/ycsb.html" />
