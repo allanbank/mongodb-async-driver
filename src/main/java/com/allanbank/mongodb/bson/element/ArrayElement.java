@@ -161,9 +161,6 @@ public class ArrayElement extends AbstractElement {
             for (final Element element : entries) {
                 final Element withCorrectName = element
                         .withName(nameFor(index));
-                if (element != withCorrectName) {
-                    System.out.println(element);
-                }
                 elements.add(withCorrectName);
                 index += 1;
             }
