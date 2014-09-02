@@ -55,8 +55,8 @@ public class JavaScriptElement extends AbstractElement {
      * @return The size of the element when encoded in bytes.
      */
     private static long computeSize(final String name, final String javaScript) {
-        long result = 7; // type (1) + name null byte (1) +
-        // javaScript size and null byte (5).
+        long result = 7; // type (1) + name null byte (1) + javaScript size (4)
+                         // and null byte (1).
         result += StringEncoder.utf8Size(name);
         result += StringEncoder.utf8Size(javaScript);
 

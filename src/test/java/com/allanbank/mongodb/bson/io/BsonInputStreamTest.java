@@ -52,6 +52,7 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.element.UuidElement;
 import com.allanbank.mongodb.bson.impl.RootDocument;
+import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * Tests for the BsonInputStream class.
@@ -484,6 +485,8 @@ public class BsonInputStreamTest {
         writer2.flushBuffer();
         writer2.close();
 
+        assertEquals(IOUtils.toHex(out.toByteArray()),
+                IOUtils.toHex(out2.toByteArray()));
         assertArrayEquals(out.toByteArray(), out2.toByteArray());
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
