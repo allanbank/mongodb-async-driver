@@ -60,9 +60,8 @@ public class DBPointerElement extends AbstractElement {
      */
     private static long computeSize(final String name, final String dbName,
             final String collectionName) {
-        long result = 16; // type (1) + name null byte (1) + dbName "." (1)
-        // + collectionName null byte (1)
-        // + ObjectId length (12) .
+        long result = 20; // type (1) + name null byte (1) + ns length (4) + ns
+                          // "." (1) + ns null byte (1) + ObjectId length (12) .
         result += StringEncoder.utf8Size(name);
         result += StringEncoder.utf8Size(dbName);
         result += StringEncoder.utf8Size(collectionName);
