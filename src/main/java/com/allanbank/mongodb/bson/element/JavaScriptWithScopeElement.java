@@ -63,8 +63,8 @@ public class JavaScriptWithScopeElement extends JavaScriptElement {
      */
     private static long computeSize(final String name, final String javaScript,
             final Document scope) {
-        long result = 15; // type (1) + name null byte (1) + length (4)
-        // javaScript length (4) and null byte (5)
+        long result = 11; // type (1) + name null byte (1) + length (4)
+        // javaScript length (4) and null byte (1)
         result += StringEncoder.utf8Size(name);
         result += StringEncoder.utf8Size(javaScript);
         if (scope != null) {
