@@ -779,10 +779,19 @@ public interface MongoCollection extends AsyncMongoCollection {
      *            an error.
      * @param documents
      *            The documents to add to the collection.
-     * @return Currently, returns zero. Once <a
-     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
-     *         is fixed then expected to return the number of documents
-     *         inserted. If the durability is NONE then returns <code>-1</code>.
+     * @return The return value is dependent on the MongoDB server version and
+     *         durability:
+     *         <ul>
+     *         <li>If the durability is NONE then returns <code>-1</code>
+     *         regardless of the server version.</li>
+     *         <li>If the server version is 2.6 or later for all members of the
+     *         cluster then this method returns the number of inserted
+     *         documents.</li>
+     *         <li>If the server version is not 2.6 or later for all members of
+     *         the cluster then this method returns zero due to <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381"
+     *         >SERVER-4381</a>.</li>
+     *         </ul>
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -804,10 +813,19 @@ public interface MongoCollection extends AsyncMongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return Currently, returns zero. Once <a
-     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
-     *         is fixed then expected to return the number of documents
-     *         inserted. If the durability is NONE then returns <code>-1</code>.
+     * @return The return value is dependent on the MongoDB server version and
+     *         durability:
+     *         <ul>
+     *         <li>If the durability is NONE then returns <code>-1</code>
+     *         regardless of the server version.</li>
+     *         <li>If the server version is 2.6 or later for all members of the
+     *         cluster then this method returns the number of inserted
+     *         documents.</li>
+     *         <li>If the server version is not 2.6 or later for all members of
+     *         the cluster then this method returns zero due to <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381"
+     *         >SERVER-4381</a>.</li>
+     *         </ul>
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -825,10 +843,19 @@ public interface MongoCollection extends AsyncMongoCollection {
      * 
      * @param documents
      *            The documents to add to the collection.
-     * @return Currently, returns zero. Once <a
-     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
-     *         is fixed then expected to return the number of documents
-     *         inserted. If the durability is NONE then returns <code>-1</code>.
+     * @return The return value is dependent on the MongoDB server version and
+     *         durability:
+     *         <ul>
+     *         <li>If the durability is NONE then returns <code>-1</code>
+     *         regardless of the server version.</li>
+     *         <li>If the server version is 2.6 or later for all members of the
+     *         cluster then this method returns the number of inserted
+     *         documents.</li>
+     *         <li>If the server version is not 2.6 or later for all members of
+     *         the cluster then this method returns zero due to <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381"
+     *         >SERVER-4381</a>.</li>
+     *         </ul>
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
@@ -846,10 +873,19 @@ public interface MongoCollection extends AsyncMongoCollection {
      *            The durability for the insert.
      * @param documents
      *            The documents to add to the collection.
-     * @return Currently, returns zero. Once <a
-     *         href="http://jira.mongodb.org/browse/SERVER-4381">SERVER-4381</a>
-     *         is fixed then expected to return the number of documents
-     *         inserted. If the durability is NONE then returns <code>-1</code>.
+     * @return The return value is dependent on the MongoDB server version and
+     *         durability:
+     *         <ul>
+     *         <li>If the durability is NONE then returns <code>-1</code>
+     *         regardless of the server version.</li>
+     *         <li>If the server version is 2.6 or later for all members of the
+     *         cluster then this method returns the number of inserted
+     *         documents.</li>
+     *         <li>If the server version is not 2.6 or later for all members of
+     *         the cluster then this method returns zero due to <a
+     *         href="http://jira.mongodb.org/browse/SERVER-4381"
+     *         >SERVER-4381</a>.</li>
+     *         </ul>
      * @throws MongoDbException
      *             On an error inserting the documents.
      */
