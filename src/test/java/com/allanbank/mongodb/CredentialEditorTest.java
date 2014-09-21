@@ -109,6 +109,20 @@ public class CredentialEditorTest {
      * Test method for {@link CredentialEditor#setAsText(String)}.
      */
     @Test
+    public void testSetWithAuthMethodScramSha1() {
+        final CredentialEditor editor = new CredentialEditor();
+
+        editor.setAsText("mongodb://user:password@host:port/db?authmechanism=scram-sha-1");
+
+        assertThat(editor.getValue(), is((Object) Credential.builder()
+                .userName("user").setPassword("password".toCharArray())
+                .database("db").scramSha1().build()));
+    }
+
+    /**
+     * Test method for {@link CredentialEditor#setAsText(String)}.
+     */
+    @Test
     public void testSetWithAuthMethodUnknown() {
         final CredentialEditor editor = new CredentialEditor();
 

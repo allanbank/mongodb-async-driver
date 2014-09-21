@@ -87,8 +87,7 @@ public final class Credential implements Serializable {
     public static final char[] NO_PASSWORD = new char[0];
 
     /**
-     * Constant for authentication using plain SASL (LDAP/PAM) client
-     * certificates passed at connection establishment.
+     * Constant for authentication using plain SASL (LDAP/PAM) authentication.
      * <p>
      * <em>Note:</em> Use of Plain SASL for authentication requires the driver's
      * extensions. See the <a href=
@@ -101,6 +100,32 @@ public final class Credential implements Serializable {
      *      SASL Usage Guide</a>
      */
     public static final String PLAIN_SASL;
+
+    /**
+     * Constant for authentication using SCRAM-SHA-1 SASL authentication based
+     * on RFC 5802.
+     * <p>
+     * <em>Note:</em> Use of SCRAM-SHA-1 SASL for authentication requires the
+     * driver's extensions. See the <a href=
+     * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html"
+     * >SCRAM-SHA-1 SASL Usage Guide</a> for details.
+     * </p>
+     * <p>
+     * The extensions implementation contains a complete implementation of the
+     * {@code saslPrep} algorithm for the username and password as specified by
+     * RFC 4013 which is itself a profile for {@code stringprep} from RFC 3454.
+     * This enables the use of non-ascii character sets within the username and
+     * password.
+     * </p>
+     * 
+     * @see <a
+     *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html">SCRAM-SHA-1
+     *      SASL Usage Guide</a>
+     * @see <a href="http://tools.ietf.org/html/rfc5802">RFC 5802</a>
+     * @see <a href="http://tools.ietf.org/html/rfc4013">RFC 4013</a>
+     * @see <a href="http://tools.ietf.org/html/rfc3454">RFC 3454</a>
+     */
+    public static final String SCRAM_SHA_1;
 
     /**
      * Constant for authentication using x.509 client certificates passed at
@@ -128,6 +153,7 @@ public final class Credential implements Serializable {
         KERBEROS = "com.allanbank.mongodb.extensions.authentication.KerberosAuthenticator";
         MONGODB_CR = MongoDbAuthenticator.class.getName();
         PLAIN_SASL = "com.allanbank.mongodb.extensions.authentication.PlainSaslAuthenticator";
+        SCRAM_SHA_1 = "com.allanbank.mongodb.extensions.authentication.ScramSha1Authenticator";
         X509 = "com.allanbank.mongodb.extensions.authentication.X509Authenticator";
     }
 
@@ -409,6 +435,9 @@ public final class Credential implements Serializable {
         }
         else if (PLAIN_SASL.equals(myAuthenticationType)) {
             builder.append("PLAIN SASL");
+        }
+        else if (SCRAM_SHA_1.equals(myAuthenticationType)) {
+            builder.append("SCRAM-SHA-1");
         }
         else if (X509.equals(myAuthenticationType)) {
             builder.append("x.509");
@@ -779,6 +808,40 @@ public final class Credential implements Serializable {
             myOptions.clear();
 
             return this;
+        }
+
+        /**
+         * Sets the value of the authentication type or mode that the credential
+         * should be used with to SCARM-SHA-1 SASL.
+         * <p>
+         * This method delegates to {@link #setAuthenticationType(String)
+         * setAuthenticationType(SCRAM_SHA_1)}.
+         * </p>
+         * <p>
+         * <em>Note:</em> Use of SCRAM-SHA-1 SASL for authentication requires
+         * the driver's extensions. See the <a href=
+         * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html"
+         * >SCRAM-SHA-1 SASL Usage Guide</a> for details.
+         * </p>
+         * <p>
+         * The extensions implementation contains a complete implementation of
+         * the {@code saslPrep} algorithm for the username and password as
+         * specified by RFC 4013 which is itself a profile for
+         * {@code stringprep} from RFC 3454. This enables the use of non-ascii
+         * character sets within the username and password.
+         * </p>
+         * 
+         * @return This {@link Builder} for method chaining.
+         * 
+         * @see <a
+         *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html">SCRAM-SHA-1
+         *      SASL Usage Guide</a>
+         * @see <a href="http://tools.ietf.org/html/rfc5802">RFC 5802</a>
+         * @see <a href="http://tools.ietf.org/html/rfc4013">RFC 4013</a>
+         * @see <a href="http://tools.ietf.org/html/rfc3454">RFC 3454</a>
+         */
+        public Builder scramSha1() {
+            return setAuthenticationType(SCRAM_SHA_1);
         }
 
         /**

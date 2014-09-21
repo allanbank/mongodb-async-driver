@@ -161,6 +161,9 @@ public class CredentialEditor extends PropertyEditorSupport {
                 else if ("PLAIN".equalsIgnoreCase(authMechanism)) {
                     builder.plainSasl();
                 }
+                else if ("SCRAM-SHA-1".equalsIgnoreCase(authMechanism)) {
+                    builder.scramSha1();
+                }
                 else {
                     LOG.warn("Unknown authMechanism: '{}'. "
                             + "Not authenticating.", authMechanism);

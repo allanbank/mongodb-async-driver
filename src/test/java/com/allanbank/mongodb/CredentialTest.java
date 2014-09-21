@@ -349,5 +349,11 @@ public class CredentialTest {
         assertThat(
                 c.toString(),
                 is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'PLAIN SASL' }"));
+
+        c = Credential.builder().userName("user").password(new char[1])
+                .file(new File("a")).database("foo").scramSha1().build();
+        assertThat(
+                c.toString(),
+                is("{ username : 'user', database : 'foo', file : 'a', password : '<redacted>', type: 'SCRAM-SHA-1' }"));
     }
 }
