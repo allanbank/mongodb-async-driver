@@ -36,9 +36,11 @@ import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.builder.ArrayBuilder;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.bson.impl.RootDocument;
@@ -72,6 +74,7 @@ import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
 import com.allanbank.mongodb.client.message.ParallelScanCommand;
 import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.QueryVersionVisitor;
 import com.allanbank.mongodb.client.message.Update;
 
 /**
@@ -1145,16 +1148,25 @@ public abstract class AbstractMongoOperations {
     protected AggregateCommand toCommand(final Aggregate command,
             final boolean explain) {
         Version minVersion = command.getRequiredVersion();
+        Version maxVersion = command.getRequiredVersion();
 
         final DocumentBuilder builder = BuilderFactory.start();
 
         builder.addString("aggregate", getName());
 
         // Pipeline of operations.
+        final QueryVersionVisitor visitor = new QueryVersionVisitor();
         final ArrayBuilder pipeline = builder.pushArray("pipeline");
         for (final Element e : command.getPipeline()) {
+            if (e.getType() == ElementType.DOCUMENT) {
+                visitor.visit(((DocumentElement) e).getElements());
+            }
             pipeline.add(e);
         }
+        minVersion = Version.later(minVersion,
+                visitor.getRequiredServerVersion());
+        maxVersion = Version.earlier(maxVersion,
+                visitor.getMaximumServerVersion());
 
         // Options
         if (command.isAllowDiskUsage()) {
@@ -1180,7 +1192,7 @@ public abstract class AbstractMongoOperations {
 
         final AggregateCommand commandMsg = new AggregateCommand(command,
                 getDatabaseName(), getName(), builder.build(), readPreference,
-                VersionRange.minimum(minVersion));
+                VersionRange.range(minVersion, maxVersion));
         return commandMsg;
     }
 

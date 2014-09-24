@@ -25,6 +25,7 @@ import com.allanbank.mongodb.bson.VisitorAdapter;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.MiscellaneousOperator;
+import com.allanbank.mongodb.builder.expression.Expressions;
 import com.allanbank.mongodb.client.VersionRange;
 
 /**
@@ -68,6 +69,7 @@ public class QueryVersionVisitor extends VisitorAdapter {
      * Creates a new QueryVersionVisitor.
      */
     public QueryVersionVisitor() {
+        myMaximumServerVersion = null;
         myRequiredServerVersion = null;
     }
 
@@ -128,6 +130,14 @@ public class QueryVersionVisitor extends VisitorAdapter {
         else if (GeospatialOperator.UNIQUE_DOCS_MODIFIER.equals(name)) {
             myMaximumServerVersion = Version.earlier(myMaximumServerVersion,
                     GeospatialOperator.UNIQUE_DOCS_REMOVED_VERSION);
+        }
+        else if (Expressions.DATE_TO_STRING.equals(name)) {
+            myRequiredServerVersion = Version.later(myRequiredServerVersion,
+                    Version.parse("2.7.4"));
+        }
+        else if (Expressions.CONCATENATE.equals(name)) {
+            myRequiredServerVersion = Version.later(myRequiredServerVersion,
+                    Version.VERSION_2_4);
         }
     }
 }

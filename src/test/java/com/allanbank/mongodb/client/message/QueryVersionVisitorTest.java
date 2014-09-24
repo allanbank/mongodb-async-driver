@@ -26,11 +26,13 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.GeoJson;
 import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.MiscellaneousOperator;
+import com.allanbank.mongodb.builder.expression.Expressions;
 import com.allanbank.mongodb.client.VersionRange;
 
 /**
@@ -83,6 +85,15 @@ public class QueryVersionVisitorTest {
                 QueryVersionVisitor.version(BuilderFactory.start()
                         .add(GeospatialOperator.POLYGON, 1).build()),
                 is(VersionRange.range(GeospatialOperator.POLYGON_VERSION, null)));
+
+        assertThat(
+                QueryVersionVisitor.version(BuilderFactory.start()
+                        .add(Expressions.DATE_TO_STRING, 1).build()),
+                is(VersionRange.range(Version.parse("2.7.4"), null)));
+        assertThat(
+                QueryVersionVisitor.version(BuilderFactory.start()
+                        .add(Expressions.CONCATENATE, 1).build()),
+                is(VersionRange.range(Version.VERSION_2_4, null)));
     }
 
     /**

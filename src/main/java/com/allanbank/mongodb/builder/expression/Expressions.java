@@ -77,6 +77,9 @@ public final class Expressions {
     public static final String CONDITION = "$cond";
 
     /** The {@value} operator token */
+    public static final String DATE_TO_STRING = "$dateToString";
+
+    /** The {@value} operator token */
     public static final String DAY_OF_MONTH = "$dayOfMonth";
 
     /** The {@value} operator token */
@@ -400,6 +403,24 @@ public final class Expressions {
      */
     public static Constant constantTimestamp(final long value) {
         return new Constant(new TimestampElement("", value));
+    }
+
+    /**
+     * Returns a {@link NamedNaryExpression} {@value #DATE_TO_STRING}
+     * expression.
+     * 
+     * @param formatString
+     *            The format string for the operator.
+     * @param expression
+     *            The date for the operator.
+     * @return The {@link NamedNaryExpression} {@value #DATE_TO_STRING}
+     *         expression.
+     * @since MongoDB 2.7.4
+     */
+    public static NamedNaryExpression dateToString(final String formatString,
+            final Expression expression) {
+        return new NamedNaryExpression(DATE_TO_STRING, Arrays.asList("format",
+                "date"), constant(formatString), expression);
     }
 
     /**

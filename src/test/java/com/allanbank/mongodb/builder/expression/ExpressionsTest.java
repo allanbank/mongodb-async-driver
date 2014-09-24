@@ -308,6 +308,23 @@ public class ExpressionsTest {
     }
 
     /**
+     * Test method for {@link Expressions#dateToString(String, Expression)}.
+     */
+    @Test
+    public void testDateToString() {
+        final Constant e1 = new Constant(new TimestampElement("", 1));
+
+        final NamedNaryExpression e = Expressions.dateToString("%Y", e1);
+
+        assertNotNull(e);
+
+        final DocumentBuilder b = BuilderFactory.start();
+        b.push("f").push("$dateToString").add("format", "%Y")
+                .addTimestamp("date", 1);
+        assertEquals(b.build().iterator().next(), e.toElement("f"));
+    }
+
+    /**
      * Test method for {@link Expressions#dayOfMonth(Expression)}.
      */
     @Test
