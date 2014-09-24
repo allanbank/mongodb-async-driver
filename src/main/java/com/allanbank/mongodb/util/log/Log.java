@@ -134,6 +134,38 @@ public interface Log {
     public void info(Throwable thrown, String template, Object... args);
 
     /**
+     * Returns true if logging {@link Level#FINE DEBUG} messages is enabled,
+     * false otherwise.
+     * 
+     * @return True if logging debug messages is enabled.
+     */
+    public boolean isDebugEnabled();
+
+    /**
+     * Returns true if logging {@link Level#SEVERE ERROR} messages is enabled,
+     * false otherwise.
+     * 
+     * @return True if logging {@link Level#SEVERE ERROR} messages is enabled.
+     */
+    public boolean isErrorEnabled();
+
+    /**
+     * Returns true if logging {@link Level#INFO} messages is enabled, false
+     * otherwise.
+     * 
+     * @return True if logging {@link Level#INFO} messages is enabled.
+     */
+    public boolean isInfoEnabled();
+
+    /**
+     * Returns true if logging {@link Level#WARNING} messages is enabled, false
+     * otherwise.
+     * 
+     * @return True if logging {@link Level#WARNING} messages is enabled.
+     */
+    public boolean isWarnEnabled();
+
+    /**
      * Logs a message at the specified level.
      * 
      * @param level

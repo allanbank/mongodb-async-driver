@@ -48,6 +48,37 @@ public class JulLog extends AbstractLog {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the delegate's logging level.
+     * </p>
+     */
+    @Override
+    protected Level doGetLevel() {
+        // Have to check each logger level since the effective log level is not
+        // exposed.
+        if (myDelegate.isLoggable(Level.FINEST)) {
+            return Level.FINEST;
+        }
+        else if (myDelegate.isLoggable(Level.FINER)) {
+            return Level.FINER;
+        }
+        else if (myDelegate.isLoggable(Level.FINE)) {
+            return Level.FINE;
+        }
+        else if (myDelegate.isLoggable(Level.INFO)) {
+            return Level.INFO;
+        }
+        else if (myDelegate.isLoggable(Level.WARNING)) {
+            return Level.WARNING;
+        }
+        else if (myDelegate.isLoggable(Level.SEVERE)) {
+            return Level.SEVERE;
+        }
+        return Level.OFF;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to create a {@link LogRecord} based on the log information.
      * </p>
      * 
@@ -66,8 +97,7 @@ public class JulLog extends AbstractLog {
             record.setThreadID((int) Thread.currentThread().getId());
 
             // Note the name of the class is the AbstractLog which is where all
-            // of
-            // the public log methods are implemented.
+            // of the public log methods are implemented.
             boolean lookingForThisClass = true;
             for (final StackTraceElement element : currentThread
                     .getStackTrace()) {

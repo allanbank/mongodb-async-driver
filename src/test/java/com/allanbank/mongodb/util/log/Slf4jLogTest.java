@@ -475,6 +475,86 @@ public class Slf4jLogTest {
     }
 
     /**
+     * Test for the {@link AbstractLog#isDebugEnabled()} method.
+     * 
+     * @throws Exception
+     *             On a failure to initialize the logger.
+     */
+    @Test
+    public void testIsDebugEnabled() throws Exception {
+        assertThat(myTestLog.isDebugEnabled(), is(true));
+
+        // Overcome the caching.
+        setUp();
+        myJulLog.setLevel(Level.INFO);
+        assertThat(myTestLog.isDebugEnabled(), is(false));
+
+        // See the cached level.
+        myJulLog.setLevel(Level.FINE);
+        assertThat(myTestLog.isDebugEnabled(), is(false));
+    }
+
+    /**
+     * Test for the {@link AbstractLog#isErrorEnabled()} method.
+     * 
+     * @throws Exception
+     *             On a failure to initialize the logger.
+     */
+    @Test
+    public void testIsErrorEnabled() throws Exception {
+        assertThat(myTestLog.isErrorEnabled(), is(true));
+
+        // Overcome the caching.
+        setUp();
+        myJulLog.setLevel(Level.OFF);
+        assertThat(myTestLog.isErrorEnabled(), is(false));
+
+        // See the cached level.
+        myJulLog.setLevel(Level.SEVERE);
+        assertThat(myTestLog.isErrorEnabled(), is(false));
+    }
+
+    /**
+     * Test for the {@link AbstractLog#isInfoEnabled()} method.
+     * 
+     * @throws Exception
+     *             On a failure to initialize the logger.
+     */
+    @Test
+    public void testIsInfoEnabled() throws Exception {
+        assertThat(myTestLog.isInfoEnabled(), is(true));
+
+        // Overcome the caching.
+        setUp();
+        myJulLog.setLevel(Level.WARNING);
+        assertThat(myTestLog.isInfoEnabled(), is(false));
+
+        // See the cached level.
+        myJulLog.setLevel(Level.INFO);
+        assertThat(myTestLog.isInfoEnabled(), is(false));
+    }
+
+    /**
+     * Test for the {@link AbstractLog#isWarnEnabled()} method.
+     * 
+     * @throws Exception
+     *             On a failure to initialize the logger.
+     */
+    @Test
+    public void testIsWarnEnabled() throws Exception {
+        assertThat(myTestLog.isWarnEnabled(), is(true));
+
+        // Overcome the caching.
+        setUp();
+        myJulLog.setLevel(Level.SEVERE);
+        assertThat(myTestLog.isWarnEnabled(), is(false));
+
+        // See the cached level.
+        myJulLog.setLevel(Level.WARNING);
+        assertThat(myTestLog.isWarnEnabled(), is(false));
+    }
+
+    /**
      * Test for the {@link AbstractLog#log(Level, String)} method.
      */
     @Test
@@ -553,23 +633,13 @@ public class Slf4jLogTest {
      */
     @Test
     public void testLogLevelTrace() {
-        final String method = "testLogLevelTrace";
         final String messsage = "Log Message";
         final Level level = Level.parse("0");
 
         myTestLog.log(level, messsage);
 
         final List<LogRecord> records = myCaptureHandler.getRecords();
-        assertThat(records.size(), is(1));
-
-        final LogRecord record = records.get(0);
-        assertThat(record.getLevel(), is(Level.FINEST));
-        assertThat(record.getLoggerName(), is(Slf4jLogTest.class.getName()));
-        assertThat(record.getMessage(), is(messsage));
-        assertThat(record.getSourceClassName(),
-                is(Slf4jLogTest.class.getName()));
-        assertThat(record.getSourceMethodName(), is(method));
-        assertThat(record.getThrown(), nullValue());
+        assertThat(records.size(), is(0));
     }
 
     /**

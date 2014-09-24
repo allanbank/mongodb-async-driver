@@ -21,6 +21,9 @@ package com.allanbank.mongodb.util.log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -33,6 +36,22 @@ import java.util.logging.Logger;
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class Slf4jLog extends AbstractLog {
+
+    /** The mapping from the logger's "level check" methods to the level. */
+    private static final Map<String, Level> LEVEL_METHODS;
+
+    static {
+        // Use a linked hash map to ensure the iteration order is low to high.
+        final Map<String, Level> levelMethods = new LinkedHashMap<String, Level>();
+
+        // Method names from the SLF4J <code>Logger</code> interface.
+        levelMethods.put("isDebugEnabled", Level.FINE);
+        levelMethods.put("isInfoEnabled", Level.INFO);
+        levelMethods.put("isWarnEnabled", Level.WARNING);
+        levelMethods.put("isErrorEnabled", Level.SEVERE);
+
+        LEVEL_METHODS = Collections.unmodifiableMap(levelMethods);
+    }
 
     /** The delegate for the log to a SLF4J <code>LocationAwareLogger</code>. */
     private final Object myDelegate;
@@ -60,6 +79,60 @@ public class Slf4jLog extends AbstractLog {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to return the delegate's logging level.
+     * </p>
+     */
+    @Override
+    protected Level doGetLevel() {
+
+        final Class<?> loggerClass = myDelegate.getClass();
+        for (final Map.Entry<String, Level> level : LEVEL_METHODS.entrySet()) {
+            try {
+                final Method m = loggerClass.getMethod(level.getKey());
+                final Object result = m.invoke(myDelegate);
+                if (Boolean.TRUE.equals(result)) {
+                    return level.getValue();
+                }
+            }
+            catch (final SecurityException e) {
+                // Ignore.
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.INFO,
+                        "Failed to determine the log level: " + e.getMessage(),
+                        e);
+            }
+            catch (final NoSuchMethodException e) {
+                // Ignore.
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.INFO,
+                        "Failed to determine the log level: " + e.getMessage(),
+                        e);
+            }
+            catch (final RuntimeException e) {
+                // Ignore.
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.INFO,
+                        "Failed to determine the log level: " + e.getMessage(),
+                        e);
+            }
+            catch (final IllegalAccessException e) {
+                // Ignore.
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.INFO,
+                        "Failed to determine the log level: " + e.getMessage(),
+                        e);
+            }
+            catch (final InvocationTargetException e) {
+                // Ignore.
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.INFO,
+                        "Failed to determine the log level: " + e.getMessage(),
+                        e);
+            }
+        }
+
+        // Fall through to OFF.
+        return Level.OFF;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to create a {@link LogRecord} based on the log information.
      * </p>
      * 
@@ -68,23 +141,25 @@ public class Slf4jLog extends AbstractLog {
     @Override
     protected final void doLog(final Level level, final Throwable thrown,
             final String template, final Object... args) {
-        // Note the name of the class is the AbstractLog which is where all of
-        // the public log methods are implemented.
-        try {
-            myLogMethod.invoke(myDelegate, new Object[] { null, CLASS_NAME,
-                    toInt(level), template, args, thrown });
-        }
-        catch (final IllegalArgumentException e) {
-            Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
-                    "Failed to log a message: " + e.getMessage(), e);
-        }
-        catch (final IllegalAccessException e) {
-            Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
-                    "Failed to log a message: " + e.getMessage(), e);
-        }
-        catch (final InvocationTargetException e) {
-            Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
-                    "Failed to log a message: " + e.getMessage(), e);
+        if (level().intValue() <= level.intValue()) {
+            // Note the name of the class is the AbstractLog which is where all
+            // of the public log methods are implemented.
+            try {
+                myLogMethod.invoke(myDelegate, new Object[] { null, CLASS_NAME,
+                        toInt(level), template, args, thrown });
+            }
+            catch (final IllegalArgumentException e) {
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
+                        "Failed to log a message: " + e.getMessage(), e);
+            }
+            catch (final IllegalAccessException e) {
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
+                        "Failed to log a message: " + e.getMessage(), e);
+            }
+            catch (final InvocationTargetException e) {
+                Logger.getLogger(Slf4jLog.class.getName()).log(Level.WARNING,
+                        "Failed to log a message: " + e.getMessage(), e);
+            }
         }
     }
 

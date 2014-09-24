@@ -19,6 +19,7 @@
  */
 package com.allanbank.mongodb.util.log;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -33,6 +34,15 @@ public abstract class AbstractLog implements Log {
 
     /** The name of this class. */
     protected static final Object CLASS_NAME = AbstractLog.class.getName();
+
+    /** The period between logging level checks. */
+    private static final long ONE_MINUTE = TimeUnit.MINUTES.toMillis(1);
+
+    /** The last time we checked the enabled logging level. */
+    private long myLastLevelCheck;
+
+    /** The level that is enabled when we last checked. */
+    private Level myLevel;
 
     /**
      * Creates a new AbstractLog.
@@ -162,6 +172,50 @@ public abstract class AbstractLog implements Log {
     }
 
     /**
+     * Returns true if logging {@link Level#FINE DEBUG} messages is enabled,
+     * false otherwise.
+     * 
+     * @returns True if logging debug messages is enabled.
+     */
+    @Override
+    public final boolean isDebugEnabled() {
+        return level().intValue() <= Level.FINE.intValue();
+    }
+
+    /**
+     * Returns true if logging {@link Level#SEVERE ERROR} messages is enabled,
+     * false otherwise.
+     * 
+     * @returns True if logging {@link Level#SEVERE ERROR} messages is enabled.
+     */
+    @Override
+    public final boolean isErrorEnabled() {
+        return level().intValue() <= Level.SEVERE.intValue();
+    }
+
+    /**
+     * Returns true if logging {@link Level#INFO} messages is enabled, false
+     * otherwise.
+     * 
+     * @returns True if logging {@link Level#INFO} messages is enabled.
+     */
+    @Override
+    public final boolean isInfoEnabled() {
+        return level().intValue() <= Level.INFO.intValue();
+    }
+
+    /**
+     * Returns true if logging {@link Level#WARNING} messages is enabled, false
+     * otherwise.
+     * 
+     * @returns True if logging {@link Level#WARNING} messages is enabled.
+     */
+    @Override
+    public final boolean isWarnEnabled() {
+        return level().intValue() <= Level.WARNING.intValue();
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
@@ -245,6 +299,13 @@ public abstract class AbstractLog implements Log {
     /**
      * Delegate method for the {@link Log} implementation.
      * 
+     * @return The current log level.
+     */
+    protected abstract Level doGetLevel();
+
+    /**
+     * Delegate method for the {@link Log} implementation.
+     * 
      * @param level
      *            The logging level for the message.
      * @param thrown
@@ -257,5 +318,20 @@ public abstract class AbstractLog implements Log {
      */
     protected abstract void doLog(Level level, Throwable thrown,
             String template, Object... args);
+
+    /**
+     * Returns the current logging level.
+     * 
+     * @return The current logging level.
+     */
+    protected final Level level() {
+        final long now = System.currentTimeMillis();
+        if ((myLastLevelCheck + ONE_MINUTE) < now) {
+            myLastLevelCheck = now;
+            myLevel = doGetLevel();
+        }
+
+        return myLevel;
+    }
 
 }
