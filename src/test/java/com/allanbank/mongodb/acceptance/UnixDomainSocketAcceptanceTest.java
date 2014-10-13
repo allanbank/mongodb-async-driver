@@ -36,7 +36,6 @@ import java.net.URLClassLoader;
 import javax.net.SocketFactory;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -175,14 +174,13 @@ public class UnixDomainSocketAcceptanceTest extends BasicAcceptanceTestCases {
      * Sets up to create a connection to MongoDB.
      */
     @Override
-    @Before
-    public void connect() {
-        myConfig = new MongoClientConfiguration();
+    protected MongoClientConfiguration initConfig() {
+        super.initConfig();
+
         myConfig.addServer(ourSocketAddress);
-        // myConfig.setConnectionModel(ConnectionModel.SENDER_RECEIVER_THREAD);
         myConfig.setSocketFactory(new UnixDomainSocketFactory());
 
-        super.connect();
+        return myConfig;
     }
 
     /**

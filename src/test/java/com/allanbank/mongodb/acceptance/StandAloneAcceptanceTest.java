@@ -83,7 +83,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        final List<String> dbs = myMongo.listDatabaseNames();
+        final List<String> dbs = ourMongo.listDatabaseNames();
         assertThat(dbs, hasItem(TEST_DB_NAME));
         assertThat(dbs, hasItem("local"));
 
@@ -93,7 +93,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
             startServer();
             // Don't assert the databases since the stop/start scripts remove
             // the data directories.
-            myMongo.listDatabaseNames();
+            ourMongo.listDatabaseNames();
         }
         finally {
             // Make sure the server is restarted for the other tests.
@@ -112,7 +112,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        final List<String> dbs = myMongo.listDatabaseNames();
+        final List<String> dbs = ourMongo.listDatabaseNames();
         assertThat(dbs, hasItem(TEST_DB_NAME));
         assertThat(dbs, hasItem("local"));
 
@@ -120,7 +120,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
         try {
             stopServer();
 
-            myMongo.listDatabaseNames();
+            ourMongo.listDatabaseNames();
             fail("Should have thrown an exception.");
         }
         catch (final CannotConnectException good) {

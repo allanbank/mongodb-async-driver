@@ -189,8 +189,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * </p>
      */
     protected void bootstrap() {
-        final SocketConnectionFactory socketFactory = new SocketConnectionFactory(
-                myConfig);
+        final SocketConnectionFactory socketFactory = createSocketFactory(myConfig);
         socketFactory.setMetrics(myMetrics);
 
         ProxiedConnectionFactory factory = socketFactory;
@@ -281,6 +280,19 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     protected ConnectionFactory bootstrapSharded(
             final ProxiedConnectionFactory factory) {
         return new ShardedConnectionFactory(factory, getConfig());
+    }
+
+    /**
+     * Creates the base socket factory.
+     * 
+     * @param config
+     *            The client's configuration.
+     * 
+     * @return The base socket factory.
+     */
+    protected SocketConnectionFactory createSocketFactory(
+            final MongoClientConfiguration config) {
+        return new SocketConnectionFactory(config);
     }
 
     /**

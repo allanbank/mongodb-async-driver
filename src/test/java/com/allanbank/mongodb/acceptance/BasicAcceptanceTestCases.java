@@ -82,6 +82,7 @@ import java.util.regex.Pattern;
 
 import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -184,8 +185,32 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /** The name of the test database to use. */
     public static final String TEST_DB_NAME = "acceptance_test";
 
+    /**
+     * The connection to MongoDB for the test. We use a single MongoClient
+     * instance to reduce the thread churn.
+     */
+    protected static MongoClient ourMongo = null;
+
     /** A unique value to add to each collection name to ensure test isolation. */
     protected static int ourUniqueId = 0;
+
+    /**
+     * Closes the MongoClient after all of the tests.
+     */
+    @AfterClass
+    public static void closeClient() {
+        if (ourMongo != null) {
+            try {
+                ourMongo.close();
+            }
+            catch (final IOException e) {
+                // Ignore. Trying to cleanup.
+            }
+            finally {
+                ourMongo = null;
+            }
+        }
+    }
 
     /**
      * Creates a large collection of documents that test should only read from.
@@ -291,9 +316,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /** The Geospatial collection using a {@code 2dsphere} index for the test. */
     protected MongoCollection myGeoSphereCollection = null;
 
-    /** The connection to MongoDB for the test. */
-    protected MongoClient myMongo = null;
-
     /** A source of random for the tests. */
     protected Random myRandom = null;
 
@@ -302,13 +324,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Before
     public void connect() {
-        if (myConfig == null) {
-            myConfig = new MongoClientConfiguration();
-            myConfig.addServer(createAddress());
+        initConfig().addServer(createAddress());
+
+        if (ourMongo == null) {
+            ourMongo = MongoFactory.createClient(myConfig);
         }
 
-        myMongo = MongoFactory.createClient(myConfig);
-        myDb = myMongo.getDatabase(TEST_DB_NAME);
+        myDb = ourMongo.getDatabase(TEST_DB_NAME);
         myCollection = myDb.getCollection(TEST_COLLECTION_NAME + "_"
                 + (++ourUniqueId));
 
@@ -341,25 +363,17 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
                 myDb.drop();
             }
-            if (myMongo != null) {
-                myMongo.close();
-            }
-        }
-        catch (final IOException e) {
-            // Ignore. Trying to cleanup.
         }
         catch (final MongoDbException e) {
             // Ignore. Trying to cleanup.
         }
         finally {
-            myMongo = null;
             myDb = null;
             myCollection = null;
             myGeoCollection = null;
             myGeoSphereCollection = null;
             myConfig = null;
             myRandom = null;
-
         }
     }
 
@@ -625,7 +639,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public void testAggregateCursor() {
         myConfig.setDefaultDurability(Durability.ACK);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.match(Find.ALL);
@@ -721,7 +735,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public void testAggregateStream() {
         myConfig.setDefaultDurability(Durability.ACK);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.match(Find.ALL);
@@ -769,7 +783,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     public void testAggregateTimeout() {
         myConfig.setDefaultDurability(Durability.ACK);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final Aggregate.Builder builder = new Aggregate.Builder();
 
@@ -872,6 +886,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         Future<Long> count = null;
         Future<Document> found2 = null;
         BatchedAsyncMongoCollection batch = null;
+
+        myDb.setDurability(Durability.ACK);
         try {
             batch = myCollection.startBatch();
 
@@ -918,7 +934,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             // Lets prove it by waiting (not too long) on the first insert's
             // Future.
             try {
-                insertResults.get(0).get(1, TimeUnit.SECONDS);
+                assertThat(insertResults.get(0).get(1, TimeUnit.SECONDS),
+                        either(is(1)).or(is(0)));
                 fail("The insert should not finish until we close the batch.");
             }
             catch (final TimeoutException good) {
@@ -1214,7 +1231,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         try {
             final long before = System.currentTimeMillis();
-            largeCollection(myMongo).count(builder.build());
+            largeCollection(ourMongo).count(builder.build());
             final long after = System.currentTimeMillis();
 
             assertThat("Should have thrown a timeout exception. Elapsed time: "
@@ -1450,7 +1467,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testDistinctTimeout() {
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final Distinct.Builder builder = new Distinct.Builder();
         builder.setKey("zip-code");
@@ -1500,7 +1517,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        List<String> names = myMongo.listDatabaseNames();
+        List<String> names = ourMongo.listDatabaseNames();
         assertTrue("Database should be in the list: '" + TEST_DB_NAME + "' in "
                 + names, names.contains(TEST_DB_NAME));
 
@@ -1517,7 +1534,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             return;
         }
 
-        names = myMongo.listDatabaseNames();
+        names = ourMongo.listDatabaseNames();
         assertFalse("Database should not be in the list any more: '"
                 + TEST_DB_NAME + "' not in " + names,
                 names.contains(TEST_DB_NAME));
@@ -1612,7 +1629,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         try {
             final long before = System.currentTimeMillis();
-            largeCollection(myMongo).findAndModify(builder.build());
+            largeCollection(ourMongo).findAndModify(builder.build());
             final long after = System.currentTimeMillis();
             assertThat("Should have thrown a timeout exception. Elapsed time: "
                     + (after - before) + " ms", after - before, lessThan(50L));
@@ -1739,7 +1756,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testFindTimeout() {
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final Find.Builder find = new Find.Builder();
 
@@ -2267,7 +2284,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         builder.maximumTime(1, TimeUnit.MILLISECONDS);
 
         try {
-            final MongoCollection collection = largeCollection(myMongo);
+            final MongoCollection collection = largeCollection(ourMongo);
             final long before = System.currentTimeMillis();
             collection.groupBy(builder.build());
             final long after = System.currentTimeMillis();
@@ -2393,7 +2410,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -2435,7 +2452,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.ACK);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -2506,7 +2523,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
-        final List<String> names = myMongo.listDatabaseNames();
+        final List<String> names = ourMongo.listDatabaseNames();
 
         assertTrue(
                 "Missing the '" + TEST_DB_NAME + "' database name: " + names,
@@ -2636,7 +2653,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Test
     public void testMapReduceTimeout() {
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final MapReduce.Builder mrBuilder = new MapReduce.Builder();
         mrBuilder.setMapFunction("function() {                              "
@@ -2688,7 +2705,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -2722,7 +2739,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -2757,7 +2774,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -2783,11 +2800,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         assertNotEquals(findBuilder.build().getLimit(), count);
 
         // Restart the connections.
-        IOUtils.close(myMongo);
+        IOUtils.close(ourMongo);
+        ourMongo = null;
         connect();
 
         // Restart the iterator.
-        iter = myMongo.restart(iter.asDocument());
+        iter = ourMongo.restart(iter.asDocument());
         for (final Document found : iter) {
 
             assertNotNull(found);
@@ -2809,7 +2827,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final int cores = Runtime.getRuntime().availableProcessors();
         final ParallelScan.Builder scan = ParallelScan.builder()
@@ -2861,7 +2879,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         final int cores = Runtime.getRuntime().availableProcessors();
         final ParallelScan.Builder scan = ParallelScan.builder()
@@ -8702,7 +8720,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -8728,7 +8746,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         assertNotEquals(findBuilder.build().getLimit(), count);
 
         // Restart the connections.
-        IOUtils.close(myMongo);
+        IOUtils.close(ourMongo);
+        ourMongo = null;
+
         connect();
 
         final Document goodDoc = iter.asDocument();
@@ -8737,7 +8757,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         builder.add(MongoCursorControl.CURSOR_ID_FIELD, 12345678L);
 
         // Restart the bad iterator.
-        iter = myMongo.restart(builder.asDocument());
+        iter = ourMongo.restart(builder.asDocument());
         try {
             iter.hasNext();
             fail("Should not have found the bogus cursor id.");
@@ -8747,7 +8767,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         }
         finally {
             // Now cleanup the iterator.
-            iter = myMongo.restart(goodDoc);
+            iter = ourMongo.restart(goodDoc);
             for (final Document found : iter) {
 
                 assertNotNull(found);
@@ -8813,7 +8833,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -8848,7 +8868,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         myConfig.setDefaultDurability(Durability.NONE);
         myConfig.setMaxConnectionCount(1);
 
-        final MongoCollection collection = largeCollection(myMongo);
+        final MongoCollection collection = largeCollection(ourMongo);
 
         // Now go find all of them.
         final Find.Builder findBuilder = new Find.Builder(BuilderFactory
@@ -9331,6 +9351,24 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     }
 
     /**
+     * Initializes the {@link MongoClientConfiguration}.
+     * 
+     * @return The {@link MongoClientConfiguration} for the tests.
+     */
+    protected MongoClientConfiguration initConfig() {
+        if (myConfig == null) {
+            if (ourMongo != null) {
+                myConfig = ourMongo.getConfig();
+            }
+            else {
+                myConfig = new MongoClientConfiguration();
+            }
+        }
+
+        return myConfig;
+    }
+
+    /**
      * Returns true when running against a replica set configuration (may be
      * shards of replica sets.
      * 
@@ -9394,7 +9432,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
                 // Add some more chunks and move around the shards.
                 int index = 0;
-                final MongoCollection shards = myMongo.getDatabase("config")
+                final MongoCollection shards = ourMongo.getDatabase("config")
                         .getCollection("shards");
                 for (final Document shard : shards.find(BuilderFactory.start())) {
                     options.reset().push("middle")

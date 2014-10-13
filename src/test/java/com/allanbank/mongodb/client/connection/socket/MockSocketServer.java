@@ -336,7 +336,7 @@ public class MockSocketServer extends Thread {
         myConnection.configureBlocking(false);
 
         ByteBuffer header = ByteBuffer
-                .allocate(AbstractSocketConnection.HEADER_LENGTH);
+                .allocate(AbstractConnection.HEADER_LENGTH);
         ByteBuffer body = null;
         int read = 0;
         while (myRunning) {
@@ -362,7 +362,7 @@ public class MockSocketServer extends Thread {
                         final int length = EndianUtils.swap(dup.asIntBuffer()
                                 .get(0));
                         body = ByteBuffer.allocate(length
-                                - AbstractSocketConnection.HEADER_LENGTH);
+                                - AbstractConnection.HEADER_LENGTH);
                     }
 
                     if (body.hasRemaining()) {
@@ -386,7 +386,7 @@ public class MockSocketServer extends Thread {
                         }
                         // Setup for the next message.
                         header = ByteBuffer
-                                .allocate(AbstractSocketConnection.HEADER_LENGTH);
+                                .allocate(AbstractConnection.HEADER_LENGTH);
                         body = null;
 
                         if (!myReplies.isEmpty()) {

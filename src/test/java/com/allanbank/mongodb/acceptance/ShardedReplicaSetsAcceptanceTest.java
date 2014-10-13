@@ -112,17 +112,11 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
-     * Sets up to create a connection to MongoDB.
+     * Creates a connection to MongoDB.
      */
-    @Before
     @Override
+    @Before
     public void connect() {
-        myConfig = new MongoClientConfiguration();
-        myConfig.addServer(createAddress());
-        myConfig.setAutoDiscoverServers(true);
-        myConfig.setMaxConnectionCount(1);
-        myConfig.setReconnectTimeout(60000);
-
         super.connect();
 
         shardCollection(myCollection.getName());
@@ -1033,6 +1027,21 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         }
 
         return super.getGeoCollection();
+    }
+
+    /**
+     * Sets up to create a connection to MongoDB.
+     */
+    @Override
+    protected MongoClientConfiguration initConfig() {
+        super.initConfig();
+
+        myConfig.addServer(createAddress());
+        myConfig.setAutoDiscoverServers(true);
+        myConfig.setMaxConnectionCount(1);
+        myConfig.setReconnectTimeout(60000);
+
+        return myConfig;
     }
 
     /**

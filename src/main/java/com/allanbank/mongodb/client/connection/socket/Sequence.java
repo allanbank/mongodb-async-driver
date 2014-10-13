@@ -44,7 +44,7 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class Sequence {
+public class Sequence {
 
     /** The offset of the release value. */
     private static final int RELEASE_OFFSET = 15 + 7;

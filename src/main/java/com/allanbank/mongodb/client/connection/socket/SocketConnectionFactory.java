@@ -65,6 +65,15 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     private static final Log LOG = LogFactory
             .getLog(SocketConnectionFactory.class);
 
+    /** The MongoDB client configuration. */
+    protected final MongoClientConfiguration myConfig;
+
+    /** Cache used for decoding strings. */
+    protected final StringDecoderCache myDecoderCache;
+
+    /** Cache used for encoding strings. */
+    protected final StringEncoderCache myEncoderCache;
+
     /**
      * The buffers used by the single threaded connections. Each buffer is
      * shared by all connections but there can be up to 1 buffer per application
@@ -77,16 +86,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     private final Cluster myCluster;
 
     /** The MongoDB client configuration. */
-    private final MongoClientConfiguration myConfig;
-
-    /** The MongoDB client configuration. */
     private final ConfigurationListener myConfigListener;
-
-    /** Cache used for decoding strings. */
-    private final StringDecoderCache myDecoderCache;
-
-    /** Cache used for encoding strings. */
-    private final StringEncoderCache myEncoderCache;
 
     /** The metrics for the client. */
     private MongoClientMetrics myMetrics;

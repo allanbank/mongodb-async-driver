@@ -24,7 +24,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -63,21 +62,6 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
-     * Sets up to create a connection to MongoDB.
-     */
-    @Before
-    @Override
-    public void connect() {
-        myConfig = new MongoClientConfiguration();
-        myConfig.addServer(createAddress());
-        myConfig.setAutoDiscoverServers(true);
-        myConfig.setMaxConnectionCount(1);
-        myConfig.setReconnectTimeout(60000);
-
-        super.connect();
-    }
-
-    /**
      * Tests the handling of a mongos server getting shutdown.
      */
     @Test
@@ -89,7 +73,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertThat(myMongo.listDatabaseNames(),
+        assertThat(ourMongo.listDatabaseNames(),
                 hasItems(TEST_DB_NAME, "config"));
 
         try {
@@ -100,7 +84,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
             kill.waitFor();
 
             // Quick command that should then fail.
-            myMongo.listDatabaseNames();
+            ourMongo.listDatabaseNames();
 
             // ... but its OK if it misses getting out before the Process dies.
         }
@@ -117,7 +101,7 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
             Thread.sleep(1000);
 
             // Should switch to the other shards.
-            myMongo.listDatabaseNames();
+            ourMongo.listDatabaseNames();
         }
         catch (final Exception e) {
             final AssertionError error = new AssertionError(e.getMessage());
@@ -129,6 +113,21 @@ public class ShardedAcceptanceTest extends BasicAcceptanceTestCases {
             // disconnect();
             startServer();
         }
+    }
+
+    /**
+     * Sets up to create a connection to MongoDB.
+     */
+    @Override
+    protected MongoClientConfiguration initConfig() {
+        super.initConfig();
+
+        myConfig.addServer(createAddress());
+        myConfig.setAutoDiscoverServers(true);
+        myConfig.setMaxConnectionCount(1);
+        myConfig.setReconnectTimeout(60000);
+
+        return myConfig;
     }
 
     /**

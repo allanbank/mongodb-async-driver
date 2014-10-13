@@ -34,7 +34,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -86,21 +85,6 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     }
 
     /**
-     * Sets up to create a connection to MongoDB.
-     */
-    @Before
-    @Override
-    public void connect() {
-        myConfig = new MongoClientConfiguration();
-        myConfig.addServer(createAddress());
-        myConfig.setAutoDiscoverServers(true);
-        myConfig.setMaxConnectionCount(1);
-        myConfig.setReconnectTimeout(90000);
-
-        super.connect();
-    }
-
-    /**
      * Tests recovery from a graceful step-down of a server.
      */
     @Test
@@ -110,7 +94,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
+        assertTrue(ourMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         // Step down the primary shard.
         stepDownPrimary(15);
@@ -119,7 +103,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             TimeUnit.MILLISECONDS.sleep(100);
 
             // Should switch to the other shards.
-            myMongo.listDatabaseNames();
+            ourMongo.listDatabaseNames();
         }
         catch (final Exception e) {
             final AssertionError error = new AssertionError(e.getMessage());
@@ -313,7 +297,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
+        assertTrue(ourMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         // Step down all of the shards.
         query.readPreference(ReadPreference.PRIMARY);
@@ -356,7 +340,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         // Make sure the collection/db exist and we are connected.
         myCollection.insert(BuilderFactory.start().build());
 
-        assertTrue(myMongo.listDatabaseNames().contains(TEST_DB_NAME));
+        assertTrue(ourMongo.listDatabaseNames().contains(TEST_DB_NAME));
 
         try {
             // Stop the main shard.
@@ -366,7 +350,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             kill.waitFor();
 
             // Quick command that should then fail.
-            myMongo.listDatabaseNames();
+            ourMongo.listDatabaseNames();
 
             // ... but its OK if it misses getting out before the Process dies.
         }
@@ -383,7 +367,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             Thread.sleep(1000);
 
             // Should switch to the other shards.
-            myMongo.listDatabaseNames();
+            ourMongo.listDatabaseNames();
         }
         catch (final Exception e) {
             final AssertionError error = new AssertionError(e.getMessage());
@@ -394,6 +378,21 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
             // Make sure the server is restarted for the other tests.
             repairReplicaSet();
         }
+    }
+
+    /**
+     * Sets up to create a connection to MongoDB.
+     */
+    @Override
+    protected MongoClientConfiguration initConfig() {
+        super.initConfig();
+
+        myConfig.addServer(createAddress());
+        myConfig.setAutoDiscoverServers(true);
+        myConfig.setMaxConnectionCount(1);
+        myConfig.setReconnectTimeout(90000);
+
+        return myConfig;
     }
 
     /**
@@ -446,7 +445,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         while (now < deadline) {
             try {
                 // Stepdown the primary shard.
-                myMongo.getDatabase("admin").runCommand(stepDownCommand);
+                ourMongo.getDatabase("admin").runCommand(stepDownCommand);
 
                 // ... the replStepDown will throw an exception.
 
