@@ -91,7 +91,6 @@ public class Slf4jLogTest {
             ourFactoryMethod.setAccessible(true);
         }
         catch (final Exception e) {
-            e.printStackTrace();
             assumeNoException(e);
         }
     }
@@ -122,7 +121,7 @@ public class Slf4jLogTest {
         File file = null;
         try {
             final URL url = new URL(
-                    "http://search.maven.org/remotecontent?filepath=org/slf4j/"
+                    "http://repo.maven.apache.org/maven2/org/slf4j/"
                             + name + "/" + version + "/" + name + "-" + version
                             + ".jar");
 
