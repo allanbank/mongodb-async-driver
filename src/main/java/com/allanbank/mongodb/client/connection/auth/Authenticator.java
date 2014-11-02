@@ -56,6 +56,13 @@ public interface Authenticator extends Cloneable {
     public Authenticator clone();
 
     /**
+     * Returns true if the authenticator has completed, false otherwise.
+     * 
+     * @return True if the authenticator has completed.
+     */
+    public boolean finished();
+
+    /**
      * Returns the results of the authentication attempt.
      * 
      * @return True if the user is successfully authenticated on the connection,
