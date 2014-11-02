@@ -27,6 +27,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -35,6 +36,8 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -139,25 +142,25 @@ public class AuthenticatingConnectionTest {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -176,7 +179,7 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -193,25 +196,25 @@ public class AuthenticatingConnectionTest {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -230,7 +233,7 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -247,20 +250,20 @@ public class AuthenticatingConnectionTest {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -272,7 +275,7 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -286,20 +289,20 @@ public class AuthenticatingConnectionTest {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb());
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -311,7 +314,397 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testAuthenticateFailsWithRetry() throws IOException {
+
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 0);
+
+        final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myNonceRequest.build())), cb(myNonceReply));
+        expectLastCall();
+
+        // Auth.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myAuthRequest.build())), cb(myAuthReply));
+        expectLastCall();
+
+        replay(mockConnection);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnection, myConfig);
+
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication falis.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good. Ask once. Keep failing.
+        }
+        verify(mockConnection);
+
+        // Setup for the auth retry.
+        reset(mockConnection);
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 1);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myNonceRequest.build())), cb(myNonceReply));
+        expectLastCall();
+
+        // Auth.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myAuthRequest.build())), cb(myAuthReply));
+        expectLastCall();
+
+        // Message.
+        mockConnection.send(msg, null);
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        // Wait for the retry interval to expire.
+        sleep(AuthenticatingConnection.RETRY_INTERVAL_MS
+                + AuthenticatingConnection.RETRY_INTERVAL_MS);
+
+        // Note that normally the auth would be delayed but with the EasyMock
+        // callbacks the authentication completes on this thread.
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication fails.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+            fail("Should not throw an exception when authentication retry succeeds.");
+        }
+
+        IOUtils.close(conn);
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testAuthenticateFailsWithRetryExternal() throws IOException {
+        myConfig.addCredential(Credential.builder().userName("allanbank")
+                .password("super_secret_password".toCharArray())
+                .database(AuthenticatingConnection.EXTERNAL_DB_NAME)
+                .authenticationType(Credential.MONGODB_CR).build());
+
+        final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myNonceRequest.build())), cb(myNonceReply));
+        expectLastCall();
+
+        // Auth.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myAuthRequest.build())), cb(myAuthReply));
+        expectLastCall();
+
+        // Nonce - external
+        mockConnection.send(eq(new Command(
+                AuthenticatingConnection.EXTERNAL_DB_NAME,
+                Command.COMMAND_COLLECTION, myNonceRequest.build())),
+                cb(myNonceReply));
+        expectLastCall();
+
+        // Auth - external
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 0);
+        mockConnection.send(eq(new Command(
+                AuthenticatingConnection.EXTERNAL_DB_NAME,
+                Command.COMMAND_COLLECTION, myAuthRequest.build())),
+                cb(myAuthReply));
+        expectLastCall();
+
+        // Message.
+        mockConnection.send(msg, null);
+        expectLastCall();
+
+        replay(mockConnection);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnection, myConfig);
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            fail("Should not fail when the authentication succeeds on the database.");
+        }
+
+        verify(mockConnection);
+
+        // Setup for the auth retry.
+        reset(mockConnection);
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 1);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(
+                AuthenticatingConnection.EXTERNAL_DB_NAME,
+                Command.COMMAND_COLLECTION, myNonceRequest.build())),
+                cb(myNonceReply));
+        expectLastCall();
+
+        // Auth - external
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 1);
+        mockConnection.send(eq(new Command(
+                AuthenticatingConnection.EXTERNAL_DB_NAME,
+                Command.COMMAND_COLLECTION, myAuthRequest.build())),
+                cb(myAuthReply));
+        expectLastCall();
+
+        // Message.
+        mockConnection.send(msg, null);
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        // Wait for the retry interval to expire.
+        sleep(AuthenticatingConnection.RETRY_INTERVAL_MS
+                + AuthenticatingConnection.RETRY_INTERVAL_MS);
+
+        // Note that normally the auth would be delayed but with the EasyMock
+        // callbacks the authentication completes on this thread.
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            fail("Should not fail when the authentication succeeds on the database.");
+        }
+
+        IOUtils.close(conn);
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testAuthenticateFailsWithRetryFails() throws IOException {
+
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 0);
+
+        final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myNonceRequest.build())), cb(myNonceReply));
+        expectLastCall();
+
+        // Auth.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myAuthRequest.build())), cb(myAuthReply));
+        expectLastCall();
+
+        replay(mockConnection);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnection, myConfig);
+
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication falis.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good. Ask once. Keep failing.
+        }
+        verify(mockConnection);
+
+        // Setup for the auth retry.
+        reset(mockConnection);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myNonceRequest.build())), cb(myNonceReply));
+        expectLastCall();
+
+        // Auth.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myAuthRequest.build())), cb(myAuthReply));
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        // Wait for the retry interval to expire.
+        sleep(AuthenticatingConnection.RETRY_INTERVAL_MS
+                + AuthenticatingConnection.RETRY_INTERVAL_MS);
+
+        // Note that normally the auth would be delayed but with the EasyMock
+        // callbacks the authentication completes on this thread.
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication fails.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication fails.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good. Ask once. Keep failing.
+        }
+
+        IOUtils.close(conn);
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
+    public void testAuthenticateFailsWithRetryAndCredentialRemoved()
+            throws IOException {
+
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 0);
+
+        final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myNonceRequest.build())), cb(myNonceReply));
+        expectLastCall();
+
+        // Auth.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myAuthRequest.build())), cb(myAuthReply));
+        expectLastCall();
+
+        replay(mockConnection);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnection, myConfig);
+
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication falis.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good. Ask once. Keep failing.
+        }
+        verify(mockConnection);
+
+        // Setup for the auth retry.
+        reset(mockConnection);
+
+        // Remove the credentials.
+        List<Credential> noCredentials = Collections.emptyList();
+        myConfig.setCredentials(noCredentials);
+
+        // Message.
+        mockConnection.send(msg, null);
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        // Wait for the retry interval to expire.
+        sleep(AuthenticatingConnection.RETRY_INTERVAL_MS
+                + AuthenticatingConnection.RETRY_INTERVAL_MS);
+
+        // Note that normally the auth would be delayed but with the EasyMock
+        // callbacks the authentication completes on this thread.
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication fails.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+            fail("Should not throw an exception when authentication credentials are removed.");
+        }
+
+        IOUtils.close(conn);
+
+        verify(mockConnection);
     }
 
     /**
@@ -326,25 +719,25 @@ public class AuthenticatingConnectionTest {
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
         final MongoDbException injected = new MongoDbException("Injected");
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(injected));
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -367,7 +760,7 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -381,27 +774,27 @@ public class AuthenticatingConnectionTest {
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
         final MongoDbException injected = new MongoDbException("Injected");
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), anyObject(ReplyCallback.class));
         expectLastCall().andThrow(injected);
 
         // Just a log message (now).
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -440,7 +833,7 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -458,47 +851,47 @@ public class AuthenticatingConnectionTest {
 
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB + '1',
+        mockConnection.send(eq(new Command(TEST_DB + '1',
                 Command.COMMAND_COLLECTION, myNonceRequest.build())),
                 cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB + '1',
+        mockConnection.send(eq(new Command(TEST_DB + '1',
                 Command.COMMAND_COLLECTION, myAuthRequest.build())),
                 cb(myAuthReply));
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg, null);
+        mockConnection.send(msg, null);
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         conn.send(msg, null);
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -516,37 +909,37 @@ public class AuthenticatingConnectionTest {
 
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth -- Failure
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(start(myAuthReply).remove("ok")));
         expectLastCall();
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB + '1',
+        mockConnection.send(eq(new Command(TEST_DB + '1',
                 Command.COMMAND_COLLECTION, myNonceRequest.build())),
                 cb(myNonceReply));
         expectLastCall();
 
         // Auth -- Failure 2
-        mockConnetion.send(eq(new Command(TEST_DB + '1',
+        mockConnection.send(eq(new Command(TEST_DB + '1',
                 Command.COMMAND_COLLECTION, myAuthRequest.build())),
                 cb(start(myAuthReply).remove("ok").add("ok", 0)));
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -559,7 +952,7 @@ public class AuthenticatingConnectionTest {
             IOUtils.close(conn);
         }
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -573,25 +966,25 @@ public class AuthenticatingConnectionTest {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb());
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         try {
             conn.send(msg, null);
@@ -603,7 +996,7 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -619,25 +1012,25 @@ public class AuthenticatingConnectionTest {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
         try {
             conn.send(msg, null);
             fail("Should throw an exception when authentication falis.");
@@ -647,7 +1040,7 @@ public class AuthenticatingConnectionTest {
         }
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -661,18 +1054,18 @@ public class AuthenticatingConnectionTest {
 
         final MongoDbException injected = new MongoDbException("Injected");
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb());
         expectLastCall().andThrow(injected);
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         try {
             final AuthenticatingConnection conn = new AuthenticatingConnection(
-                    mockConnetion, myConfig);
+                    mockConnection, myConfig);
 
             fail("Should throw an exception when nonce fails.");
 
@@ -683,7 +1076,7 @@ public class AuthenticatingConnectionTest {
             assertSame(injected, good);
         }
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -726,35 +1119,35 @@ public class AuthenticatingConnectionTest {
         final Delete msg = new Delete(MongoClientConfiguration.ADMIN_DB_NAME,
                 "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command("foo", Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command("foo", Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command("foo", Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command("foo", Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg, null);
+        mockConnection.send(msg, null);
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         conn.send(msg, null);
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -770,35 +1163,35 @@ public class AuthenticatingConnectionTest {
         final ReplyCallback reply = new FutureReplyCallback();
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg, reply);
+        mockConnection.send(msg, reply);
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         conn.send(msg, reply);
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -813,35 +1206,35 @@ public class AuthenticatingConnectionTest {
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
         final GetLastError msg2 = new GetLastError(TEST_DB, Durability.ACK);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg, msg2, null);
+        mockConnection.send(msg, msg2, null);
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         conn.send(msg, msg2, null);
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -855,35 +1248,35 @@ public class AuthenticatingConnectionTest {
 
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg, null);
+        mockConnection.send(msg, null);
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         conn.send(msg, null);
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -902,35 +1295,35 @@ public class AuthenticatingConnectionTest {
 
         final Delete msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command("admin", Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command("admin", Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command("admin", Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command("admin", Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg, null);
+        mockConnection.send(msg, null);
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         conn.send(msg, null);
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -944,40 +1337,40 @@ public class AuthenticatingConnectionTest {
 
         final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
 
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
         // Message.
-        mockConnetion.send(msg, null);
+        mockConnection.send(msg, null);
         expectLastCall();
 
         // Message, again.
-        mockConnetion.send(msg, null);
+        mockConnection.send(msg, null);
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         conn.send(msg, null);
         conn.send(msg, null);
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
     }
 
     /**
@@ -988,25 +1381,25 @@ public class AuthenticatingConnectionTest {
      */
     @Test
     public void testToString() throws IOException {
-        final Connection mockConnetion = createMock(Connection.class);
+        final Connection mockConnection = createMock(Connection.class);
 
         // Nonce.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myNonceRequest.build())), cb(myNonceReply));
         expectLastCall();
 
         // Auth.
-        mockConnetion.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
                 myAuthRequest.build())), cb(myAuthReply));
         expectLastCall();
 
-        mockConnetion.close();
+        mockConnection.close();
         expectLastCall();
 
-        replay(mockConnetion);
+        replay(mockConnection);
 
         final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnetion, myConfig);
+                mockConnection, myConfig);
 
         assertEquals(
                 "Auth(EasyMock for interface com.allanbank.mongodb.client.connection.Connection)",
@@ -1014,6 +1407,21 @@ public class AuthenticatingConnectionTest {
 
         IOUtils.close(conn);
 
-        verify(mockConnetion);
+        verify(mockConnection);
+    }
+
+    /**
+     * Pauses for the specified amount of time.
+     * 
+     * @param timeMs
+     *            The time to sleep in milliseconds.
+     */
+    private void sleep(final long timeMs) {
+        try {
+            Thread.sleep(timeMs);
+        }
+        catch (final InterruptedException e) {
+            // Ignore
+        }
     }
 }
