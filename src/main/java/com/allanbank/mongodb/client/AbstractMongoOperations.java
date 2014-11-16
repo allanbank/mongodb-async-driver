@@ -1148,7 +1148,7 @@ public abstract class AbstractMongoOperations {
     protected AggregateCommand toCommand(final Aggregate command,
             final boolean explain) {
         Version minVersion = command.getRequiredVersion();
-        Version maxVersion = command.getRequiredVersion();
+        Version maxVersion = Version.UNKNOWN;
 
         final DocumentBuilder builder = BuilderFactory.start();
 
