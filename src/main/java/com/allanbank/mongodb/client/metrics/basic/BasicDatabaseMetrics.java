@@ -22,6 +22,8 @@ package com.allanbank.mongodb.client.metrics.basic;
 import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -128,8 +130,12 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
     @Override
     public void writeTo(final PrintWriter writer) {
         writeTo(writer, "Database", getName());
-        for (final BasicCollectionMetrics collectionMetrics : myCollectionMetrics
-                .values()) {
+
+        Set<String> names = new TreeSet<String>(myCollectionMetrics.keySet());
+        for (final String name : names) {
+            BasicCollectionMetrics collectionMetrics = myCollectionMetrics
+                    .get(name);
+
             writer.println();
             collectionMetrics.writeTo(writer);
         }

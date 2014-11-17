@@ -23,6 +23,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -125,15 +127,17 @@ public class BasicOperationMetricsListener implements MongoMessageListener {
      */
     public void writeTo(final PrintWriter writer) {
         boolean first = true;
-        for (final BasicOperationMetrics serverMetrics : myOperationMetrics
-                .values()) {
+        Set<String> names = new TreeSet<String>(myOperationMetrics.keySet());
+        for (final String name : names) {
+            BasicOperationMetrics operationMetrics = myOperationMetrics
+                    .get(name);
             if (first) {
                 first = false;
             }
             else {
                 writer.println();
             }
-            writer.print(serverMetrics);
+            writer.print(operationMetrics);
         }
     }
 
