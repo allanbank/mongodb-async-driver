@@ -125,9 +125,9 @@ public class BasicServerMetricsListener implements MongoMessageListener {
      */
     public void writeTo(final PrintWriter writer) {
         boolean first = true;
-        Set<String> names = new TreeSet<String>(myServerMetrics.keySet());
+        final Set<String> names = new TreeSet<String>(myServerMetrics.keySet());
         for (final String name : names) {
-            BasicServerMetrics serverMetrics = myServerMetrics.get(name);
+            final BasicServerMetrics serverMetrics = myServerMetrics.get(name);
             if (first) {
                 first = false;
             }

@@ -127,9 +127,10 @@ public class BasicOperationMetricsListener implements MongoMessageListener {
      */
     public void writeTo(final PrintWriter writer) {
         boolean first = true;
-        Set<String> names = new TreeSet<String>(myOperationMetrics.keySet());
+        final Set<String> names = new TreeSet<String>(
+                myOperationMetrics.keySet());
         for (final String name : names) {
-            BasicOperationMetrics operationMetrics = myOperationMetrics
+            final BasicOperationMetrics operationMetrics = myOperationMetrics
                     .get(name);
             if (first) {
                 first = false;

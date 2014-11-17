@@ -125,9 +125,10 @@ public class BasicLogicalMetricsListener implements MongoMessageListener {
      */
     public void writeTo(final PrintWriter writer) {
         boolean first = true;
-        Set<String> names = new TreeSet<String>(myDatabaseMetrics.keySet());
+        final Set<String> names = new TreeSet<String>(
+                myDatabaseMetrics.keySet());
         for (final String name : names) {
-            BasicDatabaseMetrics dbMetrics = myDatabaseMetrics.get(name);
+            final BasicDatabaseMetrics dbMetrics = myDatabaseMetrics.get(name);
 
             if (first) {
                 first = false;

@@ -131,9 +131,10 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
     public void writeTo(final PrintWriter writer) {
         writeTo(writer, "Database", getName());
 
-        Set<String> names = new TreeSet<String>(myCollectionMetrics.keySet());
+        final Set<String> names = new TreeSet<String>(
+                myCollectionMetrics.keySet());
         for (final String name : names) {
-            BasicCollectionMetrics collectionMetrics = myCollectionMetrics
+            final BasicCollectionMetrics collectionMetrics = myCollectionMetrics
                     .get(name);
 
             writer.println();
