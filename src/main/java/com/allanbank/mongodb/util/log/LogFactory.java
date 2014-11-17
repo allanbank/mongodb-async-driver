@@ -39,6 +39,17 @@ public abstract class LogFactory {
      * @return The {@link Log} instance for the class.
      */
     public static Log getLog(final Class<?> clazz) {
+        return getLog(clazz.getName());
+    }
+
+    /**
+     * Creates a {@link Log} instance for the provided class.
+     * 
+     * @param name
+     *            The name to create a log instance for.
+     * @return The {@link Log} instance for the class.
+     */
+    public static Log getLog(final String name) {
         LogFactory factory = ourInstance;
         if (factory == null) {
             try {
@@ -49,7 +60,15 @@ public abstract class LogFactory {
             }
             ourInstance = factory;
         }
-        return factory.doGetLog(clazz);
+        return factory.doGetLog(name);
+    }
+
+    /**
+     * Resets the logger factory to the JUL (Java Util Logging). Provided for
+     * testing.
+     */
+    /* package */static void forceJul() {
+        ourInstance = new JulLogFactory();
     }
 
     /**
@@ -69,9 +88,9 @@ public abstract class LogFactory {
     /**
      * Delegate method for the instantiated {@link LogFactory}.
      * 
-     * @param clazz
-     *            The name of the class to create a log instance for.
+     * @param name
+     *            The name of the logger.
      * @return The {@link Log} instance for the class.
      */
-    protected abstract Log doGetLog(Class<?> clazz);
+    protected abstract Log doGetLog(String name);
 }

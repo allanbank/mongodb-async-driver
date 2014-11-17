@@ -66,7 +66,7 @@ public class JulLogTest {
         myJulLog.setUseParentHandlers(false);
         myJulLog.setLevel(Level.ALL);
 
-        myTestLog = new JulLogFactory().doGetLog(JulLogTest.class);
+        myTestLog = new JulLogFactory().doGetLog(JulLogTest.class.getName());
     }
 
     /**

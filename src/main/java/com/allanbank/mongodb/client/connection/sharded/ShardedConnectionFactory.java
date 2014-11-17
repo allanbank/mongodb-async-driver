@@ -43,6 +43,7 @@ import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.ClusterPinger;
 import com.allanbank.mongodb.client.state.LatencyServerSelector;
@@ -219,6 +220,17 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * {@inheritDoc}
      * <p>
+     * Returns the metrics agent from the proxied connection factory.
+     * </p>
+     */
+    @Override
+    public MongoClientMetrics getMetrics() {
+        return myConnectionFactory.getMetrics();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return the delegates strategy but replace his state and
      * selector with our own.
      * </p>
@@ -233,6 +245,17 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         delegates.setConnectionFactory(myConnectionFactory);
 
         return delegates;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sets the metrics agent on the proxied connection factory.
+     * </p>
+     */
+    @Override
+    public void setMetrics(final MongoClientMetrics metrics) {
+        myConnectionFactory.setMetrics(metrics);
     }
 
     /**

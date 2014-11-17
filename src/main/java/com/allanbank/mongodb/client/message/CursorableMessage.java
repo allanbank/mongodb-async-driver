@@ -38,13 +38,6 @@ public interface CursorableMessage extends Message {
     public int getBatchSize();
 
     /**
-     * Returns the name of the collection.
-     * 
-     * @return The name of the collection.
-     */
-    public String getCollectionName();
-
-    /**
      * Returns the total number of documents to be returned.
      * 
      * @return The total number of documents to be returned.

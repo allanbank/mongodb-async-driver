@@ -49,6 +49,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -76,6 +77,18 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /** The default database. */
     public static final String DEFAULT_DB_NAME = "local";
+
+    /**
+     * The name of the logger used to log the messages when
+     * {@link #setLogMessagesEnabled(boolean) message logging} is enabled.
+     */
+    public static final String MESSAGE_LOGGER_NAME = "com.allanbank.mongodb.messages";
+
+    /**
+     * The name of the logger used to log the periodic metrics and the final
+     * metrics when the client is closed.
+     */
+    public static final String METRICS_LOGGER_NAME = "com.allanbank.mongodb.metrics";
 
     /** The ASCII character encoding. */
     public static final Charset UTF8 = Charset.forName("UTF-8");
@@ -172,6 +185,20 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private LockType myLockType = LockType.MUTEX;
 
     /**
+     * Determines if the driver logs each message that is sent or received by
+     * the client. Logged messages will be at the DEBUG level on the logger
+     * {@value #MESSAGE_LOGGER_NAME}. {@link #isMetricsEnabled()} must be true
+     * for message logging to be supported.
+     * <p>
+     * <b>WARNING</>: Enabling message logging will have a sever impact on
+     * performance.
+     * <p>
+     * Defaults to false, to not log messages.
+     * </p>
+     */
+    private boolean myLogMessagesEnabled = false;
+
+    /**
      * The maximum number of strings that may have their encoded form cached.
      * <p>
      * Defaults to {@value #DEFAULT_MAX_STRING_CACHE_ENTRIES}.
@@ -237,6 +264,44 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * </p>
      */
     private long myMaxSecondaryLag = TimeUnit.MINUTES.toMillis(5);
+
+    /**
+     * Returns true if the driver collects metrics on the messages it sends and
+     * receives to the MongoDB cluster.
+     * <p>
+     * If enabled and the JVM supports JMX then the metrics will be exposed via
+     * JMX. Regardless of JMX support the driver will periodically create a log
+     * message containing the current metrics. Logged messages will be at the
+     * {@link MongoClientConfiguration#setMetricsLogLevel configured} level
+     * using the logger {@value #METRICS_LOGGER_NAME}.
+     * <p>
+     * Metrics must be enables for message logging to be supported.
+     * </p>
+     * <p>
+     * Defaults to true to collect metrics.
+     * </p>
+     * <p>
+     * This value must be set prior to constructing the {@link MongoClient} and
+     * any changes after a {@code MongoClient} is constructed will have no
+     * effect for that {@code MongoClient}.
+     * </p>
+     */
+    private boolean myMetricsEnabled = true;
+
+    /**
+     * Returns the level that the driver logs metrics. The value is based on the
+     * {@link Level#intValue()}. Common values include:
+     * <ul>
+     * <li>FINE/DEBUG - 500
+     * <li>INFO - 800
+     * <li>WARNING - 900
+     * <li>ERROR/SEVERE - 1000
+     * </ul>
+     * <p>
+     * Defaults to DEBUG/500.
+     * </p>
+     */
+    private int myMetricsLogLevel = Level.FINE.intValue();
 
     /**
      * Determines the minimum number of connections to try and keep open.
@@ -965,6 +1030,25 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the level that the driver logs metrics. The value is based on the
+     * {@link Level#intValue()}. Common values include:
+     * <ul>
+     * <li>FINE/DEBUG - 500
+     * <li>INFO - 800
+     * <li>WARNING - 900
+     * <li>ERROR/SEVERE - 1000
+     * </ul>
+     * <p>
+     * Defaults to DEBUG/500.
+     * </p>
+     * 
+     * @return The level to do a periodic metrics log.
+     */
+    public int getMetricsLogLevel() {
+        return myMetricsLogLevel;
+    }
+
+    /**
      * Returns the minimum number of connections to try and keep open.
      * <p>
      * Defaults to 0.
@@ -1131,6 +1215,51 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      */
     public boolean isAutoDiscoverServers() {
         return myAutoDiscoverServers;
+    }
+
+    /**
+     * Returns true if the driver logs each message that is sent or received by
+     * the client. Logged messages will be at the DEBUG level on the logger
+     * {@value #MESSAGE_LOGGER_NAME}. {@link #isMetricsEnabled()} must be true
+     * for message logging to be supported.
+     * <p>
+     * <b>WARNING</>: Enabling message logging will have a sever impact on
+     * performance.
+     * <p>
+     * Defaults to false, to not log messages.
+     * </p>
+     * 
+     * @return True if logging of messages is enabled.
+     */
+    public boolean isLogMessagesEnabled() {
+        return myLogMessagesEnabled;
+    }
+
+    /**
+     * Returns true if the driver collects metrics on the messages it sends and
+     * receives to the MongoDB cluster.
+     * <p>
+     * If enabled and the JVM supports JMX then the metrics will be exposed via
+     * JMX. Regardless of JMX support the driver will periodically create a log
+     * message containing the current metrics. Logged messages will be at the
+     * {@link MongoClientConfiguration#setMetricsLogLevel configured} level
+     * using the logger {@value #METRICS_LOGGER_NAME}.
+     * <p>
+     * Metrics must be enables for message logging to be supported.
+     * </p>
+     * <p>
+     * Defaults to true to collect metrics.
+     * </p>
+     * <p>
+     * This value must be set prior to constructing the {@link MongoClient} and
+     * any changes after a {@code MongoClient} is constructed will have no
+     * effect for that {@code MongoClient}.
+     * </p>
+     * 
+     * @return True if metrics collection is enabled.
+     */
+    public boolean isMetricsEnabled() {
+        return myMetricsEnabled;
     }
 
     /**
@@ -1378,6 +1507,30 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Sets if the driver logs each message that is sent or received by the
+     * client. Logged messages will be at the DEBUG level on the logger
+     * {@value #MESSAGE_LOGGER_NAME}. {@link #isMetricsEnabled()} must be true
+     * for message logging to be supported.
+     * <p>
+     * <b>WARNING</>: Enabling message logging will have a sever impact on
+     * performance.
+     * <p>
+     * Defaults to false to not log messages.
+     * </p>
+     * 
+     * @param loggingMessages
+     *            The new value for if messages should be logged.
+     */
+    public void setLogMessagesEnabled(final boolean loggingMessages) {
+        final boolean old = myLogMessagesEnabled;
+
+        myLogMessagesEnabled = loggingMessages;
+
+        myPropSupport.firePropertyChange("logMessagesEnabled", old,
+                myLogMessagesEnabled);
+    }
+
+    /**
      * Sets the value of maximum number of strings that may have their encoded
      * form cached.
      * <p>
@@ -1506,6 +1659,64 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
         myPropSupport.firePropertyChange("maxSecondaryLag", Long.valueOf(old),
                 Long.valueOf(myMaxSecondaryLag));
+    }
+
+    /**
+     * Sets if the driver collects metrics on the messages it sends and receives
+     * to the MongoDB cluster.
+     * <p>
+     * If enabled and the JVM supports JMX then the metrics will be exposed via
+     * JMX. Regardless of JMX support the driver will periodically create a log
+     * message containing the current metrics. Logged messages will be at the
+     * {@link MongoClientConfiguration#setMetricsLogLevel configured} level
+     * using the logger {@value #METRICS_LOGGER_NAME}.
+     * <p>
+     * Metrics must be enables for message logging to be supported.
+     * </p>
+     * <p>
+     * Defaults to true to collect metrics.
+     * </p>
+     * <p>
+     * This value must be set prior to constructing the {@link MongoClient} and
+     * any changes after a {@code MongoClient} is constructed will have no
+     * effect for that {@code MongoClient}.
+     * </p>
+     * 
+     * @param metricsEnabled
+     *            The new value for if metrics should be enabled.
+     */
+    public void setMetricsEnabled(final boolean metricsEnabled) {
+        final boolean old = myMetricsEnabled;
+
+        myMetricsEnabled = metricsEnabled;
+
+        myPropSupport.firePropertyChange("metricsEnabled", old,
+                myMetricsEnabled);
+    }
+
+    /**
+     * Sets the level that the driver logs metrics. The value is based on the
+     * {@link Level#intValue()}. Common values include:
+     * <ul>
+     * <li>FINE/DEBUG - 500
+     * <li>INFO - 800
+     * <li>WARNING - 900
+     * <li>ERROR/SEVERE - 1000
+     * </ul>
+     * <p>
+     * Defaults to DEBUG/500.
+     * </p>
+     * 
+     * @param metricsLogLevel
+     *            The new value for the level to log periodic metrics.
+     */
+    public void setMetricsLogLevel(final int metricsLogLevel) {
+        final int old = myMetricsLogLevel;
+
+        myMetricsLogLevel = metricsLogLevel;
+
+        myPropSupport.firePropertyChange("metricsLogLevel", old,
+                myMetricsLogLevel);
     }
 
     /**

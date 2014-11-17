@@ -130,6 +130,7 @@ public abstract class AbstractMessage implements Message {
      * 
      * @return The name of the collection.
      */
+    @Override
     public String getCollectionName() {
         return myCollectionName;
     }

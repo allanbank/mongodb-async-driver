@@ -87,7 +87,8 @@ public class Slf4jLogTest {
 
             final Class<?> clazz = systemLoader
                     .loadClass("com.allanbank.mongodb.util.log.Slf4jLogFactory");
-            ourFactoryMethod = clazz.getDeclaredMethod("doGetLog", Class.class);
+            ourFactoryMethod = clazz
+                    .getDeclaredMethod("doGetLog", String.class);
             ourFactoryMethod.setAccessible(true);
         }
         catch (final Exception e) {
@@ -104,6 +105,9 @@ public class Slf4jLogTest {
             ourSlf4jApiJar.delete();
             ourSlf4jApiJar = null;
         }
+
+        // Reset to using JUL logging.
+        LogFactory.forceJul();
     }
 
     /**
@@ -121,8 +125,8 @@ public class Slf4jLogTest {
         File file = null;
         try {
             final URL url = new URL(
-                    "http://repo.maven.apache.org/maven2/org/slf4j/"
-                            + name + "/" + version + "/" + name + "-" + version
+                    "http://repo.maven.apache.org/maven2/org/slf4j/" + name
+                            + "/" + version + "/" + name + "-" + version
                             + ".jar");
 
             file = File.createTempFile(name, ".jar");
@@ -178,7 +182,8 @@ public class Slf4jLogTest {
 
         LogFactory.reset();
         myTestLog = (Log) ourFactoryMethod.invoke(ourFactoryMethod
-                .getDeclaringClass().newInstance(), Slf4jLogTest.class);
+                .getDeclaringClass().newInstance(), Slf4jLogTest.class
+                .getName());
     }
 
     /**

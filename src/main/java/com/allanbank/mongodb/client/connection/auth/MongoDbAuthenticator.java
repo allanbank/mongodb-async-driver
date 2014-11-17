@@ -87,6 +87,27 @@ public class MongoDbAuthenticator implements Authenticator {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to returns true if the authentication is complete.
+     * </p>
+     */
+    @Override
+    public boolean finished() throws MongoDbAuthenticationException {
+
+        // Clear and restore the threads interrupted state for reconnect cases.
+        final boolean interrupted = Thread.interrupted();
+        try {
+            return myResults.isDone();
+        }
+        finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
      * Creates the MongoDB authentication hash of the password.
      * 
      * @param credentials
@@ -121,27 +142,6 @@ public class MongoDbAuthenticator implements Authenticator {
         }
         catch (final ExecutionException e) {
             throw new MongoDbAuthenticationException(e);
-        }
-        finally {
-            if (interrupted) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to returns true if the authentication is complete.
-     * </p>
-     */
-    @Override
-    public boolean finished() throws MongoDbAuthenticationException {
-
-        // Clear and restore the threads interrupted state for reconnect cases.
-        final boolean interrupted = Thread.interrupted();
-        try {
-            return myResults.isDone();
         }
         finally {
             if (interrupted) {

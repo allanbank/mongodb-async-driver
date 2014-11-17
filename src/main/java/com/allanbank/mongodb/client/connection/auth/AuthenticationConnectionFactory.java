@@ -28,6 +28,7 @@ import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
+import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -129,6 +130,17 @@ public class AuthenticationConnectionFactory implements
     /**
      * {@inheritDoc}
      * <p>
+     * Returns the metrics agent from the proxied connection factory.
+     * </p>
+     */
+    @Override
+    public MongoClientMetrics getMetrics() {
+        return myProxiedConnectionFactory.getMetrics();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return the delegates strategy but replace his connection
      * factory with our own.
      * </p>
@@ -141,5 +153,16 @@ public class AuthenticationConnectionFactory implements
         delegates.setConnectionFactory(this);
 
         return delegates;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sets the metrics agent on the proxied connection factory.
+     * </p>
+     */
+    @Override
+    public void setMetrics(final MongoClientMetrics metrics) {
+        myProxiedConnectionFactory.setMetrics(metrics);
     }
 }

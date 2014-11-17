@@ -41,6 +41,8 @@ import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
+import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
+import com.allanbank.mongodb.client.metrics.noop.NoOpMongoClientMetrics;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.LatencyServerSelector;
 import com.allanbank.mongodb.client.state.Server;
@@ -86,6 +88,9 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /** Cache used for encoding strings. */
     private final StringEncoderCache myEncoderCache;
 
+    /** The metrics for the client. */
+    private MongoClientMetrics myMetrics;
+
     /** The server selector. */
     private final ServerSelector myServerSelector;
 
@@ -98,6 +103,8 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     public SocketConnectionFactory(final MongoClientConfiguration config) {
         super();
         myConfig = config;
+        setMetrics(null); // Enforces a non-null value.
+
         myCluster = new Cluster(config, ClusterType.STAND_ALONE);
         myServerSelector = new LatencyServerSelector(myCluster, true);
         myBuffers = new ThreadLocal<Reference<BufferingBsonOutputStream>>();
@@ -203,12 +210,14 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         switch (myConfig.getConnectionModel()) {
         case SENDER_RECEIVER_THREAD: {
             connection = new TwoThreadSocketConnection(server, myConfig,
+                    myMetrics.newConnection(server.getCanonicalName()),
                     myEncoderCache, myDecoderCache);
             break;
         }
         default: { // and RECEIVER_THREAD
-            connection = new SocketConnection(server, myConfig, myEncoderCache,
-                    myDecoderCache, myBuffers);
+            connection = new SocketConnection(server, myConfig,
+                    myMetrics.newConnection(server.getCanonicalName()),
+                    myEncoderCache, myDecoderCache, myBuffers);
             break;
         }
         }
@@ -252,6 +261,14 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public MongoClientMetrics getMetrics() {
+        return myMetrics;
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Overridden to return a {@link SimpleReconnectStrategy}.
      * </p>
@@ -265,6 +282,19 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
         strategy.setState(myCluster);
 
         return strategy;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setMetrics(final MongoClientMetrics metrics) {
+        if (metrics == null) {
+            myMetrics = new NoOpMongoClientMetrics();
+        }
+        else {
+            myMetrics = metrics;
+        }
     }
 
     /**

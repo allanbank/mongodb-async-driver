@@ -65,7 +65,7 @@ public class Slf4jLogFactory extends LogFactory {
 
         try {
             myLogFactoryMethod = logFactoryClass.getMethod("getLogger",
-                    Class.class);
+                    String.class);
 
             myLocationAwareLoggerClass = Class
                     .forName("org.slf4j.spi.LocationAwareLogger");
@@ -97,10 +97,10 @@ public class Slf4jLogFactory extends LogFactory {
      * </p>
      */
     @Override
-    protected Log doGetLog(final Class<?> clazz) {
+    protected Log doGetLog(final String name) {
         Log log = null;
         try {
-            final Object logger = myLogFactoryMethod.invoke(null, clazz);
+            final Object logger = myLogFactoryMethod.invoke(null, name);
             if (myLocationAwareLoggerClass.isInstance(logger)) {
                 log = new Slf4jLog(myLogMethod, logger);
             }
@@ -119,7 +119,7 @@ public class Slf4jLogFactory extends LogFactory {
         if (log == null) {
             Logger.getLogger(Slf4jLogFactory.class.getName()).warning(
                     "Falling back to the JUL logger.");
-            log = new JulLog(clazz);
+            log = new JulLog(name);
         }
 
         return log;

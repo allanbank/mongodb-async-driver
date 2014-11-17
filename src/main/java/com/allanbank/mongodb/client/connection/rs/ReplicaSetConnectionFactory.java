@@ -40,6 +40,7 @@ import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.ClusterPinger;
 import com.allanbank.mongodb.client.state.LatencyServerSelector;
@@ -203,12 +204,34 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
     /**
      * {@inheritDoc}
      * <p>
+     * Returns the metrics agent from the proxied connection factory.
+     * </p>
+     */
+    @Override
+    public MongoClientMetrics getMetrics() {
+        return myConnectionFactory.getMetrics();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to return a replica set {@link ReconnectStrategy}.
      * </p>
      */
     @Override
     public ReconnectStrategy getReconnectStrategy() {
         return myStrategy;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Sets the metrics agent on the proxied connection factory.
+     * </p>
+     */
+    @Override
+    public void setMetrics(final MongoClientMetrics metrics) {
+        myConnectionFactory.setMetrics(metrics);
     }
 
     /**

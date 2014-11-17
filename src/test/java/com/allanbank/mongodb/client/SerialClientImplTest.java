@@ -25,6 +25,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.reset;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -91,6 +92,8 @@ public class SerialClientImplTest {
         myConfig = new MongoClientConfiguration();
         myClient = new ClientImpl(myConfig, myMockConnectionFactory);
         myTestInstance = new SerialClientImpl(myClient);
+
+        reset(myMockConnectionFactory);
     }
 
     /**

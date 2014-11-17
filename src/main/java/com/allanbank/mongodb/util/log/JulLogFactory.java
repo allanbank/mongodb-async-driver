@@ -34,7 +34,7 @@ public class JulLogFactory extends LogFactory {
      * </p>
      */
     @Override
-    protected Log doGetLog(final Class<?> clazz) {
-        return new JulLog(clazz);
+    protected Log doGetLog(final String name) {
+        return new JulLog(name);
     }
 }

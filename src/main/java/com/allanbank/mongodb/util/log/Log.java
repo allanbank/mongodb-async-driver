@@ -142,6 +142,16 @@ public interface Log {
     public boolean isDebugEnabled();
 
     /**
+     * Returns true if logging messages with the specified level is enabled,
+     * false otherwise.
+     * 
+     * @param level
+     *            The level to determine if it is enabled.
+     * @return True if logging with the specified level is enabled.
+     */
+    public boolean isEnabled(Level level);
+
+    /**
      * Returns true if logging {@link Level#SEVERE ERROR} messages is enabled,
      * false otherwise.
      * 
@@ -203,6 +213,11 @@ public interface Log {
      */
     public void log(Level level, Throwable thrown, String template,
             Object... args);
+
+    /**
+     * Resets the state of the logger.
+     */
+    public void reset();
 
     /**
      * Logs a message at the {@link Level#WARNING} level.

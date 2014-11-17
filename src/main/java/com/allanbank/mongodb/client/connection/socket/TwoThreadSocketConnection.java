@@ -34,6 +34,8 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.message.BuildInfo;
 import com.allanbank.mongodb.client.message.PendingMessage;
 import com.allanbank.mongodb.client.message.PendingMessageQueue;
+import com.allanbank.mongodb.client.metrics.ConnectionMetricsCollector;
+import com.allanbank.mongodb.client.metrics.NoOpMongoMessageListener;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
@@ -84,7 +86,8 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
     public TwoThreadSocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
-        this(server, config, new StringEncoderCache(), new StringDecoderCache());
+        this(server, config, NoOpMongoMessageListener.NO_OP,
+                new StringEncoderCache(), new StringDecoderCache());
     }
 
     /**
@@ -94,6 +97,8 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
      *            The MongoDB server to connect to.
      * @param config
      *            The configuration for the Connection to the MongoDB server.
+     * @param listener
+     *            The listener for messages to and from the server.
      * @param encoderCache
      *            Cache used for encoding strings.
      * @param decoderCache
@@ -105,10 +110,11 @@ public class TwoThreadSocketConnection extends AbstractSocketConnection {
      */
     public TwoThreadSocketConnection(final Server server,
             final MongoClientConfiguration config,
+            final ConnectionMetricsCollector listener,
             final StringEncoderCache encoderCache,
             final StringDecoderCache decoderCache) throws SocketException,
             IOException {
-        super(server, config, encoderCache, decoderCache);
+        super(server, config, listener, encoderCache, decoderCache);
 
         myBsonOut = new BufferingBsonOutputStream(new RandomAccessOutputStream(
                 encoderCache));

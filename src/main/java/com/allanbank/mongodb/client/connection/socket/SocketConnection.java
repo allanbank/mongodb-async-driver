@@ -36,6 +36,8 @@ import com.allanbank.mongodb.client.callback.AddressAware;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.message.BuildInfo;
 import com.allanbank.mongodb.client.message.PendingMessage;
+import com.allanbank.mongodb.client.metrics.ConnectionMetricsCollector;
+import com.allanbank.mongodb.client.metrics.NoOpMongoMessageListener;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
@@ -87,8 +89,8 @@ public class SocketConnection extends AbstractSocketConnection {
     public SocketConnection(final Server server,
             final MongoClientConfiguration config) throws SocketException,
             IOException {
-        this(server, config, new StringEncoderCache(),
-                new StringDecoderCache(),
+        this(server, config, NoOpMongoMessageListener.NO_OP,
+                new StringEncoderCache(), new StringDecoderCache(),
                 new ThreadLocal<Reference<BufferingBsonOutputStream>>());
     }
 
@@ -99,6 +101,8 @@ public class SocketConnection extends AbstractSocketConnection {
      *            The MongoDB server to connect to.
      * @param config
      *            The configuration for the Connection to the MongoDB server.
+     * @param listener
+     *            The listener for messages to and from the server.
      * @param encoderCache
      *            Cache used for encoding strings.
      * @param decoderCache
@@ -114,11 +118,12 @@ public class SocketConnection extends AbstractSocketConnection {
      */
     public SocketConnection(final Server server,
             final MongoClientConfiguration config,
+            final ConnectionMetricsCollector listener,
             final StringEncoderCache encoderCache,
             final StringDecoderCache decoderCache,
             final ThreadLocal<Reference<BufferingBsonOutputStream>> buffers)
             throws SocketException, IOException {
-        super(server, config, encoderCache, decoderCache);
+        super(server, config, listener, encoderCache, decoderCache);
 
         myBuffers = buffers;
 
@@ -141,6 +146,7 @@ public class SocketConnection extends AbstractSocketConnection {
 
             // Now that output is shutdown. Close up the socket. This
             // Triggers the receiver to close if the interrupt didn't work.
+            myListener.close();
             myOutput.close();
             myInput.close();
             mySocket.close();

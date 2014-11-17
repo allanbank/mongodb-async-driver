@@ -55,6 +55,14 @@ public class PoisonMessage implements Message {
      * {@inheritDoc}
      */
     @Override
+    public String getCollectionName() {
+        return "c";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String getDatabaseName() {
         return "f";
     }

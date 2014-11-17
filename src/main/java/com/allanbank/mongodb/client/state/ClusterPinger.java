@@ -61,6 +61,13 @@ public class ClusterPinger implements Runnable, Closeable {
     /** The logger for the {@link ClusterPinger}. */
     protected static final Log LOG = LogFactory.getLog(ClusterPinger.class);
 
+    /**
+     * The logger for the metrics:
+     * {@value MongoClientConfiguration#METRICS_LOGGER_NAME}.
+     */
+    protected static final Log METRICS_LOG = LogFactory
+            .getLog(MongoClientConfiguration.METRICS_LOGGER_NAME);
+
     /** Instance of the inner class containing the ping logic. */
     private static final Pinger PINGER = new Pinger();
 
@@ -149,6 +156,9 @@ public class ClusterPinger implements Runnable, Closeable {
     public void close() {
         myRunning = false;
         myPingThread.interrupt();
+
+        // Log the final metrics.
+        logMetrics();
     }
 
     /**
@@ -275,6 +285,7 @@ public class ClusterPinger implements Runnable, Closeable {
                 Thread.sleep(TimeUnit.MILLISECONDS.toMillis(perServerSleep));
 
                 startSweep();
+                logMetrics();
 
                 for (final Map.Entry<Server, ClusterType> entry : servers
                         .entrySet()) {
@@ -376,6 +387,18 @@ public class ClusterPinger implements Runnable, Closeable {
         }
 
         return Collections.unmodifiableMap(servers);
+    }
+
+    /**
+     * Logs the current metrics.
+     */
+    private void logMetrics() {
+        // Log the metrics.
+        final java.util.logging.Level level = java.util.logging.Level
+                .parse(String.valueOf(myConfig.getMetricsLogLevel()));
+        if (METRICS_LOG.isEnabled(level)) {
+            METRICS_LOG.log(level, "{}", myConnectionFactory.getMetrics());
+        }
     }
 
     /**

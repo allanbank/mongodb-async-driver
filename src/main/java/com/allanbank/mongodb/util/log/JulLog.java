@@ -38,11 +38,11 @@ public class JulLog extends AbstractLog {
     /**
      * Creates a new {@link JulLog}.
      * 
-     * @param clazz
-     *            The class for the logger.
+     * @param name
+     *            The name for the logger.
      */
-    protected JulLog(final Class<?> clazz) {
-        myDelegate = Logger.getLogger(clazz.getName());
+    protected JulLog(final String name) {
+        myDelegate = Logger.getLogger(name);
     }
 
     /**

@@ -139,7 +139,7 @@ public class MongoClientImpl implements MongoClient {
         if (ref != null) {
             database = ref.get();
             if (database == null) {
-                // Reference was take n from the map. Remove it from the map.
+                // Reference was taken while in the map. Remove it from the map.
                 myDatabases.remove(name, ref);
             }
         }

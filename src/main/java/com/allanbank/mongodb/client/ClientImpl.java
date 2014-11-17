@@ -48,6 +48,9 @@ import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.connection.ConnectionFactory;
 import com.allanbank.mongodb.client.connection.ReconnectStrategy;
 import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFactory;
+import com.allanbank.mongodb.client.metrics.LogMessagesListener;
+import com.allanbank.mongodb.client.metrics.MetricsRegistrar;
+import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.error.ConnectionLostException;
@@ -97,6 +100,9 @@ public class ClientImpl extends AbstractClient {
         return result;
     }
 
+    /** The metrics hook for the client. */
+    protected final MongoClientMetrics myMetrics;
+
     /** Counter for the number of reconnects currently being attempted. */
     private int myActiveReconnects;
 
@@ -106,9 +112,6 @@ public class ClientImpl extends AbstractClient {
     /** Factory for creating connections to MongoDB. */
     private final ConnectionFactory myConnectionFactory;
 
-    /** The listener for changes to the state of connections. */
-    private final PropertyChangeListener myConnectionListener;
-
     /** The set of open connections. */
     private final List<Connection> myConnections;
 
@@ -117,6 +120,9 @@ public class ClientImpl extends AbstractClient {
 
     /** The sequence of the connection that was last used. */
     private final AtomicLong myNextConnectionSequence = new AtomicLong(0);
+
+    /** The listener for changes to the state of connections or configuration. */
+    private final PropertyChangeListener myPropertyListener;
 
     /**
      * Create a new ClientImpl.
@@ -142,8 +148,18 @@ public class ClientImpl extends AbstractClient {
         myConnectionFactory = connectionFactory;
         myConnections = new CopyOnWriteArrayList<Connection>();
         myConnectionsToClose = new LinkedBlockingQueue<Connection>();
-        myConnectionListener = new ConnectionListener();
+        myPropertyListener = new ChangeListener();
         myActiveReconnects = 0;
+
+        myMetrics = MetricsRegistrar.createRegistrar(
+                myConfig.isMetricsEnabled()).registerClient();
+        myConfig.addPropertyChangeListener(myPropertyListener);
+
+        myConnectionFactory.setMetrics(myMetrics);
+
+        if (myConfig.isLogMessagesEnabled()) {
+            myMetrics.setMessageListener(new LogMessagesListener());
+        }
     }
 
     /**
@@ -158,6 +174,8 @@ public class ClientImpl extends AbstractClient {
     public void close() {
         // Stop any more messages.
         super.close();
+
+        myConfig.removePropertyChangeListener(myPropertyListener);
 
         while (!myConnections.isEmpty()) {
             try {
@@ -184,8 +202,9 @@ public class ClientImpl extends AbstractClient {
             }
         }
 
-        // Shutdown the connections factory.
+        // Shutdown the connections factory and metrics.
         IOUtils.close(myConnectionFactory);
+        IOUtils.close(myMetrics);
     }
 
     /**
@@ -398,8 +417,7 @@ public class ClientImpl extends AbstractClient {
                 }
                 else {
                     LOG.info("MongoDB Connection closed: {}", connection);
-                    connection
-                            .removePropertyChangeListener(myConnectionListener);
+                    connection.removePropertyChangeListener(myPropertyListener);
                     connection.raiseErrors(new ConnectionLostException(
                             "Connection shutdown."));
                 }
@@ -413,11 +431,11 @@ public class ClientImpl extends AbstractClient {
         }
         else if (myConnectionsToClose.remove(connection)) {
             LOG.debug("MongoDB Connection closed: {}", connection);
-            connection.removePropertyChangeListener(myConnectionListener);
+            connection.removePropertyChangeListener(myPropertyListener);
         }
         else {
             LOG.info("Unknown MongoDB Connection closed: {}", connection);
-            connection.removePropertyChangeListener(myConnectionListener);
+            connection.removePropertyChangeListener(myPropertyListener);
         }
     }
 
@@ -440,12 +458,12 @@ public class ClientImpl extends AbstractClient {
             if (newConnection != null) {
                 // Get the new connection in the rotation.
                 myConnections.add(newConnection);
-                newConnection.addPropertyChangeListener(myConnectionListener);
+                newConnection.addPropertyChangeListener(myPropertyListener);
             }
         }
         finally {
             myConnections.remove(connection);
-            connection.removePropertyChangeListener(myConnectionListener);
+            connection.removePropertyChangeListener(myPropertyListener);
 
             // Raise errors for all of the pending messages - there is no way to
             // know their state of flight between here and the server.
@@ -530,7 +548,7 @@ public class ClientImpl extends AbstractClient {
             myConnections.remove(conn);
             myConnectionsToClose.remove(conn);
 
-            conn.removePropertyChangeListener(myConnectionListener);
+            conn.removePropertyChangeListener(myPropertyListener);
         }
     }
 
@@ -634,7 +652,7 @@ public class ClientImpl extends AbstractClient {
                         myConnections.add(conn);
 
                         // Add a listener for if the connection is closed.
-                        conn.addPropertyChangeListener(myConnectionListener);
+                        conn.addPropertyChangeListener(myPropertyListener);
 
                         return conn;
                     }
@@ -696,17 +714,17 @@ public class ClientImpl extends AbstractClient {
     }
 
     /**
-     * ConnectionListener provides the call back for events occurring on a
-     * connection.
+     * ChangeListener provides the call back for events occurring on a
+     * connection or with the configuration.
      * 
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected class ConnectionListener implements PropertyChangeListener {
+    protected class ChangeListener implements PropertyChangeListener {
 
         /**
          * Creates a new ConnectionListener.
          */
-        public ConnectionListener() {
+        public ChangeListener() {
             super();
         }
 
@@ -719,8 +737,15 @@ public class ClientImpl extends AbstractClient {
         @Override
         public void propertyChange(final PropertyChangeEvent event) {
             if (Connection.OPEN_PROP_NAME.equals(event.getPropertyName())
-                    && Boolean.FALSE.equals(event.getNewValue())) {
+                    && Boolean.FALSE.equals(event.getNewValue())
+                    && (event.getSource() instanceof Connection)) {
                 handleConnectionClosed((Connection) event.getSource());
+            }
+            else if ("logMessagesEnabled".equals(event.getPropertyName())) {
+                final boolean logIt = Boolean.TRUE.equals(event.getNewValue());
+
+                myMetrics.setMessageListener(logIt ? new LogMessagesListener()
+                        : null);
             }
         }
     }

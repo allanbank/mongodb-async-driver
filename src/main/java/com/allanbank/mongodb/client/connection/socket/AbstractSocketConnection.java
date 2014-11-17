@@ -66,6 +66,7 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.Update;
+import com.allanbank.mongodb.client.metrics.ConnectionMetricsCollector;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
@@ -105,6 +106,9 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
     /** The buffered input stream. */
     protected final InputStream myInput;
 
+    /** The listener for messages to and from the server. */
+    protected final ConnectionMetricsCollector myListener;
+
     /** The logger for the connection. */
     protected final Log myLog;
 
@@ -142,6 +146,8 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
      *            The MongoDB server to connect to.
      * @param config
      *            The configuration for the Connection to the MongoDB server.
+     * @param listener
+     *            The listener for messages to and from the server.
      * @param encoderCache
      *            Cache used for encoding strings.
      * @param decoderCache
@@ -153,6 +159,7 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
      */
     public AbstractSocketConnection(final Server server,
             final MongoClientConfiguration config,
+            final ConnectionMetricsCollector listener,
             final StringEncoderCache encoderCache,
             final StringDecoderCache decoderCache) throws SocketException,
             IOException {
@@ -160,6 +167,7 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
 
         myServer = server;
         myConfig = config;
+        myListener = listener;
         myEncoderCache = encoderCache;
 
         myLog = LogFactory.getLog(getClass());
@@ -628,6 +636,9 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
             myServer.updateAverageLatency(latency);
         }
 
+        myListener.receive(getServerName(), reply.getResponseToId(),
+                pendingMessage.getMessage(), reply, latency);
+
         final ReplyCallback callback = pendingMessage.getReplyCallback();
         ReplyHandler.reply(this, reply, callback, myExecutor);
     }
@@ -667,6 +678,9 @@ public abstract class AbstractSocketConnection implements Connection, Receiver {
         }
 
         doSend(messageId, message);
+
+        myListener
+                .sent(getServerName(), messageId, pendingMessage.getMessage());
 
         // If shutting down then flush after each message.
         if (myShutdown.get()) {

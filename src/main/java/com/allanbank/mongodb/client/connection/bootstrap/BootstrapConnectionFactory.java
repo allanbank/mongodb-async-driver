@@ -42,6 +42,8 @@ import com.allanbank.mongodb.client.connection.sharded.ShardedConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.Reply;
+import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
+import com.allanbank.mongodb.client.metrics.MongoMessageListener;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.error.CannotConnectException;
 import com.allanbank.mongodb.util.IOUtils;
@@ -68,6 +70,9 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /** The delegate connection factory post */
     private ConnectionFactory myDelegate = null;
+
+    /** The metrics for the client. */
+    private MongoClientMetrics myMetrics;
 
     /**
      * Creates a {@link BootstrapConnectionFactory}
@@ -127,6 +132,16 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     }
 
     /**
+     * Returns the metrics collection agent to the connection factory.
+     * 
+     * @return The metrics agent for the client.
+     */
+    @Override
+    public MongoClientMetrics getMetrics() {
+        return myMetrics;
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to return the delegates strategy.
@@ -135,6 +150,23 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     @Override
     public ReconnectStrategy getReconnectStrategy() {
         return getDelegate().getReconnectStrategy();
+    }
+
+    /**
+     * Adds the metrics collection agent to the connection factory. The
+     * connection factory should ensure that all of the connections report
+     * metrics via a {@link MongoMessageListener} from the
+     * {@link MongoClientMetrics#newConnection(String)} method.
+     * 
+     * @param metrics
+     *            The metrics agent for the client.
+     */
+    @Override
+    public void setMetrics(final MongoClientMetrics metrics) {
+        myMetrics = metrics;
+        if (myDelegate != null) {
+            myDelegate.setMetrics(metrics);
+        }
     }
 
     /**
@@ -159,6 +191,8 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     protected void bootstrap() {
         final SocketConnectionFactory socketFactory = new SocketConnectionFactory(
                 myConfig);
+        socketFactory.setMetrics(myMetrics);
+
         ProxiedConnectionFactory factory = socketFactory;
 
         // Authentication has to be right on top of the physical

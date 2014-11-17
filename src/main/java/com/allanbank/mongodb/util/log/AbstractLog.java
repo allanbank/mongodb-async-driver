@@ -175,7 +175,7 @@ public abstract class AbstractLog implements Log {
      * Returns true if logging {@link Level#FINE DEBUG} messages is enabled,
      * false otherwise.
      * 
-     * @returns True if logging debug messages is enabled.
+     * @return True if logging debug messages is enabled.
      */
     @Override
     public final boolean isDebugEnabled() {
@@ -183,10 +183,23 @@ public abstract class AbstractLog implements Log {
     }
 
     /**
+     * Returns true if logging messages with the specified level is enabled,
+     * false otherwise.
+     * 
+     * @param level
+     *            The level to determine if it is enabled.
+     * @return True if logging with the specified level is enabled.
+     */
+    @Override
+    public final boolean isEnabled(final Level level) {
+        return level().intValue() <= level.intValue();
+    }
+
+    /**
      * Returns true if logging {@link Level#SEVERE ERROR} messages is enabled,
      * false otherwise.
      * 
-     * @returns True if logging {@link Level#SEVERE ERROR} messages is enabled.
+     * @return True if logging {@link Level#SEVERE ERROR} messages is enabled.
      */
     @Override
     public final boolean isErrorEnabled() {
@@ -197,7 +210,7 @@ public abstract class AbstractLog implements Log {
      * Returns true if logging {@link Level#INFO} messages is enabled, false
      * otherwise.
      * 
-     * @returns True if logging {@link Level#INFO} messages is enabled.
+     * @return True if logging {@link Level#INFO} messages is enabled.
      */
     @Override
     public final boolean isInfoEnabled() {
@@ -208,7 +221,7 @@ public abstract class AbstractLog implements Log {
      * Returns true if logging {@link Level#WARNING} messages is enabled, false
      * otherwise.
      * 
-     * @returns True if logging {@link Level#WARNING} messages is enabled.
+     * @return True if logging {@link Level#WARNING} messages is enabled.
      */
     @Override
     public final boolean isWarnEnabled() {
@@ -254,6 +267,20 @@ public abstract class AbstractLog implements Log {
     public final void log(final Level level, final Throwable thrown,
             final String template, final Object... args) {
         doLog(level, thrown, template, args);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to forces the next log attempt to re-determine the logging
+     * level.
+     * </p>
+     * 
+     * @see Log#warn(String)
+     */
+    @Override
+    public void reset() {
+        myLastLevelCheck = 0;
     }
 
     /**

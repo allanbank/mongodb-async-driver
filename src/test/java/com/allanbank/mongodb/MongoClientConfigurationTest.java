@@ -47,6 +47,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -581,7 +582,8 @@ public class MongoClientConfigurationTest {
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 "mongodb://foo/db?replicaSet=set1;safe=false&w=1&wtimeout=100&fsync=false&fsync&journal=false&"
                         + "connectTIMEOUTMS=1000&socketTimeOUTms=2000;autoDiscoverServers=false;maxConnectionCount=5&"
-                        + "maxPendingOperationsPerConnection=101&reconnectTimeoutMS=250&useSoKeepalive=false&foo&safe=false");
+                        + "maxPendingOperationsPerConnection=101&reconnectTimeoutMS=250&useSoKeepalive=false&"
+                        + "foo&safe=false&logMessagesEnabled=true&metricsEnabled=false&metricsLogLevel=800");
 
         assertEquals(1000, config.getConnectTimeout());
         assertEquals(Durability.ACK, config.getDefaultDurability());
@@ -595,6 +597,9 @@ public class MongoClientConfigurationTest {
         assertThat(config.getCredentials().size(), is(0));
         assertFalse(config.isAutoDiscoverServers());
         assertFalse(config.isUsingSoKeepalive());
+        assertTrue(config.isLogMessagesEnabled());
+        assertFalse(config.isMetricsEnabled());
+        assertEquals(800, config.getMetricsLogLevel());
     }
 
     /**
@@ -1235,6 +1240,19 @@ public class MongoClientConfigurationTest {
 
     /**
      * Test method for
+     * {@link MongoClientConfiguration#setLogMessagesEnabled(boolean)}.
+     */
+    @Test
+    public void testSetLogMessagesEnabled() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        assertFalse(config.isLogMessagesEnabled());
+        config.setLogMessagesEnabled(true);
+        assertTrue(config.isLogMessagesEnabled());
+    }
+
+    /**
+     * Test method for
      * {@link MongoClientConfiguration#setMaxCachedStringEntries}.
      */
     @Test
@@ -1301,6 +1319,31 @@ public class MongoClientConfigurationTest {
         assertEquals(TimeUnit.MINUTES.toMillis(25), config.getMaxSecondaryLag());
         config.setMaxSecondaryLag(TimeUnit.MINUTES.toMillis(5));
         assertEquals(TimeUnit.MINUTES.toMillis(5), config.getMaxSecondaryLag());
+    }
+
+    /**
+     * Test method for
+     * {@link MongoClientConfiguration#setMetricsEnabled(boolean)}.
+     */
+    @Test
+    public void testSetMetricsEnabled() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        assertTrue(config.isMetricsEnabled());
+        config.setMetricsEnabled(false);
+        assertFalse(config.isMetricsEnabled());
+    }
+
+    /**
+     * Test method for {@link MongoClientConfiguration#setMetricsLogLevel}.
+     */
+    @Test
+    public void testSetMetricsLogLevel() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+
+        assertEquals(Level.FINE.intValue(), config.getMetricsLogLevel());
+        config.setMetricsLogLevel(Level.INFO.intValue());
+        assertEquals(Level.INFO.intValue(), config.getMetricsLogLevel());
     }
 
     /**

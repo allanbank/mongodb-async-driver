@@ -37,6 +37,13 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 public interface Message {
 
     /**
+     * Returns the name of the collection.
+     * 
+     * @return The name of the collection.
+     */
+    public String getCollectionName();
+
+    /**
      * Returns the name of the database.
      * 
      * @return The name of the database.

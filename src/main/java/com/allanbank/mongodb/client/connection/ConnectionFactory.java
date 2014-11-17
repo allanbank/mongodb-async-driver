@@ -27,6 +27,8 @@ import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnection;
+import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
+import com.allanbank.mongodb.client.metrics.MongoMessageListener;
 
 /**
  * Provides an abstraction for constructing a connection. At the lowest level a
@@ -71,9 +73,27 @@ public interface ConnectionFactory extends Closeable {
     public ClusterType getClusterType();
 
     /**
+     * Returns the metrics collection agent to the connection factory.
+     * 
+     * @return The metrics agent for the client.
+     */
+    public MongoClientMetrics getMetrics();
+
+    /**
      * Returns the reconnection strategy for the type of connections.
      * 
      * @return The reconnection strategy for the type of connections.
      */
     public ReconnectStrategy getReconnectStrategy();
+
+    /**
+     * Adds the metrics collection agent to the connection factory. The
+     * connection factory should ensure that all of the connections report
+     * metrics via a {@link MongoMessageListener} from the
+     * {@link MongoClientMetrics#newConnection(String)} method.
+     * 
+     * @param metrics
+     *            The metrics agent for the client.
+     */
+    public void setMetrics(MongoClientMetrics metrics);
 }

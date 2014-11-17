@@ -422,6 +422,97 @@ public class AuthenticatingConnectionTest {
      *             On a failure setting up the mocks for the test.
      */
     @Test
+    public void testAuthenticateFailsWithRetryAndCredentialRemoved()
+            throws IOException {
+
+        myAuthReply.reset();
+        myAuthReply.addInteger("ok", 0);
+
+        final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
+
+        final Connection mockConnection = createMock(Connection.class);
+
+        // Nonce.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myNonceRequest.build())), cb(myNonceReply));
+        expectLastCall();
+
+        // Auth.
+        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
+                myAuthRequest.build())), cb(myAuthReply));
+        expectLastCall();
+
+        replay(mockConnection);
+
+        final AuthenticatingConnection conn = new AuthenticatingConnection(
+                mockConnection, myConfig);
+
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication falis.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good. Ask once. Keep failing.
+        }
+        verify(mockConnection);
+
+        // Setup for the auth retry.
+        reset(mockConnection);
+
+        // Remove the credentials.
+        final List<Credential> noCredentials = Collections.emptyList();
+        myConfig.setCredentials(noCredentials);
+
+        // Message.
+        mockConnection.send(msg, null);
+        expectLastCall();
+
+        mockConnection.close();
+        expectLastCall();
+
+        replay(mockConnection);
+
+        // Wait for the retry interval to expire.
+        sleep(AuthenticatingConnection.RETRY_INTERVAL_MS
+                + AuthenticatingConnection.RETRY_INTERVAL_MS);
+
+        // Note that normally the auth would be delayed but with the EasyMock
+        // callbacks the authentication completes on this thread.
+        try {
+            conn.send(msg, null);
+            fail("Should throw an exception when authentication fails.");
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+        }
+
+        try {
+            conn.send(msg, null);
+        }
+        catch (final MongoDbAuthenticationException good) {
+            // Good.
+            fail("Should not throw an exception when authentication credentials are removed.");
+        }
+
+        IOUtils.close(conn);
+
+        verify(mockConnection);
+    }
+
+    /**
+     * Test method for {@link AuthenticatingConnection#send} .
+     * 
+     * @throws IOException
+     *             On a failure setting up the mocks for the test.
+     */
+    @Test
     public void testAuthenticateFailsWithRetryExternal() throws IOException {
         myConfig.addCredential(Credential.builder().userName("allanbank")
                 .password("super_secret_password".toCharArray())
@@ -609,97 +700,6 @@ public class AuthenticatingConnectionTest {
         }
         catch (final MongoDbAuthenticationException good) {
             // Good. Ask once. Keep failing.
-        }
-
-        IOUtils.close(conn);
-
-        verify(mockConnection);
-    }
-
-    /**
-     * Test method for {@link AuthenticatingConnection#send} .
-     * 
-     * @throws IOException
-     *             On a failure setting up the mocks for the test.
-     */
-    @Test
-    public void testAuthenticateFailsWithRetryAndCredentialRemoved()
-            throws IOException {
-
-        myAuthReply.reset();
-        myAuthReply.addInteger("ok", 0);
-
-        final Message msg = new Delete(TEST_DB, "collection", EMPTY_DOC, true);
-
-        final Connection mockConnection = createMock(Connection.class);
-
-        // Nonce.
-        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
-                myNonceRequest.build())), cb(myNonceReply));
-        expectLastCall();
-
-        // Auth.
-        mockConnection.send(eq(new Command(TEST_DB, Command.COMMAND_COLLECTION,
-                myAuthRequest.build())), cb(myAuthReply));
-        expectLastCall();
-
-        replay(mockConnection);
-
-        final AuthenticatingConnection conn = new AuthenticatingConnection(
-                mockConnection, myConfig);
-
-        try {
-            conn.send(msg, null);
-            fail("Should throw an exception when authentication falis.");
-        }
-        catch (final MongoDbAuthenticationException good) {
-            // Good.
-        }
-
-        try {
-            conn.send(msg, null);
-        }
-        catch (final MongoDbAuthenticationException good) {
-            // Good. Ask once. Keep failing.
-        }
-        verify(mockConnection);
-
-        // Setup for the auth retry.
-        reset(mockConnection);
-
-        // Remove the credentials.
-        List<Credential> noCredentials = Collections.emptyList();
-        myConfig.setCredentials(noCredentials);
-
-        // Message.
-        mockConnection.send(msg, null);
-        expectLastCall();
-
-        mockConnection.close();
-        expectLastCall();
-
-        replay(mockConnection);
-
-        // Wait for the retry interval to expire.
-        sleep(AuthenticatingConnection.RETRY_INTERVAL_MS
-                + AuthenticatingConnection.RETRY_INTERVAL_MS);
-
-        // Note that normally the auth would be delayed but with the EasyMock
-        // callbacks the authentication completes on this thread.
-        try {
-            conn.send(msg, null);
-            fail("Should throw an exception when authentication fails.");
-        }
-        catch (final MongoDbAuthenticationException good) {
-            // Good.
-        }
-
-        try {
-            conn.send(msg, null);
-        }
-        catch (final MongoDbAuthenticationException good) {
-            // Good.
-            fail("Should not throw an exception when authentication credentials are removed.");
         }
 
         IOUtils.close(conn);

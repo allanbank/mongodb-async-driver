@@ -144,6 +144,8 @@ public class ClientImplTest {
 
         myConfig = new MongoClientConfiguration();
         myTestInstance = new ClientImpl(myConfig, myMockConnectionFactory);
+
+        reset(myMockConnectionFactory);
     }
 
     /**
