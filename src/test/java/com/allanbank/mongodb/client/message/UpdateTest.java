@@ -189,7 +189,6 @@ public class UpdateTest {
     @Test
     public void testUpdateStringStringDocumentDocumentBooleanBoolean() {
         final Random random = new Random(System.currentTimeMillis());
-
         final String databaseName = "db";
         final String collectionName = "collection";
         final Document query = BuilderFactory.start().build();
@@ -208,6 +207,24 @@ public class UpdateTest {
         assertEquals(Boolean.valueOf(upsert),
                 Boolean.valueOf(message.isUpsert()));
         assertThat(message.getOperationName(), is(Operation.UPDATE.name()));
+    }
+
+    /**
+     * Test method for {@link Update#toString()} .
+     */
+    @Test
+    public void testUpdateToString() {
+        final String databaseName = "db";
+        final String collectionName = "collection";
+        final Document query = BuilderFactory.start().build();
+        final Document update = BuilderFactory.start().build();
+        final boolean multiUpdate = false;
+        final boolean upsert = false;
+        final Update message = new Update(databaseName, collectionName, query,
+                update, multiUpdate, upsert);
+
+        assertThat(message.toString(),
+                is("Update(!multi,!upsert,query={},update={})"));
     }
 
     /**

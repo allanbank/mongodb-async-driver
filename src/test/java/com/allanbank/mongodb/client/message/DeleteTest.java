@@ -171,6 +171,7 @@ public class DeleteTest {
         assertSame(doc, message.getQuery());
         assertTrue(message.isSingleDelete());
         assertThat(message.getOperationName(), is(Operation.DELETE.name()));
+        assertThat(message.toString(), is("Delete(single,query={ '1' : 1 })"));
     }
 
     /**
@@ -182,6 +183,7 @@ public class DeleteTest {
         final Delete message = new Delete("db", "collection", doc, false);
 
         assertFalse(message.isSingleDelete());
+        assertThat(message.toString(), is("Delete(!single,query={ '1' : 1 })"));
     }
 
     /**

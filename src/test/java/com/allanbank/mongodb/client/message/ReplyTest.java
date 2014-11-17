@@ -270,6 +270,76 @@ public class ReplyTest {
     }
 
     /**
+     * Test method for {@link Reply#toString()} .
+     */
+    @Test
+    public void testReplyToStringMax() {
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
+
+        final List<Document> docs = new ArrayList<Document>();
+        docs.add(doc1);
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc4);
+
+        final int responseToId = 1234;
+        final long cursorId = 12345;
+        final int cursorOffset = 1234567;
+        final List<Document> results = docs;
+        final boolean awaitCapable = false;
+        final boolean cursorNotFound = true;
+        final boolean queryFailed = true;
+        final boolean shardConfigStale = true;
+
+        final Reply message = new Reply(responseToId, cursorId, cursorOffset,
+                results, awaitCapable, cursorNotFound, queryFailed,
+                shardConfigStale);
+
+        assertThat(
+                message.toString(),
+                is("Reply(!awaitCapable,cursorNotFound,queryFailed,shardConfigStale,"
+                        + "responseTo=1234,cursorId=12345,cursorOffset=1234567,"
+                        + "results={},{ '1' : 1 },{ '1' : 2 },{ '1' : 3 })"));
+    }
+
+    /**
+     * Test method for {@link Reply#toString()} .
+     */
+    @Test
+    public void testReplyToStringMin() {
+        final Document doc1 = BuilderFactory.start().build();
+        final Document doc2 = BuilderFactory.start().addInteger("1", 1).build();
+        final Document doc3 = BuilderFactory.start().addInteger("1", 2).build();
+        final Document doc4 = BuilderFactory.start().addInteger("1", 3).build();
+
+        final List<Document> docs = new ArrayList<Document>();
+        docs.add(doc1);
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc4);
+
+        final int responseToId = 1234;
+        final long cursorId = 0;
+        final int cursorOffset = 0;
+        final List<Document> results = docs;
+        final boolean awaitCapable = true;
+        final boolean cursorNotFound = false;
+        final boolean queryFailed = false;
+        final boolean shardConfigStale = false;
+
+        final Reply message = new Reply(responseToId, cursorId, cursorOffset,
+                results, awaitCapable, cursorNotFound, queryFailed,
+                shardConfigStale);
+
+        assertThat(
+                message.toString(),
+                is("Reply(awaitCapable,responseTo=1234,results={},{ '1' : 1 },{ '1' : 2 },{ '1' : 3 })"));
+    }
+
+    /**
      * Test method for {@link Reply#validateSize(int)} .
      */
     @Test

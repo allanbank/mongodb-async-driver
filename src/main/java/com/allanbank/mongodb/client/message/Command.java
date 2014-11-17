@@ -20,11 +20,13 @@
 package com.allanbank.mongodb.client.message;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Iterator;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
@@ -283,23 +285,27 @@ public class Command extends AbstractMessage {
      */
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("Command[");
+        final StringWriter builder = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                builder, true);
+
         builder.append(getOperationName());
-        builder.append(", db=");
+        builder.append("([db=");
         builder.append(myDatabaseName);
-        builder.append(", collection=");
+        builder.append(",collection=");
         builder.append(myCollectionName);
+
         if (getReadPreference() != null) {
-            builder.append(", readPreference=");
-            builder.append(getReadPreference());
+            builder.append(",readPreference=");
+            builder.append(String.valueOf(getReadPreference()));
         }
         if (getRequiredVersionRange() != null) {
-            builder.append(", requiredVersionRange=");
-            builder.append(getRequiredVersionRange());
+            builder.append(",requiredVersionRange=");
+            builder.append(String.valueOf(getRequiredVersionRange()));
         }
-        builder.append("]: ");
-        builder.append(myCommand);
+        builder.append("]:");
+        myCommand.accept(visitor);
+        builder.append(")");
 
         return builder.toString();
     }

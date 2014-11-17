@@ -19,6 +19,8 @@
  */
 package com.allanbank.mongodb.client.message;
 
+import java.io.StringWriter;
+
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
@@ -176,6 +178,25 @@ public abstract class AbstractMessage implements Message {
         result = (31 * result) + myDatabaseName.hashCode();
         result = (31 * result) + myReadPreference.hashCode();
         return result;
+    }
+
+    /**
+     * Helper method to emit the field into the {@link StringWriter}.
+     * 
+     * @param builder
+     *            The {@link StringWriter} to append to.
+     * @param value
+     *            The value for the boolean.
+     * @param label
+     *            The label for the value.
+     */
+    protected void emit(final StringWriter builder, final boolean value,
+            final String label) {
+        if (!value) {
+            builder.append("!");
+        }
+        builder.append(label);
+        builder.append(",");
     }
 
     /**

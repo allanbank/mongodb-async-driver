@@ -20,11 +20,13 @@
 package com.allanbank.mongodb.client.message;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
@@ -329,6 +331,60 @@ public class Reply extends AbstractMessage {
         }
 
         return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return the contents of the reply.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringWriter builder = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                builder, true);
+
+        builder.append("Reply(");
+
+        emit(builder, myAwaitCapable, "awaitCapable");
+
+        // Only output these if true since signify an error.
+        if (myCursorNotFound) {
+            emit(builder, myCursorNotFound, "cursorNotFound");
+        }
+        if (myQueryFailed) {
+            emit(builder, myQueryFailed, "queryFailed");
+        }
+        if (myShardConfigStale) {
+            emit(builder, myShardConfigStale, "shardConfigStale");
+        }
+
+        builder.append("responseTo=");
+        builder.append(String.valueOf(myResponseToId));
+
+        if (myCursorId != 0) {
+            builder.append(",cursorId=");
+            builder.append(String.valueOf(myCursorId));
+        }
+        if (myCursorOffset != 0) {
+            builder.append(",cursorOffset=");
+            builder.append(String.valueOf(myCursorOffset));
+        }
+        builder.append(",results=");
+        boolean first = true;
+        for (final Document doc : myResults) {
+            if (first) {
+                first = false;
+            }
+            else {
+                builder.append(',');
+            }
+            doc.accept(visitor);
+        }
+        builder.append(")");
+
+        return builder.toString();
     }
 
     /**

@@ -180,9 +180,9 @@ public class CommandTest {
         final Command command = new Command("db", "coll", BuilderFactory
                 .start().add("foo", 1).build());
 
-        assertThat(command.toString(),
-                is("Command[foo, db=db, collection=coll, "
-                        + "readPreference=PRIMARY_ONLY]: { foo : 1 }"));
+        assertThat(
+                command.toString(),
+                is("foo([db=db,collection=coll,readPreference=PRIMARY_ONLY]:{ foo : 1 })"));
     }
 
     /**
@@ -194,7 +194,7 @@ public class CommandTest {
                 .start().add("foo", 1).build(), null);
 
         assertThat(command.toString(),
-                is("Command[foo, db=db, collection=coll]: { foo : 1 }"));
+                is("foo([db=db,collection=coll]:{ foo : 1 })"));
     }
 
     /**
@@ -206,10 +206,9 @@ public class CommandTest {
                 .start().add("foo", 1).build(), ReadPreference.PRIMARY,
                 VersionRange.range(Version.VERSION_2_2, Version.VERSION_2_4));
 
-        assertThat(command.toString(),
-                is("Command[foo, db=db, collection=coll, "
-                        + "readPreference=PRIMARY_ONLY, "
-                        + "requiredVersionRange=[2.2, 2.4)]: { foo : 1 }"));
+        assertThat(command.toString(), is("foo([db=db,collection=coll,"
+                + "readPreference=PRIMARY_ONLY,"
+                + "requiredVersionRange=[2.2, 2.4)]:{ foo : 1 })"));
     }
 
     /**

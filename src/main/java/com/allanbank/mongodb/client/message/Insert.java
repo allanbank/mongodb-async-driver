@@ -20,12 +20,14 @@
 package com.allanbank.mongodb.client.message;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
@@ -251,8 +253,28 @@ public class Insert extends AbstractMessage {
      */
     @Override
     public String toString() {
-        return "Insert [myContinueOnError=" + myContinueOnError
-                + ", myDocuments=" + myDocuments + "]";
+        final StringWriter builder = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                builder, true);
+
+        builder.append("Insert(");
+
+        emit(builder, myContinueOnError, "continueOnError");
+
+        builder.append("documents=");
+        boolean first = true;
+        for (final Document doc : myDocuments) {
+            if (first) {
+                first = false;
+            }
+            else {
+                builder.append(',');
+            }
+            doc.accept(visitor);
+        }
+        builder.append(")");
+
+        return builder.toString();
     }
 
     /**

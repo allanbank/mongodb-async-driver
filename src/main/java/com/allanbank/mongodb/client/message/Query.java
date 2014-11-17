@@ -20,9 +20,11 @@
 package com.allanbank.mongodb.client.message;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
@@ -465,6 +467,48 @@ public class Query extends AbstractMessage implements CursorableMessage {
         }
 
         return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a string form of the query.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringWriter builder = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                builder, true);
+
+        builder.append("Query(");
+
+        emit(builder, myAwaitData, "await");
+        emit(builder, myExhaust, "exhaust");
+        emit(builder, myNoCursorTimeout, "noCursorTimeout");
+        emit(builder, myPartial, "partial");
+        emit(builder, myTailable, "tailable");
+
+        builder.append("batchSize=");
+        builder.append(String.valueOf(myBatchSize));
+        builder.append(",limit=");
+        builder.append(String.valueOf(myLimit));
+        builder.append(",messageSize=");
+        builder.append(String.valueOf(myMessageSize));
+        builder.append(",numberToReturn=");
+        builder.append(String.valueOf(myNumberToReturn));
+        builder.append(",numberToSkip=");
+        builder.append(String.valueOf(myNumberToSkip));
+
+        builder.append(",query=");
+        myQuery.accept(visitor);
+
+        if (myReturnFields != null) {
+            builder.append(",returnFields=");
+            myReturnFields.accept(visitor);
+        }
+        builder.append(")");
+        return builder.toString();
     }
 
     /**

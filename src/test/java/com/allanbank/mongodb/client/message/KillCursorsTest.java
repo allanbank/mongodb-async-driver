@@ -166,6 +166,7 @@ public class KillCursorsTest {
         assertArrayEquals(new long[] { 1234 }, message.getCursorIds());
         assertThat(message.getOperationName(),
                 is(Operation.KILL_CURSORS.name()));
+        assertThat(message.toString(), is("KillCursors(cursorIds=[1234])"));
     }
 
     /**

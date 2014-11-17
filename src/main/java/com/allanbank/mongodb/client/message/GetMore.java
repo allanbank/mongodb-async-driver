@@ -20,6 +20,7 @@
 package com.allanbank.mongodb.client.message;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
@@ -184,6 +185,25 @@ public class GetMore extends AbstractMessage {
         // size += 8; // cursorId - long(64)
 
         return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a string form of the message.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringWriter builder = new StringWriter();
+
+        builder.append("GetMore(cursorId=");
+        builder.append(String.valueOf(myCursorId));
+        builder.append(",numberToReturn=");
+        builder.append(String.valueOf(myNumberToReturn));
+        builder.append(")");
+
+        return builder.toString();
     }
 
     /**

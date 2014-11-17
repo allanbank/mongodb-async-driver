@@ -20,9 +20,11 @@
 package com.allanbank.mongodb.client.message;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
@@ -241,6 +243,32 @@ public class Update extends AbstractMessage {
         size += myUpdate.size();
 
         return size;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a human readable version of the update.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringWriter builder = new StringWriter();
+        final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
+                builder, true);
+
+        builder.append("Update(");
+
+        emit(builder, myMultiUpdate, "multi");
+        emit(builder, myUpsert, "upsert");
+
+        builder.append("query=");
+        myQuery.accept(visitor);
+        builder.append(",update=");
+        myUpdate.accept(visitor);
+        builder.append(")");
+
+        return builder.toString();
     }
 
     /**

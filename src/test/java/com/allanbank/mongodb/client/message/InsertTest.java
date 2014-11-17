@@ -216,6 +216,9 @@ public class InsertTest {
         assertEquals(docs, message.getDocuments());
         assertFalse(message.isContinueOnError());
         assertThat(message.getOperationName(), is(Operation.INSERT.name()));
+        assertThat(
+                message.toString(),
+                is("Insert(!continueOnError,documents={},{ '1' : 1 },{ '1' : 2 },{ '1' : 3 })"));
     }
 
     /**

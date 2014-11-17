@@ -165,7 +165,24 @@ public class KillCursors extends AbstractMessage {
     /**
      * {@inheritDoc}
      * <p>
-     * Overrridden to ensure the size of the cursors ids array is not too large.
+     * Overridden to return a string form of the message.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append("KillCursors(cursorIds=");
+        builder.append(Arrays.toString(myCursorIds));
+        builder.append(")");
+
+        return builder.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to ensure the size of the cursors ids array is not too large.
      * </p>
      */
     @Override

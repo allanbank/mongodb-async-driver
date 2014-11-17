@@ -188,6 +188,8 @@ public class GetMoreTest {
         assertEquals(cursorId, message.getCursorId());
         assertEquals(numberToReturn, message.getNumberToReturn());
         assertThat(message.getOperationName(), is(Operation.GET_MORE.name()));
+        assertThat(message.toString(), is("GetMore(cursorId=" + cursorId
+                + ",numberToReturn=" + numberToReturn + ")"));
     }
 
     /**
