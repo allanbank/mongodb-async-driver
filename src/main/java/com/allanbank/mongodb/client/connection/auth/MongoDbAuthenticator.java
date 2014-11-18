@@ -27,7 +27,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.allanbank.mongodb.Credential;
 import com.allanbank.mongodb.MongoDbException;
@@ -51,13 +50,11 @@ import com.allanbank.mongodb.util.IOUtils;
  * 
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoDbAuthenticator implements Authenticator {
+public class MongoDbAuthenticator extends AbstractAuthenticator implements
+        Authenticator {
 
     /** The UTF-8 character encoding. */
     public static final Charset ASCII = Charset.forName("US-ASCII");
-
-    /** The result of the Authentication attempt. */
-    protected FutureCallback<Boolean> myResults = new FutureCallback<Boolean>();
 
     /**
      * Creates a new MongoDbAuthenticator.
@@ -87,27 +84,6 @@ public class MongoDbAuthenticator implements Authenticator {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to returns true if the authentication is complete.
-     * </p>
-     */
-    @Override
-    public boolean finished() throws MongoDbAuthenticationException {
-
-        // Clear and restore the threads interrupted state for reconnect cases.
-        final boolean interrupted = Thread.interrupted();
-        try {
-            return myResults.isDone();
-        }
-        finally {
-            if (interrupted) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    /**
      * Creates the MongoDB authentication hash of the password.
      * 
      * @param credentials
@@ -121,33 +97,6 @@ public class MongoDbAuthenticator implements Authenticator {
         final MessageDigest md5 = MessageDigest.getInstance("MD5");
 
         return passwordHash(md5, credentials);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to returns the results of the authentication, once complete.
-     * </p>
-     */
-    @Override
-    public boolean result() throws MongoDbAuthenticationException {
-
-        // Clear and restore the threads interrupted state for reconnect cases.
-        final boolean interrupted = Thread.interrupted();
-        try {
-            return myResults.get().booleanValue();
-        }
-        catch (final InterruptedException e) {
-            throw new MongoDbAuthenticationException(e);
-        }
-        catch (final ExecutionException e) {
-            throw new MongoDbAuthenticationException(e);
-        }
-        finally {
-            if (interrupted) {
-                Thread.currentThread().interrupt();
-            }
-        }
     }
 
     /**

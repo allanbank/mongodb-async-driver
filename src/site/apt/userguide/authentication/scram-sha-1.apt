@@ -24,11 +24,6 @@
             2014-09-21
 
 SCRAM-SHA-1 SASL Authentication
-
-  * <<Note:>> The SCRAM-SHA-1 SASL authenticator is provided via the driver's extensions jar available to license holders.
-    See the {{Notes}} at the bottom of this documentation for details. 
-    
-  []
   
   With the release of MongoDB 2.8 it is now possible to authenticate with the MongoDB server using 
 the Salted Challenge Response Authentication Mechanism (SCRAM) using SHA-1 as the hashing algorithm. 
@@ -57,12 +52,4 @@ Arrays.fill( password, ' ' );
 * Options
 
   The SCRAM-SHA-1 SASL Authentication does not support any client options.
-
-Notes
-
-  The plain SASL authenticator is provided via the driver's extensions jar available to license holders.
-Any attempt to add a credential to a configuration using plain SASL authentication will throw an 
-<<<IllegalArgumentException>>> without the extensions jar on the classpath. Please contact 
-{{{mailto:Robert.J.Moore@allanbank.com?subject=MongoDB%20Asynchronous%20Java%20Driver%20Extensions%20Inquiry}Allanbank Consulting, Inc.}}
-for information on licensing the driver and obtaining the extensions jar.
  

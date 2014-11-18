@@ -31,6 +31,8 @@ import java.util.Map;
 
 import com.allanbank.mongodb.client.connection.auth.Authenticator;
 import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
+import com.allanbank.mongodb.client.connection.auth.ScramSha1Authenticator;
+import com.allanbank.mongodb.client.connection.auth.X509Authenticator;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
@@ -105,12 +107,6 @@ public final class Credential implements Serializable {
      * Constant for authentication using SCRAM-SHA-1 SASL authentication based
      * on RFC 5802.
      * <p>
-     * <em>Note:</em> Use of SCRAM-SHA-1 SASL for authentication requires the
-     * driver's extensions. See the <a href=
-     * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html"
-     * >SCRAM-SHA-1 SASL Usage Guide</a> for details.
-     * </p>
-     * <p>
      * The extensions implementation contains a complete implementation of the
      * {@code saslPrep} algorithm for the username and password as specified by
      * RFC 4013 which is itself a profile for {@code stringprep} from RFC 3454.
@@ -130,12 +126,6 @@ public final class Credential implements Serializable {
     /**
      * Constant for authentication using x.509 client certificates passed at
      * connection establishment.
-     * <p>
-     * <em>Note:</em> Use of the x.509 for authentication requires the driver's
-     * extensions. See the <a href=
-     * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/tls.html"
-     * >TLS/SSL Usage Guide</a> for details.
-     * </p>
      * 
      * @see <a
      *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/tls.html">TLS/SSL
@@ -153,8 +143,8 @@ public final class Credential implements Serializable {
         KERBEROS = "com.allanbank.mongodb.extensions.authentication.KerberosAuthenticator";
         MONGODB_CR = MongoDbAuthenticator.class.getName();
         PLAIN_SASL = "com.allanbank.mongodb.extensions.authentication.PlainSaslAuthenticator";
-        SCRAM_SHA_1 = "com.allanbank.mongodb.extensions.authentication.ScramSha1Authenticator";
-        X509 = "com.allanbank.mongodb.extensions.authentication.X509Authenticator";
+        SCRAM_SHA_1 = ScramSha1Authenticator.class.getName();
+        X509 = X509Authenticator.class.getName();
     }
 
     /**
@@ -818,12 +808,6 @@ public final class Credential implements Serializable {
          * setAuthenticationType(SCRAM_SHA_1)}.
          * </p>
          * <p>
-         * <em>Note:</em> Use of SCRAM-SHA-1 SASL for authentication requires
-         * the driver's extensions. See the <a href=
-         * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html"
-         * >SCRAM-SHA-1 SASL Usage Guide</a> for details.
-         * </p>
-         * <p>
          * The extensions implementation contains a complete implementation of
          * the {@code saslPrep} algorithm for the username and password as
          * specified by RFC 4013 which is itself a profile for
@@ -955,12 +939,6 @@ public final class Credential implements Serializable {
          * This method delegates to {@link #setAuthenticationType(String)
          * setAuthenticationType(X509)}.
          * </p>
-         * <p>
-         * <em>Note:</em> Use of x.509 for authentication requires the driver's
-         * extensions. See the <a href=
-         * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/tls.html"
-         * > TLS Usage Guide</a> for details.
-         * </p>
          * 
          * @return This {@link Builder} for method chaining.
          * 
@@ -984,12 +962,6 @@ public final class Credential implements Serializable {
          * This method delegates to {@link #userName(String)
          * userName(cert.getSubjectX500Principal().toString())}.{@link #x509()
          * x509()}.
-         * </p>
-         * <p>
-         * <em>Note:</em> Use of x.509 for authentication requires the driver's
-         * extensions. See the <a href=
-         * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/tls.html"
-         * > TLS Usage Guide</a> for details.
          * </p>
          * 
          * @param cert
