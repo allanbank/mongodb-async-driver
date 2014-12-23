@@ -672,6 +672,14 @@ public class Cluster implements ClusterStats {
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected final class ServerListener implements PropertyChangeListener {
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to track the state of the cluster.
+         * </p>
+         * 
+         * @see PropertyChangeListener#propertyChange
+         */
         @Override
         public void propertyChange(final PropertyChangeEvent evt) {
             final String propertyName = evt.getPropertyName();

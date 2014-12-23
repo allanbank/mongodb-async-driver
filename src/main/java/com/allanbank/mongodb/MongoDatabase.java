@@ -116,7 +116,7 @@ public interface MongoDatabase {
      * Returns the durability for write operations sent to the server from this
      * {@link MongoDatabase} instance.
      * <p>
-     * Defaults to the {@link Durability} from the {@link Mongo}'s
+     * Defaults to the {@link Durability} from the {@link MongoClient}'s
      * configuration.
      * </p>
      * 
@@ -149,7 +149,7 @@ public interface MongoDatabase {
      * Returns the read preference for queries from this {@link MongoDatabase}
      * instance.
      * <p>
-     * Defaults to {@link ReadPreference} from the {@link Mongo}'s
+     * Defaults to {@link ReadPreference} from the {@link MongoClient}'s
      * configuration.
      * </p>
      * 
@@ -557,8 +557,8 @@ public interface MongoDatabase {
      * Sets the durability for write operations from this {@link MongoDatabase}
      * instance.
      * <p>
-     * Defaults to the {@link Durability} from the {@link Mongo}'s configuration
-     * if set to <code>null</code>.
+     * Defaults to the {@link Durability} from the {@link MongoClient}'s
+     * configuration if set to <code>null</code>.
      * </p>
      * 
      * @param durability
@@ -589,7 +589,7 @@ public interface MongoDatabase {
      * Sets the value of the read preference for a queries from this
      * {@link MongoDatabase} instance.
      * <p>
-     * Defaults to the {@link ReadPreference} from the {@link Mongo}'s
+     * Defaults to the {@link ReadPreference} from the {@link MongoClient}'s
      * configuration if set to <code>null</code>.
      * </p>
      * 

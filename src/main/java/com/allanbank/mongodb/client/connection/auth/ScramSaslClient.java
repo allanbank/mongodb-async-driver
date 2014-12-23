@@ -350,6 +350,15 @@ import com.allanbank.mongodb.util.IOUtils;
         myState = State.INITIAL;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to evaluate the challenge based on the current state of the
+     * client.
+     * </p>
+     * 
+     * @see javax.security.sasl.SaslClient#evaluateChallenge(byte[])
+     */
     @Override
     public byte[] evaluateChallenge(final byte[] challenge)
             throws SaslException {

@@ -269,6 +269,9 @@ public class ManagedProcess {
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected final class OutputReader implements Runnable {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void run() {
             try {

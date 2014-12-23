@@ -69,7 +69,7 @@ public abstract class AbstractProxyConnection implements Connection {
                             listener));
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             listener.propertyChange(new PropertyChangeEvent(this,
                     OPEN_PROP_NAME, Boolean.TRUE, Boolean.FALSE));
         }
@@ -99,7 +99,7 @@ public abstract class AbstractProxyConnection implements Connection {
             myProxiedConnection.flush();
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -116,7 +116,7 @@ public abstract class AbstractProxyConnection implements Connection {
             return myProxiedConnection.getPendingCount();
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -144,7 +144,7 @@ public abstract class AbstractProxyConnection implements Connection {
             return myProxiedConnection.isAvailable();
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -161,7 +161,7 @@ public abstract class AbstractProxyConnection implements Connection {
             return myProxiedConnection.isIdle();
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -178,7 +178,7 @@ public abstract class AbstractProxyConnection implements Connection {
             return myProxiedConnection.isOpen();
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -233,7 +233,7 @@ public abstract class AbstractProxyConnection implements Connection {
             myProxiedConnection.send(message1, message2, replyCallback);
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -251,7 +251,7 @@ public abstract class AbstractProxyConnection implements Connection {
             myProxiedConnection.send(message, replyCallback);
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -279,7 +279,7 @@ public abstract class AbstractProxyConnection implements Connection {
             myProxiedConnection.waitForClosed(timeout, timeoutUnits);
         }
         catch (final MongoDbException error) {
-            onExceptin(error);
+            onExceptin();
             throw error;
         }
     }
@@ -300,10 +300,8 @@ public abstract class AbstractProxyConnection implements Connection {
      * Closes the underlying connection.
      * </p>
      * 
-     * @param exception
-     *            The thrown exception.
      */
-    protected void onExceptin(final MongoDbException exception) {
+    protected void onExceptin() {
         // Close without fear of an exception.
         IOUtils.close(this);
     }

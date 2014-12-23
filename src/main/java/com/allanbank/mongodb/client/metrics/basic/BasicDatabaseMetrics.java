@@ -149,6 +149,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
      * @param metrics
      *            The metrics for the collection.
      */
+    @SuppressWarnings("unused")
     protected void addedCollection(final BasicCollectionMetrics metrics) {
         // Nothing - Extension point.
     }

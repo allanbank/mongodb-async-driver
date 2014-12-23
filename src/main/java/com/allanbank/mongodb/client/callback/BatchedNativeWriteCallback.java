@@ -156,13 +156,10 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
     /**
      * Callback for a single write operation sent via the native messages.
      * 
-     * @param operation
-     *            The write operation.
      * @param result
      *            The result of the write operation.
      */
-    protected synchronized void callback(final WriteOperation operation,
-            final long result) {
+    protected synchronized void callback(final long result) {
         myN += result;
         myFinished += 1;
 
@@ -250,8 +247,7 @@ public class BatchedNativeWriteCallback extends ReplyLongCallback {
          */
         @Override
         public void callback(final T result) {
-            BatchedNativeWriteCallback.this.callback(myOperation,
-                    result.longValue());
+            BatchedNativeWriteCallback.this.callback(result.longValue());
         }
 
         /**

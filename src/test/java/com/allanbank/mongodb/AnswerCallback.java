@@ -39,6 +39,9 @@ public class AnswerCallback<R> implements IArgumentMatcher {
      * Helper for matching callbacks and triggering them at method invocation
      * time.
      * 
+     * @param <T>
+     *            The type for the callback.
+     * 
      * @return <code>null</code>
      */
     public static <T> ReplyCallback callback() {
@@ -63,6 +66,8 @@ public class AnswerCallback<R> implements IArgumentMatcher {
      * Helper for matching callbacks and triggering them at method invocation
      * time.
      * 
+     * @param <T>
+     *            The type for the callback.
      * @param reply
      *            The reply to give the callback when matching.
      * @return <code>null</code>
@@ -76,6 +81,8 @@ public class AnswerCallback<R> implements IArgumentMatcher {
      * Helper for matching callbacks and triggering them at method invocation
      * time.
      * 
+     * @param <T>
+     *            The type for the callback.
      * @param error
      *            The error to provide the callback.
      * 

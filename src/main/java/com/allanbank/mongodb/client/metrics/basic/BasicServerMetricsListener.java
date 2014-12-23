@@ -144,6 +144,7 @@ public class BasicServerMetricsListener implements MongoMessageListener {
      * @param metrics
      *            The metrics for the server.
      */
+    @SuppressWarnings("unused")
     protected void addedServer(final BasicServerMetrics metrics) {
         // Nothing - Extension point.
     }

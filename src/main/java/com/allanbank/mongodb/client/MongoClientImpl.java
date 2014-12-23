@@ -181,7 +181,7 @@ public class MongoClientImpl implements MongoClient {
      * Overridden to issue a listDatabases command against the 'admin' database.
      * </p>
      * 
-     * @see com.allanbank.mongodb.Mongo#listDatabaseNames()
+     * @see MongoClient#listDatabaseNames()
      */
     @Override
     public List<String> listDatabaseNames() {

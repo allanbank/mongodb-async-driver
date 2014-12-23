@@ -122,7 +122,7 @@ public class MongoClientConfigurationTest {
      * Test method for
      * {@link MongoClientConfiguration#authenticate(String, String)} .
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Test
     public void testAuthenticate() {
 
@@ -149,7 +149,7 @@ public class MongoClientConfigurationTest {
      * Test method for
      * {@link MongoClientConfiguration#authenticateAsAdmin(String, String)} .
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Test
     public void testAuthenticateAsAdmin() {
 
@@ -176,7 +176,7 @@ public class MongoClientConfigurationTest {
      * Test method for {@link MongoDbConfiguration#authenticate(String, String)}
      * .
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Test
     public void testAuthenticateSetDBFirst() {
         final MongoClientConfiguration config = new MongoClientConfiguration();
@@ -205,7 +205,7 @@ public class MongoClientConfigurationTest {
      * Test method for {@link MongoDbConfiguration#authenticate(String, String)}
      * .
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Test
     public void testAuthenticateSetDBSecond() {
 

@@ -149,6 +149,7 @@ public class BasicOperationMetricsListener implements MongoMessageListener {
      * @param metrics
      *            The metrics for the server.
      */
+    @SuppressWarnings("unused")
     protected void addedOperation(final BasicOperationMetrics metrics) {
         // Nothing - Extension point.
     }

@@ -147,6 +147,7 @@ public class BasicLogicalMetricsListener implements MongoMessageListener {
      * @param metrics
      *            The metrics for the database.
      */
+    @SuppressWarnings("unused")
     protected void addedDatabase(final BasicDatabaseMetrics metrics) {
         // Nothing - Extension point.
     }

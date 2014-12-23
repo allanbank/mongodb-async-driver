@@ -142,11 +142,17 @@ public class LogMessagesListenerTest {
         /** The last record published. */
         private LogRecord myRecord = null;
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void close() throws SecurityException {
             myRecord = null;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void flush() {
             // Nothing
@@ -162,6 +168,9 @@ public class LogMessagesListenerTest {
             return myRecord;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void publish(final LogRecord record) {
             myRecord = record;

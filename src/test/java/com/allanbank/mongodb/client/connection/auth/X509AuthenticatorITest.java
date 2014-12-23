@@ -231,18 +231,27 @@ public class X509AuthenticatorITest {
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected static final class TrustAnyManager implements X509TrustManager {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void checkClientTrusted(final X509Certificate[] arg0,
                 final String arg1) throws CertificateException {
             // Good.
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void checkServerTrusted(final X509Certificate[] arg0,
                 final String arg1) throws CertificateException {
             // Good.
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[0];

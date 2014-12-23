@@ -44,7 +44,6 @@ import org.easymock.Capture;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Durability;
-import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -81,7 +80,7 @@ public class AbstractProxyConnectionTest {
 
         final Connection mockConnetion = createMock(Connection.class);
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         final PropertyChangeListener proxiedListener = new AbstractProxyConnection.ProxiedChangeListener(
                 conn, mockListener);
@@ -118,7 +117,7 @@ public class AbstractProxyConnectionTest {
 
         final Connection mockConnetion = createMock(Connection.class);
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         final PropertyChangeListener proxiedListener = new AbstractProxyConnection.ProxiedChangeListener(
                 conn, mockListener);
@@ -155,7 +154,7 @@ public class AbstractProxyConnectionTest {
 
         final Connection mockConnetion = createMock(Connection.class);
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         final PropertyChangeListener proxiedListener = new AbstractProxyConnection.ProxiedChangeListener(
                 conn, mockListener);
@@ -194,7 +193,7 @@ public class AbstractProxyConnectionTest {
 
         final Connection mockConnetion = createMock(Connection.class);
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         final PropertyChangeListener proxiedListener = new AbstractProxyConnection.ProxiedChangeListener(
                 conn, mockListener);
@@ -237,7 +236,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         conn.close();
 
@@ -264,7 +263,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         conn.flush();
 
@@ -295,7 +294,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.flush();
@@ -331,7 +330,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         assertEquals(1, conn.getPendingCount());
 
@@ -362,7 +361,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.getPendingCount();
@@ -393,7 +392,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         assertSame(mockConnetion, conn.getProxiedConnection());
 
@@ -422,7 +421,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         assertThat(conn.getServerName(), is("foo"));
 
@@ -451,7 +450,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         assertEquals(true, conn.isAvailable());
 
@@ -481,7 +480,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.isAvailable();
@@ -516,7 +515,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         assertEquals(false, conn.isIdle());
 
@@ -546,7 +545,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.isIdle();
@@ -581,7 +580,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         assertEquals(true, conn.isOpen());
 
@@ -611,7 +610,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.isOpen();
@@ -648,7 +647,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         conn.raiseErrors(thrown);
 
@@ -681,7 +680,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         conn.send(msg, callback);
 
@@ -715,7 +714,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.send(msg, callback);
@@ -752,7 +751,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         conn.send(msg, msg2, null);
 
@@ -785,7 +784,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.send(msg, msg2, null);
@@ -820,7 +819,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         conn.shutdown(true);
 
@@ -850,7 +849,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         conn.waitForClosed(1, TimeUnit.DAYS);
 
@@ -881,7 +880,7 @@ public class AbstractProxyConnectionTest {
         replay(mockConnetion);
 
         final TestProxiedConnection conn = new TestProxiedConnection(
-                mockConnetion, new MongoClientConfiguration());
+                mockConnetion);
 
         try {
             conn.waitForClosed(1, TimeUnit.DAYS);
@@ -909,11 +908,8 @@ public class AbstractProxyConnectionTest {
          * 
          * @param proxiedConnection
          *            The connection to forward to.
-         * @param config
-         *            The MongoDB client configuration.
          */
-        public TestProxiedConnection(final Connection proxiedConnection,
-                final MongoClientConfiguration config) {
+        public TestProxiedConnection(final Connection proxiedConnection) {
             super(proxiedConnection);
         }
     }

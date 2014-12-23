@@ -6631,6 +6631,7 @@ public class MongoCollectionImplTest {
      *             On an error.
      */
     @Test
+    @Deprecated
     public void testStreamFindWithNonLegacyOptionsAndNonSharded()
             throws Exception {
         final Document result1 = BuilderFactory.start().build();
@@ -7278,6 +7279,7 @@ public class MongoCollectionImplTest {
      *             On an error.
      */
     @Test
+    @Deprecated
     public void testStreamStreamCallbackFindWithAllOptions() throws Exception {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
@@ -7342,6 +7344,7 @@ public class MongoCollectionImplTest {
      *             On an error.
      */
     @Test
+    @Deprecated
     public void testStreamStreamCallbackWithAllOptionsNonSharded()
             throws Exception {
         final Document result1 = BuilderFactory.start().build();

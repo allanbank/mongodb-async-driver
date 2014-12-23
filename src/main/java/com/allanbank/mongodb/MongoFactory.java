@@ -23,9 +23,9 @@ import com.allanbank.mongodb.client.MongoClientImpl;
 
 /**
  * MongoFactory provides the bootstrap point for creating a connection
- * represented via a {@link Mongo} instance) to a MongoDB cluster. Both explicit
- * construction with a pre-instantiated {@link MongoClientConfiguration} and via
- * a MongoDB URI are supported.
+ * represented via a {@link MongoClient} instance) to a MongoDB cluster. Both
+ * explicit construction with a pre-instantiated
+ * {@link MongoClientConfiguration} and via a MongoDB URI are supported.
  * 
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
@@ -88,24 +88,26 @@ public class MongoFactory {
     }
 
     /**
-     * Creates a new {@link Mongo} instance using the
+     * Creates a new {@link MongoClient} instance using the
      * {@link MongoClientConfiguration}.
      * 
      * @param config
      *            The configuration for the connection to MongoDB.
-     * @return The {@link Mongo} representation of the connections to MongoDB.
+     * @return The {@link MongoClient} representation of the connections to
+     *         MongoDB.
      */
     public static MongoClient createClient(final MongoClientConfiguration config) {
         return new MongoClientImpl(config);
     }
 
     /**
-     * Creates a new {@link Mongo} instance using a MongoDB style URL.
+     * Creates a new {@link MongoClient} instance using a MongoDB style URL.
      * 
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
-     * @return The {@link Mongo} representation of the connections to MongoDB.
+     * @return The {@link MongoClient} representation of the connections to
+     *         MongoDB.
      * 
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
@@ -115,12 +117,13 @@ public class MongoFactory {
     }
 
     /**
-     * Creates a new {@link Mongo} instance using a MongoDB style URL.
+     * Creates a new {@link MongoClient} instance using a MongoDB style URL.
      * 
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
-     * @return The {@link Mongo} representation of the connections to MongoDB.
+     * @return The {@link MongoClient} representation of the connections to
+     *         MongoDB.
      * 
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>

@@ -68,7 +68,7 @@ public class MongoFactoryTest {
     /**
      * Test method for {@link MongoFactory#create(MongoDbConfiguration)}.
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Test
     public void testCreateMongoDbConfiguration() {
         final MongoDbConfiguration config = new MongoDbConfiguration();
@@ -81,7 +81,7 @@ public class MongoFactoryTest {
     /**
      * Test method for {@link MongoFactory#create(String)}.
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
     @Test
     public void testCreateString() {
 

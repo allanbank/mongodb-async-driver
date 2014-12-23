@@ -47,7 +47,7 @@ import com.allanbank.mongodb.bson.Visitor;
  * 
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "javadoc" })
 public class DBPointerElementTest {
 
     /**

@@ -670,6 +670,18 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      */
     protected final class ClusterAndConnectionListener implements
             PropertyChangeListener {
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to forward to either the
+         * {@link AbstractProxyMultipleConnection#removeCachedConnection(Object, Connection)}
+         * or
+         * {@link AbstractProxyMultipleConnection#handleConnectionClosed(Connection)}
+         * methods.
+         * </p>
+         * 
+         * @see PropertyChangeListener#propertyChange
+         */
         @Override
         public void propertyChange(final PropertyChangeEvent event) {
             final String propName = event.getPropertyName();

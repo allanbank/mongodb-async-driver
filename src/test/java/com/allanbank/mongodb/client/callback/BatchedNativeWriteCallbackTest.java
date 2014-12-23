@@ -399,7 +399,7 @@ public class BatchedNativeWriteCallbackTest {
                 eq(false), eq(false), eq(Durability.ACK));
         expectLastCall();
         replay(mockResults, mockCollection);
-        cb.callback(operations.get(0), 1);
+        cb.callback(1);
         verify(mockResults, mockCollection);
 
         // Now the reply.
@@ -408,7 +408,7 @@ public class BatchedNativeWriteCallbackTest {
                 eq(false), eq(Durability.ACK));
         expectLastCall();
         replay(mockResults, mockCollection);
-        cb.callback(operations.get(1), 1);
+        cb.callback(1);
         verify(mockResults, mockCollection);
 
         // Now the reply.
@@ -416,7 +416,7 @@ public class BatchedNativeWriteCallbackTest {
         mockResults.callback(Long.valueOf(3));
         expectLastCall();
         replay(mockResults, mockCollection);
-        cb.callback(operations.get(2), 1);
+        cb.callback(1);
         verify(mockResults, mockCollection);
     }
 }

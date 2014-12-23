@@ -152,6 +152,7 @@ import com.allanbank.mongodb.error.JsonParseException;
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@SuppressWarnings("javadoc")
 public class Json {
 
     /**

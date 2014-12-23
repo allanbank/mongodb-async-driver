@@ -303,6 +303,7 @@ public class VisitorAdapter implements Visitor {
      * @param name
      *            The name of the element.
      */
+    @SuppressWarnings("unused")
     protected void visitName(final String name) {
         // Nothing. Extension point.
     }

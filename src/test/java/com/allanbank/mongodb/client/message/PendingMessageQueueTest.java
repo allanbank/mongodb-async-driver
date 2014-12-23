@@ -1451,6 +1451,9 @@ public class PendingMessageQueueTest {
             return myCount;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void run() {
             try {
@@ -1492,6 +1495,9 @@ public class PendingMessageQueueTest {
             myCount = count;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void run() {
             try {
@@ -1539,6 +1545,9 @@ public class PendingMessageQueueTest {
             return myCount;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void run() {
             try {
@@ -1583,6 +1592,9 @@ public class PendingMessageQueueTest {
             myCount = count;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public void run() {
             try {

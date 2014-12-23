@@ -40,6 +40,8 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
     /**
      * Creates a new CallbackCapture.
      * 
+     * @param <T>
+     *            The type for the callback.
      * @param value
      *            The value to provide to the callback.
      * @return The CallbackCapture.
@@ -52,6 +54,8 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
     /**
      * Creates a new CallbackCapture.
      * 
+     * @param <T>
+     *            The type for the callback.
      * @param error
      *            The error to provide to the callback.
      * @return The CallbackCapture.
@@ -64,6 +68,8 @@ public class CallbackCapture<T> extends Capture<Callback<T>> {
     /**
      * Creates a new CallbackCapture.
      * 
+     * @param <T>
+     *            The type for the callback.
      * @return The CallbackCapture.
      */
     public static <T> Callback<T> callbackError() {
