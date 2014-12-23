@@ -50,10 +50,12 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
-import com.allanbank.mongodb.client.connection.socket.SocketConnection;
+import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.ServerStatus;
 import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
@@ -133,7 +135,9 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
         final int count = SMALL_COLLECTION_COUNT * 5;
 
-        final SocketConnection[] conns = new SocketConnection[PORTS.length];
+        final SocketConnectionFactory factory = new SocketConnectionFactory(
+                myConfig);
+        final Connection[] conns = new Connection[PORTS.length];
 
         disconnect();
         Thread.sleep(5000);
@@ -148,9 +152,9 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         for (int i = 0; i < PORTS.length; ++i) {
             final int port = PORTS[i];
 
-            conns[i] = new SocketConnection(cluster.add(new InetSocketAddress(
-                    defaultAddr.getHostName(), port)), myConfig);
-            conns[i].start();
+            Server server = cluster.add(new InetSocketAddress(defaultAddr
+                    .getHostName(), port));
+            conns[i] = factory.connect(server, myConfig);
         }
 
         final int[] beforeInsert = new int[PORTS.length];
@@ -275,6 +279,8 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
                         + deltas[i] + "' vs. '" + high + "'", deltas[i] <= high);
             }
         }
+
+        factory.close();
     }
 
     /**

@@ -34,7 +34,6 @@ import com.allanbank.mongodb.bson.io.BsonInputStream;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.Operation;
 import com.allanbank.mongodb.client.callback.Receiver;
-import com.allanbank.mongodb.client.connection.socket.AbstractSocketConnection;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.Header;
@@ -50,7 +49,7 @@ import com.allanbank.mongodb.util.log.Log;
 import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
- * Runnable to receive messages from an {@link AbstractSocketConnection}.
+ * Runnable to receive messages from an {@link AbstractSocketTransport}.
  * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.

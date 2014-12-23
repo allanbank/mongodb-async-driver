@@ -22,7 +22,6 @@ package com.allanbank.mongodb.client.connection.socket;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.lang.ref.Reference;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +30,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.Version;
-import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.bson.io.StringDecoderCache;
 import com.allanbank.mongodb.bson.io.StringEncoderCache;
 import com.allanbank.mongodb.client.ClusterStats;
@@ -49,6 +47,8 @@ import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerSelector;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.client.state.SimpleReconnectStrategy;
+import com.allanbank.mongodb.client.transport.Transport;
+import com.allanbank.mongodb.client.transport.TransportOutputBuffer;
 import com.allanbank.mongodb.util.log.Log;
 import com.allanbank.mongodb.util.log.LogFactory;
 
@@ -73,14 +73,6 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
     /** Cache used for encoding strings. */
     protected final StringEncoderCache myEncoderCache;
-
-    /**
-     * The buffers used by the single threaded connections. Each buffer is
-     * shared by all connections but there can be up to 1 buffer per application
-     * thread. We use a reference to the buffer to allow the garbage collector
-     * To clean up the stream.
-     */
-    private ThreadLocal<Reference<BufferingBsonOutputStream>> myBuffers;
 
     /** The state of the cluster. */
     private final Cluster myCluster;
@@ -107,7 +99,6 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
 
         myCluster = new Cluster(config, ClusterType.STAND_ALONE);
         myServerSelector = new LatencyServerSelector(myCluster, true);
-        myBuffers = new ThreadLocal<Reference<BufferingBsonOutputStream>>();
 
         myConfigListener = new ConfigurationListener();
         myConfig.addPropertyChangeListener(myConfigListener);
@@ -129,7 +120,6 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     @Override
     public void close() {
-        myBuffers = null; // Let the ThreadLocal's weak reference go.
         myConfig.removePropertyChangeListener(myConfigListener);
 
         // Release the cached entries too.
@@ -140,7 +130,7 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
     /**
      * {@inheritDoc}
      * <p>
-     * Returns a new {@link SocketConnection}.
+     * Returns a new {@link TransportConnection}.
      * </p>
      * 
      * @see ConnectionFactory#connect()
@@ -201,26 +191,20 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      * @throws IOException
      *             On a failure connecting to the server.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Connection connect(final Server server,
             final MongoClientConfiguration config) throws IOException {
 
-        final AbstractSocketConnection connection;
+        TransportConnection connection = new TransportConnection(server,
+                config, myMetrics.newConnection(server.getCanonicalName()));
 
-        switch (myConfig.getConnectionModel()) {
-        case SENDER_RECEIVER_THREAD: {
-            connection = new TwoThreadSocketConnection(server, myConfig,
-                    myMetrics.newConnection(server.getCanonicalName()),
-                    myEncoderCache, myDecoderCache);
-            break;
-        }
-        default: { // and RECEIVER_THREAD
-            connection = new SocketConnection(server, myConfig,
-                    myMetrics.newConnection(server.getCanonicalName()),
-                    myEncoderCache, myDecoderCache, myBuffers);
-            break;
-        }
-        }
+        Transport<TransportOutputBuffer> transport = (Transport<TransportOutputBuffer>) config
+                .getTransportFactory().createTransport(server, config,
+                        myEncoderCache, myDecoderCache, connection);
+
+        // Associate the connection with the transport.
+        connection.setTransport(transport);
 
         // Start the connection.
         connection.start();
@@ -328,6 +312,15 @@ public class SocketConnectionFactory implements ProxiedConnectionFactory {
      */
     protected final class ConfigurationListener implements
             PropertyChangeListener {
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden forward to
+         * {@link SocketConnectionFactory#configurationChanged}.
+         * </p>
+         * 
+         * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+         */
         @Override
         public void propertyChange(final PropertyChangeEvent evt) {
             configurationChanged(evt);

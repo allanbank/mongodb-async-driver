@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.allanbank.mongodb.bson.io.EndianUtils;
+import com.allanbank.mongodb.client.message.Header;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
 
@@ -335,8 +336,7 @@ public class MockSocketServer extends Thread {
         // Use non-blocking mode so we can pickup when to stop running.
         myConnection.configureBlocking(false);
 
-        ByteBuffer header = ByteBuffer
-                .allocate(AbstractConnection.HEADER_LENGTH);
+        ByteBuffer header = ByteBuffer.allocate(Header.SIZE);
         ByteBuffer body = null;
         int read = 0;
         while (myRunning) {
@@ -361,8 +361,7 @@ public class MockSocketServer extends Thread {
                         dup.flip();
                         final int length = EndianUtils.swap(dup.asIntBuffer()
                                 .get(0));
-                        body = ByteBuffer.allocate(length
-                                - AbstractConnection.HEADER_LENGTH);
+                        body = ByteBuffer.allocate(length - Header.SIZE);
                     }
 
                     if (body.hasRemaining()) {
@@ -385,8 +384,7 @@ public class MockSocketServer extends Thread {
                             notifyAll();
                         }
                         // Setup for the next message.
-                        header = ByteBuffer
-                                .allocate(AbstractConnection.HEADER_LENGTH);
+                        header = ByteBuffer.allocate(Header.SIZE);
                         body = null;
 
                         if (!myReplies.isEmpty()) {

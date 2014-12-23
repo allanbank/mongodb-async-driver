@@ -26,13 +26,13 @@ import java.io.IOException;
 import com.allanbank.mongodb.client.ClusterStats;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.connection.bootstrap.BootstrapConnectionFactory;
-import com.allanbank.mongodb.client.connection.socket.SocketConnection;
+import com.allanbank.mongodb.client.connection.socket.TransportConnection;
 import com.allanbank.mongodb.client.metrics.MongoClientMetrics;
 import com.allanbank.mongodb.client.metrics.MongoMessageListener;
 
 /**
  * Provides an abstraction for constructing a connection. At the lowest level a
- * connection to a MongoDB process is done through a {@link SocketConnection}
+ * connection to a MongoDB process is done through a {@link TransportConnection}
  * but there are several connection facades to intelligently connect to Replica
  * Sets and Shard configurations.
  * <p>

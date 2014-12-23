@@ -35,7 +35,8 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
 
 import com.allanbank.mongodb.client.ClusterType;
-import com.allanbank.mongodb.client.connection.socket.SocketConnection;
+import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
@@ -400,15 +401,16 @@ public class ClusterTestSupport {
         final long deadline = now + TimeUnit.MINUTES.toMillis(2);
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
+        final SocketConnectionFactory factory = new SocketConnectionFactory(
+                config);
         final Cluster cluster = new Cluster(config, ClusterType.REPLICA_SET);
         while ((now < deadline) && cluster.getWritableServers().isEmpty()) {
             for (int port = startPort; port < (startPort + replicas + 1); ++port) {
-                SocketConnection connection = null;
+                Connection connection = null;
                 try {
                     final Server server = cluster.add(new InetSocketAddress(
                             "localhost", port));
-                    connection = new SocketConnection(server, config);
-                    connection.start();
+                    connection = factory.connect(server, config);
                     connection.send(new IsMaster(), new ServerUpdateCallback(
                             server));
                     connection.shutdown(false);
@@ -435,6 +437,8 @@ public class ClusterTestSupport {
                 // Missing primary: Pause.
                 sleep(TimeUnit.SECONDS.toMillis(5));
             }
+
+            factory.close();
         }
     }
 
@@ -845,6 +849,14 @@ public class ClusterTestSupport {
      */
     protected final static class TestDirectoryFilenameFilter implements
             FilenameFilter {
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to find test directories.
+         * </p>
+         * 
+         * @see FilenameFilter#accept(File, String)
+         */
         @Override
         public boolean accept(final File dir, final String name) {
             return name.endsWith(DIR_SUFFIX)

@@ -72,7 +72,8 @@ import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.QueryBuilder;
 import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
-import com.allanbank.mongodb.client.connection.socket.SocketConnection;
+import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.client.message.ServerStatus;
 import com.allanbank.mongodb.client.state.Cluster;
@@ -895,16 +896,16 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      */
     protected int countPrimaryCommands() {
         int count = 0;
+        final SocketConnectionFactory factory = new SocketConnectionFactory(
+                myConfig);
         try {
             final InetSocketAddress defaultAddr = createAddress();
             final Cluster cluster = new Cluster(myConfig, ClusterType.SHARDED);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
-                SocketConnection conn = null;
+                Connection conn = null;
                 try {
-                    conn = new SocketConnection(
-                            cluster.add(new InetSocketAddress(defaultAddr
-                                    .getHostName(), port)), myConfig);
-                    conn.start();
+                    conn = factory.connect(cluster.add(new InetSocketAddress(
+                            defaultAddr.getHostName(), port)), myConfig);
 
                     final FutureReplyCallback replyFuture = new FutureReplyCallback();
                     conn.send(new ServerStatus(), replyFuture);
@@ -946,6 +947,9 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         catch (final IOException ignore) {
             // OK.
         }
+        finally {
+            factory.close();
+        }
 
         return count;
     }
@@ -957,16 +961,16 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
      */
     protected int countSecondaryCommands() {
         int count = 0;
+        final SocketConnectionFactory factory = new SocketConnectionFactory(
+                myConfig);
         try {
             final InetSocketAddress defaultAddr = createAddress();
             final Cluster cluster = new Cluster(myConfig, ClusterType.SHARDED);
             for (int port = DEFAULT_PORT; port < (DEFAULT_PORT + 50); ++port) {
-                SocketConnection conn = null;
+                Connection conn = null;
                 try {
-                    conn = new SocketConnection(
-                            cluster.add(new InetSocketAddress(defaultAddr
-                                    .getHostName(), port)), myConfig);
-                    conn.start();
+                    conn = factory.connect(cluster.add(new InetSocketAddress(
+                            defaultAddr.getHostName(), port)), myConfig);
 
                     final FutureReplyCallback replyFuture = new FutureReplyCallback();
                     conn.send(new ServerStatus(), replyFuture);
@@ -1007,6 +1011,9 @@ public class ShardedReplicaSetsAcceptanceTest extends BasicAcceptanceTestCases {
         }
         catch (final IOException ignore) {
             // OK.
+        }
+        finally {
+            factory.close();
         }
 
         return count;

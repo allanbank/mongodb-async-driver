@@ -125,7 +125,7 @@ public class SocketConnectionFactoryTest {
         Connection conn = null;
         try {
             conn = myTestFactory.connect();
-            assertThat(conn, instanceOf(SocketConnection.class));
+            assertThat(conn, instanceOf(TransportConnection.class));
 
             assertTrue("Should have connected to the server.",
                     ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
@@ -218,7 +218,7 @@ public class SocketConnectionFactoryTest {
         try {
             conn = myTestFactory.connect();
 
-            assertThat(conn, instanceOf(TwoThreadSocketConnection.class));
+            assertThat(conn, instanceOf(TransportConnection.class));
 
             assertTrue("Should have connected to the server.",
                     ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));

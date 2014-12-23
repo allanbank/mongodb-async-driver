@@ -78,6 +78,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.hamcrest.Matchers;
@@ -324,6 +326,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Before
     public void connect() {
+        Logger.getGlobal().setLevel(Level.FINE);
+        Logger.getLogger("com").setLevel(Level.FINE);
+        
         initConfig().addServer(createAddress());
 
         if (ourMongo == null) {
