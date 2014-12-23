@@ -55,6 +55,7 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.allanbank.mongodb.bson.io.StringEncoderCache;
+import com.allanbank.mongodb.client.transport.TransportFactory;
 import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -347,6 +348,46 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /** The factory for creating threads to handle connections. */
     private transient ThreadFactory myThreadFactory = null;
 
+    /** The factory for creating transports to handle connections. */
+    private transient TransportFactory myTransportFactory = null;
+
+    /**
+     * Returns the factory for creating transports/connections to the server.
+     * <p>
+     * This field is also updated by the
+     * {@link #setConnectionModel(ConnectionModel)} method.
+     * </p>
+     * <p>
+     * Defaults to {@link ConnectionModel#RECEIVER_THREAD
+     * ConnectionModel.RECEIVER_THREAD's} factory.
+     * </p>
+     * 
+     * @return The factory for creating transports/connections to the server.
+     */
+    public TransportFactory getTransportFactory() {
+        return myTransportFactory;
+    }
+
+    /**
+     * Sets the factory for creating transports/connections to the server.
+     * <p>
+     * This field is also updated by the
+     * {@link #setConnectionModel(ConnectionModel)} method. Use this method if
+     * you are using a custom transport implementation.
+     * </p>
+     * 
+     * @param transportFactory
+     *            The factory for creating transports/connections to the server.
+     */
+    public void setTransportFactory(TransportFactory transportFactory) {
+        final TransportFactory old = myTransportFactory;
+
+        myTransportFactory = transportFactory;
+
+        myPropSupport.firePropertyChange("transportFactory", old,
+                myTransportFactory);
+    }
+
     /**
      * Determines if the {@link java.net.Socket#setKeepAlive(boolean)
      * SO_KEEPALIVE} socket option is set.
@@ -365,6 +406,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         myThreadFactory = Executors.defaultThreadFactory();
         myCredentials = new ConcurrentHashMap<String, Credential>();
         myPropSupport = new PropertyChangeSupport(this);
+        myTransportFactory = myConnectionModel.getFactory();
     }
 
     /**
@@ -1327,6 +1369,11 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Sets the model the driver uses for managing connections.
      * <p>
+     * This method also updates the
+     * {@link #setTransportFactory(TransportFactory) transportFactory} with the
+     * value returned from {@link ConnectionModel#getFactory()}.
+     * </p>
+     * <p>
      * Defaults to {@link ConnectionModel#RECEIVER_THREAD}.
      * </p>
      * 
@@ -1338,6 +1385,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         final ConnectionModel old = myConnectionModel;
 
         myConnectionModel = connectionModel;
+        setTransportFactory(myConnectionModel.getFactory());
 
         myPropSupport.firePropertyChange("connectionModel", old,
                 myConnectionModel);
@@ -1907,6 +1955,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
         myExecutor = null;
         mySocketFactory = null;
         myThreadFactory = null;
+        myTransportFactory = myConnectionModel.getFactory();
     }
 
     /**

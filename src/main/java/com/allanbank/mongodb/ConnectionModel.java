@@ -19,6 +19,10 @@
  */
 package com.allanbank.mongodb;
 
+import com.allanbank.mongodb.client.transport.TransportFactory;
+import com.allanbank.mongodb.client.transport.bio.one.OneThreadTransportFactory;
+import com.allanbank.mongodb.client.transport.bio.two.TwoThreadTransportFactory;
+
 /**
  * ConnectionModel provides an enumeration of the connection models that the
  * driver supports. Currently this is related to the number of threads used by
@@ -49,12 +53,12 @@ public enum ConnectionModel {
      * the message on a send.
      * </p>
      */
-    RECEIVER_THREAD,
+    RECEIVER_THREAD(new OneThreadTransportFactory()),
 
     /**
      * Each socket uses a pair of threads: sender and receiver.
      * <p>
-     * This was the default {@code ConnectionModel} versions prior to 1.3.0.
+     * This was the default {@code ConnectionModel} in versions prior to 1.3.0.
      * </p>
      * <p>
      * This {@code ConnectionModel} is most useful for connections where a
@@ -64,5 +68,28 @@ public enum ConnectionModel {
      * 
      * @since 1.0.0
      */
-    SENDER_RECEIVER_THREAD;
+    SENDER_RECEIVER_THREAD(new TwoThreadTransportFactory());
+
+    /** The {@link TransportFactory} implementing the connection model. */
+    private transient final TransportFactory myFactory;
+
+    /**
+     * Creates a new ConnectionModel.
+     * 
+     * @param factory
+     *            The {@link TransportFactory} implementing the connection
+     *            model.
+     */
+    private ConnectionModel(TransportFactory factory) {
+        myFactory = factory;
+    }
+
+    /**
+     * Returns the {@link TransportFactory} implementing the connection model.
+     * 
+     * @return The {@link TransportFactory} implementing the connection model.
+     */
+    public TransportFactory getFactory() {
+        return myFactory;
+    }
 }
