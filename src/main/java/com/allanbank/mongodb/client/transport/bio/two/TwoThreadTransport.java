@@ -284,6 +284,7 @@ import com.allanbank.mongodb.client.transport.bio.ReceiveRunnable;
      * sent.
      * </p>
      */
+    @Override
     public boolean isIdle() {
         return myToSendQueue.isEmpty();
     }
