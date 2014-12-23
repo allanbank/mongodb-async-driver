@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
@@ -146,12 +145,6 @@ public class Server {
      */
     private volatile int myMaxBsonObjectSize = Client.MAX_DOCUMENT_SIZE;
 
-    /** The number of messages sent to the server. */
-    private final AtomicLong myMessagesSent;
-
-    /** The number of messages received from the server. */
-    private final AtomicLong myRepliesReceived;
-
     /**
      * Tracks the last report of how many seconds the server is behind the
      * primary.
@@ -163,9 +156,6 @@ public class Server {
 
     /** Tracking the tags for the server. */
     private volatile Document myTags;
-
-    /** The total amount of latency for sending messages to the server. */
-    private final AtomicLong myTotalLatency;
 
     /** The version of the server. */
     private Version myVersion;
@@ -190,10 +180,6 @@ public class Server {
         myWorkingAddress = myCanonicalAddress;
 
         myEventSupport = new PropertyChangeSupport(this);
-
-        myMessagesSent = new AtomicLong(0);
-        myRepliesReceived = new AtomicLong(0);
-        myTotalLatency = new AtomicLong(0);
 
         myState = State.UNKNOWN;
         myAverageLatency = Double.MAX_VALUE;
@@ -340,24 +326,6 @@ public class Server {
     }
 
     /**
-     * Returns the number of messages sent to the server.
-     * 
-     * @return The number of messages sent to the server.
-     */
-    public long getMessagesSent() {
-        return myMessagesSent.get();
-    }
-
-    /**
-     * Returns the number of messages received from the server.
-     * 
-     * @return The number of messages received from the server.
-     */
-    public long getRepliesReceived() {
-        return myRepliesReceived.get();
-    }
-
-    /**
      * Sets the last reported seconds behind the primary.
      * 
      * @return The seconds behind the primary server.
@@ -385,18 +353,6 @@ public class Server {
     }
 
     /**
-     * Returns the total amount of time messages waited for a reply from the
-     * server in nanoseconds. The average latency is approximately
-     * {@link #getTotalLatencyNanoSeconds()}/{@link #getRepliesReceived()}.
-     * 
-     * @return The total amount of time messages waited for a reply from the
-     *         server in nanoseconds.
-     */
-    public long getTotalLatencyNanoSeconds() {
-        return myTotalLatency.get();
-    }
-
-    /**
      * Returns the version of the server.
      * 
      * @return The version of the server.
@@ -417,20 +373,6 @@ public class Server {
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
-    }
-
-    /**
-     * Increments the number of messages sent to the server.
-     */
-    public void incrementMessagesSent() {
-        myMessagesSent.incrementAndGet();
-    }
-
-    /**
-     * Increments the number of messages received from the server.
-     */
-    public void incrementRepliesReceived() {
-        myRepliesReceived.incrementAndGet();
     }
 
     /**
@@ -538,7 +480,6 @@ public class Server {
      *            the server.
      */
     public void updateAverageLatency(final long latencyNanoSeconds) {
-        myTotalLatency.addAndGet(latencyNanoSeconds);
 
         final double latency = latencyNanoSeconds / NANOS_PER_MILLI;
         final double oldAverage = myAverageLatency;

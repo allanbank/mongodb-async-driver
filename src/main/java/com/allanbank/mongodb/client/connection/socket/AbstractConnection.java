@@ -351,11 +351,6 @@ public abstract class AbstractConnection implements Connection, Receiver {
 
         final long latency = pendingMessage.latency();
 
-        // Add the latency.
-        if (latency > 0) {
-            myServer.updateAverageLatency(latency);
-        }
-
         myListener.receive(getServerName(), reply.getResponseToId(),
                 pendingMessage.getMessage(), reply, latency);
 

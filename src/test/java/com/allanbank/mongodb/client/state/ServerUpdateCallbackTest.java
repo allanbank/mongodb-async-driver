@@ -21,8 +21,12 @@
 package com.allanbank.mongodb.client.state;
 
 import static com.allanbank.mongodb.client.connection.CallbackReply.reply;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.easymock.EasyMock.and;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.gt;
+import static org.easymock.EasyMock.lt;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
@@ -50,6 +54,9 @@ public class ServerUpdateCallbackTest {
         builder.add("secondary", true);
 
         final Server state = createMock(Server.class);
+        
+        state.updateAverageLatency(and(gt(0L), lt(MILLISECONDS.toNanos(100))));
+        expectLastCall();
 
         state.update(builder.asDocument());
         expectLastCall();
@@ -70,6 +77,9 @@ public class ServerUpdateCallbackTest {
     public void testCallbackWithoutDocument() {
 
         final Server state = createMock(Server.class);
+
+        state.updateAverageLatency(and(gt(0L), lt(MILLISECONDS.toNanos(100))));
+        expectLastCall();
 
         replay(state);
 

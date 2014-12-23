@@ -39,6 +39,9 @@ public class ServerUpdateCallback extends FutureReplyCallback {
     /** The server to update the seconds behind for. */
     private final Server myServer;
 
+    /** The time the callback was created. */
+    private final long myStartTime;
+
     /**
      * Creates a new ServerUpdateCallback.
      * 
@@ -48,6 +51,7 @@ public class ServerUpdateCallback extends FutureReplyCallback {
     public ServerUpdateCallback(final Server server) {
         super();
         myServer = server;
+        myStartTime = System.nanoTime();
     }
 
     /**
@@ -89,6 +93,8 @@ public class ServerUpdateCallback extends FutureReplyCallback {
      *            The reply.
      */
     private void update(final Reply reply) {
+        myServer.updateAverageLatency(System.nanoTime() - myStartTime);
+
         if (reply != null) {
             final List<Document> replyDocs = reply.getResults();
             if (replyDocs.size() >= 1) {

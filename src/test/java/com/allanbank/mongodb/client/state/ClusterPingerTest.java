@@ -31,9 +31,13 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.makeThreadSafe;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -125,7 +129,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertEquals(tags.build(), state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -158,7 +163,7 @@ public class ClusterPingerTest {
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
-                cbAndCloseWithConn(reply, state, mockConnection));
+                cbAndCloseWithConn(reply));
         expectLastCall();
         mockConnection.shutdown(false);
         expectLastCall();
@@ -174,7 +179,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertEquals(tags.build(), state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -427,7 +433,8 @@ public class ClusterPingerTest {
         assertFalse(t.isAlive());
 
         assertEquals(tags.build(), state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -515,7 +522,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertNull(state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -551,7 +559,7 @@ public class ClusterPingerTest {
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
         mockConnection.send(anyObject(IsMaster.class),
-                cbAndCloseWithConn(reply, state, mockConnection));
+                cbAndCloseWithConn(reply));
         expectLastCall();
 
         // Have to shutdown the connection since state won't accept it.
@@ -569,7 +577,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertEquals(tags.build(), state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -625,7 +634,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertEquals(tags.build(), state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -670,7 +680,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertNull(state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -776,7 +787,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertEquals(tags.build(), state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -837,7 +849,8 @@ public class ClusterPingerTest {
         verify(mockConnection, mockFactory);
 
         assertEquals(tags.build(), state.getTags());
-        assertEquals(Double.MAX_VALUE, state.getAverageLatency(), 0.0001);
+        assertThat(state.getAverageLatency(),
+                both(greaterThan(0.0)).and(lessThan(100.0)));
     }
 
     /**
@@ -872,8 +885,7 @@ public class ClusterPingerTest {
                 mockFactory.connect(eq(state),
                         anyObject(MongoClientConfiguration.class))).andReturn(
                 mockConnection);
-        mockConnection.send(anyObject(IsMaster.class),
-                cbWithConn(reply, state, mockConnection));
+        mockConnection.send(anyObject(IsMaster.class), cbWithConn(reply));
         expectLastCall();
         mockConnection.shutdown(true);
         expectLastCall();
@@ -1046,6 +1058,9 @@ public class ClusterPingerTest {
     /**
      * Creates a new CloseAnswer.
      * 
+     * @param <C>
+     *            The type for the reply.
+     * 
      * @param reply
      *            The reply to return.
      * @return The CloseAnswer.
@@ -1126,15 +1141,9 @@ public class ClusterPingerTest {
      * 
      * @param builder
      *            The reply to provide to the callback.
-     * @param state
-     *            The state to give the connection to.
-     * @param conn
-     *            The connection to give the server.
-     * 
      * @return The CallbackReply.
      */
-    private ReplyCallback cbAndCloseWithConn(final DocumentBuilder builder,
-            final Server state, final Connection conn) {
+    private ReplyCallback cbAndCloseWithConn(final DocumentBuilder builder) {
         class CloseCallbackWithSetConnection extends CloseCallbackReply {
 
             private static final long serialVersionUID = -2458416861114720698L;
@@ -1158,15 +1167,9 @@ public class ClusterPingerTest {
      * 
      * @param builder
      *            The reply to provide to the callback.
-     * @param state
-     *            The state to give the connection to.
-     * @param conn
-     *            The connection to give the server.
-     * 
      * @return The CallbackReply.
      */
-    private ReplyCallback cbWithConn(final DocumentBuilder builder,
-            final Server state, final Connection conn) {
+    private ReplyCallback cbWithConn(final DocumentBuilder builder) {
         class CallbackWithSetConnection extends CallbackCapture<Reply> {
 
             private static final long serialVersionUID = -2458416861114720698L;

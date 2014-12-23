@@ -48,48 +48,15 @@ public class ServerTest {
     @Test
     public void testGetAverageLatency() {
 
-        long total = 0;
         final Server server = new Server(new InetSocketAddress("foo", 27017));
 
         assertEquals(Double.MAX_VALUE, server.getAverageLatency(), 0.001);
         server.updateAverageLatency(10000000);
-        total += 10000000;
         assertEquals(10.0, server.getAverageLatency(), 0.1);
         for (int i = 0; i < Server.DECAY_SAMPLES; ++i) {
             server.updateAverageLatency(15000000);
-            total += 15000000;
         }
         assertEquals(15, server.getAverageLatency(), 1.0);
-
-        assertThat(server.getTotalLatencyNanoSeconds(), is(total));
-    }
-
-    /**
-     * Test method for {@link Server#getMessagesSent()}.
-     */
-    @Test
-    public void testGetMessagesSent() {
-        final Server server = new Server(new InetSocketAddress("foo", 27017));
-
-        assertThat(server.getMessagesSent(), is(0L));
-        server.incrementMessagesSent();
-        assertThat(server.getMessagesSent(), is(1L));
-        server.incrementMessagesSent();
-        assertThat(server.getMessagesSent(), is(2L));
-    }
-
-    /**
-     * Test method for {@link Server#getRepliesReceived()}.
-     */
-    @Test
-    public void testGetRepliesReceived() {
-        final Server server = new Server(new InetSocketAddress("foo", 27017));
-
-        assertThat(server.getRepliesReceived(), is(0L));
-        server.incrementRepliesReceived();
-        assertThat(server.getRepliesReceived(), is(1L));
-        server.incrementRepliesReceived();
-        assertThat(server.getRepliesReceived(), is(2L));
     }
 
     /**

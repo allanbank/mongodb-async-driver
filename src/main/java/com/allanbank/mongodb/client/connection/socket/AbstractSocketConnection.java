@@ -170,7 +170,7 @@ public abstract class AbstractSocketConnection extends AbstractConnection {
         try {
             doReceiverFlush();
 
-            if ((myBsonIn.available() > 0) || (myInput.available() > 0)) {
+            if (myBsonIn.available() > 0) {
                 doReceiveOne();
             }
         }
@@ -239,8 +239,6 @@ public abstract class AbstractSocketConnection extends AbstractConnection {
                 break;
             }
 
-            myServer.incrementRepliesReceived();
-
             return message;
         }
 
@@ -295,8 +293,6 @@ public abstract class AbstractSocketConnection extends AbstractConnection {
             final RandomAccessOutputStream message) throws IOException {
         message.writeTo(myOutput);
         message.reset();
-
-        myServer.incrementMessagesSent();
     }
 
     /**
