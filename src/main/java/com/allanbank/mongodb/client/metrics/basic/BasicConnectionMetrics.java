@@ -36,62 +36,64 @@ import com.allanbank.mongodb.client.metrics.MongoMessageListener;
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BasicConnectionMetrics extends AbstractMetrics implements
-        ConnectionMetricsCollector {
+		ConnectionMetricsCollector {
 
-    /** The parent listener for the messages. */
-    private final MongoMessageListener myParentListener;
+	/** The parent listener for the messages. */
+	private final MongoMessageListener myParentListener;
 
-    /**
-     * Creates a new BasicConnectionMetrics.
-     * 
-     * @param listener
-     *            The parent listener for the messages.
-     */
-    public BasicConnectionMetrics(final MongoMessageListener listener) {
-        myParentListener = listener;
-    }
+	/**
+	 * Creates a new BasicConnectionMetrics.
+	 * 
+	 * @param listener
+	 *            The parent listener for the messages.
+	 */
+	public BasicConnectionMetrics(final MongoMessageListener listener) {
+		myParentListener = listener;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to collect metrics for the connection and then delegate to the
-     * parent listener.
-     * </p>
-     */
-    @Override
-    public void receive(final String serverName, final long messageId,
-            final Message sent, final Reply reply, final long latencyNanos) {
-        super.receive(serverName, messageId, sent, reply, latencyNanos);
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to collect metrics for the connection and then delegate to the
+	 * parent listener.
+	 * </p>
+	 */
+	@Override
+	public void receive(final String serverName, final long messageId,
+			final Message sent, final Reply reply, final long latencyNanos) {
+		super.receive(serverName, messageId, sent, reply, latencyNanos);
 
-        myParentListener.receive(serverName, messageId, sent, reply,
-                latencyNanos);
-    }
+		if (sent != null) {
+			myParentListener.receive(serverName, messageId, sent, reply,
+					latencyNanos);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to collect metrics for the connection and then delegate to the
-     * parent listener.
-     * </p>
-     */
-    @Override
-    public void sent(final String serverName, final long messageId,
-            final Message sent) {
-        super.sent(serverName, messageId, sent);
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to collect metrics for the connection and then delegate to the
+	 * parent listener.
+	 * </p>
+	 */
+	@Override
+	public void sent(final String serverName, final long messageId,
+			final Message sent) {
+		super.sent(serverName, messageId, sent);
 
-        myParentListener.sent(serverName, messageId, sent);
-    }
+		myParentListener.sent(serverName, messageId, sent);
+	}
 
-    /**
-     * Writes a human readable form of the collection metrics.
-     * 
-     * @param writer
-     *            The writer to write to.
-     */
-    @Override
-    public void writeTo(final PrintWriter writer) {
-        // Use the identity hash code as a stable identifier.
-        writeTo(writer, "Connection",
-                String.valueOf(System.identityHashCode(this)));
-    }
+	/**
+	 * Writes a human readable form of the collection metrics.
+	 * 
+	 * @param writer
+	 *            The writer to write to.
+	 */
+	@Override
+	public void writeTo(final PrintWriter writer) {
+		// Use the identity hash code as a stable identifier.
+		writeTo(writer, "Connection",
+				String.valueOf(System.identityHashCode(this)));
+	}
 }
