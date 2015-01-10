@@ -28,7 +28,6 @@ import java.lang.ref.SoftReference;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
-import com.allanbank.mongodb.bson.io.RandomAccessOutputStream;
 import com.allanbank.mongodb.bson.io.StringDecoderCache;
 import com.allanbank.mongodb.bson.io.StringEncoderCache;
 import com.allanbank.mongodb.client.callback.NoOpCallback;
@@ -51,241 +50,235 @@ import com.allanbank.mongodb.client.transport.bio.ReceiveRunnable;
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */class TwoThreadTransport extends
-        AbstractSocketTransport<TwoThreadOutputBuffer> implements Receiver {
+		AbstractSocketTransport<TwoThreadOutputBuffer> implements Receiver {
 
-    /**
-     * The buffers used each connection. Each buffer is shared by all
-     * connections but there can be up to 1 buffer per application thread.
-     */
-    private final ThreadLocal<Reference<TwoThreadOutputBuffer>> myBuffers;
+	/**
+	 * The buffers used each connection. Each buffer is shared by all
+	 * connections but there can be up to 1 buffer per application thread.
+	 */
+	private final ThreadLocal<Reference<TwoThreadOutputBuffer>> myBuffers;
 
-    /**
-     * The buffers used each connection. Each buffer is shared by all
-     * connections but there can be up to 1 buffer per application thread.
-     */
-    private final PendingMessageQueue myToSendQueue;
+	/**
+	 * The buffers used each connection. Each buffer is shared by all
+	 * connections but there can be up to 1 buffer per application thread.
+	 */
+	private final PendingMessageQueue myToSendQueue;
 
-    /** The writer for BSON documents. */
-    private final BufferingBsonOutputStream myBsonOut;
+	/** The writer for BSON documents. */
+	private final BufferingBsonOutputStream myBsonOut;
 
-    /** The thread receiving replies. */
-    private final Thread myReceiver;
+	/** The thread receiving replies. */
+	private final Thread myReceiver;
 
-    /** The thread sending messages. */
-    private final Thread mySender;
+	/** The thread sending messages. */
+	private final Thread mySender;
 
-    /** The receiver for messages. */
-    private final ReceiveRunnable myReceiveRunnable;
+	/** The receiver for messages. */
+	private final ReceiveRunnable myReceiveRunnable;
 
-    /**
-     * Creates a new TwoThreadTransport.
-     * 
-     * @param server
-     *            The server to connect to.
-     * @param config
-     *            The clients configuration.
-     * @param encoderCache
-     *            The cache for the encoding of strings.
-     * @param decoderCache
-     *            The cache for the decoding of strings.
-     * @param responseListener
-     *            The listener for responses from the server.
-     * @param buffers
-     *            The per-thread transport buffers.
-     * @throws IOException
-     *             On a failure to create the connection to the server.
-     */
-    public TwoThreadTransport(Server server, MongoClientConfiguration config,
-            StringEncoderCache encoderCache, StringDecoderCache decoderCache,
-            TransportResponseListener responseListener,
-            ThreadLocal<Reference<TwoThreadOutputBuffer>> buffers)
-            throws IOException {
-        super(server, config, decoderCache, responseListener);
+	/**
+	 * Creates a new TwoThreadTransport.
+	 * 
+	 * @param server
+	 *            The server to connect to.
+	 * @param config
+	 *            The clients configuration.
+	 * @param encoderCache
+	 *            The cache for the encoding of strings.
+	 * @param decoderCache
+	 *            The cache for the decoding of strings.
+	 * @param responseListener
+	 *            The listener for responses from the server.
+	 * @param buffers
+	 *            The per-thread transport buffers.
+	 * @throws IOException
+	 *             On a failure to create the connection to the server.
+	 */
+	public TwoThreadTransport(Server server, MongoClientConfiguration config,
+			StringEncoderCache encoderCache, StringDecoderCache decoderCache,
+			TransportResponseListener responseListener,
+			ThreadLocal<Reference<TwoThreadOutputBuffer>> buffers)
+			throws IOException {
+		super(server, config, decoderCache, responseListener);
 
-        myBuffers = buffers;
+		myBuffers = buffers;
 
-        myBsonOut = new BufferingBsonOutputStream(new RandomAccessOutputStream(
-                encoderCache));
+		myBsonOut = new BufferingBsonOutputStream(myOutput, encoderCache);
 
-        myToSendQueue = new PendingMessageQueue(
-                config.getMaxPendingOperationsPerConnection(),
-                config.getLockType());
+		myToSendQueue = new PendingMessageQueue(
+				config.getMaxPendingOperationsPerConnection(),
+				config.getLockType());
 
-        myReceiveRunnable = new ReceiveRunnable(config, this);
-        myReceiver = config.getThreadFactory().newThread(myReceiveRunnable);
-        myReceiver.setDaemon(true);
-        myReceiver.setName("MongoDB " + mySocket.getLocalPort() + "<--"
-                + myServer.getCanonicalName());
+		int localPort = mySocket.getLocalPort();
 
-        mySender = config.getThreadFactory().newThread(new SendRunnable(this));
-        mySender.setDaemon(true);
-        mySender.setName("MongoDB " + mySocket.getLocalPort() + "-->"
-                + myServer.getCanonicalName());
-    }
+		myReceiveRunnable = new ReceiveRunnable(config, this);
+		myReceiver = config.getThreadFactory().newThread(myReceiveRunnable);
+		myReceiver.setDaemon(true);
+		myReceiver.setName("MongoDB " + localPort + "<--"
+				+ myServer.getCanonicalName());
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to start the receiver and sender threads.
-     * </p>
-     * 
-     * @see Transport#start()
-     */
-    @Override
-    public void start() {
-        myReceiver.start();
-        mySender.start();
-    }
+		mySender = config.getThreadFactory().newThread(new SendRunnable(this));
+		mySender.setDaemon(true);
+		mySender.setName("MongoDB " + localPort + "-->"
+				+ myServer.getCanonicalName());
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to create a {@link TwoThreadOutputBuffer} that contains an
-     * isMaster command to wake up the send thread.
-     * </p>
-     * 
-     * @see AbstractSocketTransport#createIsMasterBuffer()
-     */
-    @Override
-    protected TwoThreadOutputBuffer createIsMasterBuffer() {
-        TwoThreadOutputBuffer buffer = new TwoThreadOutputBuffer();
-        buffer.write(Integer.MAX_VALUE, new IsMaster(), new NoOpCallback());
-        return buffer;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to start the receiver and sender threads.
+	 * </p>
+	 * 
+	 * @see Transport#start()
+	 */
+	@Override
+	public void start() {
+		myReceiver.start();
+		mySender.start();
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return a new {@link TwoThreadOutputBuffer}.
-     * </p>
-     */
-    @Override
-    public TwoThreadOutputBuffer createSendBuffer(int size) {
-        final Reference<TwoThreadOutputBuffer> bufferRef = myBuffers.get();
-        TwoThreadOutputBuffer buffer = (bufferRef != null) ? bufferRef.get()
-                : null;
-        if (buffer == null) {
-            buffer = new TwoThreadOutputBuffer();
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to create a {@link TwoThreadOutputBuffer} that contains an
+	 * isMaster command to wake up the send thread.
+	 * </p>
+	 * 
+	 * @see AbstractSocketTransport#createIsMasterBuffer()
+	 */
+	@Override
+	protected TwoThreadOutputBuffer createIsMasterBuffer() {
+		TwoThreadOutputBuffer buffer = new TwoThreadOutputBuffer();
+		buffer.write(Integer.MAX_VALUE, new IsMaster(), new NoOpCallback());
+		return buffer;
+	}
 
-            myBuffers.set(new SoftReference<TwoThreadOutputBuffer>(buffer));
-        }
-        return buffer;
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return a new {@link TwoThreadOutputBuffer}.
+	 * </p>
+	 */
+	@Override
+	public TwoThreadOutputBuffer createSendBuffer(int size) {
+		final Reference<TwoThreadOutputBuffer> bufferRef = myBuffers.get();
+		TwoThreadOutputBuffer buffer = (bufferRef != null) ? bufferRef.get()
+				: null;
+		if (buffer == null) {
+			buffer = new TwoThreadOutputBuffer();
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to add the buffered messages onto the send queue.
-     * </p>
-     */
-    @Override
-    public void send(TwoThreadOutputBuffer buffer)
-            throws InterruptedIOException {
-        try {
-            for (PendingMessage toSend : buffer.getMessages()) {
-                myToSendQueue.put(toSend);
-            }
-        }
-        catch (InterruptedException e) {
-            InterruptedIOException ioe = new InterruptedIOException(
-                    e.getMessage());
+			myBuffers.set(new SoftReference<TwoThreadOutputBuffer>(buffer));
+		}
+		return buffer;
+	}
 
-            ioe.initCause(e);
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to add the buffered messages onto the send queue.
+	 * </p>
+	 */
+	@Override
+	public void send(TwoThreadOutputBuffer buffer)
+			throws InterruptedIOException {
+		try {
+			for (PendingMessage toSend : buffer.getMessages()) {
+				myToSendQueue.put(toSend);
+			}
+		} catch (InterruptedException e) {
+			InterruptedIOException ioe = new InterruptedIOException(
+					e.getMessage());
 
-            throw ioe;
-        }
-        finally {
-            buffer.clear();
-        }
-    }
+			ioe.initCause(e);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void close() throws IOException {
-        if (myOpen.compareAndSet(true, false)) {
+			throw ioe;
+		} finally {
+			buffer.clear();
+		}
+	}
 
-            mySender.interrupt();
-            myReceiver.interrupt();
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void close(MongoDbException error) throws IOException {
+		if (myOpen.compareAndSet(true, false)) {
 
-            try {
-                if (Thread.currentThread() != mySender) {
-                    mySender.join();
-                }
-            }
-            catch (final InterruptedException ie) {
-                // Ignore.
-            }
-            finally {
-                // Now that output is shutdown. Close up the socket. This
-                // Triggers the receiver to close if the interrupt didn't work.
-                myOutput.close();
-                myInput.close();
-                mySocket.close();
-            }
+			mySender.interrupt();
+			myReceiver.interrupt();
 
-            try {
-                if (Thread.currentThread() != myReceiver) {
-                    myReceiver.join();
-                }
-            }
-            catch (final InterruptedException ie) {
-                // Ignore.
-            }
+			try {
+				if (Thread.currentThread() != mySender) {
+					mySender.join();
+				}
+			} catch (final InterruptedException ie) {
+				// Ignore.
+			} finally {
+				// Now that output is shutdown. Close up the socket. This
+				// Triggers the receiver to close if the interrupt didn't work.
+				myOutput.close();
+				myInput.close();
+				mySocket.close();
+			}
 
-            myResponseListener
-                    .closed(new MongoDbException("Connection closed."));
-        }
-    }
+			try {
+				if (Thread.currentThread() != myReceiver) {
+					myReceiver.join();
+				}
+			} catch (final InterruptedException ie) {
+				// Ignore.
+			}
 
-    /**
-     * Returns the BSON output stream.
-     * 
-     * @return The BSON output stream.
-     */
-    public BufferingBsonOutputStream getBsonOut() {
-        return myBsonOut;
-    }
+			myResponseListener.closed(error);
+		}
+	}
 
-    /**
-     * Returns the queue of message to be sent.
-     * 
-     * @return The queue of message to be sent.
-     */
-    public PendingMessageQueue getToSendQueue() {
-        return myToSendQueue;
-    }
+	/**
+	 * Returns the BSON output stream.
+	 * 
+	 * @return The BSON output stream.
+	 */
+	public BufferingBsonOutputStream getBsonOut() {
+		return myBsonOut;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * If currently on the receive thread then tries to perform a read.
-     * </p>
-     */
-    @Override
-    public void tryReceive() {
-        if (Thread.currentThread() == myReceiver) {
-            try {
-                flush();
-            }
-            catch (IOException ignore) {
-                myLog.info("Error while flushing from the receive thread.",
-                        ignore);
-            }
-            myReceiveRunnable.tryReceive();
-        }
-    }
+	/**
+	 * Returns the queue of message to be sent.
+	 * 
+	 * @return The queue of message to be sent.
+	 */
+	public PendingMessageQueue getToSendQueue() {
+		return myToSendQueue;
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return true if the transport has any messages waiting to be
-     * sent.
-     * </p>
-     */
-    @Override
-    public boolean isIdle() {
-        return myToSendQueue.isEmpty();
-    }
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * If currently on the receive thread then tries to perform a read.
+	 * </p>
+	 */
+	@Override
+	public void tryReceive() {
+		if (Thread.currentThread() == myReceiver) {
+			try {
+				flush();
+			} catch (IOException ignore) {
+				myLog.info("Error while flushing from the receive thread.",
+						ignore);
+			}
+			myReceiveRunnable.tryReceive();
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return true if the transport has any messages waiting to be
+	 * sent.
+	 * </p>
+	 */
+	@Override
+	public boolean isIdle() {
+		return myToSendQueue.isEmpty();
+	}
 }

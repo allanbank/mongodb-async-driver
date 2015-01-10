@@ -145,15 +145,6 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to shutdown the socket cleanly.
-     * </p>
-     */
-    @Override
-    public abstract void close() throws IOException;
-
-    /**
-     * {@inheritDoc}
-     * <p>
      * Overridden to flush the output stream.
      * </p>
      */
@@ -264,9 +255,12 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
             myServer.connectionTerminated();
         }
 
-        closeQuietly();
-
-        myResponseListener.closed(error);
+        try {
+            close(error);
+        }
+        catch (IOException ignored) {
+            myLog.warn(ignored, "Exception while closing the transport.");
+        }
     }
 
     /**
@@ -284,15 +278,24 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /**
      * Closes the connection to the server without allowing an exception to be
      * thrown.
+     * 
+     * @throws IOException
+     *             On a failure to close the transport.
      */
-    protected void closeQuietly() {
-        try {
-            close();
-        }
-        catch (final IOException e) {
-            myLog.warn(e, "I/O exception trying to shutdown the connection.");
-        }
+    public final void close() throws IOException {
+        close(new MongoDbException("Connection closed."));
     }
+
+    /**
+     * Closes the connection to the server without allowing an exception to be
+     * thrown.
+     * 
+     * @param error
+     *            The error triggering the close.
+     * @throws IOException
+     *             On a failure to close the transport.
+     */
+    protected abstract void close(MongoDbException error) throws IOException;
 
     /**
      * Creates a {@link TransportOutputBuffer} that contains an isMaster command

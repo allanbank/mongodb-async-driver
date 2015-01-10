@@ -21,6 +21,7 @@
 package com.allanbank.mongodb.client.connection.socket;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -40,6 +41,7 @@ import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.client.ClusterType;
+import com.allanbank.mongodb.client.MockSocketServer;
 import com.allanbank.mongodb.client.connection.Connection;
 
 /**
@@ -92,12 +94,9 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#close()} .
-     * 
-     * @throws IOException
-     *             On a failure connecting to the Mock MongoDB server.
      */
     @Test
-    public void testClose() throws IOException {
+    public void testClose() {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 addr);
@@ -238,18 +237,51 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#getClusterType()}.
-     * 
-     * @throws IOException
-     *             on a test failure.
      */
     @Test
-    public void testGetClusterType() throws IOException {
+    public void testGetClusterType() {
         final InetSocketAddress addr = ourServer.getInetSocketAddress();
         final MongoClientConfiguration config = new MongoClientConfiguration(
                 addr);
         myTestFactory = new SocketConnectionFactory(config);
 
         assertEquals(ClusterType.STAND_ALONE, myTestFactory.getClusterType());
+    }
+
+    /**
+     * Test method for {@link SocketConnectionFactory#getClusterType()}.
+     */
+    @Test
+    public void testListensForConfigChanges() {
+        final MongoClientConfiguration config = new MongoClientConfiguration();
+        myTestFactory = new SocketConnectionFactory(config);
+
+        assertThat(myTestFactory.getDecoderCache().getMaxCacheEntries(),
+                is(config.getMaxCachedStringEntries()));
+        assertThat(myTestFactory.getDecoderCache().getMaxCacheLength(),
+                is(config.getMaxCachedStringLength()));
+
+        assertThat(myTestFactory.getEncoderCache().getMaxCacheEntries(),
+                is(config.getMaxCachedStringEntries()));
+        assertThat(myTestFactory.getEncoderCache().getMaxCacheLength(),
+                is(config.getMaxCachedStringLength()));
+
+        config.setMaxCachedStringEntries(23);
+        assertThat(23, is(config.getMaxCachedStringEntries()));
+
+        config.setMaxCachedStringLength(213);
+        assertThat(213, is(config.getMaxCachedStringLength()));
+
+        assertThat(myTestFactory.getDecoderCache().getMaxCacheEntries(),
+                is(config.getMaxCachedStringEntries()));
+        assertThat(myTestFactory.getDecoderCache().getMaxCacheLength(),
+                is(config.getMaxCachedStringLength()));
+
+        assertThat(myTestFactory.getEncoderCache().getMaxCacheEntries(),
+                is(config.getMaxCachedStringEntries()));
+        assertThat(myTestFactory.getEncoderCache().getMaxCacheLength(),
+                is(config.getMaxCachedStringLength()));
+
     }
 
     /**

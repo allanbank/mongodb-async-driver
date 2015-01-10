@@ -48,17 +48,6 @@ import com.allanbank.mongodb.client.transport.TransportOutputBuffer;
     /**
      * Creates a new BinaryOutputBuffer.
      * 
-     * @param buffer
-     *            The buffer to write to.
-     */
-    public OneThreadOutputBuffer(BufferingBsonOutputStream buffer) {
-        myOutputStream = buffer;
-        myBuffer = buffer.getOutput();
-    }
-
-    /**
-     * Creates a new BinaryOutputBuffer.
-     * 
      * @param stringCache
      *            The cache for strings.
      */

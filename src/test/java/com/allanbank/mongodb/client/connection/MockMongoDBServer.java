@@ -59,502 +59,496 @@ import com.allanbank.mongodb.util.IOUtils;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MockMongoDBServer extends Thread {
-    /** An empty Array of bytes. */
-    public static final byte[] EMPTY_BYTES = new byte[0];
+public class MockMongoDBServer implements Closeable, Runnable {
+	/** An empty Array of bytes. */
+	public static final byte[] EMPTY_BYTES = new byte[0];
 
-    /** Set to true when a client is connected. */
-    protected int myClientConnected = 0;
+	/** Set to true when a client is connected. */
+	protected int myClientConnected = 0;
 
-    /** The thread acting as the server. */
-    private final List<Socket> myActiveClients;
+	/** The thread acting as the server. */
+	private final List<Socket> myActiveClients;
 
-    /** The replies to send when a message is received. */
-    private final List<Reply> myReplies = new CopyOnWriteArrayList<Reply>();
+	/** The replies to send when a message is received. */
+	private final List<Reply> myReplies = new CopyOnWriteArrayList<Reply>();
 
-    /** The requests received. */
-    private final List<Message> myRequests = new CopyOnWriteArrayList<Message>();
+	/** The requests received. */
+	private final List<Message> myRequests = new CopyOnWriteArrayList<Message>();
 
-    /** Set to false to stop the server. */
-    private volatile boolean myRunning;
+	/** Set to false to stop the server. */
+	private volatile boolean myRunning;
 
-    /** The thread acting as the server. */
-    private final List<Thread> myRunningThreads;
+	/** The thread acting as the server. */
+	private final List<Thread> myRunningThreads;
 
-    /** The server socket we are listening on. */
-    private final ServerSocket myServerSocket;
+	/** The server socket we are listening on. */
+	private final ServerSocket myServerSocket;
 
-    /**
-     * Creates a new MockMongoDBServer.
-     * 
-     * @throws IOException
-     *             On a failure creating the server socket.
-     */
-    public MockMongoDBServer() throws IOException {
-        super("MockMongoDBServer");
+	/**
+	 * Creates a new MockMongoDBServer.
+	 * 
+	 * @throws IOException
+	 *             On a failure creating the server socket.
+	 */
+	public MockMongoDBServer() throws IOException {
+		myRunningThreads = new CopyOnWriteArrayList<Thread>();
+		myActiveClients = new CopyOnWriteArrayList<Socket>();
 
-        myRunningThreads = new CopyOnWriteArrayList<Thread>();
-        myActiveClients = new CopyOnWriteArrayList<Socket>();
+		myServerSocket = new ServerSocket();
+		myServerSocket.bind(new InetSocketAddress(InetAddress
+				.getByName("127.0.0.1"), 0));
 
-        myServerSocket = new ServerSocket();
-        myServerSocket.bind(new InetSocketAddress(InetAddress
-                .getByName("127.0.0.1"), 0));
+		myRunning = false;
+	}
 
-        myRunning = false;
-    }
+	/**
+	 * Starts the mock server.
+	 */
+	public void start() {
+		Thread t = new Thread(this, "MockMongoDBServer");
 
-    /**
-     * Clears the requests received and replies to send.
-     */
-    public void clear() {
-        myReplies.clear();
-        myRequests.clear();
+		t.start();
+	}
 
-        disconnectClient();
-    }
+	/**
+	 * Clears the requests received and replies to send.
+	 */
+	public void clear() {
+		myReplies.clear();
+		myRequests.clear();
 
-    /**
-     * Closes the server socket.
-     * 
-     * @throws IOException
-     *             On a failure closing the server socket.
-     */
-    public void close() throws IOException {
-        myRunning = false;
-        for (final Thread t : myRunningThreads) {
-            t.interrupt();
-        }
-        myServerSocket.close();
-    }
+		disconnectClient();
+	}
 
-    /**
-     * Disconnects any active client..
-     * 
-     * @return True if a client is connected, false otherwise.
-     */
-    public boolean disconnectClient() {
-        boolean close = false;
+	/**
+	 * Closes the server socket.
+	 * 
+	 * @throws IOException
+	 *             On a failure closing the server socket.
+	 */
+	public void close() throws IOException {
+		myRunning = false;
+		for (final Thread t : myRunningThreads) {
+			t.interrupt();
+		}
+		myServerSocket.close();
+	}
 
-        for (final Socket client : myActiveClients) {
-            close(client);
-            close = true;
-        }
+	/**
+	 * Disconnects any active client..
+	 * 
+	 * @return True if a client is connected, false otherwise.
+	 */
+	public boolean disconnectClient() {
+		boolean close = false;
 
-        return close;
-    }
+		for (final Socket client : myActiveClients) {
+			close(client);
+			close = true;
+		}
 
-    /**
-     * Returns the address for the server.
-     * 
-     * @return The address for the server.
-     */
-    public InetSocketAddress getInetSocketAddress() {
-        return new InetSocketAddress(myServerSocket.getInetAddress(),
-                myServerSocket.getLocalPort());
-    }
+		return close;
+	}
 
-    /**
-     * Returns the replies that will be returned after each message is received.
-     * 
-     * @return the replies to return.
-     */
-    public List<Reply> getReplies() {
-        return Collections.unmodifiableList(myReplies);
-    }
+	/**
+	 * Returns the address for the server.
+	 * 
+	 * @return The address for the server.
+	 */
+	public InetSocketAddress getInetSocketAddress() {
+		return new InetSocketAddress(myServerSocket.getInetAddress(),
+				myServerSocket.getLocalPort());
+	}
 
-    /**
-     * Returns the requests that have been received.
-     * 
-     * @return the requests received.
-     */
-    public List<Message> getRequests() {
-        return Collections.unmodifiableList(myRequests);
-    }
+	/**
+	 * Returns the replies that will be returned after each message is received.
+	 * 
+	 * @return the replies to return.
+	 */
+	public List<Reply> getReplies() {
+		return Collections.unmodifiableList(myReplies);
+	}
 
-    /**
-     * Returns if the server is running.
-     * 
-     * @return the running
-     */
-    public boolean isRunning() {
-        return myRunning;
-    }
+	/**
+	 * Returns the requests that have been received.
+	 * 
+	 * @return the requests received.
+	 */
+	public List<Message> getRequests() {
+		return Collections.unmodifiableList(myRequests);
+	}
 
-    /**
-     * Runs the server loop waiting for connections and servicing a single
-     * client until it exits.
-     */
-    @Override
-    public void run() {
-        myRunningThreads.add(Thread.currentThread());
-        myRunning = true;
-        try {
-            while (myRunning) {
-                final Socket conn = myServerSocket.accept();
-                if (conn != null) {
-                    final Thread client = new Thread(new ClientRunnable(conn));
-                    myRunningThreads.add(client);
-                    myActiveClients.add(conn);
-                    client.setName("MongoDBServer Client: "
-                            + conn.getRemoteSocketAddress());
-                    client.start();
-                }
-                else {
-                    sleep();
-                }
-            }
-        }
-        catch (final IOException error) {
-            // Exit.
-            return;
-        }
-    }
+	/**
+	 * Returns if the server is running.
+	 * 
+	 * @return the running
+	 */
+	public boolean isRunning() {
+		return myRunning;
+	}
 
-    /**
-     * Sets the replies to return after each message is received.
-     * 
-     * @param replies
-     *            the replies to send
-     */
-    public void setReplies(final List<Reply> replies) {
-        myReplies.clear();
-        if (replies != null) {
-            myReplies.addAll(replies);
-        }
-    }
+	/**
+	 * Runs the server loop waiting for connections and servicing a single
+	 * client until it exits.
+	 */
+	@Override
+	public void run() {
+		myRunningThreads.add(Thread.currentThread());
+		myRunning = true;
+		try {
+			while (myRunning) {
+				final Socket conn = myServerSocket.accept();
+				if (conn != null) {
+					final Thread client = new Thread(new ClientRunnable(conn));
+					myRunningThreads.add(client);
+					myActiveClients.add(conn);
+					client.setName("MongoDBServer Client: "
+							+ conn.getRemoteSocketAddress());
+					client.start();
+				} else {
+					sleep();
+				}
+			}
+		} catch (final IOException error) {
+			// Exit.
+			return;
+		}
+	}
 
-    /**
-     * Sets the replies to return after each message is received.
-     * 
-     * @param replies
-     *            the replies to send
-     */
-    public void setReplies(final Reply... replies) {
-        myReplies.clear();
-        if (replies != null) {
-            myReplies.addAll(Arrays.asList(replies));
-        }
-    }
+	/**
+	 * Sets the replies to return after each message is received.
+	 * 
+	 * @param replies
+	 *            the replies to send
+	 */
+	public void setReplies(final List<Reply> replies) {
+		myReplies.clear();
+		if (replies != null) {
+			myReplies.addAll(replies);
+		}
+	}
 
-    /**
-     * Controls if the server is running.
-     * 
-     * @param running
-     *            the running to set
-     */
-    public void setRunning(final boolean running) {
-        myRunning = running;
-    }
+	/**
+	 * Sets the replies to return after each message is received.
+	 * 
+	 * @param replies
+	 *            the replies to send
+	 */
+	public void setReplies(final Reply... replies) {
+		myReplies.clear();
+		if (replies != null) {
+			myReplies.addAll(Arrays.asList(replies));
+		}
+	}
 
-    /**
-     * Waits for a client to connect.
-     * 
-     * @param timeout
-     *            Time to wait (in milliseconds) for the disconnect.
-     * @return True if a client is connected, false on timeout.
-     */
-    public boolean waitForClient(final long timeout) {
-        long now = System.currentTimeMillis();
-        final long deadline = now + timeout;
+	/**
+	 * Controls if the server is running.
+	 * 
+	 * @param running
+	 *            the running to set
+	 */
+	public void setRunning(final boolean running) {
+		myRunning = running;
+	}
 
-        boolean result = false;
-        synchronized (this) {
-            while ((myClientConnected <= 0) && (now < deadline)) {
-                try {
-                    notifyAll();
-                    wait(deadline - now);
-                }
-                catch (final InterruptedException e) {
-                    // Ignored. Handled by while.
-                }
-                now = System.currentTimeMillis();
-            }
-            result = (myClientConnected >= 0);
-        }
+	/**
+	 * Waits for a client to connect.
+	 * 
+	 * @param timeout
+	 *            Time to wait (in milliseconds) for the disconnect.
+	 * @return True if a client is connected, false on timeout.
+	 */
+	public boolean waitForClient(final long timeout) {
+		long now = System.currentTimeMillis();
+		final long deadline = now + timeout;
 
-        return result;
-    }
+		boolean result = false;
+		synchronized (this) {
+			while ((myClientConnected <= 0) && (now < deadline)) {
+				try {
+					notifyAll();
+					wait(deadline - now);
+				} catch (final InterruptedException e) {
+					// Ignored. Handled by while.
+				}
+				now = System.currentTimeMillis();
+			}
+			result = (myClientConnected >= 0);
+		}
 
-    /**
-     * Waits for a client to disconnect.
-     * 
-     * @param timeout
-     *            Time to wait (in milliseconds) for the disconnect.
-     * @return True if a client is disconnected, false on timeout.
-     */
-    public boolean waitForDisconnect(final long timeout) {
-        long now = System.currentTimeMillis();
-        final long deadline = now + timeout;
+		return result;
+	}
 
-        boolean result;
-        synchronized (this) {
-            while ((myClientConnected > 0) && (now < deadline)) {
-                try {
-                    notifyAll();
-                    wait(deadline - now);
-                }
-                catch (final InterruptedException e) {
-                    // Ignored. Handled by while.
-                }
-                now = System.currentTimeMillis();
-            }
-            result = (myClientConnected <= 0);
-        }
-        return result;
-    }
+	/**
+	 * Waits for a client to disconnect.
+	 * 
+	 * @param timeout
+	 *            Time to wait (in milliseconds) for the disconnect.
+	 * @return True if a client is disconnected, false on timeout.
+	 */
+	public boolean waitForDisconnect(final long timeout) {
+		long now = System.currentTimeMillis();
+		final long deadline = now + timeout;
 
-    /**
-     * Waits for a client request.
-     * 
-     * @param count
-     *            The number of request to wait for.
-     * @param timeout
-     *            Time to wait (in milliseconds) for the disconnect.
-     * @return True if a client is connected, false on timeout.
-     */
-    public boolean waitForRequest(final int count, final long timeout) {
-        long now = System.currentTimeMillis();
-        final long deadline = now + timeout;
-        synchronized (this) {
-            while ((myRequests.size() < count) && (now < deadline)) {
-                try {
-                    // Wake up the receive thread.
-                    notifyAll();
+		boolean result;
+		synchronized (this) {
+			while ((myClientConnected > 0) && (now < deadline)) {
+				try {
+					notifyAll();
+					wait(deadline - now);
+				} catch (final InterruptedException e) {
+					// Ignored. Handled by while.
+				}
+				now = System.currentTimeMillis();
+			}
+			result = (myClientConnected <= 0);
+		}
+		return result;
+	}
 
-                    wait(deadline - now);
-                }
-                catch (final InterruptedException e) {
-                    // Ignored. Handled by while.
-                }
-                now = System.currentTimeMillis();
-            }
-        }
+	/**
+	 * Waits for a client request.
+	 * 
+	 * @param count
+	 *            The number of request to wait for.
+	 * @param timeout
+	 *            Time to wait (in milliseconds) for the disconnect.
+	 * @return True if a client is connected, false on timeout.
+	 */
+	public boolean waitForRequest(final int count, final long timeout) {
+		long now = System.currentTimeMillis();
+		final long deadline = now + timeout;
+		synchronized (this) {
+			while ((myRequests.size() < count) && (now < deadline)) {
+				try {
+					// Wake up the receive thread.
+					notifyAll();
 
-        return (myRequests.size() >= count);
-    }
+					wait(deadline - now);
+				} catch (final InterruptedException e) {
+					// Ignored. Handled by while.
+				}
+				now = System.currentTimeMillis();
+			}
+		}
 
-    /**
-     * Closes the {@link Socket} and logs any error. Sockets do not implement
-     * {@link Closeable} in Java 6
-     * 
-     * @param socket
-     *            The connection to close. Sockets do not implement
-     *            {@link Closeable} in Java 6
-     */
-    protected void close(final Socket socket) {
-        if (socket != null) {
-            try {
-                socket.close();
-            }
-            catch (final IOException ignored) {
-                // Ignored
-            }
-        }
-    }
+		return (myRequests.size() >= count);
+	}
 
-    /**
-     * Handles a single client connection.
-     * 
-     * @param clientSocket
-     *            The socket to receive messages from.
-     * 
-     * @throws IOException
-     *             On a connection error.
-     */
-    protected void handleClient(final Socket clientSocket) throws IOException {
-        InputStream in = null;
-        BufferedInputStream buffIn = null;
-        BsonInputStream bin = null;
+	/**
+	 * Closes the {@link Socket} and logs any error. Sockets do not implement
+	 * {@link Closeable} in Java 6
+	 * 
+	 * @param socket
+	 *            The connection to close. Sockets do not implement
+	 *            {@link Closeable} in Java 6
+	 */
+	protected void close(final Socket socket) {
+		if (socket != null) {
+			try {
+				socket.close();
+			} catch (final IOException ignored) {
+				// Ignored
+			}
+		}
+	}
 
-        OutputStream out = null;
-        BufferedOutputStream buffOut = null;
-        BsonOutputStream bout = null;
+	/**
+	 * Handles a single client connection.
+	 * 
+	 * @param clientSocket
+	 *            The socket to receive messages from.
+	 * 
+	 * @throws IOException
+	 *             On a connection error.
+	 */
+	protected void handleClient(final Socket clientSocket) throws IOException {
+		InputStream in = null;
+		BufferedInputStream buffIn = null;
+		BsonInputStream bin = null;
 
-        int count = 0;
-        try {
-            in = clientSocket.getInputStream();
-            buffIn = new BufferedInputStream(in);
-            bin = new BsonInputStream(buffIn);
+		OutputStream out = null;
+		BufferedOutputStream buffOut = null;
+		BsonOutputStream bout = null;
 
-            out = clientSocket.getOutputStream();
-            buffOut = new BufferedOutputStream(out);
-            bout = new BsonOutputStream(buffOut);
+		int count = 0;
+		try {
+			in = clientSocket.getInputStream();
+			buffIn = new BufferedInputStream(in);
+			bin = new BsonInputStream(buffIn);
 
-            while (myRunning) {
-                final Header header = readHeader(bin);
-                final Message msg = readMessage(header, bin);
+			out = clientSocket.getOutputStream();
+			buffOut = new BufferedOutputStream(out);
+			bout = new BsonOutputStream(buffOut);
 
-                synchronized (this) {
-                    myRequests.add(msg);
-                    notifyAll();
-                }
+			while (myRunning) {
+				final Header header = readHeader(bin);
+				final Message msg = readMessage(header, bin);
 
-                if (count < myReplies.size()) {
-                    final Reply reply = myReplies.get(count);
-                    final Reply fixed = new Reply(header.getRequestId(),
-                            reply.getCursorId(), reply.getCursorOffset(),
-                            reply.getResults(), reply.isAwaitCapable(),
-                            reply.isCursorNotFound(), reply.isQueryFailed(),
-                            reply.isShardConfigStale());
+				synchronized (this) {
+					myRequests.add(msg);
+					notifyAll();
+				}
 
-                    fixed.write(count, bout);
+				if (count < myReplies.size()) {
+					final Reply reply = myReplies.get(count);
+					final Reply fixed = new Reply(header.getRequestId(),
+							reply.getCursorId(), reply.getCursorOffset(),
+							reply.getResults(), reply.isAwaitCapable(),
+							reply.isCursorNotFound(), reply.isQueryFailed(),
+							reply.isShardConfigStale());
 
-                    buffOut.flush();
-                }
+					fixed.write(count, bout);
 
-                count += 1;
-            }
-        }
-        catch (final EOFException eof) {
-            // Client disconnected.
-        }
-        catch (final SocketException eof) {
-            // Client disconnected.
-        }
-        catch (final MongoDbException eof) {
-            // Client disconnected.
-        }
-        finally {
-            IOUtils.close(buffIn);
-            IOUtils.close(in);
+					buffOut.flush();
+				}
 
-            IOUtils.close(buffOut);
-            IOUtils.close(out);
+				count += 1;
+			}
+		} catch (final EOFException eof) {
+			// Client disconnected.
+		} catch (final SocketException eof) {
+			// Client disconnected.
+		} catch (final MongoDbException eof) {
+			// Client disconnected.
+		} finally {
+			IOUtils.close(buffIn);
+			IOUtils.close(in);
 
-            close(clientSocket);
-        }
-    }
+			IOUtils.close(buffOut);
+			IOUtils.close(out);
 
-    /**
-     * Receives a single message from the connection.
-     * 
-     * @param bin
-     *            The stream to read the message.
-     * @return The {@link Message} received.
-     * @throws IOException
-     *             On an error receiving the message.
-     */
-    protected Header readHeader(final BsonInputStream bin) throws IOException {
-        final int length = bin.readInt();
-        final int requestId = bin.readInt();
-        final int responseId = bin.readInt();
-        final int opCode = bin.readInt();
+			close(clientSocket);
+		}
+	}
 
-        final Operation op = Operation.fromCode(opCode);
-        if (op == null) {
-            // Huh? Dazed and confused
-            throw new MongoDbException("Unexpected operation read '" + opCode
-                    + "'.");
-        }
+	/**
+	 * Receives a single message from the connection.
+	 * 
+	 * @param bin
+	 *            The stream to read the message.
+	 * @return The {@link Message} received.
+	 * @throws IOException
+	 *             On an error receiving the message.
+	 */
+	protected Header readHeader(final BsonInputStream bin) throws IOException {
+		final int length = bin.readInt();
+		final int requestId = bin.readInt();
+		final int responseId = bin.readInt();
+		final int opCode = bin.readInt();
 
-        return new Header(length, requestId, responseId, op);
-    }
+		final Operation op = Operation.fromCode(opCode);
+		if (op == null) {
+			// Huh? Dazed and confused
+			throw new MongoDbException("Unexpected operation read '" + opCode
+					+ "'.");
+		}
 
-    /**
-     * Receives a single message from the connection.
-     * 
-     * @param header
-     *            The read message header.
-     * @param bin
-     *            The stream to read the message.
-     * @return The {@link Message} received.
-     * @throws IOException
-     *             On an error receiving the message.
-     */
-    protected Message readMessage(final Header header, final BsonInputStream bin)
-            throws IOException {
-        Message message = null;
-        switch (header.getOperation()) {
-        case REPLY:
-            message = new Reply(header, bin);
-            break;
-        case QUERY:
-            message = new Query(header, bin);
-            break;
-        case UPDATE:
-            message = new Update(bin);
-            break;
-        case INSERT:
-            message = new Insert(header, bin);
-            break;
-        case GET_MORE:
-            message = new GetMore(bin);
-            break;
-        case DELETE:
-            message = new Delete(bin);
-            break;
-        case KILL_CURSORS:
-            message = new KillCursors(bin);
-            break;
+		return new Header(length, requestId, responseId, op);
+	}
 
-        }
+	/**
+	 * Receives a single message from the connection.
+	 * 
+	 * @param header
+	 *            The read message header.
+	 * @param bin
+	 *            The stream to read the message.
+	 * @return The {@link Message} received.
+	 * @throws IOException
+	 *             On an error receiving the message.
+	 */
+	protected Message readMessage(final Header header, final BsonInputStream bin)
+			throws IOException {
+		Message message = null;
+		switch (header.getOperation()) {
+		case REPLY:
+			message = new Reply(header, bin);
+			break;
+		case QUERY:
+			message = new Query(header, bin);
+			break;
+		case UPDATE:
+			message = new Update(bin);
+			break;
+		case INSERT:
+			message = new Insert(header, bin);
+			break;
+		case GET_MORE:
+			message = new GetMore(bin);
+			break;
+		case DELETE:
+			message = new Delete(bin);
+			break;
+		case KILL_CURSORS:
+			message = new KillCursors(bin);
+			break;
 
-        return message;
+		}
 
-    }
+		return message;
 
-    /**
-     * Yawn - go to slepp.
-     */
-    protected void sleep() {
-        long now = System.currentTimeMillis();
-        final long deadline = now + 5000;
+	}
 
-        try {
-            synchronized (this) {
-                while (now < deadline) {
-                    wait(100);
-                    now = deadline;
-                }
-            }
-        }
-        catch (final InterruptedException e) {
-            // Ignore.
-        }
-    }
+	/**
+	 * Yawn - go to slepp.
+	 */
+	protected void sleep() {
+		long now = System.currentTimeMillis();
+		final long deadline = now + 5000;
 
-    /**
-     * ClientRunnable provides the handling for a single client.
-     * 
-     * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
-     */
-    private final class ClientRunnable implements Runnable {
-        /** The client connection. */
-        private final Socket myConn;
+		try {
+			synchronized (this) {
+				while (now < deadline) {
+					wait(100);
+					now = deadline;
+				}
+			}
+		} catch (final InterruptedException e) {
+			// Ignore.
+		}
+	}
 
-        /**
-         * Creates a new ClientRunnable.
-         * 
-         * @param conn
-         *            The client connection.
-         */
-        public ClientRunnable(final Socket conn) {
-            myConn = conn;
-        }
+	/**
+	 * ClientRunnable provides the handling for a single client.
+	 * 
+	 * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+	 */
+	private final class ClientRunnable implements Runnable {
+		/** The client connection. */
+		private final Socket myConn;
 
-        /**
-         * Process client messages.
-         */
-        @Override
-        public void run() {
-            try {
-                synchronized (MockMongoDBServer.this) {
-                    myClientConnected += 1;
-                    MockMongoDBServer.this.notifyAll();
-                }
+		/**
+		 * Creates a new ClientRunnable.
+		 * 
+		 * @param conn
+		 *            The client connection.
+		 */
+		public ClientRunnable(final Socket conn) {
+			myConn = conn;
+		}
 
-                handleClient(myConn);
-            }
-            catch (final IOException error) {
-                // OK. Just close.
-            }
-            finally {
-                synchronized (MockMongoDBServer.this) {
-                    myClientConnected -= 1;
-                    MockMongoDBServer.this.notifyAll();
-                }
-                close(myConn);
-            }
-        }
-    }
+		/**
+		 * Process client messages.
+		 */
+		@Override
+		public void run() {
+			try {
+				synchronized (MockMongoDBServer.this) {
+					myClientConnected += 1;
+					MockMongoDBServer.this.notifyAll();
+				}
+
+				handleClient(myConn);
+			} catch (final IOException error) {
+				// OK. Just close.
+			} finally {
+				synchronized (MockMongoDBServer.this) {
+					myClientConnected -= 1;
+					MockMongoDBServer.this.notifyAll();
+				}
+				close(myConn);
+			}
+		}
+	}
 }

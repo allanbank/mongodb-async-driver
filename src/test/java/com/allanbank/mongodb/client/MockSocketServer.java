@@ -18,7 +18,7 @@
  * #L%
  */
 
-package com.allanbank.mongodb.client.connection.socket;
+package com.allanbank.mongodb.client;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -31,6 +31,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.client.message.Header;
@@ -44,7 +45,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * 
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MockSocketServer extends Thread {
+public class MockSocketServer implements Runnable, Closeable {
     /** An empty Array of bytes. */
     public static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -61,7 +62,7 @@ public class MockSocketServer extends Thread {
     private final List<byte[]> myRequests = new ArrayList<byte[]>();
 
     /** Set to false to stop the server. */
-    private boolean myRunning;
+    private volatile boolean myRunning;
 
     /** The server socket we are listening on. */
     private final ServerSocketChannel myServerSocket;
@@ -73,7 +74,6 @@ public class MockSocketServer extends Thread {
      *             On a failure creating the server socket.
      */
     public MockSocketServer() throws IOException {
-        super("MockMongoDBServer");
 
         myServerSocket = ServerSocketChannel.open();
         myServerSocket.socket().bind(
@@ -81,6 +81,15 @@ public class MockSocketServer extends Thread {
         myServerSocket.configureBlocking(false);
 
         myRunning = false;
+    }
+
+    /**
+     * Starts the mock server.
+     */
+    public void start() {
+        Thread t = new Thread(this, "MockSocketServer");
+
+        t.start();
     }
 
     /**
@@ -98,6 +107,7 @@ public class MockSocketServer extends Thread {
      *             On a failure closing the server socket.
      */
     public void close() throws IOException {
+        myRunning = false;
         myServerSocket.close();
     }
 
@@ -250,6 +260,32 @@ public class MockSocketServer extends Thread {
     }
 
     /**
+     * Waits for a client to connect.
+     * 
+     * @param timeout
+     *            Time to wait for the connect.
+     * @param units
+     *            The units for the time to wait for the connect.
+     * @return True if a client is connect, false on timeout.
+     */
+    public boolean waitForClient(final int timeout, TimeUnit units) {
+        return waitForClient(units.toMillis(timeout));
+    }
+
+    /**
+     * Waits for a client to disconnect.
+     * 
+     * @param timeout
+     *            Time to wait for the disconnect.
+     * @param units
+     *            The units for the time to wait for the disconnect.
+     * @return True if a client is disconnected, false on timeout.
+     */
+    public boolean waitForDisconnect(final int timeout, TimeUnit units) {
+        return waitForDisconnect(units.toMillis(timeout));
+    }
+
+    /**
      * Waits for a client to disconnect.
      * 
      * @param timeout
@@ -275,6 +311,22 @@ public class MockSocketServer extends Thread {
             result = !myClientConnected;
         }
         return result;
+    }
+
+    /**
+     * Waits for a client to request.
+     * 
+     * @param count
+     *            The number of requests to wait for.
+     * @param timeout
+     *            Time to wait for the request.
+     * @param units
+     *            The units for the time to wait for the request.
+     * @return True if a client is request, false on timeout.
+     */
+    public boolean waitForRequest(final int count, final int timeout,
+            TimeUnit units) {
+        return waitForRequest(count, units.toMillis(timeout));
     }
 
     /**

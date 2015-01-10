@@ -18,7 +18,7 @@
  * #L%
  */
 
-package com.allanbank.mongodb.client.connection.socket;
+package com.allanbank.mongodb.client;
 
 import java.io.IOException;
 

@@ -41,36 +41,35 @@ import com.allanbank.mongodb.client.transport.TransportResponseListener;
  */
 public class TwoThreadTransportFactory implements TransportFactory {
 
-    /**
-     * The buffers used each connection. Each buffer is shared by all
-     * connections but there can be up to 1 buffer per application thread.
-     */
-    private final ThreadLocal<Reference<TwoThreadOutputBuffer>> myBuffers;
+	/**
+	 * The buffers used each connection. Each buffer is shared by all
+	 * connections but there can be up to 1 buffer per application thread.
+	 */
+	private final ThreadLocal<Reference<TwoThreadOutputBuffer>> myBuffers;
 
-    /**
-     * Creates a new TwoThreadTransportFactory.
-     */
-    public TwoThreadTransportFactory() {
-        super();
+	/**
+	 * Creates a new TwoThreadTransportFactory.
+	 */
+	public TwoThreadTransportFactory() {
+		super();
 
-        myBuffers = new ThreadLocal<Reference<TwoThreadOutputBuffer>>();
-    }
+		myBuffers = new ThreadLocal<Reference<TwoThreadOutputBuffer>>();
+	}
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to return a {@link TwoThreadTransport}.
-     * </p>
-     */
-    @Override
-    public TwoThreadTransport createTransport(Server server,
-            MongoClientConfiguration config, StringEncoderCache encoderCache,
-            StringDecoderCache decoderCache,
-            TransportResponseListener responseListener) throws IOException {
-        // Open the socket, setup the receive thread, setup the send thread and
-        // queues between them.
-        return new TwoThreadTransport(server, config, encoderCache,
-                decoderCache, responseListener, myBuffers);
-    }
-
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to return a {@link TwoThreadTransport}.
+	 * </p>
+	 */
+	@Override
+	public TwoThreadTransport createTransport(Server server,
+			MongoClientConfiguration config, StringEncoderCache encoderCache,
+			StringDecoderCache decoderCache,
+			TransportResponseListener responseListener) throws IOException {
+		// Open the socket, setup the receive thread, setup the send thread and
+		// queues between them.
+		return new TwoThreadTransport(server, config, encoderCache,
+				decoderCache, responseListener, myBuffers);
+	}
 }

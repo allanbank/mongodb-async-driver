@@ -25,6 +25,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLEngine;
 
 /**
  * SocketConnectionListener provides a callback interface for
@@ -38,17 +39,31 @@ import javax.net.SocketFactory;
  */
 public interface SocketConnectionListener {
 
-    /**
-     * Notification that the socket is now connected to the specified
-     * InetSocketAddress.
-     * 
-     * @param connectedTo
-     *            The address the socket has been connected to.
-     * @param connection
-     *            The socket connection.
-     * @throws SocketException
-     *             On a failure configuring the socket.
-     */
-    public void connected(InetSocketAddress connectedTo, Socket connection)
-            throws SocketException;
+	/**
+	 * Notification that the socket is now connected to the specified
+	 * InetSocketAddress.
+	 * 
+	 * @param connectedTo
+	 *            The address the socket has been connected to.
+	 * @param connection
+	 *            The socket connection.
+	 * @throws SocketException
+	 *             On a failure configuring the socket.
+	 */
+	public void connected(InetSocketAddress connectedTo, Socket connection)
+			throws SocketException;
+
+	/**
+	 * Notification that the socket is now connected to the specified
+	 * InetSocketAddress.
+	 * 
+	 * @param connectedTo
+	 *            The address the socket has been connected to.
+	 * @param connection
+	 *            The SSL Engine for the connection.
+	 * @throws SocketException
+	 *             On a failure configuring the socket.
+	 */
+	public void connected(InetSocketAddress connectedTo, SSLEngine connection)
+			throws SocketException;
 }
