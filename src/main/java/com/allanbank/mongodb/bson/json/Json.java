@@ -2,14 +2,14 @@
  * #%L
  * Json.java - mongodb-async-driver - Allanbank Consulting, Inc.
  * %%
- * Copyright (C) 2011 - 2014 Allanbank Consulting, Inc.
+ * Copyright (C) 2011 - 2015 Allanbank Consulting, Inc.
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,7 +17,6 @@
  * limitations under the License.
  * #L%
  */
-
 package com.allanbank.mongodb.bson.json;
 
 import java.io.Reader;
@@ -142,7 +141,7 @@ import com.allanbank.mongodb.error.JsonParseException;
  * JavaScriptWithScopeElement}</li>
  * </ul>
  * </p>
- * 
+ *
  * @see <a
  *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
  *      Extended JSON</a>
@@ -150,7 +149,7 @@ import com.allanbank.mongodb.error.JsonParseException;
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
- * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @copyright 2012-2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("javadoc")
 public class Json {
@@ -161,7 +160,7 @@ public class Json {
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     * 
+     *
      * @param input
      *            The source of the document to read.
      * @return The {@link Document} representation of the JSON document.
@@ -196,20 +195,20 @@ public class Json {
      * Parses the document from the reader into a BSON {@link Document}.
      * <p>
      * This method is equivalent to: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * parse(new StringReader(input));
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      * </p>
      * <p>
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     * 
+     *
      * @param input
      *            The source of the document to read.
      * @return The {@link Document} representation of the JSON document.
@@ -226,18 +225,38 @@ public class Json {
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     * 
+     *
      * @param document
-     *            The document to conver to a JSON document.
+     *            The document to convert to a JSON document.
      * @return The JSON document text.
      * @throws JsonException
      *             On a failure to write the JSON document.
      */
     public static String serialize(final DocumentAssignable document)
             throws JsonException {
+        return serialize(document, Mode.SHELL_ONE_LINE);
+    }
+
+    /**
+     * Serializes the {@link Document} to an equivalent JSON document.
+     * <p>
+     * See the class documentation for important limitations on round trip
+     * serialization and parsing.
+     * </p>
+     *
+     * @param document
+     *            The document to convert to a JSON document.
+     * @param mode
+     *            The mode for the emitted JSON.
+     * @return The JSON document text.
+     * @throws JsonException
+     *             On a failure to write the JSON document.
+     */
+    public static String serialize(final DocumentAssignable document,
+            final Mode mode) throws JsonException {
         final StringWriter writer = new StringWriter();
 
-        serialize(document, writer);
+        serialize(document, writer, mode);
 
         return writer.toString();
     }
@@ -248,9 +267,9 @@ public class Json {
      * See the class documentation for important limitations on round trip
      * serialization and parsing.
      * </p>
-     * 
+     *
      * @param document
-     *            The document to conver to a JSON document.
+     *            The document to convert to a JSON document.
      * @param sink
      *            The sink for the JSON document text.
      * @throws JsonException
@@ -258,8 +277,29 @@ public class Json {
      */
     public static void serialize(final DocumentAssignable document,
             final Writer sink) throws JsonException {
+        serialize(document, sink, Mode.SHELL_ONE_LINE);
+    }
+
+    /**
+     * Serializes the {@link Document} to an equivalent JSON document.
+     * <p>
+     * See the class documentation for important limitations on round trip
+     * serialization and parsing.
+     * </p>
+     *
+     * @param document
+     *            The document to convert to a JSON document.
+     * @param sink
+     *            The sink for the JSON document text.
+     * @param mode
+     *            The mode for the emitted JSON.
+     * @throws JsonException
+     *             On a failure to write the JSON document.
+     */
+    public static void serialize(final DocumentAssignable document,
+            final Writer sink, final Mode mode) throws JsonException {
         final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
-                sink, true);
+                sink, mode.isOneLine(), mode.isStrict());
         document.asDocument().accept(visitor);
     }
 
@@ -270,4 +310,76 @@ public class Json {
         super();
     }
 
+    /**
+     * The mode for the emitted JSON.
+     *
+     * @api.yes This enum is part of the driver's API. Public and protected
+     *          members will be deprecated for at least 1 non-bugfix release
+     *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
+     *          before being removed or modified.
+     * @copyright 2015, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    public static enum Mode {
+        /**
+         * Emits the BSON in a human readable format that can be cut-and-paste
+         * into the MongoDB shell.
+         */
+        SHELL(false, false),
+
+        /**
+         * Emits the BSON in a human readable format on a single line that can
+         * be cut-and-paste into the MongoDB shell.
+         */
+        SHELL_ONE_LINE(true, false),
+
+        /**
+         * Emits strict JSON. BSON types not supported by JSON will be emitted
+         * using the BSON strict encoding. The emitted document will be emitted
+         * across multiple lines with nesting of structures.
+         *
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
+         *      Extended JSON</a>
+         */
+        STRICT(false, true),
+
+        /**
+         * Emits strict JSON on a single line. BSON types not supported by JSON
+         * will be emitted using the BSON strict encoding.
+         *
+         * @see <a
+         *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
+         *      Extended JSON</a>
+         */
+        STRICT_ONE_LINE(true, true);
+
+        /** If true the JSON should be on a single line. */
+        private final boolean myOneLine;
+
+        /** If true then strict JSON should be emitted. */
+        private final boolean myStrict;
+
+        private Mode(final boolean oneLine, final boolean strict) {
+            myOneLine = oneLine;
+            myStrict = strict;
+        }
+
+        /**
+         * Returns true if the JSON should be on a single line.
+         *
+         * @return True if the JSON should be on a single line.
+         */
+        public boolean isOneLine() {
+            return myOneLine;
+        }
+
+        /**
+         * Returns true if strict JSON should be emitted.
+         *
+         * @return True if strict JSON should be emitted.
+         */
+        public boolean isStrict() {
+            return myStrict;
+        }
+    }
 }
