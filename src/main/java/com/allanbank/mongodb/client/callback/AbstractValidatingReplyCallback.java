@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,12 +43,13 @@ import com.allanbank.mongodb.error.ShardConfigStaleException;
 /**
  * Helper class for constructing callbacks that convert a {@link Reply} message
  * into a different type of result.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
+public abstract class AbstractValidatingReplyCallback
+        implements ReplyCallback {
 
     /** The fields that may contain the error code. */
     public static final String ERROR_CODE_FIELD = "code";
@@ -80,7 +81,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
      * Overridden to {@link #verify(Reply) verify} the reply and then
      * {@link #handle(Reply) handle} it.
      * </p>
-     * 
+     *
      * @see Callback#callback
      */
     @Override
@@ -103,7 +104,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Creates an exception from the {@link Reply}.
-     * 
+     *
      * @param reply
      *            The raw reply.
      * @return The exception created.
@@ -114,7 +115,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Creates an exception from the {@link Reply}.
-     * 
+     *
      * @param reply
      *            The raw reply.
      * @param knownError
@@ -158,7 +159,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Creates an exception from the parsed reply fields.
-     * 
+     *
      * @param reply
      *            The raw reply.
      * @param okValue
@@ -200,7 +201,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Creates an exception from the parsed reply fields.
-     * 
+     *
      * @param reply
      *            The raw reply.
      * @param okValue
@@ -220,7 +221,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
      * Converts the {@link Element} to a string. If a {@link StringElement} the
      * value of the element is returned. In all other cases the toString()
      * result for the element is returned.
-     * 
+     *
      * @param errorMessageElem
      *            The element to convert to a string.
      * @return The {@link Element}'s string value.
@@ -234,7 +235,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Checks for a non-flag error in the reply.
-     * 
+     *
      * @param reply
      *            The reply to check.
      * @throws MongoDbException
@@ -249,7 +250,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Called once the {@link Reply} has been validated.
-     * 
+     *
      * @param reply
      *            The {@link Reply} to be handled.
      */
@@ -258,7 +259,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
     /**
      * Converts a {@link NumericElement}into an <tt>int</tt> value. If not a
      * {@link NumericElement} then -1 is returned.
-     * 
+     *
      * @param element
      *            The element to convert.
      * @return The element's integer value or -1.
@@ -273,7 +274,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Checks the reply for an error message.
-     * 
+     *
      * @param reply
      *            The Reply to verify is successful.
      * @throws MongoDbException
@@ -301,7 +302,7 @@ public abstract class AbstractValidatingReplyCallback implements ReplyCallback {
 
     /**
      * Check if the failure is a failure of the durability of the write.
-     * 
+     *
      * @param reply
      *            The reply to the message.
      * @param knownDurabilityError

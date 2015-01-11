@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,9 @@
  */
 
 package com.allanbank.mongodb.builder;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -31,7 +34,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  * <p>
  * The result of a {@code text} command is a document that looks like the
  * following:<blockquote>
- * 
+ *
  * <pre>
  * <code>
  * > db.collection.runCommand( { "text": "collection" , search: "coffee magic" } )
@@ -65,13 +68,13 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  * }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
  * <p>
  * This class wraps a single entry from the {@code results} array.
  * </p>
- * 
+ *
  * @api.no <b>This class is NOT part of the Public API.</b> This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  *         This class <b>WILL</b>, eventually, be part of the driver's API.
@@ -90,6 +93,8 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
+@Immutable
+@ThreadSafe
 public class TextResult {
     /** The document. */
     private final Document myDocument;
@@ -102,7 +107,7 @@ public class TextResult {
 
     /**
      * Creates a new Text.
-     * 
+     *
      * @param document
      *            The document containing the 'score' and 'obj' fields.
      * @throws AssertionError
@@ -152,7 +157,7 @@ public class TextResult {
 
     /**
      * Returns the document.
-     * 
+     *
      * @return The document.
      */
     public Document getDocument() {
@@ -162,7 +167,7 @@ public class TextResult {
     /**
      * Returns the un-processed result document. It is expected to be a document
      * containing two fields: 'score' and 'obj'.
-     * 
+     *
      * @return The un-processed result document.
      */
     public Document getRawDocument() {
@@ -171,7 +176,7 @@ public class TextResult {
 
     /**
      * Returns the score for the document.
-     * 
+     *
      * @return The score for the document.
      */
     public double getScore() {

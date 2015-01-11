@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,9 @@ package com.allanbank.mongodb;
 
 import java.io.Serializable;
 import java.io.StringWriter;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
@@ -55,7 +58,7 @@ import com.allanbank.mongodb.error.JsonParseException;
  * <p>
  * Generally, increasing the level of durability decreases performance.
  * </p>
- * 
+ *
  * @see <a href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
  *      Center Awareness</a>
  * @api.yes This class is part of the driver's API. Public and protected members
@@ -64,7 +67,10 @@ import com.allanbank.mongodb.error.JsonParseException;
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Durability implements Serializable {
+@Immutable
+@ThreadSafe
+public class Durability
+        implements Serializable {
 
     /** The durability that says no durability is required. */
     public final static Durability ACK = new Durability(true, false, false, 1,
@@ -90,7 +96,7 @@ public class Durability implements Serializable {
      * server is running with journaling enabled then only the journal will have
      * been sync'd to disk. If running without journaling enabled then will wait
      * for all data files to be sync'd to disk.
-     * 
+     *
      * @param waitTimeoutMillis
      *            The number of milliseconds to wait for the durability
      *            requirements to be satisfied.
@@ -109,7 +115,7 @@ public class Durability implements Serializable {
      * be thrown if the server is configured without journaling enabled. Prior
      * to MongoDB 2.6 this mode would silently degrade to {@link #ACK}.
      * </p>
-     * 
+     *
      * @param waitTimeoutMillis
      *            The number of milliseconds to wait for the durability
      *            requirements to be satisfied.
@@ -122,7 +128,7 @@ public class Durability implements Serializable {
 
     /**
      * Creates a multiple replica durability.
-     * 
+     *
      * @param ensureJournaled
      *            If true then ensure that the write has been committed to the
      *            journal in addition to replicated.
@@ -142,7 +148,7 @@ public class Durability implements Serializable {
 
     /**
      * Creates a multiple replica durability.
-     * 
+     *
      * @param ensureJournaled
      *            If true then ensure that the write has been committed to the
      *            journal in addition to replicated.
@@ -164,7 +170,7 @@ public class Durability implements Serializable {
 
     /**
      * Creates a single replica durability. This is a 'w' value of 2.
-     * 
+     *
      * @param waitTimeoutMillis
      *            The number of milliseconds to wait for the durability
      *            requirements to be satisfied.
@@ -177,7 +183,7 @@ public class Durability implements Serializable {
 
     /**
      * Creates a multiple replica durability.
-     * 
+     *
      * @param minimumReplicas
      *            The minimum number of replicas to wait for.
      * @param waitTimeoutMillis
@@ -193,7 +199,7 @@ public class Durability implements Serializable {
 
     /**
      * Creates a multiple replica durability.
-     * 
+     *
      * @param waitForReplicasByMode
      *            If the value is non-<code>null</code> then wait for the
      *            specified replication mode configured on the server. A
@@ -235,13 +241,13 @@ public class Durability implements Serializable {
      * </ul>
      * If present the {@code getlasterror} field is ignored. An example JSON
      * document might look like: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * { w : 'majority', wtimeout : 10000 }
      * </code>
      * </pre>
-     * 
+     *
      * <blockquote></li>
      * </ul>
      * </p>
@@ -249,7 +255,7 @@ public class Durability implements Serializable {
      * If the string is not parse-able in either of these forms then null is
      * returned.
      * </p>
-     * 
+     *
      * @param value
      *            The string representation of the Durability.
      * @return The Durability represented by the string.
@@ -361,7 +367,7 @@ public class Durability implements Serializable {
      * If the value is non-<code>null</code> then wait for the specified
      * replication mode configured on the server. A built-in mode of
      * {@link #MAJORITY_MODE} is also supported.
-     * 
+     *
      * @see <a
      *      href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
      *      Center Awareness</a>
@@ -382,7 +388,7 @@ public class Durability implements Serializable {
 
     /**
      * Create a new Durability.
-     * 
+     *
      * @param waitForFsync
      *            True if the durability requires that the response wait for an
      *            fsync() of the data to complete, false otherwise.
@@ -407,7 +413,7 @@ public class Durability implements Serializable {
 
     /**
      * Create a new Durability.
-     * 
+     *
      * @param waitForFsync
      *            True if the durability requires that the response wait for an
      *            fsync() of the data to complete, false otherwise.
@@ -432,7 +438,7 @@ public class Durability implements Serializable {
 
     /**
      * Create a new Durability.
-     * 
+     *
      * @param waitForReply
      *            True if the durability requires a reply from the server.
      * @param waitForFsync
@@ -467,7 +473,7 @@ public class Durability implements Serializable {
 
     /**
      * Returns a suitable getlasterror command's document.
-     * 
+     *
      * @return The getlasterror command's document.
      */
     public Document asDocument() {
@@ -499,10 +505,10 @@ public class Durability implements Serializable {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -529,7 +535,7 @@ public class Durability implements Serializable {
      * Returns if (value greater than zero) the durability requires that the
      * response wait for the data to be received by a replica and the number of
      * replicas of the data to wait for.
-     * 
+     *
      * @return If (value greater than zero) the durability requires that the
      *         response wait for the data to be received by a replica and the
      *         number of replicas of the data to wait for.
@@ -542,7 +548,7 @@ public class Durability implements Serializable {
      * If the value is non-<code>null</code> then wait for the specified
      * replication mode configured on the server. A built-in mode of
      * {@link #MAJORITY_MODE} is also supported.
-     * 
+     *
      * @return If the value is non-null then wait for the specified replication
      *         mode configured on the server.
      * @see <a
@@ -556,7 +562,7 @@ public class Durability implements Serializable {
     /**
      * Returns the number of milliseconds to wait for the durability
      * requirements to be satisfied.
-     * 
+     *
      * @return The number of milliseconds to wait for the durability
      *         requirements to be satisfied.
      */
@@ -566,7 +572,7 @@ public class Durability implements Serializable {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -586,7 +592,7 @@ public class Durability implements Serializable {
     /**
      * Returns if the durability requires that the response wait for an fsync()
      * of the data on the server to complete.
-     * 
+     *
      * @return True if the durability requires that the response wait for an
      *         fsync() of the data to complete, false otherwise.
      */
@@ -597,7 +603,7 @@ public class Durability implements Serializable {
     /**
      * Returns if the durability requires that the response wait for the data to
      * be written to the server's journal.
-     * 
+     *
      * @return True if if the durability requires that the response wait for the
      *         data to be written to the server's journal, false otherwise.
      */
@@ -608,7 +614,7 @@ public class Durability implements Serializable {
     /**
      * Returns if the durability requires that the response wait for a reply
      * from the server but potentially no special server processing.
-     * 
+     *
      * @return True if the durability requires that the response wait for a
      *         reply from the server but potentially no special server
      *         processing.
@@ -646,7 +652,7 @@ public class Durability implements Serializable {
 
     /**
      * Does a null safe equals comparison.
-     * 
+     *
      * @param rhs
      *            The right-hand-side of the comparison.
      * @param lhs
@@ -661,7 +667,7 @@ public class Durability implements Serializable {
     /**
      * Hook into serialization to replace <tt>this</tt> object with the local
      * {@link #ACK} or {@link #NONE} instance as appropriate.
-     * 
+     *
      * @return Either the {@link #ACK} or {@link #NONE} instance if
      *         <tt>this</tt> instance equals one of those instances otherwise
      *         <tt>this</tt> instance.

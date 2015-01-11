@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,7 +55,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * ReplicaSetReconnectStrategyTest provides tests for the
  * {@link ReplicaSetReconnectStrategy}.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetReconnectStrategyTest {
@@ -85,7 +85,7 @@ public class ReplicaSetReconnectStrategyTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -101,7 +101,7 @@ public class ReplicaSetReconnectStrategyTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -144,7 +144,7 @@ public class ReplicaSetReconnectStrategyTest {
 
     /**
      * Cleans up the test connection.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -184,7 +184,7 @@ public class ReplicaSetReconnectStrategyTest {
     /**
      * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -278,7 +278,7 @@ public class ReplicaSetReconnectStrategyTest {
     /**
      * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -405,7 +405,7 @@ public class ReplicaSetReconnectStrategyTest {
      * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
      * . This scenario have the reconnect contact a different server before
      * settling on the primary.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -532,7 +532,7 @@ public class ReplicaSetReconnectStrategyTest {
     /**
      * Test method for {@link ReplicaSetReconnectStrategy#reconnect(Connection)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */

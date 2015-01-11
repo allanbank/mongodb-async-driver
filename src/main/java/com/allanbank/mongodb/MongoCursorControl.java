@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,8 @@ package com.allanbank.mongodb;
 
 import java.io.Closeable;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.builder.Find;
 
@@ -28,14 +30,16 @@ import com.allanbank.mongodb.builder.Find;
  * MongoCursorControl provides the controls for a MongoDB cursor interaction.
  * Normally this interface is used via a {@link MongoIterator} but in the case
  * of streaming only the controls are returned.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface MongoCursorControl extends Closeable {
+@NotThreadSafe
+public interface MongoCursorControl
+        extends Closeable {
     /** The batch size field in the cursor document. */
     public static final String BATCH_SIZE_FIELD = "batch_size";
 
@@ -65,7 +69,7 @@ public interface MongoCursorControl extends Closeable {
      * </p>
      * <p>
      * Returns the active cursor in the form:<blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * {
@@ -76,9 +80,9 @@ public interface MongoCursorControl extends Closeable {
      *     {@value #BATCH_SIZE_FIELD} : &lt;batch_size&gt;
      * }</code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @return A document that can be used to restart the cursor.
      *         <code>null</code> if the server's cursor has been exhausted or
      *         closed.
@@ -93,14 +97,14 @@ public interface MongoCursorControl extends Closeable {
 
     /**
      * Returns the size for batches of documents that are requested.
-     * 
+     *
      * @return The size of the batches of documents that are requested.
      */
     public int getBatchSize();
 
     /**
      * Sets the size for future batch sizes.
-     * 
+     *
      * @param batchSize
      *            The size to request for future batch sizes.
      */

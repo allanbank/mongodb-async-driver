@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,13 +25,13 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * NoOpMongoMessageListener provides a {@link MongoMessageListener}
  * implementation that does no processing.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class NoOpMongoMessageListener implements
-        ConnectionMetricsCollector {
+public final class NoOpMongoMessageListener
+        implements ConnectionMetricsCollector {
 
     /** A single instance of the listener. */
     public static final NoOpMongoMessageListener NO_OP = new NoOpMongoMessageListener();

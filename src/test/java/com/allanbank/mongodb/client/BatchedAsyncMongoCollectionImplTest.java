@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,7 @@ import com.allanbank.mongodb.client.state.Server;
 /**
  * BatchedAsyncMongoCollectionImplTest provides tests for the
  * {@link BatchedAsyncMongoCollectionImpl} class.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BatchedAsyncMongoCollectionImplTest {
@@ -112,7 +112,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#cancel()}.
-     * 
+     *
      * @throws InterruptedException
      *             On a test failure.
      */
@@ -172,7 +172,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -218,7 +218,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -269,7 +269,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -328,7 +328,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#close()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -389,7 +389,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -442,7 +442,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -499,7 +499,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -572,7 +572,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -646,7 +646,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -725,7 +725,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Test method for {@link BatchedAsyncMongoCollectionImpl#flush()}.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -801,7 +801,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -812,7 +812,7 @@ public class BatchedAsyncMongoCollectionImplTest {
 
     /**
      * Creates a reply around the document.
-     * 
+     *
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -825,7 +825,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#reset(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -837,7 +837,7 @@ public class BatchedAsyncMongoCollectionImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} and {@link #myMockDatabase} objects.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

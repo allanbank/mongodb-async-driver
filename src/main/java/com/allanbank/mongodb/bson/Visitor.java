@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,8 @@ package com.allanbank.mongodb.bson;
 
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.bson.element.ArrayElement;
 import com.allanbank.mongodb.bson.element.DocumentElement;
 import com.allanbank.mongodb.bson.element.ObjectId;
@@ -29,13 +31,14 @@ import com.allanbank.mongodb.bson.element.ObjectId;
  * Interface for callbacks to navigate the document structure. The accept method
  * of each {@link Element} calls the appropriate Visit method in this interface
  * The user is responsible for recursively navigating the structure.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@NotThreadSafe
 public interface Visitor {
 
     /**
@@ -45,7 +48,7 @@ public interface Visitor {
      * enhancement if they ensure that the list of elements is the same list.
      * (Identify check instead of {@link Object#equals(Object)}.
      * </p>
-     * 
+     *
      * @param elements
      *            The sub elements of the document.
      */
@@ -58,7 +61,7 @@ public interface Visitor {
      * is always the same list. Visitors may use this fact to cache intermediate
      * results.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param elements
@@ -68,7 +71,7 @@ public interface Visitor {
 
     /**
      * Visits a binary element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param subType
@@ -80,7 +83,7 @@ public interface Visitor {
 
     /**
      * Visits a boolean element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -90,7 +93,7 @@ public interface Visitor {
 
     /**
      * Visits a deprecated DBPointer element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param databaseName
@@ -110,7 +113,7 @@ public interface Visitor {
      * elements is always the same list. Visitors may use this fact to cache
      * intermediate results.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param elements
@@ -120,7 +123,7 @@ public interface Visitor {
 
     /**
      * Visits a double element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -130,7 +133,7 @@ public interface Visitor {
 
     /**
      * Visits a integer (32-bit signed) element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -140,7 +143,7 @@ public interface Visitor {
 
     /**
      * Visits a JavaScript element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param code
@@ -150,7 +153,7 @@ public interface Visitor {
 
     /**
      * Visits a JavaScript with Scope element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param code
@@ -162,7 +165,7 @@ public interface Visitor {
 
     /**
      * Visits a long (64-bit signed) element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -172,7 +175,7 @@ public interface Visitor {
 
     /**
      * Visits a minimum key value element. Used as an absolute upper bounds.
-     * 
+     *
      * @param name
      *            The name of the element.
      */
@@ -180,7 +183,7 @@ public interface Visitor {
 
     /**
      * Visits a minimum key value element. Used as an absolute lower bounds.
-     * 
+     *
      * @param name
      *            The name of the element.
      */
@@ -188,7 +191,7 @@ public interface Visitor {
 
     /**
      * Visits a MongoDB Timestamp element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -198,7 +201,7 @@ public interface Visitor {
 
     /**
      * Visits a <code>null</code> valued element.
-     * 
+     *
      * @param name
      *            The name of the element.
      */
@@ -206,7 +209,7 @@ public interface Visitor {
 
     /**
      * Visits an ObjectId element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param id
@@ -216,7 +219,7 @@ public interface Visitor {
 
     /**
      * Visits a regular expression element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param pattern
@@ -230,7 +233,7 @@ public interface Visitor {
 
     /**
      * Visits a string element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -240,7 +243,7 @@ public interface Visitor {
 
     /**
      * Visits a symbol element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param symbol
@@ -251,7 +254,7 @@ public interface Visitor {
     /**
      * Visits a timestamp element. The timestamp is the number of milliseconds
      * since the Unix epoch.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param timestamp

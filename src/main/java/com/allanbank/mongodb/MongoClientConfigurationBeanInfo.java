@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,20 +27,24 @@ import java.beans.PropertyEditorSupport;
 import java.beans.SimpleBeanInfo;
 import java.util.Collections;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.util.log.Log;
 import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * MongoClientConfigurationBeanInfo provides specialization for the properties
  * of the {@link MongoClientConfiguration}.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoClientConfigurationBeanInfo extends SimpleBeanInfo {
+@NotThreadSafe
+public class MongoClientConfigurationBeanInfo
+        extends SimpleBeanInfo {
 
     /**
      * Creates a new MongoClientConfigurationBeanInfo.
@@ -84,13 +88,15 @@ public class MongoClientConfigurationBeanInfo extends SimpleBeanInfo {
     /**
      * CredentialListEditor provides the ability to parse the list of
      * credentials from a MongoDB URI. This will always be a singleton list.
-     * 
+     *
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected static class CredentialListEditor extends PropertyEditorSupport {
+    @NotThreadSafe
+    protected static class CredentialListEditor
+            extends PropertyEditorSupport {
 
         /** The logger for the {@link CredentialListEditor}. */
         protected static final Log LOG = LogFactory
@@ -108,7 +114,7 @@ public class MongoClientConfigurationBeanInfo extends SimpleBeanInfo {
          * <p>
          * Overridden to parse a string to a {@link Credential}.
          * </p>
-         * 
+         *
          * @throws IllegalArgumentException
          *             If the string cannot be parsed into a {@link Credential}.
          */

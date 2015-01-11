@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.util.log.Log;
 import com.allanbank.mongodb.util.log.LogFactory;
 
@@ -38,14 +40,16 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * >Connection String URI Format</a> documentation for information on
  * constructing a MongoDB URI.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class CredentialEditor extends PropertyEditorSupport {
+@NotThreadSafe
+public class CredentialEditor
+        extends PropertyEditorSupport {
 
     /**
      * The fields parsed out of a MongoDB URI to construct a {@link Credential}.
@@ -76,7 +80,7 @@ public class CredentialEditor extends PropertyEditorSupport {
      * <p>
      * Overridden to parse a string to a {@link Credential}.
      * </p>
-     * 
+     *
      * @throws IllegalArgumentException
      *             If the string cannot be parsed into a {@link Credential}.
      */
@@ -112,7 +116,7 @@ public class CredentialEditor extends PropertyEditorSupport {
     /**
      * Creates a Credential from the MongoDB URI parameters. Any fields used
      * from the parameters are removed from the {@code parameters} map.
-     * 
+     *
      * @param builder
      *            The credentials builder to update.
      * @param parameters

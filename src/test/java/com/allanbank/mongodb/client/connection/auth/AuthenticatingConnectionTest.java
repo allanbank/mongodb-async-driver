@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,7 +63,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * AuthenticatingConnectionTest provides test for the
  * {@link AuthenticatingConnection}.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticatingConnectionTest {
@@ -130,7 +130,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -184,7 +184,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -238,7 +238,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -280,7 +280,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -319,7 +319,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -417,7 +417,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -508,7 +508,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -617,7 +617,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -709,7 +709,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -765,7 +765,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -838,7 +838,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -896,7 +896,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -957,7 +957,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1001,7 +1001,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1045,7 +1045,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1081,7 +1081,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test that the old and new password hash values match.
-     * 
+     *
      * @throws NoSuchAlgorithmException
      *             On a failure.
      */
@@ -1103,7 +1103,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1153,7 +1153,7 @@ public class AuthenticatingConnectionTest {
     /**
      * Test method for
      * {@link AuthenticatingConnection#send(Message, ReplyCallback)} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1196,7 +1196,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1239,7 +1239,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1281,7 +1281,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1328,7 +1328,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1375,7 +1375,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Test method for {@link AuthenticatingConnection#toString()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -1412,7 +1412,7 @@ public class AuthenticatingConnectionTest {
 
     /**
      * Pauses for the specified amount of time.
-     * 
+     *
      * @param timeMs
      *            The time to sleep in milliseconds.
      */

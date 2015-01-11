@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@ package com.allanbank.mongodb.client;
 
 /**
  * Enumeration of the possible operations allowed in MongoDB messages.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -50,7 +50,7 @@ public enum Operation {
 
     /**
      * Returns the {@link Operation} for the provided opCode.
-     * 
+     *
      * @param opCode
      *            The operation code for the {@link Operation}.
      * @return The {@link Operation} for the operation code or <code>null</code>
@@ -86,7 +86,7 @@ public enum Operation {
 
     /**
      * Creates a new Operation.
-     * 
+     *
      * @param code
      *            The operations code.
      */
@@ -96,7 +96,7 @@ public enum Operation {
 
     /**
      * Returns the Operation's code.
-     * 
+     *
      * @return The operation's code.
      */
     public int getCode() {

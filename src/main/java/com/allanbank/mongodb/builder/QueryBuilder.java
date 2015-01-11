@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -42,7 +44,7 @@ import com.allanbank.mongodb.bson.impl.EmptyDocument;
  * {@link Document}s.
  * <p>
  * As an example:<blockquote>
- * 
+ *
  * <pre>
  * <code>
  * 
@@ -61,21 +63,23 @@ import com.allanbank.mongodb.bson.impl.EmptyDocument;
  *           );
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class QueryBuilder implements DocumentAssignable {
+@NotThreadSafe
+public class QueryBuilder
+        implements DocumentAssignable {
 
     /**
      * Creates a single document that is the conjunction of the criteria
      * provided.
-     * 
+     *
      * @param criteria
      *            The criteria to create a conjunction of.
      * @return The conjunction Document.
@@ -127,7 +131,7 @@ public class QueryBuilder implements DocumentAssignable {
     /**
      * Creates a single document that is the disjunction of the criteria
      * provided.
-     * 
+     *
      * @param criteria
      *            The criteria to create a disjunction of.
      * @return The disjunction Document.
@@ -150,7 +154,7 @@ public class QueryBuilder implements DocumentAssignable {
 
     /**
      * Negate a set of criteria.
-     * 
+     *
      * @param criteria
      *            The criteria to negate. These will normally be
      *            {@link ConditionBuilder}s or {@link Document}s.
@@ -174,7 +178,7 @@ public class QueryBuilder implements DocumentAssignable {
     /**
      * Creates a single document that is the disjunction of the criteria
      * provided.
-     * 
+     *
      * @param criteria
      *            The criteria to create a disjunction of.
      * @return The disjunction Document.
@@ -204,7 +208,7 @@ public class QueryBuilder implements DocumentAssignable {
 
     /**
      * Start a criteria for a single conjunctions.
-     * 
+     *
      * @param field
      *            The field to start the criteria against.
      * @return A {@link ConditionBuilder} for constructing the conditions.
@@ -239,7 +243,7 @@ public class QueryBuilder implements DocumentAssignable {
      * <p>
      * Returns the result of {@link #build()}.
      * </p>
-     * 
+     *
      * @see #build()
      */
     @Override
@@ -249,7 +253,7 @@ public class QueryBuilder implements DocumentAssignable {
 
     /**
      * Construct the final query document.
-     * 
+     *
      * @return The document containing the constraints specified.
      */
     public Document build() {
@@ -287,11 +291,11 @@ public class QueryBuilder implements DocumentAssignable {
      * Only a single {@link #comment} can be used. Calling multiple
      * <tt>comment(...)</tt> methods overwrites previous values.
      * </p>
-     * 
+     *
      * @param comment
      *            The query's comment.
      * @return This builder for call chaining.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/operator/meta/comment/">$comment</a>
      */
@@ -316,11 +320,11 @@ public class QueryBuilder implements DocumentAssignable {
      * Only a single {@link #text} condition can be used. Calling multiple
      * <tt>text(...)</tt> methods overwrites previous values.
      * </p>
-     * 
+     *
      * @param textSearchExpression
      *            The text search expression.
      * @return This builder for call chaining.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
      *      Search Expressions</a>
@@ -340,13 +344,13 @@ public class QueryBuilder implements DocumentAssignable {
      * Only a single {@link #text} condition can be used. Calling multiple
      * <tt>text(...)</tt> methods overwrites previous values.
      * </p>
-     * 
+     *
      * @param textSearchExpression
      *            The text search expression.
      * @param language
      *            The language of the text search expression.
      * @return This builder for call chaining.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/search-for-text/">Text
      *      Search Expressions</a>
@@ -367,7 +371,7 @@ public class QueryBuilder implements DocumentAssignable {
 
     /**
      * Returns a builder for the constraints on a single field.
-     * 
+     *
      * @param fieldName
      *            The name of the field to constrain.
      * @return A {@link ConditionBuilder} for creation of the conditions of the
@@ -384,7 +388,7 @@ public class QueryBuilder implements DocumentAssignable {
 
     /**
      * Adds an ad-hoc JavaScript condition to the query.
-     * 
+     *
      * @param javaScript
      *            The javaScript condition to add.
      * @return This builder for call chaining.

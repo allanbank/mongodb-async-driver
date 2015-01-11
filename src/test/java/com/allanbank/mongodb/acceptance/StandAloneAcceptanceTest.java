@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,10 +50,11 @@ import com.allanbank.mongodb.error.ConnectionLostException;
  * These are not meant to be exhaustive tests of the driver but instead attempt
  * to demonstrate that interactions with the MongoDB processes work.
  * </p>
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
+public class StandAloneAcceptanceTest
+        extends BasicAcceptanceTestCases {
 
     /**
      * Starts the standalone server before the tests.
@@ -252,10 +253,11 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
     /**
      * BackgroundTailableCursorReader provides a background myRunnable for
      * reading documents.
-     * 
+     *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static class BackgroundTailableCursorReader implements Runnable {
+    public static class BackgroundTailableCursorReader
+            implements Runnable {
 
         /** The number of documents to read. */
         private final int myDocsToRead;
@@ -268,7 +270,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
 
         /**
          * Creates a new BackgroundTailableCursorReader.
-         * 
+         *
          * @param iterator
          *            The iterator to read from.
          * @param docsToRead
@@ -283,7 +285,7 @@ public class StandAloneAcceptanceTest extends BasicAcceptanceTestCases {
 
         /**
          * Returns the thrown exception, if any.
-         * 
+         *
          * @return The thrown exception, if any.
          */
         public Throwable getThrown() {

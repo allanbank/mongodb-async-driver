@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,19 +30,25 @@ import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.io.EndianUtils;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * An Object Id.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ObjectId implements Serializable, Comparable<ObjectId> {
+@Immutable
+@ThreadSafe
+public class ObjectId
+        implements Serializable, Comparable<ObjectId> {
 
     /** The current process's machine id. */
     public static final long MACHINE_ID;
@@ -136,7 +142,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * Generates the current timestamp value. This is the number of
      * <b>seconds</b> since the Unix Epoch.
-     * 
+     *
      * @return The unique object id value.
      */
     private static int now() {
@@ -147,7 +153,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * Generates the current timestamp value. This is the number of
      * <b>seconds</b> since the Unix Epoch.
-     * 
+     *
      * @return The unique object id value.
      */
     private static long processId() {
@@ -169,7 +175,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Constructs a new {@link ObjectId}.
-     * 
+     *
      * @param timestamp
      *            The BSON Object Id timestamp.
      * @param machineId
@@ -182,7 +188,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Constructs a new {@link ObjectId}.
-     * 
+     *
      * @param hexBytes
      *            The hex encoded byte value.
      * @throws IllegalArgumentException
@@ -234,10 +240,10 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -257,7 +263,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * The low 3 byte value of the machine id.
-     * 
+     *
      * @return The low 3 byte value of the machine id.
      */
     public int getCounterField() {
@@ -267,7 +273,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * The lower 8 bytes of the object id. This is the machine identifier field
      * and counter.
-     * 
+     *
      * @return The lower 8 bytes of the object id.
      */
     public long getMachineId() {
@@ -276,7 +282,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * The upper 3 bytes in the machine id.
-     * 
+     *
      * @return The upper 3 bytes of the machine id.
      */
     public int getMachineIdentifier() {
@@ -285,7 +291,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Middle 2 byte process id field from the machine id.
-     * 
+     *
      * @return The middle 2 byte process id field from the machine id.
      */
     public int getPidField() {
@@ -295,7 +301,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
     /**
      * The upper 4 bytes of the object id. This is the <b>seconds</b> since the
      * UNIX Epoch.
-     * 
+     *
      * @return The upper 4 bytes of the object id.
      */
     public int getTimestamp() {
@@ -304,7 +310,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -318,7 +324,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * Returns the HEX string form of the ObjectId.
-     * 
+     *
      * @return The HEX string form of the ObjectId.
      */
     public String toHexString() {
@@ -335,9 +341,9 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
 
     /**
      * String form of the object.
-     * 
+     *
      * @return A human readable form of the object.
-     * 
+     *
      * @see Object#toString()
      */
     @Override

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -42,10 +42,11 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * Provides a simple single threaded socket server to act as a MongoDB server in
  * tests. The server collects all messages it receives and can be loaded with
  * replies to the requests it receives.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MockSocketServer implements Runnable, Closeable {
+public class MockSocketServer
+        implements Runnable, Closeable {
     /** An empty Array of bytes. */
     public static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -69,7 +70,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Creates a new MockMongoDBServer.
-     * 
+     *
      * @throws IOException
      *             On a failure creating the server socket.
      */
@@ -84,15 +85,6 @@ public class MockSocketServer implements Runnable, Closeable {
     }
 
     /**
-     * Starts the mock server.
-     */
-    public void start() {
-        Thread t = new Thread(this, "MockSocketServer");
-
-        t.start();
-    }
-
-    /**
      * Clears the requests received and replies to send.
      */
     public void clear() {
@@ -102,10 +94,11 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Closes the server socket.
-     * 
+     *
      * @throws IOException
      *             On a failure closing the server socket.
      */
+    @Override
     public void close() throws IOException {
         myRunning = false;
         myServerSocket.close();
@@ -113,7 +106,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Disconnects any active client..
-     * 
+     *
      * @return True if a client is connected, false otherwise.
      */
     public boolean disconnectClient() {
@@ -129,7 +122,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Returns the address for the server.
-     * 
+     *
      * @return The address for the server.
      */
     public InetSocketAddress getInetSocketAddress() {
@@ -139,7 +132,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Returns the replies that will be returned after each message is received.
-     * 
+     *
      * @return the replies to return.
      */
     public List<byte[]> getReplies() {
@@ -148,7 +141,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Returns the requests that have been received.
-     * 
+     *
      * @return the requests received.
      */
     public List<byte[]> getRequests() {
@@ -157,7 +150,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Returns the address for the server.
-     * 
+     *
      * @return The address for the server.
      */
     public String getServerName() {
@@ -166,7 +159,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Returns if the server is running.
-     * 
+     *
      * @return the running
      */
     public boolean isRunning() {
@@ -209,7 +202,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Sets the replies to return after each message is received.
-     * 
+     *
      * @param replies
      *            the replies to send
      */
@@ -222,7 +215,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Controls if the server is running.
-     * 
+     *
      * @param running
      *            the running to set
      */
@@ -231,8 +224,30 @@ public class MockSocketServer implements Runnable, Closeable {
     }
 
     /**
+     * Starts the mock server.
+     */
+    public void start() {
+        final Thread t = new Thread(this, "MockSocketServer");
+
+        t.start();
+    }
+
+    /**
      * Waits for a client to connect.
-     * 
+     *
+     * @param timeout
+     *            Time to wait for the connect.
+     * @param units
+     *            The units for the time to wait for the connect.
+     * @return True if a client is connect, false on timeout.
+     */
+    public boolean waitForClient(final int timeout, final TimeUnit units) {
+        return waitForClient(units.toMillis(timeout));
+    }
+
+    /**
+     * Waits for a client to connect.
+     *
      * @param timeout
      *            Time to wait (in milliseconds) for the disconnect.
      * @return True if a client is connected, false on timeout.
@@ -260,34 +275,21 @@ public class MockSocketServer implements Runnable, Closeable {
     }
 
     /**
-     * Waits for a client to connect.
-     * 
-     * @param timeout
-     *            Time to wait for the connect.
-     * @param units
-     *            The units for the time to wait for the connect.
-     * @return True if a client is connect, false on timeout.
-     */
-    public boolean waitForClient(final int timeout, TimeUnit units) {
-        return waitForClient(units.toMillis(timeout));
-    }
-
-    /**
      * Waits for a client to disconnect.
-     * 
+     *
      * @param timeout
      *            Time to wait for the disconnect.
      * @param units
      *            The units for the time to wait for the disconnect.
      * @return True if a client is disconnected, false on timeout.
      */
-    public boolean waitForDisconnect(final int timeout, TimeUnit units) {
+    public boolean waitForDisconnect(final int timeout, final TimeUnit units) {
         return waitForDisconnect(units.toMillis(timeout));
     }
 
     /**
      * Waits for a client to disconnect.
-     * 
+     *
      * @param timeout
      *            Time to wait (in milliseconds) for the disconnect.
      * @return True if a client is disconnected, false on timeout.
@@ -315,7 +317,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Waits for a client to request.
-     * 
+     *
      * @param count
      *            The number of requests to wait for.
      * @param timeout
@@ -325,13 +327,13 @@ public class MockSocketServer implements Runnable, Closeable {
      * @return True if a client is request, false on timeout.
      */
     public boolean waitForRequest(final int count, final int timeout,
-            TimeUnit units) {
+            final TimeUnit units) {
         return waitForRequest(count, units.toMillis(timeout));
     }
 
     /**
      * Waits for a client request.
-     * 
+     *
      * @param count
      *            The number of request to wait for.
      * @param timeout
@@ -362,7 +364,7 @@ public class MockSocketServer implements Runnable, Closeable {
     /**
      * Closes the {@link Socket} and logs any error. Sockets do not implement
      * {@link Closeable} in Java 6
-     * 
+     *
      * @param socket
      *            The connection to close. Sockets do not implement
      *            {@link Closeable} in Java 6
@@ -380,7 +382,7 @@ public class MockSocketServer implements Runnable, Closeable {
 
     /**
      * Handles a single client connection.
-     * 
+     *
      * @throws IOException
      *             On a connection error.
      */

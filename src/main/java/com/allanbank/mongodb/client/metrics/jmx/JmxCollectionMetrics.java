@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,12 +23,13 @@ import com.allanbank.mongodb.client.metrics.basic.BasicCollectionMetrics;
 
 /**
  * JmxCollectionMetrics provides metrics for a single collection.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class JmxCollectionMetrics extends BasicCollectionMetrics {
+public class JmxCollectionMetrics
+        extends BasicCollectionMetrics {
 
     /** The name of the database. */
     private final String myDatabaseName;
@@ -38,7 +39,7 @@ public class JmxCollectionMetrics extends BasicCollectionMetrics {
 
     /**
      * Creates a new JmxConnectionMetrics.
-     * 
+     *
      * @param support
      *            JMX support class.
      * @param databaseName

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,13 +33,14 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 /**
  * AbstractSaslAuthenticator provides the basic logic for a SASL based
  * authenticator.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the
  *         extensions.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractSaslAuthenticator extends AbstractAuthenticator {
+public abstract class AbstractSaslAuthenticator
+        extends AbstractAuthenticator {
     /** An empty set of bytes. */
     public static final byte[] EMPTY_BYTES = SaslResponseCallback.EMPTY_BYTES;
 
@@ -55,7 +56,7 @@ public abstract class AbstractSaslAuthenticator extends AbstractAuthenticator {
 
     /**
      * Starts to authenticate the user with the specified credentials.
-     * 
+     *
      * @param credentials
      *            The credentials to use to login to the database.
      * @param connection
@@ -90,7 +91,7 @@ public abstract class AbstractSaslAuthenticator extends AbstractAuthenticator {
 
     /**
      * Creates the SASL Client.
-     * 
+     *
      * @param credentials
      *            The credentials to use in creating the client.
      * @param connection
@@ -107,14 +108,14 @@ public abstract class AbstractSaslAuthenticator extends AbstractAuthenticator {
 
     /**
      * The SASL mechanism name.
-     * 
+     *
      * @return The SASL mechanism name.
      */
     protected abstract String getMechanism();
 
     /**
      * Sends an initial request to authenticate with the server.
-     * 
+     *
      * @param payload
      *            The payload for the request.
      * @param connection

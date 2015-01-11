@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -59,14 +61,16 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * >Connection String URI Format</a> documentation for information on
  * constructing a MongoDB URI.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReadPreferenceEditor extends PropertyEditorSupport {
+@NotThreadSafe
+public class ReadPreferenceEditor
+        extends PropertyEditorSupport {
 
     /** The set of fields used to determine a Durability from a MongoDB URI. */
     public static final Set<String> MONGODB_URI_FIELDS;
@@ -99,7 +103,7 @@ public class ReadPreferenceEditor extends PropertyEditorSupport {
      * <p>
      * Overridden to parse a string to a {@link ReadPreference}.
      * </p>
-     * 
+     *
      * @throws IllegalArgumentException
      *             If the string cannot be parsed into a {@link ReadPreference}.
      */
@@ -206,7 +210,7 @@ public class ReadPreferenceEditor extends PropertyEditorSupport {
     /**
      * Uses the URI parameters to determine a {@link ReadPreference}. May return
      * null if the URI did not contain any read preference settings.
-     * 
+     *
      * @param uri
      *            The URI.
      * @return The {@link ReadPreference} from the URI parameters.
@@ -257,7 +261,7 @@ public class ReadPreferenceEditor extends PropertyEditorSupport {
 
     /**
      * Parses out the tags documents.
-     * 
+     *
      * @param tagsValue
      *            The list of tags entries.
      * @return The tags documents.

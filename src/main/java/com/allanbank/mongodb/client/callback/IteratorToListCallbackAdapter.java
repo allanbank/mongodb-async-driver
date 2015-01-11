@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,18 +31,18 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * IteratorToListCallbackAdapter provides the ability to translate a
  * MongoIterator callback into a list callback.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class IteratorToListCallbackAdapter implements
-        Callback<MongoIterator<Document>> {
+public class IteratorToListCallbackAdapter
+        implements Callback<MongoIterator<Document>> {
 
     /** The list callback to invoke once all of the documents are collected. */
     private final Callback<List<Document>> myDelegate;
 
     /**
      * Creates a new IteratorToListCallbackAdapter.
-     * 
+     *
      * @param delegate
      *            The list callback to invoke once all of the documents are
      *            collected.

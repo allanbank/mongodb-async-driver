@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,14 +43,14 @@ import com.allanbank.mongodb.error.ReplyException;
 /**
  * Callback to convert a {@link CursorableMessage} {@link Reply} into a series
  * of callback for each document received.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class CursorStreamingCallback extends
-        AbstractValidatingReplyCallback implements MongoCursorControl,
-        AddressAware {
+public final class CursorStreamingCallback
+        extends AbstractValidatingReplyCallback
+        implements MongoCursorControl, AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;
@@ -101,7 +101,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Create a new CursorCallback.
-     * 
+     *
      * @param client
      *            The client interface to the server.
      * @param originalMessage
@@ -128,14 +128,14 @@ public final class CursorStreamingCallback extends
 
     /**
      * Create a new CursorCallback from a cursor document.
-     * 
+     *
      * @param client
      *            The client interface to the server.
      * @param cursorDocument
      *            The original query.
      * @param results
      *            The callback to update with each document.
-     * 
+     *
      * @see MongoIteratorImpl#asDocument()
      */
     public CursorStreamingCallback(final Client client,
@@ -223,7 +223,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Returns the server the original request was sent to.
-     * 
+     *
      * @return The server the original request was sent to.
      */
     public String getAddress() {
@@ -243,7 +243,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Returns the client value.
-     * 
+     *
      * @return The client value.
      */
     public Client getClient() {
@@ -252,7 +252,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Returns the collection name.
-     * 
+     *
      * @return The collection name.
      */
     public String getCollectionName() {
@@ -261,7 +261,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Returns the cursor Id value.
-     * 
+     *
      * @return The cursor Id value.
      */
     public long getCursorId() {
@@ -270,7 +270,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Returns the database name value.
-     * 
+     *
      * @return The database name value.
      */
     public String getDatabaseName() {
@@ -279,7 +279,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Returns the limit value.
-     * 
+     *
      * @return The limit value.
      */
     public int getLimit() {
@@ -299,7 +299,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Restarts the stream by sending a request for the next batch of documents.
-     * 
+     *
      * @throws MongoDbException
      *             On a failure to send the request for more document.
      */
@@ -309,7 +309,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Sets the value of the server the original request was sent to.
-     * 
+     *
      * @param address
      *            The new value for the server the original request was sent to.
      */
@@ -351,7 +351,7 @@ public final class CursorStreamingCallback extends
      * <p>
      * Overridden to add the {@link Query} to the exception.
      * </p>
-     * 
+     *
      * @see AbstractReplyCallback#asError(Reply, int, int, String)
      */
     @Override
@@ -366,7 +366,7 @@ public final class CursorStreamingCallback extends
      * <p>
      * Overridden to push the documents to the application's callback.
      * </p>
-     * 
+     *
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override
@@ -389,7 +389,7 @@ public final class CursorStreamingCallback extends
     /**
      * Returns true if the callback should expect a command formated cursor
      * reply.
-     * 
+     *
      * @return True if the callback should expect a command formated cursor
      *         reply.
      */
@@ -400,11 +400,11 @@ public final class CursorStreamingCallback extends
     /**
      * Loads more documents. This issues a get_more command as soon as the
      * previous results start to be used.
-     * 
+     *
      * @param reply
      *            The last reply received.
      * @return The list of loaded documents.
-     * 
+     *
      * @throws RuntimeException
      *             On a failure to load documents.
      */
@@ -439,7 +439,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Computes the size for the next batch of documents to get.
-     * 
+     *
      * @return The returnNex
      */
     protected int nextBatchSize() {
@@ -451,7 +451,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Sends a {@link KillCursors} message if there is an active cursor.
-     * 
+     *
      * @throws MongoDbException
      *             On a failure to send the {@link KillCursors} message.
      */
@@ -466,7 +466,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Sends a request to start the next match of documents.
-     * 
+     *
      * @throws MongoDbException
      *             On a failure to send the request.
      */
@@ -479,7 +479,7 @@ public final class CursorStreamingCallback extends
 
     /**
      * Pushes the results from the reply to the application's callback.
-     * 
+     *
      * @param reply
      *            The reply containing the results to push to the application's
      *            callback.

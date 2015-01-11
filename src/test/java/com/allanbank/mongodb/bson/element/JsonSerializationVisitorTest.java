@@ -460,7 +460,8 @@ public class JsonSerializationVisitorTest {
      *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static class ThrowingWriter extends Writer {
+    public static class ThrowingWriter
+            extends Writer {
 
         /**
          * {@inheritDoc}

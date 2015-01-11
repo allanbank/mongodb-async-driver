@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -37,12 +39,14 @@ import com.allanbank.mongodb.bson.element.AbstractElement;
 /**
  * Base class with common functionality for the all builders. A builder is
  * responsible for constructing a single level of the BSON document.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractBuilder implements Builder {
+@NotThreadSafe
+public abstract class AbstractBuilder
+        implements Builder {
 
     /** If true then assertions have been enabled for the class. */
     protected static final boolean ASSERTIONS_ENABLED;
@@ -66,7 +70,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Creates a new builder.
-     * 
+     *
      * @param outerBuilder
      *            The outer scoped builder.
      */
@@ -96,7 +100,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Constructs the final form of the element being constructed.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @return The Element constructed by the builder.
@@ -105,7 +109,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Pushes a context for constructing a sub-document.
-     * 
+     *
      * @param name
      *            The name of the sub-document.
      * @return A {@link DocumentBuilder} for constructing the sub-document.
@@ -119,7 +123,7 @@ public abstract class AbstractBuilder implements Builder {
 
     /**
      * Pushes a context for constructing a sub-array.
-     * 
+     *
      * @param name
      *            The name of the sub-array.
      * @return A {@link ArrayBuilder} for constructing the sub-array.
@@ -133,7 +137,7 @@ public abstract class AbstractBuilder implements Builder {
     /**
      * Renders the final form of the sub elements in the builder replacing all
      * {@link BuilderElement}s with the final element form.
-     * 
+     *
      * @return The final sub element list.
      */
     protected List<Element> subElements() {
@@ -169,7 +173,8 @@ public abstract class AbstractBuilder implements Builder {
      * {@link AbstractBuilder}.subElements() method.
      * </p>
      */
-    public static final class BuilderElement extends AbstractElement {
+    public static final class BuilderElement
+            extends AbstractElement {
 
         /** Serialization version for the class. */
         private static final long serialVersionUID = 4421203621373216989L;
@@ -179,7 +184,7 @@ public abstract class AbstractBuilder implements Builder {
 
         /**
          * Creates a new {@link BuilderElement}.
-         * 
+         *
          * @param name
          *            The name for the element to build.
          * @param builder
@@ -201,7 +206,7 @@ public abstract class AbstractBuilder implements Builder {
         /**
          * Constructs the final form of the element being constructed by the
          * encapsulated builder.
-         * 
+         *
          * @return The Element constructed by the encapsulated builder.
          */
         public Element build() {
@@ -241,7 +246,7 @@ public abstract class AbstractBuilder implements Builder {
 
         /**
          * Sets the transient state of this non-Element.
-         * 
+         *
          * @param in
          *            The input stream.
          * @throws ClassNotFoundException

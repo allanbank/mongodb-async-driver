@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -119,7 +119,7 @@ import com.allanbank.mongodb.error.ServerVersionException;
  * AbstractTransportConnectionTestCases provides tests cases for the
  * {@link TransportConnection} class when using different
  * {@link TransportFactory} implementations.
- * 
+ *
  * @copyright 2011-2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractTransportConnectionTestCases {
@@ -138,7 +138,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -150,7 +150,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -185,7 +185,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Cleans up the test connection.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -202,7 +202,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -252,7 +252,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -292,7 +292,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -332,7 +332,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -392,7 +392,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -449,7 +449,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -505,7 +505,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -562,7 +562,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -621,7 +621,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -671,7 +671,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -733,7 +733,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -788,7 +788,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -827,7 +827,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -873,7 +873,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -926,7 +926,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -986,7 +986,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1047,7 +1047,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1108,7 +1108,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1169,7 +1169,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1230,7 +1230,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1291,7 +1291,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1352,7 +1352,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1420,7 +1420,7 @@ public abstract class AbstractTransportConnectionTestCases {
     /**
      * Test method for {@link TransportConnection#raiseErrors(MongoDbException)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -1476,7 +1476,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws ExecutionException
@@ -1538,7 +1538,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1602,7 +1602,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1648,7 +1648,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1721,7 +1721,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -1768,7 +1768,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1815,7 +1815,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1862,7 +1862,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1907,7 +1907,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -1969,7 +1969,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2011,7 +2011,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws TimeoutException
@@ -2058,7 +2058,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2152,7 +2152,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2175,7 +2175,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2197,7 +2197,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2236,7 +2236,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2277,7 +2277,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2318,7 +2318,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2360,7 +2360,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#close()}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      * @throws InterruptedException
@@ -2403,7 +2403,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#shutdown} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2450,7 +2450,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#shutdown} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2480,7 +2480,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2533,7 +2533,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2573,7 +2573,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2615,7 +2615,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2657,7 +2657,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2690,7 +2690,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2735,7 +2735,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2787,7 +2787,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#stop} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2834,7 +2834,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2855,7 +2855,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#TransportConnection} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2872,14 +2872,14 @@ public abstract class AbstractTransportConnectionTestCases {
             connect(wrongPort, new MongoClientConfiguration());
             fail("Should throw a SocketException.");
         }
-        catch (SocketException se) {
+        catch (final SocketException se) {
             // Good.
         }
     }
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -2941,7 +2941,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3003,7 +3003,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3065,7 +3065,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Test method for {@link TransportConnection#shutdown} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -3114,7 +3114,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Creates the {@link TransportConnection}.
-     * 
+     *
      * @param server
      *            The server to connect to.
      * @param config
@@ -3130,7 +3130,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Creates the {@link TransportConnection}.
-     * 
+     *
      * @throws SocketException
      *             On a failure connecting.
      * @throws IOException
@@ -3142,7 +3142,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Creates the {@link TransportConnection}.
-     * 
+     *
      * @param config
      *            The configuration for the connection.
      * @throws SocketException
@@ -3157,7 +3157,7 @@ public abstract class AbstractTransportConnectionTestCases {
 
     /**
      * Waits for the capture to have been set.
-     * 
+     *
      * @param capture
      *            The capture to wait for.
      */
@@ -3181,10 +3181,11 @@ public abstract class AbstractTransportConnectionTestCases {
     /**
      * AFUNIXSocketException provides a test instance of the Unix domain socket
      * exception.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class AFUNIXSocketException extends SocketException {
+    public static final class AFUNIXSocketException
+            extends SocketException {
 
         /** The serialization id for the class. */
         private static final long serialVersionUID = 1433767421262380441L;
@@ -3194,11 +3195,12 @@ public abstract class AbstractTransportConnectionTestCases {
     /**
      * SocketFactoryWithConnectionListener provides a test socket factory that
      * also implements TransportConnectionListener.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public abstract class SocketFactoryWithConnectionListener extends
-            SocketFactory implements SocketConnectionListener {
+    public abstract class SocketFactoryWithConnectionListener
+            extends SocketFactory
+            implements SocketConnectionListener {
         // Nothing.
     }
 }

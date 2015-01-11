@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,12 +48,13 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * ClusterPinger pings each of the connections in the cluster and updates the
  * latency of the server from this client.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ClusterPinger implements Runnable, Closeable {
+public class ClusterPinger
+        implements Runnable, Closeable {
 
     /** The default interval between ping sweeps in seconds. */
     public static final int DEFAULT_PING_INTERVAL_SECONDS = 600;
@@ -73,7 +74,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Pings the server and suppresses all exceptions.
-     * 
+     *
      * @param server
      *            The address of the server. Used for logging.
      * @param conn
@@ -107,7 +108,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Creates a new ClusterPinger.
-     * 
+     *
      * @param cluster
      *            The state of the cluster.
      * @param factory
@@ -138,7 +139,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Adds a new cluster to the set of tracked clusters.
-     * 
+     *
      * @param cluster
      *            A new cluster to the set of tracked clusters.
      */
@@ -163,7 +164,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Returns the units for the ping sweep intervals.
-     * 
+     *
      * @return The units for the ping sweep intervals.
      */
     public TimeUnit getIntervalUnits() {
@@ -172,7 +173,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Returns the interval for a ping sweep across all of the servers..
-     * 
+     *
      * @return The interval for a ping sweep across all of the servers..
      */
     public int getPingSweepInterval() {
@@ -186,7 +187,7 @@ public class ClusterPinger implements Runnable, Closeable {
      * This method will not return until at least 50% of the servers have
      * replied (which may be a failure) to the initial ping.
      * </p>
-     * 
+     *
      * @param cluster
      *            The cluster of servers to ping.
      */
@@ -325,7 +326,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Sets the value of units for the ping sweep intervals.
-     * 
+     *
      * @param intervalUnits
      *            The new value for the units for the ping sweep intervals.
      */
@@ -335,7 +336,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Sets the interval for a ping sweep across all of the servers..
-     * 
+     *
      * @param pingSweepInterval
      *            The new value for the interval for a ping sweep across all of
      *            the servers..
@@ -374,7 +375,7 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Extracts the complete list of servers in all clusters.
-     * 
+     *
      * @return The complete list of servers across all clusters.
      */
     private Map<Server, ClusterType> extractAllServers() {
@@ -403,14 +404,14 @@ public class ClusterPinger implements Runnable, Closeable {
 
     /**
      * Pinger provides logic to ping servers.
-     * 
+     *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected static final class Pinger {
         /**
          * Pings the server and suppresses all exceptions. Updates the server
          * state with a latency and the tags found in the response, if any.
-         * 
+         *
          * @param server
          *            The server to update with the results of the ping. If
          *            <code>false</code> is returned then the state will not
@@ -453,7 +454,7 @@ public class ClusterPinger implements Runnable, Closeable {
          * Pings the server and suppresses all exceptions. Returns a future that
          * can be used to determine if a response has been received. The future
          * will update the {@link Server} latency and tags if found.
-         * 
+         *
          * @param type
          *            The type of cluster to ping.
          * @param server

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,9 @@ package com.allanbank.mongodb.bson.element;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
@@ -29,14 +32,17 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON JavaScript.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class JavaScriptElement extends AbstractElement {
+@Immutable
+@ThreadSafe
+public class JavaScriptElement
+        extends AbstractElement {
 
     /** The BSON type for a string. */
     public static final ElementType TYPE = ElementType.JAVA_SCRIPT;
@@ -47,7 +53,7 @@ public class JavaScriptElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @param javaScript
@@ -56,7 +62,7 @@ public class JavaScriptElement extends AbstractElement {
      */
     private static long computeSize(final String name, final String javaScript) {
         long result = 7; // type (1) + name null byte (1) + javaScript size (4)
-                         // and null byte (1).
+        // and null byte (1).
         result += StringEncoder.utf8Size(name);
         result += StringEncoder.utf8Size(javaScript);
 
@@ -68,7 +74,7 @@ public class JavaScriptElement extends AbstractElement {
 
     /**
      * Constructs a new {@link JavaScriptElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param javaScript
@@ -83,7 +89,7 @@ public class JavaScriptElement extends AbstractElement {
 
     /**
      * Constructs a new {@link JavaScriptElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON string.
      * @param javaScript
@@ -110,7 +116,7 @@ public class JavaScriptElement extends AbstractElement {
     /**
      * Accepts the visitor and calls the
      * {@link Visitor#visitJavaScript(String,String)} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -141,10 +147,10 @@ public class JavaScriptElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -164,7 +170,7 @@ public class JavaScriptElement extends AbstractElement {
 
     /**
      * Returns the BSON JavaScript value.
-     * 
+     *
      * @return The BSON JavaScript value.
      */
     public String getJavaScript() {
@@ -196,7 +202,7 @@ public class JavaScriptElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

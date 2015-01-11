@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,8 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Visitor;
 
@@ -33,14 +35,16 @@ import com.allanbank.mongodb.bson.Visitor;
  * Users of this class must make sure that the {@link #flushBuffer()} method is
  * called after calling any of the {@link #writeInt(int) writeXXX()} methods.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BufferingBsonOutputStream extends FilterOutputStream {
+@NotThreadSafe
+public class BufferingBsonOutputStream
+        extends FilterOutputStream {
 
     /** The {@link Visitor} to write the BSON documents. */
     private final RandomAccessOutputStream myOutput;
@@ -50,7 +54,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
 
     /**
      * Creates a new {@link BufferingBsonOutputStream}.
-     * 
+     *
      * @param output
      *            The stream to write to.
      */
@@ -63,7 +67,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
 
     /**
      * Creates a new {@link BufferingBsonOutputStream}.
-     * 
+     *
      * @param output
      *            The stream to write to.
      * @param cache
@@ -79,7 +83,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
 
     /**
      * Creates a new {@link BufferingBsonOutputStream}.
-     * 
+     *
      * @param output
      *            The stream to write to.
      */
@@ -96,7 +100,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users should call this method after calling any of the
      * {@link #writeInt(int) writeXXX(...)} methods.
      * </p>
-     * 
+     *
      * @throws IOException
      *             On a failure to write to the underlying document.
      */
@@ -110,7 +114,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     /**
      * Returns the maximum number of strings that may have their encoded form
      * cached.
-     * 
+     *
      * @return The maximum number of strings that may have their encoded form
      *         cached.
      * @deprecated The cache {@link StringEncoderCache} should be controlled
@@ -125,7 +129,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     /**
      * Returns the maximum length for a string that the stream is allowed to
      * cache.
-     * 
+     *
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
      * @deprecated The cache {@link StringEncoderCache} should be controlled
@@ -139,7 +143,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
 
     /**
      * Returns the output buffer.
-     * 
+     *
      * @return The output buffer.
      */
     public RandomAccessOutputStream getOutput() {
@@ -148,7 +152,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
 
     /**
      * Returns the current position in the stream.
-     * 
+     *
      * @return The current position in the stream.
      */
     public long getPosition() {
@@ -158,7 +162,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
     /**
      * Sets the value of maximum number of strings that may have their encoded
      * form cached.
-     * 
+     *
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
@@ -175,7 +179,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Sets the value of length for a string that the stream is allowed to cache
      * to the new value. This can be used to stop a single long string from
      * pushing useful values out of the cache.
-     * 
+     *
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
@@ -194,7 +198,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * <p>
      * Calls the write(byte[]) of the underlying stream.
      * </p>
-     * 
+     *
      * @param b
      *            the data to be written.
      * @exception IOException
@@ -212,7 +216,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * <p>
      * Calls the write(byte[],int,int) of the underlying stream.
      * </p>
-     * 
+     *
      * @param b
      *            the data.
      * @param off
@@ -234,7 +238,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * <p>
      * This method automatically calls {@link #flushBuffer()}.
      * </p>
-     * 
+     *
      * @param doc
      *            The document to write.
      * @return The number of bytes written for the document.
@@ -258,7 +262,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param b
      *            The byte to write.
      */
@@ -272,7 +276,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param data
      *            The bytes to write.
      */
@@ -286,7 +290,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param strings
      *            The CString to write. The strings are concatenated into a
      *            single CString value.
@@ -301,7 +305,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param doc
      *            The document to write.
      * @throws IOException
@@ -318,7 +322,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param value
      *            The value to write.
      */
@@ -333,7 +337,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param position
      *            The position to write at. This location should have already
      *            been written.
@@ -350,7 +354,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param value
      *            The long to write.
      */
@@ -364,7 +368,7 @@ public class BufferingBsonOutputStream extends FilterOutputStream {
      * Users of this method must call {@link #flushBuffer()} or the contents
      * will not be written to the wrapped stream.
      * </p>
-     * 
+     *
      * @param string
      *            The String to write.
      */

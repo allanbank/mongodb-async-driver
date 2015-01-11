@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,7 +61,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * MongoClientConfigurationTest provides tests for the
  * {@link MongoClientConfiguration} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("boxing")
@@ -1082,7 +1082,7 @@ public class MongoClientConfigurationTest {
 
     /**
      * Test method for {@link MongoClientConfiguration} serialization.
-     * 
+     *
      * @throws IOException
      *             On a failure reading or writing the config.
      * @throws ClassNotFoundException

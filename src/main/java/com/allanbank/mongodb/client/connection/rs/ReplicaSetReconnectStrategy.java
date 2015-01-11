@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,12 +67,13 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * <li>If the putative primary does not concur then the search continues
  * scanning each server in turn for the primary server.</li>
  * </ol>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
+public class ReplicaSetReconnectStrategy
+        extends AbstractReconnectStrategy {
 
     /**
      * The initial amount of time to pause waiting for a server to take over as
@@ -124,7 +125,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * Overridden to search for the primary server in the replica set. This will
      * only continue until the
      * {@link MongoClientConfiguration#getReconnectTimeout()} has expired.
-     * 
+     *
      * @return The information for the primary connection or null if the
      *         reconnect fails.
      */
@@ -203,7 +204,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * Checks for a reply from a server. If one has been received then it tries
      * to confirm the primary server by asking it if it thinks it is the primary
      * server.
-     * 
+     *
      * @param state
      *            The state of the cluster.
      * @param answers
@@ -259,7 +260,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
     /**
      * Extracts who the server thinks is the primary from the reply.
-     * 
+     *
      * @param replyFuture
      *            The future to get the reply from.
      * @param connections
@@ -313,7 +314,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
      * Sends a command to the server to return what it thinks the state of the
      * cluster is. This method will not re-request the information from the
      * server if there is already an outstanding request.
-     * 
+     *
      * @param answers
      *            The pending ({@link Future}) answers from each server.
      * @param connections
@@ -368,7 +369,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
     /**
      * Sleeps without throwing an exception.
-     * 
+     *
      * @param sleepTime
      *            The amount of time to sleep.
      * @param units
@@ -386,7 +387,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
     /**
      * Tries to verify that the suspected primary server is in fact the primary
      * server by asking it directly and synchronously.
-     * 
+     *
      * @param answers
      *            The pending ({@link Future}) answers from each server.
      * @param connections
@@ -423,7 +424,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
 
     /**
      * Creates the {@link ReplicaSetConnection} for the primary server.
-     * 
+     *
      * @param connections
      *            The connection that are being managed.
      * @param primaryServer
@@ -441,7 +442,7 @@ public class ReplicaSetReconnectStrategy extends AbstractReconnectStrategy {
     /**
      * Tries to send messages to all of the members of the cluster in an
      * indeterminate state.
-     * 
+     *
      * @param state
      *            The state of the cluster.
      * @param answers

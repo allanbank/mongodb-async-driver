@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,12 +35,13 @@ import com.allanbank.mongodb.client.metrics.MongoMessageListener;
 /**
  * BasicLogicalMetricsListener accumulates the metrics on the messages sent to
  * the logical database and collections.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BasicLogicalMetricsListener implements MongoMessageListener {
+public class BasicLogicalMetricsListener
+        implements MongoMessageListener {
 
     /** The metrics for each database. */
     private final ConcurrentMap<String, BasicDatabaseMetrics> myDatabaseMetrics;
@@ -64,7 +65,7 @@ public class BasicLogicalMetricsListener implements MongoMessageListener {
 
     /**
      * Returns the map of database metrics.
-     * 
+     *
      * @return The map of database metrics.
      */
     public Map<String, BasicDatabaseMetrics> getDatabaseMetrics() {
@@ -119,7 +120,7 @@ public class BasicLogicalMetricsListener implements MongoMessageListener {
 
     /**
      * Writes a human readable version of the logical metrics to the writer.
-     * 
+     *
      * @param writer
      *            The sink for the text.
      */
@@ -143,7 +144,7 @@ public class BasicLogicalMetricsListener implements MongoMessageListener {
     /**
      * Extension point for derived classes to know when a database has been
      * added.
-     * 
+     *
      * @param metrics
      *            The metrics for the database.
      */
@@ -155,7 +156,7 @@ public class BasicLogicalMetricsListener implements MongoMessageListener {
     /**
      * Creates a a new {@link BasicDatabaseMetrics} instance. This instance may
      * or may not be used.
-     * 
+     *
      * @param database
      *            The name of the database to create a new metrics for.
      * @return The {@link BasicDatabaseMetrics} for the database.
@@ -166,7 +167,7 @@ public class BasicLogicalMetricsListener implements MongoMessageListener {
 
     /**
      * Locates or create the {@link BasicDatabaseMetrics} for the message.
-     * 
+     *
      * @param message
      *            The message to find the database for.
      * @return The {@link BasicDatabaseMetrics} for the message's database.

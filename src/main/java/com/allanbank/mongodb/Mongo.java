@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,9 +19,11 @@
  */
 package com.allanbank.mongodb;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Interface to bootstrap into interactions with MongoDB.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -31,7 +33,9 @@ package com.allanbank.mongodb;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
-public interface Mongo extends MongoClient {
+@ThreadSafe
+public interface Mongo
+        extends MongoClient {
 
     /**
      * Returns a Mongo instance that shares connections with this Mongo instance
@@ -46,7 +50,7 @@ public interface Mongo extends MongoClient {
      * Creation of the serial instance is lightweight with minimal object
      * allocation and no server interaction.
      * </p>
-     * 
+     *
      * @return Serialized view of the connections to the MongoDB Server.
      * @deprecated Use {@link MongoClient#asSerializedClient()} instead.
      */
@@ -55,7 +59,7 @@ public interface Mongo extends MongoClient {
 
     /**
      * Returns the configuration being used by the logical MongoDB connection.
-     * 
+     *
      * @return The configuration being used by the logical MongoDB connection.
      */
     @Override

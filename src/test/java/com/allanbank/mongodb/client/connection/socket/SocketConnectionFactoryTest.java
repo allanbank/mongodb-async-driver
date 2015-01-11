@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,7 +47,7 @@ import com.allanbank.mongodb.client.connection.Connection;
 /**
  * SocketConnectionFactoryTest provides tests for the
  * {@link SocketConnectionFactory} class.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SocketConnectionFactoryTest {
@@ -56,7 +56,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -69,7 +69,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -108,7 +108,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -144,7 +144,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -173,7 +173,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -198,7 +198,7 @@ public class SocketConnectionFactoryTest {
 
     /**
      * Test method for {@link SocketConnectionFactory#connect()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */

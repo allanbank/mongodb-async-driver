@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,9 @@ package com.allanbank.mongodb.bson;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 import com.allanbank.mongodb.bson.element.TimestampElement;
@@ -29,20 +32,22 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
 /**
  * A common interface for the basic BSON types used to construct Documents and
  * arrays.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Element extends Serializable, ElementAssignable,
-        Comparable<Element> {
+@Immutable
+@ThreadSafe
+public interface Element
+        extends Serializable, ElementAssignable, Comparable<Element> {
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based
      * on the element type.
-     * 
+     *
      * @param visitor
      *            The visitor for the element.
      */
@@ -60,7 +65,7 @@ public interface Element extends Serializable, ElementAssignable,
 
     /**
      * Returns the elements matching the path of regular expressions.
-     * 
+     *
      * @param <E>
      *            The type of element to match.
      * @param clazz
@@ -74,7 +79,7 @@ public interface Element extends Serializable, ElementAssignable,
 
     /**
      * Returns the elements matching the path of regular expressions.
-     * 
+     *
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The elements matching the path of regular expressions.
@@ -83,7 +88,7 @@ public interface Element extends Serializable, ElementAssignable,
 
     /**
      * Returns the first element matching the path of regular expressions.
-     * 
+     *
      * @param <E>
      *            The type of element to match.
      * @param clazz
@@ -96,7 +101,7 @@ public interface Element extends Serializable, ElementAssignable,
 
     /**
      * Returns the first element matching the path of regular expressions.
-     * 
+     *
      * @param nameRegexs
      *            The path of regular expressions.
      * @return The first element matching the path of regular expressions.
@@ -105,14 +110,14 @@ public interface Element extends Serializable, ElementAssignable,
 
     /**
      * Returns the name for the BSON type.
-     * 
+     *
      * @return The name for the BSON type.
      */
     public String getName();
 
     /**
      * Returns the type for the BSON type.
-     * 
+     *
      * @return The type for the BSON type.
      */
     public ElementType getType();
@@ -131,7 +136,7 @@ public interface Element extends Serializable, ElementAssignable,
      * {@link com.allanbank.mongodb.bson.element.StringElement#getValueAsObject()}
      * method signature returns a {@link String}.
      * </p>
-     * 
+     *
      * @return The value for BSON element as a Java {@link Object} type.
      */
     public Object getValueAsObject();
@@ -148,14 +153,14 @@ public interface Element extends Serializable, ElementAssignable,
      * {@link JsonSerializationVisitor}. For a {@link TimestampElement} that is
      * a string of the form "ISODate('1970-01-01T00:00:00.000+0000')".
      * </p>
-     * 
+     *
      * @return The value for BSON element as a {@link String}.
      */
     public String getValueAsString();
 
     /**
      * Returns the number of bytes that are used to encode the element.
-     * 
+     *
      * @return The bytes that are used to encode the element.
      */
     public long size();
@@ -165,7 +170,7 @@ public interface Element extends Serializable, ElementAssignable,
      * with the specified name. This is useful when creating a query across a
      * set of collections where the filed name changes in the collections but
      * the values must be identical.
-     * 
+     *
      * @param name
      *            The new name for the element.
      * @return The created element.

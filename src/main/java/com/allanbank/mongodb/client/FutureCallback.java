@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -40,15 +40,16 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * Implementation of a {@link Callback} and {@link ListenableFuture} interfaces.
  * Used to convert a {@link Callback} into a {@link ListenableFuture} for
  * returning to callers.
- * 
+ *
  * @param <V>
  *            The type for the set value.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
+public class FutureCallback<V>
+        implements ListenableFuture<V>, Callback<V> {
 
     /** Logger to log exceptions caught when running myPendingListeners. */
     public static final Log LOG = LogFactory.getLog(FutureCallback.class);
@@ -80,7 +81,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
     /**
      * Create a new FutureCallback.
-     * 
+     *
      * @param lockType
      *            The type of lock to use when waiting for the future to be
      *            fulfilled.
@@ -125,7 +126,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * Sets the value for the future and triggers any pending {@link #get} to
      * return.
      * </p>
-     * 
+     *
      * @see Callback#callback
      */
     @Override
@@ -144,7 +145,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * true. Otherwise returns false. This does not stop the related MongoDB
      * invocation.
      * </p>
-     * 
+     *
      * @see Future#cancel(boolean)
      */
     @Override
@@ -163,7 +164,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * Sets the exception for the future and triggers any pending {@link #get}
      * to throw a {@link ExecutionException}.
      * </p>
-     * 
+     *
      * @see Callback#exception
      */
     @Override
@@ -181,7 +182,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * <p>
      * Returns the value set via the {@link Callback}.
      * </p>
-     * 
+     *
      * @see Future#get()
      */
     @Override
@@ -260,7 +261,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * <p>
      * Returns true if {@link #cancel(boolean)} has been called.
      * </p>
-     * 
+     *
      * @see Future#isCancelled()
      */
     @Override
@@ -274,7 +275,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * True if a value has been set via the the {@link Callback} interface or
      * the {@link Future} has been {@link #cancel(boolean) cancelled}.
      * </p>
-     * 
+     *
      * @see Future#isDone()
      */
     @Override
@@ -313,7 +314,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
     /**
      * Execute the {@link Runnable} with the {@link Executor} suppressing
      * exceptions.
-     * 
+     *
      * @param executor
      *            The executor to use.
      * @param runnable
@@ -331,7 +332,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
     /**
      * PendingListener an immutable element in the list of listeners.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     /* package */static final class PendingListener {
@@ -347,7 +348,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Creates a new PendingListener.
-         * 
+         *
          * @param runnable
          *            The listener's {@link Runnable}.
          * @param executor
@@ -368,11 +369,12 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
      * model. The state starts in the {@link #RUNNING} state. The first thread
      * to complete the future moves the state to the {@link #COMPLETING} state,
      * sets the value and then sets the appropriate final state.
-     * 
+     *
      * @param <V>
      *            The type of value for the future.
      */
-    /* package */static final class Sync<V> extends AbstractQueuedSynchronizer {
+    /* package */static final class Sync<V>
+            extends AbstractQueuedSynchronizer {
 
         /** State to represent the future was canceled. */
         /* package */static final int CANCELED = 4;
@@ -432,7 +434,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Move to the CANCELED or INTERRUPTED state.
-         * 
+         *
          * @param interrupt
          *            If we are interrupted.
          * @return If the cancel worked / won.
@@ -444,7 +446,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
         /**
          * Blocks until the future {@link #complete(Object, Throwable, int)
          * completes}.
-         * 
+         *
          * @return The value set for the future.
          * @throws CancellationException
          *             If the future was canceled.
@@ -465,7 +467,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
         /**
          * Blocks until the future {@link #complete(Object, Throwable, int)
          * completes} or the number of nano-seconds expires.
-         * 
+         *
          * @param nanos
          *            The number of nano-seconds to wait.
          * @return The value set for the future.
@@ -491,7 +493,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Checks if the state is {@link #CANCELED} or {@link #INTERRUPTED}.
-         * 
+         *
          * @return True if the future state is {@link #CANCELED} or
          *         {@link #INTERRUPTED}.
          */
@@ -502,7 +504,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
         /**
          * Checks if the state is {@link #COMPLETED}, {@link #CANCELED} or
          * {@link #INTERRUPTED}.
-         * 
+         *
          * @return True if the future state is {@link #COMPLETED},
          *         {@link #CANCELED} or {@link #INTERRUPTED}.
          */
@@ -512,7 +514,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Move to the COMPLETED state and set the value.
-         * 
+         *
          * @param value
          *            The value to set.
          * @return If the set worked / won.
@@ -523,7 +525,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Move to the COMPLETED state and set the exception value.
-         * 
+         *
          * @param thrown
          *            The exception to set.
          * @return If the set worked / won.
@@ -534,7 +536,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Completes the future.
-         * 
+         *
          * @param value
          *            The value to set as the result of the future.
          * @param thrown
@@ -566,7 +568,7 @@ public class FutureCallback<V> implements ListenableFuture<V>, Callback<V> {
 
         /**
          * Implementation to get the future's value.
-         * 
+         *
          * @return The value set for the future.
          * @throws CancellationException
          *             If the future was canceled.

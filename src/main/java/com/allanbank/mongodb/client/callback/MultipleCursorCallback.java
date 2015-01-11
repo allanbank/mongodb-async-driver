@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,14 +38,14 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * Callback to convert a {@link CursorableMessage} {@link Reply} into a
  * collection of {@link MongoIteratorImpl}.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class MultipleCursorCallback extends
-        AbstractReplyCallback<Collection<MongoIterator<Document>>> implements
-        AddressAware {
+public final class MultipleCursorCallback
+        extends AbstractReplyCallback<Collection<MongoIterator<Document>>>
+        implements AddressAware {
 
     /** The server the original request was sent to. */
     private volatile String myAddress;
@@ -67,7 +67,7 @@ public final class MultipleCursorCallback extends
 
     /**
      * Create a new CursorCallback.
-     * 
+     *
      * @param client
      *            The client interface to the server.
      * @param message
@@ -90,7 +90,7 @@ public final class MultipleCursorCallback extends
 
     /**
      * Returns the server the original request was sent to.
-     * 
+     *
      * @return The server the original request was sent to.
      */
     public String getAddress() {
@@ -99,7 +99,7 @@ public final class MultipleCursorCallback extends
 
     /**
      * Sets the value of the server the original request was sent to.
-     * 
+     *
      * @param address
      *            The new value for the server the original request was sent to.
      */
@@ -114,7 +114,7 @@ public final class MultipleCursorCallback extends
      * <p>
      * Overridden to add the {@link Query} to the exception.
      * </p>
-     * 
+     *
      * @see AbstractReplyCallback#asError(Reply, int, int, String)
      */
     @Override
@@ -129,7 +129,7 @@ public final class MultipleCursorCallback extends
      * <p>
      * Overridden to construct a {@link MongoIteratorImpl} around the reply.
      * </p>
-     * 
+     *
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override

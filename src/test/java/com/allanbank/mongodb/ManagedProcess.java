@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 /**
  * ManagedProcess provides the ability to manage a process.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ManagedProcess {
@@ -65,7 +65,7 @@ public class ManagedProcess {
 
     /**
      * Creates a new ClusterTestSupport.ManagedProcess.
-     * 
+     *
      * @param executable
      *            The executable being run.
      * @param process
@@ -93,7 +93,7 @@ public class ManagedProcess {
 
     /**
      * Returns the output value.
-     * 
+     *
      * @return The output value.
      */
     public String getOutput() {
@@ -124,7 +124,7 @@ public class ManagedProcess {
 
     /**
      * Waits for the specified port to start accepting connections.
-     * 
+     *
      * @param port
      *            The port to search for.
      * @param waitMs
@@ -167,7 +167,7 @@ public class ManagedProcess {
     /**
      * Waits for the log file to contain the specified token {@code count}
      * times.
-     * 
+     *
      * @param tokenRegex
      *            The token regular expression to search for.
      * @param count
@@ -220,7 +220,7 @@ public class ManagedProcess {
 
     /**
      * Waits for the log file to contain the specified token.
-     * 
+     *
      * @param token
      *            The token to search for.
      * @param waitMs
@@ -232,7 +232,7 @@ public class ManagedProcess {
 
     /**
      * Sleeps for the specified number of milliseconds.
-     * 
+     *
      * @param millis
      *            The number of milliseconds to sleep.
      */
@@ -247,7 +247,7 @@ public class ManagedProcess {
 
     /**
      * Returns true if the output buffer has grown from the length.
-     * 
+     *
      * @param length
      *            The length for the buffer.
      * @return True if the buffer contains more characters than {@code length}.
@@ -265,10 +265,11 @@ public class ManagedProcess {
     /**
      * OutputReader provides a background process to read in all of the output
      * from the process.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected final class OutputReader implements Runnable {
+    protected final class OutputReader
+            implements Runnable {
         /**
          * {@inheritDoc}
          */

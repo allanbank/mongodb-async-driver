@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ import com.allanbank.mongodb.client.Operation;
 
 /**
  * The header of a message.
- * 
+ *
  * <pre>
  * <code>
  * struct MsgHeader {
@@ -38,7 +38,7 @@ import com.allanbank.mongodb.client.Operation;
  * }
  * </code>
  * </pre>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -65,7 +65,7 @@ public class Header {
 
     /**
      * Creates a new header.
-     * 
+     *
      * @param in
      *            The stream to read the header from.
      * @throws IOException
@@ -80,7 +80,7 @@ public class Header {
 
     /**
      * Creates a new header.
-     * 
+     *
      * @param length
      *            The length of the message in bytes.
      * @param requestId
@@ -101,10 +101,10 @@ public class Header {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -127,7 +127,7 @@ public class Header {
     /**
      * Returns the length of the message in bytes. This includes the
      * {@link #SIZE} of the header.
-     * 
+     *
      * @return The length of the message in bytes.
      */
     public int getLength() {
@@ -136,7 +136,7 @@ public class Header {
 
     /**
      * Returns the operation for the message.
-     * 
+     *
      * @return The operation for the message.
      */
     public Operation getOperation() {
@@ -145,7 +145,7 @@ public class Header {
 
     /**
      * Returns the request id for the message.
-     * 
+     *
      * @return The request id for the message.
      */
     public int getRequestId() {
@@ -154,7 +154,7 @@ public class Header {
 
     /**
      * Returns the response id for the message.
-     * 
+     *
      * @return The response id for the message.
      */
     public int getResponseId() {
@@ -163,7 +163,7 @@ public class Header {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

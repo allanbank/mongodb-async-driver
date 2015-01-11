@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,9 @@ package com.allanbank.mongodb.builder.expression;
 
 import java.io.StringWriter;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.DocumentElement;
@@ -29,12 +32,15 @@ import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 /**
  * UnaryExpression provides an implementation of an {@link Expression} with 1
  * operand.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class UnaryExpression implements Expression, ElementAssignable {
+@Immutable
+@ThreadSafe
+public class UnaryExpression
+        implements Expression, ElementAssignable {
 
     /** The sub expression. */
     protected final Expression myExpression;
@@ -44,7 +50,7 @@ public class UnaryExpression implements Expression, ElementAssignable {
 
     /**
      * Creates a new NaryExpression.
-     * 
+     *
      * @param operator
      *            The operator this object represents.
      * @param expression
@@ -61,13 +67,13 @@ public class UnaryExpression implements Expression, ElementAssignable {
      * Overridden to return the sub expressions as an element:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * "$op" : expression
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override
@@ -82,13 +88,13 @@ public class UnaryExpression implements Expression, ElementAssignable {
      * array element:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * { &lt;name&gt; : { "$op" : expression } }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override
@@ -102,13 +108,13 @@ public class UnaryExpression implements Expression, ElementAssignable {
      * Overridden to return the expression in JSON format.
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * "$op" : expression
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override

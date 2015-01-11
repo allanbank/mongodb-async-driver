@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,14 +24,17 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * ServerNameUtils provides the ability to generate a normalized name for a
  * server.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public class ServerNameUtils {
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
@@ -60,7 +63,7 @@ public class ServerNameUtils {
     /**
      * Creates a normalized form of the {@link InetSocketAddress} in the form
      * '[server]:[port]'.
-     * 
+     *
      * @param address
      *            The address to generate a normalized form for.
      * @return The normalized address.
@@ -96,7 +99,7 @@ public class ServerNameUtils {
     /**
      * Normalizes the name into a '[server]:[port]' string. If a port component
      * is not provided then port 27017 is assumed.
-     * 
+     *
      * @param server
      *            The server[:port] string.
      * @return The normailzed server string.
@@ -192,7 +195,7 @@ public class ServerNameUtils {
     /**
      * Parse the name into a {@link InetSocketAddress}. If a port component is
      * not provided then port 27017 is assumed.
-     * 
+     *
      * @param server
      *            The server[:port] string.
      * @return The {@link InetSocketAddress} parsed from the server string.

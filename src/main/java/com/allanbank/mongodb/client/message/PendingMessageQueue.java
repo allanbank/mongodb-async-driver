@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,13 +39,13 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
  * read), reserve (the first message that can be reserved to be written to), and
  * the take (the next (first) message to be read). For an infinite queue the
  * following invariant holds: <blockquote>
- * 
+ *
  * <pre>
  * <code>
  * take &lt; readyBefore &lt;= reserve
  * </code>
  * </pre>
- * 
+ *
  * </blockquote> To make handling a limited size queue easier the size of the
  * queue is forced to power of 2 less than {@value #MAX_SIZE}. The roll over can
  * then be handled with a simple mask operation.
@@ -61,7 +61,7 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
  * true for the driver's use case but don't copy the code and expect it to work
  * with multiple consumers. The consumer should use the following basic
  * structure: <blockquote>
- * 
+ *
  * <pre>
  * <code>
  * PendingMessage pm = new {@link PendingMessage}();
@@ -76,7 +76,7 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
  * }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
  * <p>
@@ -86,7 +86,7 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
  * position in the driver subtle changes in this class can cause large changes
  * in the performance of the driver.
  * </p>
- * 
+ *
  * @see <a href="http://code.google.com/p/disruptor/">Disruptor Project</a>
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
@@ -166,7 +166,7 @@ public final class PendingMessageQueue {
 
     /**
      * Creates a new PendingMessageQueue.
-     * 
+     *
      * @param size
      *            The size of the queue to create.
      * @param lockType
@@ -204,7 +204,7 @@ public final class PendingMessageQueue {
 
     /**
      * Returns the size of the queue.
-     * 
+     *
      * @return The size of the queue.
      */
     public int capacity() {
@@ -213,7 +213,7 @@ public final class PendingMessageQueue {
 
     /**
      * Drains the list of pending messages into the provided list.
-     * 
+     *
      * @param pending
      *            The list to add all of the pending messages to.
      */
@@ -228,7 +228,7 @@ public final class PendingMessageQueue {
     /**
      * Returns true if the queue is empty. e.g., the next take position is the
      * read before position.
-     * 
+     *
      * @return If the queue is empty.
      */
     public boolean isEmpty() {
@@ -241,7 +241,7 @@ public final class PendingMessageQueue {
     /**
      * Puts a message onto the queue. This method will not block waiting for a
      * space to add the message.
-     * 
+     *
      * @param message
      *            The message to add.
      * @param replyCallback
@@ -269,7 +269,7 @@ public final class PendingMessageQueue {
     /**
      * Puts a message onto the queue. This method will not block waiting for a
      * space to add the message.
-     * 
+     *
      * @param pendingMessage
      *            The message to add.
      * @return True if the message was added, false otherwise.
@@ -289,7 +289,7 @@ public final class PendingMessageQueue {
 
     /**
      * Returns the next message from the queue without blocking. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * PendingMessage pm = new PendingMessage();
@@ -298,9 +298,9 @@ public final class PendingMessageQueue {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param copyOut
      *            The {@link PendingMessage} to copy the pending message into.
      * @return True if the pending message was updated.
@@ -325,12 +325,12 @@ public final class PendingMessageQueue {
     /**
      * Puts a message onto the queue. This method will block waiting for a space
      * to add the message.
-     * 
+     *
      * @param message
      *            The message to add.
      * @param replyCallback
      *            The callback for the message to add.
-     * 
+     *
      * @throws InterruptedException
      *             If the thread is interrupted while waiting for the message.
      *             If thrown the message will not have been enqueued.
@@ -374,7 +374,7 @@ public final class PendingMessageQueue {
      * Puts two messages onto the queue. This method will block waiting for a
      * space to add the messages but ensures the messages are in sequence in the
      * queue.
-     * 
+     *
      * @param message
      *            The first message to add.
      * @param replyCallback
@@ -383,7 +383,7 @@ public final class PendingMessageQueue {
      *            The second message to add.
      * @param replyCallback2
      *            The callback for the second message to add.
-     * 
+     *
      * @throws InterruptedException
      *             If the thread is interrupted while waiting for the message.
      *             If thrown neither message will have been enqueued.
@@ -431,10 +431,10 @@ public final class PendingMessageQueue {
     /**
      * Puts a message onto the queue. This method will block waiting for a space
      * to add the message.
-     * 
+     *
      * @param pendingMessage
      *            The message to add.
-     * 
+     *
      * @throws InterruptedException
      *             If the thread is interrupted while waiting for the message.
      *             If thrown the message will not have been enqueued.
@@ -469,7 +469,7 @@ public final class PendingMessageQueue {
 
     /**
      * Returns the number of messages in the queue.
-     * 
+     *
      * @return The number of messages in the queue.
      */
     public int size() {
@@ -489,7 +489,7 @@ public final class PendingMessageQueue {
     /**
      * Returns the next message from the queue and will block waiting for a
      * message.
-     * 
+     *
      * @param copyOut
      *            The {@link PendingMessage} to copy the pending message into.
      * @throws InterruptedException
@@ -543,7 +543,7 @@ public final class PendingMessageQueue {
 
     /**
      * Increments the index handling roll-over.
-     * 
+     *
      * @param index
      *            The value to increment.
      * @return The incremented value.
@@ -557,7 +557,7 @@ public final class PendingMessageQueue {
      * provided position. This method uses a spin lock assuming any other
      * threads will increment the ready position quickly to the position just
      * before {@code index}.
-     * 
+     *
      * @param index
      *            The index of the ready message.
      */
@@ -583,7 +583,7 @@ public final class PendingMessageQueue {
      * ready position to the provided position + 1. This method uses a spin lock
      * assuming any other threads will increment the ready position quickly to
      * the position just before {@code index}.
-     * 
+     *
      * @param index
      *            The index of the ready message.
      */
@@ -607,7 +607,7 @@ public final class PendingMessageQueue {
 
     /**
      * Notifies the waiting threads that the state of the queue has changed.
-     * 
+     *
      * @param all
      *            If true then all threads will be woken. Otherwise only a
      *            single thread is woken.
@@ -632,7 +632,7 @@ public final class PendingMessageQueue {
     /**
      * Checks if there is remove for another message. If so returns the index of
      * the message to update. If not return a value less then zero.
-     * 
+     *
      * @return The position of the message that can be updated or a value of
      *         less than zero if the queue is full.
      */
@@ -658,7 +658,7 @@ public final class PendingMessageQueue {
      * Checks if there is remove for another two message. If so returns the
      * index of the first message to update. If not return a value less then
      * zero.
-     * 
+     *
      * @return The position of the first message that can be updated or a value
      *         of less than zero if the queue is full.
      */
@@ -685,7 +685,7 @@ public final class PendingMessageQueue {
     /**
      * Computes a new message id based on the current loop and reserve spot in
      * the queue.
-     * 
+     *
      * @param loop
      *            The number of time the queue has looped over the queue.
      * @param reserve

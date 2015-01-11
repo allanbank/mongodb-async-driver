@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,7 @@ import com.allanbank.mongodb.Version;
 
 /**
  * MiscellaneousOperator provides the set of miscellaneous operators.
- * 
+ *
  * @api.yes This enumeration is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -40,7 +40,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * A pseudo-operator to add a comment to a query.
-     * 
+     *
      * @since MongoDB 2.2
      */
     COMMENT("$comment", Version.VERSION_2_2),
@@ -71,7 +71,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Support for text searches.
-     * 
+     *
      * @since MongoDB 2.6
      */
     TEXT("$text", Version.VERSION_2_6),
@@ -85,7 +85,7 @@ public enum MiscellaneousOperator implements Operator {
     /**
      * The modifier for the {@link #TEXT} operator to specify the language of
      * the query terms.
-     * 
+     *
      * @since MongoDB 2.6
      */
     public static final String LANGUAGE_MODIFIER = "$language";
@@ -93,7 +93,7 @@ public enum MiscellaneousOperator implements Operator {
     /**
      * The modifier for the {@link #TEXT} operator to specify the the query
      * terms.
-     * 
+     *
      * @since MongoDB 2.6
      */
     public static final String SEARCH_MODIFIER = "$search";
@@ -106,7 +106,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Creates a new MiscellaneousOperator.
-     * 
+     *
      * @param token
      *            The token to use when sending to the server.
      */
@@ -116,7 +116,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Creates a new MiscellaneousOperator.
-     * 
+     *
      * @param token
      *            The token to use when sending to the server.
      * @param version
@@ -129,7 +129,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * The token for the operator that can be sent to the server.
-     * 
+     *
      * @return The token for the operator.
      */
     @Override
@@ -139,7 +139,7 @@ public enum MiscellaneousOperator implements Operator {
 
     /**
      * Returns the first MongoDB version to support the operator.
-     * 
+     *
      * @return The first MongoDB version to support the operator. If
      *         <code>null</code> then the version is not known and can be
      *         assumed to be all currently supported versions.

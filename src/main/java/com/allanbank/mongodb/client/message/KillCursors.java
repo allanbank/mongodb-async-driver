@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * Message to <a href=
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPKILLCURSORS"
  * >killcursor</a>s that a client no longer needs.
- * 
+ *
  * <pre>
  * <code>
  * struct {
@@ -45,19 +45,20 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * }
  * </code>
  * </pre>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class KillCursors extends AbstractMessage {
+public class KillCursors
+        extends AbstractMessage {
 
     /** The ids of the cursors to be killed. */
     private final long[] myCursorIds;
 
     /**
      * Creates a new KillCursors.
-     * 
+     *
      * @param in
      *            The stream to read the kill_cursors message from.
      * @throws IOException
@@ -76,7 +77,7 @@ public class KillCursors extends AbstractMessage {
 
     /**
      * Creates a new KillCursors.
-     * 
+     *
      * @param cursorIds
      *            The ids of the cursors to kill.
      * @param readPreference
@@ -91,10 +92,10 @@ public class KillCursors extends AbstractMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -114,7 +115,7 @@ public class KillCursors extends AbstractMessage {
 
     /**
      * Returns the ids of the cursors to be killed.
-     * 
+     *
      * @return The ids of the cursors to be killed.
      */
     public long[] getCursorIds() {
@@ -134,7 +135,7 @@ public class KillCursors extends AbstractMessage {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -199,7 +200,7 @@ public class KillCursors extends AbstractMessage {
      * <p>
      * Overridden to write the kill_cursors message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -223,7 +224,7 @@ public class KillCursors extends AbstractMessage {
      * <p>
      * Overridden to write the kill_cursors message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override

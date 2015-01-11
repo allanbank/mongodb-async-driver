@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,19 +22,23 @@ package com.allanbank.mongodb;
 import java.io.Closeable;
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Interface to bootstrap into interactions with MongoDB.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface MongoClient extends Closeable {
+@ThreadSafe
+public interface MongoClient
+        extends Closeable {
 
     /**
      * Returns a MongoClient instance that shares connections with this
@@ -50,14 +54,14 @@ public interface MongoClient extends Closeable {
      * Creation of the serial instance is lightweight with minimal object
      * allocation and no server interaction.
      * </p>
-     * 
+     *
      * @return A serialized view of the MongoDB connections.
      */
     public MongoClient asSerializedClient();
 
     /**
      * Returns the configuration being used by the logical MongoDB connection.
-     * 
+     *
      * @return The configuration being used by the logical MongoDB connection.
      */
     public MongoClientConfiguration getConfig();
@@ -65,7 +69,7 @@ public interface MongoClient extends Closeable {
     /**
      * Returns the MongoDatabase with the specified name. This method does not
      * validate that the database already exists in the MongoDB instance.
-     * 
+     *
      * @param name
      *            The name of the existing database.
      * @return The {@link MongoDatabase}.
@@ -74,14 +78,14 @@ public interface MongoClient extends Closeable {
 
     /**
      * Returns a list of database names.
-     * 
+     *
      * @return A list of available database names.
      */
     public List<String> listDatabaseNames();
 
     /**
      * Returns a list of database names.
-     * 
+     *
      * @return A list of available database names.
      * @deprecated Use the {@link #listDatabaseNames()} method instead.
      */
@@ -90,7 +94,7 @@ public interface MongoClient extends Closeable {
 
     /**
      * Restarts an iterator that was previously saved.
-     * 
+     *
      * @param cursorDocument
      *            The document containing the state of the cursor.
      * @return The restarted iterator.
@@ -108,7 +112,7 @@ public interface MongoClient extends Closeable {
      * method with <code>null</code> for both parameters or by calling the
      * method with an error for the first parameter.
      * </p>
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the cursor.
      * @param cursorDocument
@@ -124,7 +128,7 @@ public interface MongoClient extends Closeable {
 
     /**
      * Restarts a document stream from a cursor that was previously saved.
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the cursor.
      * @param cursorDocument

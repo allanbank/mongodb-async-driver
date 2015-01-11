@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,8 @@ import java.io.StreamCorruptedException;
 import java.util.List;
 import java.util.SortedMap;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * StringDecoderCache provides a cache for decoding strings.
  * <p>
@@ -34,12 +36,14 @@ import java.util.SortedMap;
  * {@link AbstractStringCache}. The second structure is a trie of the cached
  * {@code byte[]} to the decoded string.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class StringDecoderCache extends AbstractStringCache {
+@ThreadSafe
+public class StringDecoderCache
+        extends AbstractStringCache {
 
     /** The cached decoded strings in the form of a trie cache. */
     private TrieCache myTrieCache;
@@ -56,7 +60,7 @@ public class StringDecoderCache extends AbstractStringCache {
     /**
      * Decode a string of a known length. The last byte should be a zero byte
      * and will not be included in the decoded string.
-     * 
+     *
      * @param source
      *            The source of the bytes in the string.
      * @param offset
@@ -131,7 +135,7 @@ public class StringDecoderCache extends AbstractStringCache {
      * once the trie is fully populated then is can be queried using
      * {@link #find(byte[], int, int)}.
      * </p>
-     * 
+     *
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.
@@ -150,7 +154,7 @@ public class StringDecoderCache extends AbstractStringCache {
 
         /**
          * Adds an entry to the trie cache.
-         * 
+         *
          * @param source
          *            The source of the bytes in the string.
          * @param value
@@ -186,7 +190,7 @@ public class StringDecoderCache extends AbstractStringCache {
         /**
          * Finds the value for the byte string, if known to the cache. Returns
          * null on a cache miss.
-         * 
+         *
          * @param source
          *            The source of the bytes in the string.
          * @param offset
@@ -225,7 +229,7 @@ public class StringDecoderCache extends AbstractStringCache {
          * the child node. The second dimension of the array is the second/low
          * nibble.
          * </p>
-         * 
+         *
          * @api.no This class is <b>NOT</b> part of the drivers API. This class
          *         may be mutated in incompatible ways between any two releases
          *         of the driver.
@@ -246,7 +250,7 @@ public class StringDecoderCache extends AbstractStringCache {
 
             /**
              * Creates a new Node.
-             * 
+             *
              * @param value
              *            The value for the node.
              */
@@ -260,7 +264,7 @@ public class StringDecoderCache extends AbstractStringCache {
 
             /**
              * Adds a child node to this node.
-             * 
+             *
              * @param child
              *            The child node to add.
              */
@@ -282,7 +286,7 @@ public class StringDecoderCache extends AbstractStringCache {
 
             /**
              * Returns the child node with the specified value.
-             * 
+             *
              * @param value
              *            The value for the child to find.
              * @return The child node for the value or null if there is node
@@ -300,7 +304,7 @@ public class StringDecoderCache extends AbstractStringCache {
 
             /**
              * Returns the node's decoded value.
-             * 
+             *
              * @return The node's decoded value.
              */
             public String getDecoded() {
@@ -309,7 +313,7 @@ public class StringDecoderCache extends AbstractStringCache {
 
             /**
              * Returns the node's value.
-             * 
+             *
              * @return The node's value.
              */
             public byte getValue() {
@@ -318,7 +322,7 @@ public class StringDecoderCache extends AbstractStringCache {
 
             /**
              * Sets the decoded value for the node.
-             * 
+             *
              * @param decoded
              *            The decoded value for the node.
              */

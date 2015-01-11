@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,23 +27,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.builder.BatchedWrite;
 import com.allanbank.mongodb.builder.write.WriteOperation;
 
 /**
  * BatchedWriteException provides a single exception containing the aggregated
  * errors across the batched writes.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BatchedWriteException extends ReplyException {
+@Immutable
+@ThreadSafe
+public class BatchedWriteException
+        extends ReplyException {
 
     /** The serialization version for the class. */
     private static final long serialVersionUID = -7797670480003384909L;
 
     /**
      * Constructs a single error message from the nested errors.
-     * 
+     *
      * @param errors
      *            The nested errors.
      * @return An errors message composed of the nested errors.
@@ -87,7 +93,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Creates a new BatchedWriteException.
-     * 
+     *
      * @param write
      *            The write that caused the errors.
      * @param n
@@ -113,7 +119,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the nested errors.
-     * 
+     *
      * @return The nested errors.
      */
     public Map<WriteOperation, Throwable> getErrors() {
@@ -122,7 +128,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the number of touched documents when the error is triggered.
-     * 
+     *
      * @return The number of touched documents when the error is triggered.
      */
     public long getN() {
@@ -131,7 +137,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the writes that did not get run by the server.
-     * 
+     *
      * @return The writes that did not get run by the server.
      */
     public List<WriteOperation> getSkipped() {
@@ -140,7 +146,7 @@ public class BatchedWriteException extends ReplyException {
 
     /**
      * Returns the write that caused the errors.
-     * 
+     *
      * @return The write that caused the errors.
      */
     public BatchedWrite getWrite() {

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,16 +37,17 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * JsonSerializationVisitor provides a BSON Visitor that generates a JSON
  * document.
- * 
+ *
  * @see <a
  *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
  *      Extended JSON</a>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Conublic sulting, Inc., All Rights Reserved
  */
-public class JsonSerializationVisitor implements Visitor {
+public class JsonSerializationVisitor
+        implements Visitor {
 
     /** The platforms new line string. */
     public static final String NL = System.getProperty("line.separator", "\n");
@@ -64,18 +65,18 @@ public class JsonSerializationVisitor implements Visitor {
     /** If true then the visitor will write the document to 1 line. */
     private final boolean myOneLine;
 
+    /** The Writer to write to. */
+    private final Writer mySink;
+
     /**
      * If true then the visitor will write strict JSON using the strict mode for
      * BSON's types.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
      *      Extended JSON</a>
      */
     private final boolean myStrict;
-
-    /** The Writer to write to. */
-    private final Writer mySink;
 
     /**
      * If true then the names of the elements should be suppressed because we
@@ -85,7 +86,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Creates a new JsonSerializationVisitor.
-     * 
+     *
      * @param sink
      *            The Writer to write to.
      * @param oneLine
@@ -99,7 +100,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Creates a new JsonSerializationVisitor.
-     * 
+     *
      * @param sink
      *            The Writer to write to.
      * @param oneLine
@@ -710,7 +711,7 @@ public class JsonSerializationVisitor implements Visitor {
     /**
      * Returns if the visitor is currently suppressing the names of elements.
      * This is true when serializing an array.
-     * 
+     *
      * @return If the visitor is currently suppressing the names of elements.
      *         This is true when serializing an array.
      */
@@ -721,7 +722,7 @@ public class JsonSerializationVisitor implements Visitor {
     /**
      * Writes a new line if {@link #myOneLine} is false and indents to the
      * {@link #myIndentLevel}.
-     * 
+     *
      * @throws IOException
      *             On a failure to write the new line.
      */
@@ -740,7 +741,7 @@ public class JsonSerializationVisitor implements Visitor {
     /**
      * Sets the value for if the visitor is currently suppressing the names of
      * elements. This is true, for example, when serializing an array.
-     * 
+     *
      * @param suppressNames
      *            The new value for if names should be suppressed.
      */
@@ -750,21 +751,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Writes the name if {@link #mySuppressNames} is false.
-     * 
-     * @param name
-     *            The name to write, if not suppressed.
-     * @throws IOException
-     *             On a failure to write the new line.
-     */
-    protected void writeName(final String name) throws IOException {
-        if (!mySuppressNames) {
-            writeInnerName(name);
-        }
-    }
-
-    /**
-     * Writes the name if {@link #mySuppressNames} is false.
-     * 
+     *
      * @param name
      *            The name to write, if not suppressed.
      * @throws IOException
@@ -786,8 +773,22 @@ public class JsonSerializationVisitor implements Visitor {
     }
 
     /**
+     * Writes the name if {@link #mySuppressNames} is false.
+     *
+     * @param name
+     *            The name to write, if not suppressed.
+     * @throws IOException
+     *             On a failure to write the new line.
+     */
+    protected void writeName(final String name) throws IOException {
+        if (!mySuppressNames) {
+            writeInnerName(name);
+        }
+    }
+
+    /**
      * Writes the {@link ObjectId}.
-     * 
+     *
      * @param id
      *            The {@link ObjectId} to write.
      * @throws IOException
@@ -795,7 +796,7 @@ public class JsonSerializationVisitor implements Visitor {
      */
     protected void writeObjectId(final ObjectId id) throws IOException {
 
-        String hexId = id.toHexString();
+        final String hexId = id.toHexString();
 
         if (myStrict) {
             mySink.write("{ ");
@@ -812,7 +813,7 @@ public class JsonSerializationVisitor implements Visitor {
 
     /**
      * Writes the {@code string} as a quoted string.
-     * 
+     *
      * @param string
      *            The String to write.
      * @throws IOException

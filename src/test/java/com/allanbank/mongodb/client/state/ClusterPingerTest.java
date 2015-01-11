@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -68,7 +68,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * ClusterPingerTest provides tests for the {@link ClusterPinger} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterPingerTest {
@@ -86,7 +86,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#initialSweep(Cluster)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -135,7 +135,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#initialSweep(Cluster)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -185,7 +185,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#initialSweep(Cluster)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -233,7 +233,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#initialSweep(Cluster)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -282,7 +282,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#initialSweep(Cluster)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -322,7 +322,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#initialSweep(Cluster)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -370,7 +370,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#initialSweep(Cluster)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      * @throws InterruptedException
@@ -439,7 +439,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -486,7 +486,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -528,7 +528,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      * @throws InterruptedException
@@ -583,7 +583,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      * @throws InterruptedException
@@ -640,7 +640,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -686,7 +686,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -729,7 +729,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      * @throws InterruptedException
@@ -793,7 +793,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      * @throws InterruptedException
@@ -855,7 +855,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      * @throws InterruptedException
@@ -915,7 +915,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -951,7 +951,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      */
@@ -993,7 +993,7 @@ public class ClusterPingerTest {
 
     /**
      * Test method for {@link ClusterPinger#run()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks.
      * @throws InterruptedException
@@ -1057,10 +1057,10 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CloseAnswer.
-     * 
+     *
      * @param <C>
      *            The type for the reply.
-     * 
+     *
      * @param reply
      *            The reply to return.
      * @return The CloseAnswer.
@@ -1071,7 +1071,7 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CloseAnswer.
-     * 
+     *
      * @param reply
      *            The reply to throw.
      * @return The CloseAnswer.
@@ -1082,7 +1082,7 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param builders
      *            The reply to provide to the callback.
      * @return The CallbackReply.
@@ -1093,7 +1093,7 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param reply
      *            The reply to provide to the callback.
      * @return The CallbackReply.
@@ -1105,7 +1105,7 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param error
      *            The error to provide to the callback.
      * @return The CallbackReply.
@@ -1117,7 +1117,7 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @return The CallbackReply.
      */
     protected ReplyCallback cbAndCloseError() {
@@ -1127,7 +1127,7 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CloseAnswer.
-     * 
+     *
      * @param reply
      *            The reply to throw.
      * @return The CloseAnswer.
@@ -1138,13 +1138,14 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param builder
      *            The reply to provide to the callback.
      * @return The CallbackReply.
      */
     private ReplyCallback cbAndCloseWithConn(final DocumentBuilder builder) {
-        class CloseCallbackWithSetConnection extends CloseCallbackReply {
+        class CloseCallbackWithSetConnection
+                extends CloseCallbackReply {
 
             private static final long serialVersionUID = -2458416861114720698L;
 
@@ -1164,13 +1165,14 @@ public class ClusterPingerTest {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param builder
      *            The reply to provide to the callback.
      * @return The CallbackReply.
      */
     private ReplyCallback cbWithConn(final DocumentBuilder builder) {
-        class CallbackWithSetConnection extends CallbackCapture<Reply> {
+        class CallbackWithSetConnection
+                extends CallbackCapture<Reply> {
 
             private static final long serialVersionUID = -2458416861114720698L;
 
@@ -1190,13 +1192,14 @@ public class ClusterPingerTest {
 
     /**
      * A specialized {@link IAnswer} to close the pinger.
-     * 
+     *
      * @param <C>
      *            The type for the answer.
-     * 
+     *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public final class CloseAnswer<C> implements IAnswer<C> {
+    public final class CloseAnswer<C>
+            implements IAnswer<C> {
         /** The error to provide to the callback. */
         private final Throwable myError;
 
@@ -1205,7 +1208,7 @@ public class ClusterPingerTest {
 
         /**
          * Creates a new CallbackReply.
-         * 
+         *
          * @param reply
          *            The reply to provide to the callback.
          */
@@ -1216,7 +1219,7 @@ public class ClusterPingerTest {
 
         /**
          * Creates a new CallbackReply.
-         * 
+         *
          * @param error
          *            The error to provide to the callback.
          */
@@ -1244,17 +1247,18 @@ public class ClusterPingerTest {
 
     /**
      * A specialized callback reply to close the pinger when a value is set.
-     * 
+     *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public class CloseCallbackReply extends CallbackCapture<Reply> {
+    public class CloseCallbackReply
+            extends CallbackCapture<Reply> {
 
         /** The serialization version for the class. */
         private static final long serialVersionUID = -5855409833338626339L;
 
         /**
          * Creates a new CloseCallbackReply.
-         * 
+         *
          * @param reply
          *            The reply for the callback.
          */
@@ -1264,7 +1268,7 @@ public class ClusterPingerTest {
 
         /**
          * Creates a new CloseCallbackReply.
-         * 
+         *
          * @param thrown
          *            The error for the callback.
          */

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
 /**
  * Common interface for all MongoDB messages read from and sent to a MongoDB
  * server.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -38,21 +38,21 @@ public interface Message {
 
     /**
      * Returns the name of the collection.
-     * 
+     *
      * @return The name of the collection.
      */
     public String getCollectionName();
 
     /**
      * Returns the name of the database.
-     * 
+     *
      * @return The name of the database.
      */
     public String getDatabaseName();
 
     /**
      * Returns a short name for the operation.
-     * 
+     *
      * @return A short name for the operation.
      */
     public String getOperationName();
@@ -60,7 +60,7 @@ public interface Message {
     /**
      * Provides the details on which servers are eligible to receive the
      * message.
-     * 
+     *
      * @return The {@link ReadPreference} for which servers should be sent the
      *         request.
      */
@@ -73,7 +73,7 @@ public interface Message {
      * versions of the server support the message's operation. In reality that
      * is probably more accurately stated as all supported versions.
      * </p>
-     * 
+     *
      * @return The version of the server that introduced support for the
      *         operation.
      */
@@ -81,7 +81,7 @@ public interface Message {
 
     /**
      * Returns the total size of the message on the wire.
-     * 
+     *
      * @return The size of the message on the wire.
      */
     public int size();
@@ -89,10 +89,10 @@ public interface Message {
     /**
      * Validates that the documents with the message do not exceed the maximum
      * document size specified.
-     * 
+     *
      * @param maxDocumentSize
      *            The maximum document size to validate against.
-     * 
+     *
      * @throws DocumentToLargeException
      *             If one of the documents in the message is too large or the
      *             documents in aggregate are too large.
@@ -103,7 +103,7 @@ public interface Message {
     /**
      * Writes the message from the stream. The message header <b>is</b> written
      * by this method.
-     * 
+     *
      * @param messageId
      *            The id to be assigned to the message.
      * @param out
@@ -116,7 +116,7 @@ public interface Message {
     /**
      * Writes the message from the stream. The message header <b>is</b> written
      * by this method.
-     * 
+     *
      * @param messageId
      *            The id to be assigned to the message.
      * @param out

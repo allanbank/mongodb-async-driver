@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,19 +20,25 @@
 
 package com.allanbank.mongodb.builder.write;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * UpdateOperation provides a container for the fields in an update request.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class UpdateOperation implements WriteOperation {
+@Immutable
+@ThreadSafe
+public class UpdateOperation
+        implements WriteOperation {
 
     /** Serialization version for the class. */
     private static final long serialVersionUID = 4657279430768594366L;
@@ -51,7 +57,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Creates a new UpdateOperation.
-     * 
+     *
      * @param query
      *            The query to find the documents to update.
      * @param update
@@ -75,10 +81,10 @@ public class UpdateOperation implements WriteOperation {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see Object#equals(Object)
      */
     @Override
@@ -100,7 +106,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns the query to find the documents to update.
-     * 
+     *
      * @return The query to find the documents to update.
      */
     public Document getQuery() {
@@ -131,7 +137,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns the update specification.
-     * 
+     *
      * @return The update specification.
      */
     public Document getUpdate() {
@@ -140,7 +146,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -155,7 +161,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns true if the update can modify multiple documents.
-     * 
+     *
      * @return True if the update can modify multiple documents.
      */
     public boolean isMultiUpdate() {
@@ -164,7 +170,7 @@ public class UpdateOperation implements WriteOperation {
 
     /**
      * Returns true if the document should be inserted if not found.
-     * 
+     *
      * @return True if the document should be inserted if not found.
      */
     public boolean isUpsert() {

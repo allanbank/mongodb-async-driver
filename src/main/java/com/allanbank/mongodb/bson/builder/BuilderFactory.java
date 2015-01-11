@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -57,7 +59,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * elements of a document respectfully. This allows for the quick construction
  * of documents with a known structure. As an example consider the following
  * code: <blockquote>
- * 
+ *
  * <pre>
  * <code>
  * DocumentBuilder movie = d(
@@ -67,13 +69,13 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * );
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
  * <p>
  * The above code creates a document with the following JSON
  * structure:<blockquote>
- * 
+ *
  * <pre>
  * <code>
  * {
@@ -83,7 +85,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
  * <p>
@@ -91,7 +93,7 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  * s and {@link ArrayBuilder}s directly to dynamically construct the documents.
  * To create a dynamic builders call one of the {@link #start()} methods. Here
  * is an example creating the equivalent document we saw above: <blockquote>
- * 
+ *
  * <pre>
  * <code>
  * DocumentBuilder movie = BuilderFactory.start();
@@ -108,25 +110,26 @@ import com.allanbank.mongodb.bson.impl.RootDocument;
  *           .add("Thomas Mitchell");
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
  * <p>
  * The choice between the static or dynamic builders is based on a user's
  * preference.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public class BuilderFactory {
 
     /**
      * Creates an array element containing no elements. e.g., an empty array.
-     * 
+     *
      * @return The wrapped element.
      * @throws IllegalArgumentException
      *             If the {@code name} is <code>null</code>.
@@ -137,7 +140,7 @@ public class BuilderFactory {
 
     /**
      * Creates an array element containing boolean elements.
-     * 
+     *
      * @param values
      *            The boolean value.
      * @return The wrapped element.
@@ -165,7 +168,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if any {@code data} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param datas
      *            The binary value.
      * @return The wrapped element.
@@ -188,7 +191,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if any {@code timestamp} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param timestamps
      *            The number of milliseconds since the Unix epoch.
      * @return The wrapped element.
@@ -210,7 +213,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if any {@code document} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param documents
      *            The document to wrap.
      * @return The wrapped element.
@@ -228,7 +231,7 @@ public class BuilderFactory {
 
     /**
      * Creates an array element containing double elements.
-     * 
+     *
      * @param values
      *            The double value.
      * @return The wrapped element.
@@ -255,7 +258,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if any {@code element} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param elements
      *            The element to add to wrap.
      * @return The wrapped element.
@@ -273,7 +276,7 @@ public class BuilderFactory {
 
     /**
      * Creates an array element containing integer (32-bit signed) elements.
-     * 
+     *
      * @param values
      *            The integer value.
      * @return The wrapped element.
@@ -296,7 +299,7 @@ public class BuilderFactory {
 
     /**
      * Creates an array element containing long (64-bit signed) elements.
-     * 
+     *
      * @param values
      *            The long value.
      * @return The wrapped element.
@@ -321,7 +324,7 @@ public class BuilderFactory {
      * Creates an ArrayElement after trying to coerce the values into the best
      * possible element type. If the coercion fails then an
      * {@link IllegalArgumentException} is thrown.
-     * 
+     *
      * @param values
      *            The Object values to coerce into an element.
      * @return The {@link ArrayElement} with the name {@code ""} and the
@@ -343,7 +346,7 @@ public class BuilderFactory {
      * <p>
      * Will return a {@link NullElement} if any {@code id} is <code>null</code>.
      * </p>
-     * 
+     *
      * @param ids
      *            The ObjectId to wrap.
      * @return The wrapped element.
@@ -365,7 +368,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if any {@code pattern} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param patterns
      *            The pattern for the regular expression.
      * @return The wrapped element.
@@ -387,7 +390,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if any {@code value} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param values
      *            The string value.
      * @return The wrapped element.
@@ -409,7 +412,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code uuid} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param uuids
      *            The {@link UUID}s to wrap in an element.
      * @return The wrapped element.
@@ -427,7 +430,7 @@ public class BuilderFactory {
 
     /**
      * Helper method for creating static document structures.
-     * 
+     *
      * @param elements
      *            The elements of the document. The elements may be created
      *            using the {@link #e} methods.
@@ -439,7 +442,7 @@ public class BuilderFactory {
 
     /**
      * Creates a boolean element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -459,7 +462,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code data} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param data
@@ -483,7 +486,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code timestamp} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param timestamp
@@ -506,7 +509,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code document} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param document
@@ -525,7 +528,7 @@ public class BuilderFactory {
 
     /**
      * Creates a double element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -545,7 +548,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code element} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param element
@@ -564,7 +567,7 @@ public class BuilderFactory {
 
     /**
      * Creates a integer (32-bit signed) element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -580,7 +583,7 @@ public class BuilderFactory {
 
     /**
      * Creates a long (64-bit signed) element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -602,7 +605,7 @@ public class BuilderFactory {
      * This method does type inspection which can be slow. It is generally much
      * faster to use the type specific {@link #e} methods of this class.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -689,7 +692,7 @@ public class BuilderFactory {
      * <p>
      * Will return a {@link NullElement} if the {@code id} is <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param id
@@ -712,7 +715,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code pattern} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param pattern
@@ -735,7 +738,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code value} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -758,7 +761,7 @@ public class BuilderFactory {
      * Will return a {@link NullElement} if the {@code uuid} is
      * <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param uuid
@@ -777,7 +780,7 @@ public class BuilderFactory {
 
     /**
      * Creates a new {@link DocumentBuilder}.
-     * 
+     *
      * @return The root level document builder.
      */
     public static final DocumentBuilder start() {
@@ -787,7 +790,7 @@ public class BuilderFactory {
     /**
      * Creates a new {@link DocumentBuilder} to append more elements to an
      * existing document.
-     * 
+     *
      * @param seedDocument
      *            The document to seed the builder with. The builder will
      *            contain the seed document elements plus any added/appended
@@ -802,7 +805,7 @@ public class BuilderFactory {
     /**
      * Creates a new {@link DocumentBuilder} to append more elements to an
      * existing set of documents.
-     * 
+     *
      * @param seedDocuments
      *            The documents to seed the builder with. The builder will
      *            contain the seed document elements plus any added/appended
@@ -823,7 +826,7 @@ public class BuilderFactory {
 
     /**
      * Creates a new {@link ArrayBuilder}.
-     * 
+     *
      * @return The root level array builder.
      */
     public static final ArrayBuilder startArray() {

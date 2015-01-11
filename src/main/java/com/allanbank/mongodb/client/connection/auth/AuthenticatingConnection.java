@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,12 +48,13 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * AuthenticatingConnection provides a connection that authenticated with the
  * server for each database before it is used.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class AuthenticatingConnection extends AbstractProxyConnection {
+public class AuthenticatingConnection
+        extends AbstractProxyConnection {
 
     /** The name of the administration database. */
     public static final String ADMIN_DB_NAME = MongoClientConfiguration.ADMIN_DB_NAME;
@@ -115,7 +116,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
 
     /**
      * Creates a new AuthenticatingConnection.
-     * 
+     *
      * @param connection
      *            The connection to ensure gets authenticated as needed.
      * @param config
@@ -206,7 +207,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
     /**
      * Ensures that the results of all of the pending authenticators are
      * complete.
-     * 
+     *
      * @param waitToComplete
      *            If true then this method will block for the authentication to
      *            complete.
@@ -254,7 +255,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
     /**
      * Ensures the connection has either already authenticated with the server
      * or completes the authentication.
-     * 
+     *
      * @param message
      *            The message to authenticate for.
      * @throws MongoDbAuthenticationException
@@ -293,11 +294,11 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
      * ms to match the <i>Server Discovery and Monitoring<i> specification. We
      * back off each retry until the {@value #MAX_RETRY_INTERVAL_MS} ms.
      * </p>
-     * 
+     *
      * @param databaseName
      *            The name of the database that we need to retry the
      *            authentication on.
-     * 
+     *
      * @see <a
      *      href="https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring">Server
      *      Discovery and Monitoring</a>
@@ -348,7 +349,7 @@ public class AuthenticatingConnection extends AbstractProxyConnection {
     /**
      * Starts the process of getting a user authenticated with MongoDB using a
      * specific credential.
-     * 
+     *
      * @param credential
      *            The credential to use to authenticate against the database.
      */

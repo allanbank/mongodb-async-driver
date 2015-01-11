@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,10 +28,11 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * ReplyHandler provides the capability to properly handle the replies to a
  * callback.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplyHandler implements Runnable {
+public class ReplyHandler
+        implements Runnable {
 
     /** The socket that we are receiving for. */
     private static final ThreadLocal<Receiver> ourReceiver = new ThreadLocal<Receiver>();
@@ -39,7 +40,7 @@ public class ReplyHandler implements Runnable {
     /**
      * Raise an error on the callback, if any. Will execute the request on a
      * background thread if provided.
-     * 
+     *
      * @param exception
      *            The thrown exception.
      * @param replyCallback
@@ -67,7 +68,7 @@ public class ReplyHandler implements Runnable {
 
     /**
      * Updates to set the reply for the callback, if any.
-     * 
+     *
      * @param receiver
      *            The socket receiving the message.
      * @param reply
@@ -111,7 +112,7 @@ public class ReplyHandler implements Runnable {
 
     /**
      * Runs the callback on the current thread.
-     * 
+     *
      * @param receiver
      *            The receiver to be run.
      * @param reply
@@ -142,7 +143,7 @@ public class ReplyHandler implements Runnable {
 
     /**
      * Creates a new ReplyHandler.
-     * 
+     *
      * @param replyCallback
      *            The callback for the message.
      * @param reply
@@ -157,7 +158,7 @@ public class ReplyHandler implements Runnable {
 
     /**
      * Creates a new ReplyHandler.
-     * 
+     *
      * @param replyCallback
      *            The callback for the message.
      * @param exception

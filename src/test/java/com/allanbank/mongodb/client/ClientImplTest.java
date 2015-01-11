@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -88,7 +88,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 
 /**
  * ClientImplTest provides tests for the {@link ClientImpl} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("unchecked")
@@ -102,7 +102,7 @@ public class ClientImplTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -114,7 +114,7 @@ public class ClientImplTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -162,7 +162,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#close()}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -205,7 +205,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#close()}.
-     * 
+     *
      * @throws IOException
      *             on aa test failure.
      */
@@ -253,7 +253,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#close()}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -302,7 +302,7 @@ public class ClientImplTest {
     /**
      * Test method for {@link ClientImpl#close()} then throws an exception in a
      * send.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -324,7 +324,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -583,7 +583,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -606,7 +606,7 @@ public class ClientImplTest {
 
     /**
      * Test method for reconnect logic.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -731,7 +731,7 @@ public class ClientImplTest {
 
     /**
      * Test method for reconnect logic.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -812,7 +812,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      * @throws InterruptedException
@@ -854,7 +854,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      * @throws InterruptedException
@@ -899,7 +899,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -946,7 +946,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -1080,7 +1080,7 @@ public class ClientImplTest {
     /**
      * Test method for
      * {@link ClientImpl#restart(StreamCallback, DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -1129,7 +1129,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -1265,7 +1265,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1295,7 +1295,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1323,7 +1323,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1351,7 +1351,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1417,7 +1417,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1478,7 +1478,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1520,7 +1520,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1578,7 +1578,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1609,7 +1609,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1644,7 +1644,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1699,7 +1699,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      * @throws InterruptedException
@@ -1781,7 +1781,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      * @throws InterruptedException
@@ -1874,7 +1874,7 @@ public class ClientImplTest {
 
     /**
      * Test method for {@link ClientImpl#send} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test.
      */
@@ -1904,7 +1904,7 @@ public class ClientImplTest {
     /**
      * Performs a {@link EasyMock#makeThreadSafe(Object, boolean)} on the
      * provided mocks and the {@link #myMockConnectionFactory} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -1918,7 +1918,7 @@ public class ClientImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockConnectionFactory} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -1930,7 +1930,7 @@ public class ClientImplTest {
     /**
      * Performs a {@link EasyMock#reset(Object...)} on the provided mocks and
      * the {@link #myMockConnectionFactory} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -1942,7 +1942,7 @@ public class ClientImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockConnectionFactory} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,12 +56,13 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * Provides the ability to create connections to a shard configuration via
  * mongos servers.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ShardedConnectionFactory implements ConnectionFactory {
+public class ShardedConnectionFactory
+        implements ConnectionFactory {
 
     /** The logger for the {@link ShardedConnectionFactory}. */
     protected static final Log LOG = LogFactory
@@ -84,7 +85,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new {@link ShardedConnectionFactory}.
-     * 
+     *
      * @param factory
      *            The factory to create proxied connections.
      * @param config
@@ -169,7 +170,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new connection to the shared mongos servers.
-     * 
+     *
      * @see ConnectionFactory#connect()
      */
     @Override
@@ -260,7 +261,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new {@link BootstrapState}.
-     * 
+     *
      * @return The {@link BootstrapState} to track state of loading the cluster
      *         information.
      */
@@ -271,7 +272,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Creates a {@link Cluster} object to track the state of the servers across
      * the cluster.
-     * 
+     *
      * @param config
      *            The configuration for the cluster.
      * @return The {@link Cluster} to track the servers across the cluster.
@@ -283,12 +284,12 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Creates a {@link ClusterPinger} object to periodically update the status
      * of the servers.
-     * 
+     *
      * @param factory
      *            The factory for creating the connections to the servers.
      * @param config
      *            The configuration for the client.
-     * 
+     *
      * @return The {@link ClusterPinger} object to periodically update the
      *         status of the servers.
      */
@@ -304,7 +305,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * <p>
      * For a sharded cluster this defaults to the {@link LatencyServerSelector}.
      * </p>
-     * 
+     *
      * @return The {@link ServerSelector} object to select the (presumed)
      *         optimal server to handle a request.
      */
@@ -317,7 +318,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * collection to return the id for all of the mongos servers in the cluster.
      * <p>
      * A single mongos entry looks like: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * {
@@ -327,9 +328,9 @@ public class ShardedConnectionFactory implements ConnectionFactory {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param conn
      *            The connection to request from.
      * @return True if the configuration servers have been determined.
@@ -389,7 +390,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Returns the clusterState value.
-     * 
+     *
      * @return The clusterState value.
      */
     protected Cluster getCluster() {
@@ -399,7 +400,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * Queries for the addresses for the {@code mongos} servers via the
      * {@link #findMongosServers(Connection)} method.
-     * 
+     *
      * @param state
      *            The state of the bootstrap to be updated.
      * @param conn
@@ -419,7 +420,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
     /**
      * Wraps the connection in a shard-aware connection.
-     * 
+     *
      * @param primaryConn
      *            The primary shard connection.
      * @param server
@@ -434,7 +435,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
     /**
      * BootstrapState provides the ability to track the state of the bootstrap
      * for the sharded cluster.
-     * 
+     *
      * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
      */
     protected static class BootstrapState {
@@ -443,7 +444,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
         /**
          * Creates a new BootstrapState.
-         * 
+         *
          * @param mongosFound
          *            Initials if we should look for the {@code mongos} servers.
          */
@@ -456,7 +457,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
          * <p>
          * This method returns true if auto discovery is turned off or (if on)
          * when all of the {@code mongos} servers have been located.
-         * 
+         *
          * @return True once the boot strap is complete.
          */
         public boolean done() {
@@ -466,7 +467,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
         /**
          * Returns true if the {@code mongos} servers have been found, false
          * otherwise.
-         * 
+         *
          * @return True if the {@code mongos} servers have been found, false
          *         otherwise.
          */
@@ -476,7 +477,7 @@ public class ShardedConnectionFactory implements ConnectionFactory {
 
         /**
          * Sets if the the {@code mongos} servers have been found.
-         * 
+         *
          * @param mongosFound
          *            If true, the {@code mongos} servers have been found, false
          *            otherwise.

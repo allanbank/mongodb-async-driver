@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,6 +28,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.client.connection.auth.Authenticator;
 import com.allanbank.mongodb.client.connection.auth.MongoDbAuthenticator;
@@ -49,7 +53,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
  * documentation for the authenticator being used for details on what values are
  * expected for each of the fields in this class.
  * </p>
- * 
+ *
  * @see <a
  *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication.html">Authentication
  *      Usage Guide</a>
@@ -59,7 +63,10 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
  *          removed or modified.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class Credential implements Serializable {
+@Immutable
+@ThreadSafe
+public final class Credential
+        implements Serializable {
 
     /**
      * The name of the administration database used to authenticate a
@@ -75,7 +82,7 @@ public final class Credential implements Serializable {
      * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/kerberos.html"
      * >Kerberos Usage Guide</a> for details.
      * </p>
-     * 
+     *
      * @see <a
      *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/kerberos.html">Kerberos
      *      Usage Guide</a>
@@ -96,7 +103,7 @@ public final class Credential implements Serializable {
      * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html"
      * >Plain SASL Usage Guide</a> for details.
      * </p>
-     * 
+     *
      * @see <a
      *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html">Plain
      *      SASL Usage Guide</a>
@@ -113,7 +120,7 @@ public final class Credential implements Serializable {
      * This enables the use of non-ascii character sets within the username and
      * password.
      * </p>
-     * 
+     *
      * @see <a
      *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html">SCRAM-SHA-1
      *      SASL Usage Guide</a>
@@ -126,7 +133,7 @@ public final class Credential implements Serializable {
     /**
      * Constant for authentication using x.509 client certificates passed at
      * connection establishment.
-     * 
+     *
      * @see <a
      *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/tls.html">TLS/SSL
      *      Usage Guide</a>
@@ -149,7 +156,7 @@ public final class Credential implements Serializable {
 
     /**
      * Creates a {@link Builder} for creating a {@link Credential}.
-     * 
+     *
      * @return The {@link Builder} for creating a {@link Credential}.
      */
     public static Builder builder() {
@@ -181,7 +188,7 @@ public final class Credential implements Serializable {
 
     /**
      * Creates a new Credential.
-     * 
+     *
      * @param builder
      *            The builder for the credentials.
      */
@@ -198,7 +205,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns an authenticator for the credential.
-     * 
+     *
      * @return The authenticator for the credential.
      * @throws MongoDbAuthenticationException
      *             On a failure to load the authenticator for the credential.
@@ -251,7 +258,7 @@ public final class Credential implements Serializable {
     /**
      * Returns the authentication type or mode that the credential should be
      * used with.
-     * 
+     *
      * @return The authentication type or mode that the credential should be
      *         used with.
      */
@@ -261,7 +268,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns the authenticator value.
-     * 
+     *
      * @return The authenticator value.
      */
     public Authenticator getAuthenticator() {
@@ -271,7 +278,7 @@ public final class Credential implements Serializable {
     /**
      * Returns the database the credential are valid for. Use {@link #ADMIN_DB}
      * to authenticate as an administrator.
-     * 
+     *
      * @return The database the credential are valid for.
      */
     public String getDatabase() {
@@ -280,7 +287,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns the file containing the full credentials.
-     * 
+     *
      * @return The file containing the full credentials. May be
      *         <code>null</code>.
      */
@@ -290,7 +297,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns the option value.
-     * 
+     *
      * @param optionName
      *            The name of the option to set.
      * @param defaultValue
@@ -308,7 +315,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns the option value.
-     * 
+     *
      * @param optionName
      *            The name of the option to set.
      * @param defaultValue
@@ -331,7 +338,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns the option value.
-     * 
+     *
      * @param optionName
      *            The name of the option to set.
      * @param defaultValue
@@ -352,7 +359,7 @@ public final class Credential implements Serializable {
      * array is returns that should be cleared when it is done being used via
      * something like {@link java.util.Arrays#fill(char[], char)
      * Arrays.fill(password, 0)}
-     * 
+     *
      * @return The password for the credential set.
      */
     public char[] getPassword() {
@@ -361,7 +368,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns the user name for the credential set.
-     * 
+     *
      * @return The user name for the credential set.
      */
     public String getUserName() {
@@ -394,7 +401,7 @@ public final class Credential implements Serializable {
 
     /**
      * Returns true if the password has atleast a single character.
-     * 
+     *
      * @return True if the password has atleast a single character, false
      *         otherwise.
      */
@@ -453,7 +460,7 @@ public final class Credential implements Serializable {
 
     /**
      * Loads the authenticator for the credential.
-     * 
+     *
      * @throws ClassNotFoundException
      *             If the authenticators Class cannot be found.
      * @throws InstantiationException
@@ -471,7 +478,7 @@ public final class Credential implements Serializable {
 
     /**
      * Does a null safe equals comparison.
-     * 
+     *
      * @param rhs
      *            The right-hand-side of the comparison.
      * @param lhs
@@ -485,7 +492,7 @@ public final class Credential implements Serializable {
 
     /**
      * Sets the transient state of this {@link Credential}.
-     * 
+     *
      * @param in
      *            The input stream.
      * @throws ClassNotFoundException
@@ -501,9 +508,10 @@ public final class Credential implements Serializable {
 
     /**
      * Builder provides a helper for creating a {@link Credential}.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    @NotThreadSafe
     public static class Builder {
         /**
          * The authentication type or mode that the credential should be used
@@ -539,7 +547,7 @@ public final class Credential implements Serializable {
 
         /**
          * Adds an option to the built credentials.
-         * 
+         *
          * @param optionName
          *            The name of the option to set.
          * @param optionValue
@@ -555,7 +563,7 @@ public final class Credential implements Serializable {
 
         /**
          * Adds an option to the built credentials.
-         * 
+         *
          * @param optionName
          *            The name of the option to set.
          * @param optionValue
@@ -570,7 +578,7 @@ public final class Credential implements Serializable {
 
         /**
          * Adds an option to the built credentials.
-         * 
+         *
          * @param optionName
          *            The name of the option to set.
          * @param optionValue
@@ -590,7 +598,7 @@ public final class Credential implements Serializable {
          * <p>
          * This method delegates to {@link #setAuthenticationType(String)}.
          * </p>
-         * 
+         *
          * @param authenticationType
          *            The new value for the authentication type or mode that the
          *            credential should be used with.
@@ -605,7 +613,7 @@ public final class Credential implements Serializable {
          * <p>
          * This method delegates to {@link #setAuthenticator(Authenticator)}.
          * </p>
-         * 
+         *
          * @param authenticator
          *            The new value for the template authenticator for the
          *            credential.
@@ -617,7 +625,7 @@ public final class Credential implements Serializable {
 
         /**
          * Creates the credential from this builder.
-         * 
+         *
          * @return The {@link Credential} populated with the state of this
          *         builder.
          */
@@ -630,7 +638,7 @@ public final class Credential implements Serializable {
          * <p>
          * This method delegates to {@link #setDatabase(String)}.
          * </p>
-         * 
+         *
          * @param database
          *            The new value for the database the credential are valid
          *            for.
@@ -645,7 +653,7 @@ public final class Credential implements Serializable {
          * <p>
          * This method delegates to {@link #setFile(File)}.
          * </p>
-         * 
+         *
          * @param file
          *            The new value for the file containing the full
          *            credentials.
@@ -668,11 +676,11 @@ public final class Credential implements Serializable {
          * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/kerberos.html"
          * >Kerberos Usage Guide</a> for details.
          * </p>
-         * 
+         *
          * @see <a
          *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/kerberos.html">Kerberos
          *      Usage Guide</a>
-         * 
+         *
          * @return This {@link Builder} for method chaining.
          */
         public Builder kerberos() {
@@ -692,11 +700,11 @@ public final class Credential implements Serializable {
          * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html"
          * >Plain SASL Usage Guide</a> for details.
          * </p>
-         * 
+         *
          * @see <a
          *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html">Plain
          *      SASL Usage Guide</a>
-         * 
+         *
          * @return This {@link Builder} for method chaining.
          */
         public Builder ldap() {
@@ -710,7 +718,7 @@ public final class Credential implements Serializable {
          * This method delegates to {@link #setAuthenticationType(String)
          * setAuthenticationType(MONGODB_CR)}.
          * </p>
-         * 
+         *
          * @return This {@link Builder} for method chaining.
          */
         public Builder mongodbCR() {
@@ -730,11 +738,11 @@ public final class Credential implements Serializable {
          * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html"
          * >Plain SASL Usage Guide</a> for details.
          * </p>
-         * 
+         *
          * @see <a
          *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html">Plain
          *      SASL Usage Guide</a>
-         * 
+         *
          * @return This {@link Builder} for method chaining.
          */
         public Builder pam() {
@@ -746,7 +754,7 @@ public final class Credential implements Serializable {
          * <p>
          * This method delegates to {@link #setPassword(char[])}.
          * </p>
-         * 
+         *
          * @param password
          *            The new value for the password for the credential set.
          * @return This {@link Builder} for method chaining.
@@ -768,11 +776,11 @@ public final class Credential implements Serializable {
          * "http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html"
          * >Plain SASL Usage Guide</a> for details.
          * </p>
-         * 
+         *
          * @see <a
          *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/plain_sasl.html">Plain
          *      SASL Usage Guide</a>
-         * 
+         *
          * @return This {@link Builder} for method chaining.
          */
         public Builder plainSasl() {
@@ -781,7 +789,7 @@ public final class Credential implements Serializable {
 
         /**
          * Resets the builder to a known state.
-         * 
+         *
          * @return This {@link Builder} for method chaining.
          */
         public Builder reset() {
@@ -814,9 +822,9 @@ public final class Credential implements Serializable {
          * {@code stringprep} from RFC 3454. This enables the use of non-ascii
          * character sets within the username and password.
          * </p>
-         * 
+         *
          * @return This {@link Builder} for method chaining.
-         * 
+         *
          * @see <a
          *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/scram-sha-1.html">SCRAM-SHA-1
          *      SASL Usage Guide</a>
@@ -831,7 +839,7 @@ public final class Credential implements Serializable {
         /**
          * Sets the value of the authentication type or mode that the credential
          * should be used with.
-         * 
+         *
          * @param authenticationType
          *            The new value for the authentication type or mode that the
          *            credential should be used with.
@@ -844,7 +852,7 @@ public final class Credential implements Serializable {
 
         /**
          * Sets the value of the template authenticator for the credential.
-         * 
+         *
          * @param authenticator
          *            The new value for the template authenticator for the
          *            credential.
@@ -857,7 +865,7 @@ public final class Credential implements Serializable {
 
         /**
          * Sets the value of the database the credential are valid for.
-         * 
+         *
          * @param database
          *            The new value for the database the credential are valid
          *            for.
@@ -875,7 +883,7 @@ public final class Credential implements Serializable {
 
         /**
          * Sets the value of the file containing the full credentials.
-         * 
+         *
          * @param file
          *            The new value for the file containing the full
          *            credentials.
@@ -888,7 +896,7 @@ public final class Credential implements Serializable {
 
         /**
          * Sets the value of the password for the credential set.
-         * 
+         *
          * @param password
          *            The new value for the password for the credential set.
          * @return This {@link Builder} for method chaining.
@@ -907,7 +915,7 @@ public final class Credential implements Serializable {
 
         /**
          * Sets the value of the user name for the credential set.
-         * 
+         *
          * @param userName
          *            The new value for the user name for the credential set.
          * @return This {@link Builder} for method chaining.
@@ -922,7 +930,7 @@ public final class Credential implements Serializable {
          * <p>
          * This method delegates to {@link #setUserName(String)}.
          * </p>
-         * 
+         *
          * @param userName
          *            The new value for the user name for the credential set.
          * @return This {@link Builder} for method chaining.
@@ -939,9 +947,9 @@ public final class Credential implements Serializable {
          * This method delegates to {@link #setAuthenticationType(String)
          * setAuthenticationType(X509)}.
          * </p>
-         * 
+         *
          * @return This {@link Builder} for method chaining.
-         * 
+         *
          * @see <a
          *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/tls.html">TLS/SSL
          *      Usage Guide</a>
@@ -963,12 +971,12 @@ public final class Credential implements Serializable {
          * userName(cert.getSubjectX500Principal().toString())}.{@link #x509()
          * x509()}.
          * </p>
-         * 
+         *
          * @param cert
          *            The client's certificate containing the client subject
          *            name.
          * @return This {@link Builder} for method chaining.
-         * 
+         *
          * @see <a
          *      href="http://www.allanbank.com/mongodb-async-driver/userguide/authentication/tls.html">TLS/SSL
          *      Usage Guide</a>

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentReference;
 import com.allanbank.mongodb.bson.Element;
@@ -45,14 +48,18 @@ import com.allanbank.mongodb.util.PatternUtils;
 
 /**
  * Wraps a single BSON document that may contain nested documents.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class DocumentElement extends AbstractElement implements Document {
+@Immutable
+@ThreadSafe
+public class DocumentElement
+        extends AbstractElement
+        implements Document {
 
     /** The empty list of elements. */
     public static final List<Element> EMPTY_ELEMENTS = Collections.emptyList();
@@ -66,7 +73,7 @@ public class DocumentElement extends AbstractElement implements Document {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param entries
@@ -90,7 +97,7 @@ public class DocumentElement extends AbstractElement implements Document {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param documentSize
@@ -116,7 +123,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Constructs a new {@link DocumentElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON document.
      * @param elements
@@ -132,7 +139,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Constructs a new {@link DocumentElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON document.
      * @param value
@@ -151,7 +158,7 @@ public class DocumentElement extends AbstractElement implements Document {
     /**
      * Constructs a new {@link DocumentElement} with a single sub-document
      * element.
-     * 
+     *
      * @param name
      *            The name for the BSON document.
      * @param value
@@ -168,7 +175,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Constructs a new {@link DocumentElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON document.
      * @param elements
@@ -182,7 +189,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Constructs a new {@link DocumentElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON document.
      * @param elements
@@ -196,7 +203,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Constructs a new {@link DocumentElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON document.
      * @param elements
@@ -212,7 +219,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Constructs a new {@link DocumentElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON document.
      * @param elements
@@ -247,7 +254,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitDocument} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -284,11 +291,11 @@ public class DocumentElement extends AbstractElement implements Document {
      * <li>The name of the database where the referenced document resides:
      * {@code $db} (Optional).</li>
      * </ol>
-     * 
+     *
      * @return This sub-document as a {@link DocumentReference} if it conforms
      *         to the MongoDB DBRef convention. Returns <code>null</code>
      *         otherwise.
-     * 
+     *
      * @see #isDocumentReference()
      * @see <a
      *      href="http://docs.mongodb.org/manual/applications/database-references/#dbref">MongoDB
@@ -392,7 +399,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Returns true if the document contains an element with the specified name.
-     * 
+     *
      * @param name
      *            The name of the element to locate.
      * @return True if the document contains an element with the given name,
@@ -407,10 +414,10 @@ public class DocumentElement extends AbstractElement implements Document {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -434,7 +441,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Element#find
      */
     @Override
@@ -480,7 +487,7 @@ public class DocumentElement extends AbstractElement implements Document {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Element#findFirst
      */
     @Override
@@ -525,7 +532,7 @@ public class DocumentElement extends AbstractElement implements Document {
     /**
      * Returns the element with the specified name and type or null if no
      * element with that name and type exists.
-     * 
+     *
      * @param <E>
      *            The type of element to get.
      * @param clazz
@@ -548,7 +555,7 @@ public class DocumentElement extends AbstractElement implements Document {
     /**
      * Returns the element with the specified name or null if no element with
      * that name exists.
-     * 
+     *
      * @param name
      *            The name of the element to locate.
      * @return The sub-element in the document with the given name or null if
@@ -562,7 +569,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Returns the element's document.
-     * 
+     *
      * @return The document contained within the element.
      */
     public Document getDocument() {
@@ -571,7 +578,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Returns the elements in the document.
-     * 
+     *
      * @return The elements in the document.
      */
     @Override
@@ -600,7 +607,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -623,10 +630,10 @@ public class DocumentElement extends AbstractElement implements Document {
      * <li>The name (string or symbol) of the database where the referenced
      * document resides: {@code $db} (Optional).</li>
      * </ol>
-     * 
+     *
      * @return True if this sub-document conforms to the MongoDB DBRef
      *         convention, false otherwise.
-     * 
+     *
      * @see #asDocumentReference()
      * @see DocumentReference
      * @see <a
@@ -671,7 +678,7 @@ public class DocumentElement extends AbstractElement implements Document {
 
     /**
      * Returns an iterator over the documents elements.
-     * 
+     *
      * @see Iterable#iterator()
      */
     @Override
@@ -696,7 +703,7 @@ public class DocumentElement extends AbstractElement implements Document {
     /**
      * Returns a map from the element names to the elements in the document.
      * Used for faster by-name access.
-     * 
+     *
      * @return The element name to element mapping.
      */
     private Map<String, Element> getElementMap() {

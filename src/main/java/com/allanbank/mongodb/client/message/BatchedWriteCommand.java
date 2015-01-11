@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,12 +27,13 @@ import com.allanbank.mongodb.client.VersionRange;
 /**
  * BatchedWriteCommand provides a container to hold the batched write command
  * and the operations that it was created from.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BatchedWriteCommand extends Command {
+public class BatchedWriteCommand
+        extends Command {
 
     /** The required server version range for the {@link BatchedWrite} command. */
     public static final VersionRange REQUIRED_VERSION_RANGE = VersionRange
@@ -43,7 +44,7 @@ public class BatchedWriteCommand extends Command {
 
     /**
      * Create a new BatchedWriteCommand.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -66,7 +67,7 @@ public class BatchedWriteCommand extends Command {
      * Creates a new BatchedWriteCommand. This constructor is provided for tests
      * that do not want to create a
      * {@link com.allanbank.mongodb.builder.BatchedWrite.Bundle}
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -87,10 +88,10 @@ public class BatchedWriteCommand extends Command {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -107,7 +108,7 @@ public class BatchedWriteCommand extends Command {
 
     /**
      * Returns the bundle for the batched write.
-     * 
+     *
      * @return The bundle for the batched write.
      */
     public BatchedWrite.Bundle getBundle() {
@@ -116,7 +117,7 @@ public class BatchedWriteCommand extends Command {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

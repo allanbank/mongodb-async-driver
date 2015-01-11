@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,7 +63,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * MongoClientImplTest provides tests for the {@link MongoClientImpl} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class MongoClientImplTest {
@@ -295,7 +295,7 @@ public class MongoClientImplTest {
 
     /**
      * Test method for {@link MongoClientImpl#restart(DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -321,7 +321,7 @@ public class MongoClientImplTest {
     /**
      * Test method for
      * {@link MongoClientImpl#restart(LambdaCallback,DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -354,7 +354,7 @@ public class MongoClientImplTest {
     /**
      * Test method for
      * {@link MongoClientImpl#restart(StreamCallback,DocumentAssignable)}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -384,7 +384,7 @@ public class MongoClientImplTest {
     /**
      * Performs a {@link EasyMock#replay(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */
@@ -395,7 +395,7 @@ public class MongoClientImplTest {
 
     /**
      * Creates a reply around the document.
-     * 
+     *
      * @param replyDoc
      *            The document to include in the reply.
      * @return The {@link Reply}
@@ -408,7 +408,7 @@ public class MongoClientImplTest {
     /**
      * Performs a {@link EasyMock#verify(Object...)} on the provided mocks and
      * the {@link #myMockClient} object.
-     * 
+     *
      * @param mocks
      *            The mock to replay.
      */

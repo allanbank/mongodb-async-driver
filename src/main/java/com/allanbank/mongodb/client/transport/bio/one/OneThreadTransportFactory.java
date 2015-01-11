@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,12 +34,13 @@ import com.allanbank.mongodb.client.transport.TransportResponseListener;
  * OneThreadTransportFactory provides the {@link TransportFactory} that uses
  * blocking I/O sockets and a one or single thread strategy. There is a single
  * reader thread and all writes are performed by the application send threads.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class OneThreadTransportFactory implements TransportFactory {
+public class OneThreadTransportFactory
+        implements TransportFactory {
 
     /**
      * The buffers used each connection. Each buffer is shared by all
@@ -63,10 +64,12 @@ public class OneThreadTransportFactory implements TransportFactory {
      * </p>
      */
     @Override
-    public OneThreadTransport createTransport(Server server,
-            MongoClientConfiguration config, StringEncoderCache encoderCache,
-            StringDecoderCache decoderCache,
-            TransportResponseListener responseListener) throws IOException {
+    public OneThreadTransport createTransport(final Server server,
+            final MongoClientConfiguration config,
+            final StringEncoderCache encoderCache,
+            final StringDecoderCache decoderCache,
+            final TransportResponseListener responseListener)
+                    throws IOException {
         // Open the socket, setup the receive thread, setup the read thread.
         return new OneThreadTransport(server, config, encoderCache,
                 decoderCache, responseListener, myBuffers);

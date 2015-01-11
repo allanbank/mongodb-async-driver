@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,19 +29,20 @@ import com.allanbank.mongodb.client.metrics.basic.BasicMongoClientMetrics;
 
 /**
  * JmxMongoClientMetrics provides the global metrics for the client.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class JmxMongoClientMetrics extends BasicMongoClientMetrics {
+public class JmxMongoClientMetrics
+        extends BasicMongoClientMetrics {
 
     /** The JmxSupport registering an unregistering MBeans. */
     private final JmxSupport mySupport;
 
     /**
      * Creates a new JmxMongoClientMetrics.
-     * 
+     *
      * @param support
      *            The MBean Server support to register all of the metrics with.
      */
@@ -93,7 +94,7 @@ public class JmxMongoClientMetrics extends BasicMongoClientMetrics {
 
     /**
      * Writes a human readable form of the server metrics.
-     * 
+     *
      * @param writer
      *            The writer to write to.
      */

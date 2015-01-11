@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,10 @@
  */
 
 package com.allanbank.mongodb.builder;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.element.DocumentElement;
@@ -30,7 +34,7 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * aggregate command's
  * {@link Aggregate.Builder#group(AggregationGroupId, AggregationGroupField...)
  * $group} pipeline operator.
- * 
+ *
  * @see <a href=
  *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_group">MongoDB
  *      Aggregate Command $group Operator</a>
@@ -40,12 +44,14 @@ import com.allanbank.mongodb.bson.element.StringElement;
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Immutable
+@ThreadSafe
 public class AggregationGroupField {
 
     /**
      * Helper method for creating {@link AggregationGroupField.Builder}s using
      * with a specific fieldName.
-     * 
+     *
      * @param fieldName
      *            The name of the output document field to be set.
      * @return The builder for constructing the {@link AggregationGroupField}.
@@ -62,7 +68,7 @@ public class AggregationGroupField {
 
     /**
      * Creates a new AggregationGroupField.
-     * 
+     *
      * @param name
      *            The name of the output document field to be set.
      * @param operator
@@ -78,7 +84,7 @@ public class AggregationGroupField {
 
     /**
      * Creates a new AggregationGroupField.
-     * 
+     *
      * @param name
      *            The name of the output document field to be set.
      * @param operator
@@ -100,7 +106,7 @@ public class AggregationGroupField {
 
     /**
      * Returns the element for the group operator's field.
-     * 
+     *
      * @return The element for the group operator's field.
      */
     public Element toElement() {
@@ -117,13 +123,14 @@ public class AggregationGroupField {
      * semantics of the group operator which cannot build complex structures for
      * each field.
      * </p>
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    @NotThreadSafe
     public static class Builder {
 
         /**
@@ -134,7 +141,7 @@ public class AggregationGroupField {
 
         /**
          * Creates a new Builder.
-         * 
+         *
          * @param fieldName
          *            The name of the field to set with the result of the
          *            aggregation/group.
@@ -150,7 +157,7 @@ public class AggregationGroupField {
          * <p>
          * This is an alias for {@link #uniqueValuesOf(String)}.
          * </p>
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -167,7 +174,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$push</tt> operator to accumulate all of the values seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -184,7 +191,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * custom operator to aggregate all of the values seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param operator
          *            The operator to use.
          * @param value
@@ -202,7 +209,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * custom operator to aggregate all of the values seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param operator
          *            The operator to use.
          * @param fieldRef
@@ -222,7 +229,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$avg</tt> operator to compute the average value seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -238,7 +245,7 @@ public class AggregationGroupField {
         /**
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$sum</tt> operator to count all of the input documents.
-         * 
+         *
          * @return The new {@link AggregationGroupField} object.
          * @see <a href=
          *      "http://docs.mongodb.org/manual/reference/aggregation/#_S_sum">MongoDB
@@ -252,7 +259,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$first</tt> operator to use the first value seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -269,7 +276,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$last</tt> operator to use the last value seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -286,7 +293,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$max</tt> operator to use the maximum value seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -303,7 +310,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$min</tt> operator to use the minimum value seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -323,7 +330,7 @@ public class AggregationGroupField {
          * <p>
          * This is an alias for {@link #all(String)}.
          * </p>
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -340,7 +347,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$sum</tt> operator to sum all of the values seen from the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.
@@ -357,7 +364,7 @@ public class AggregationGroupField {
          * Constructs a new {@link AggregationGroupField} object that uses the
          * <tt>$addToSet</tt> operator to accumulate the unique values of the
          * <tt>fieldRef</tt>.
-         * 
+         *
          * @param fieldRef
          *            The field reference to use. If the <tt>fieldRef</tt> does
          *            not start with a '$' then one will be added.

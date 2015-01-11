@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,10 +37,11 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
  * that it is only invoked from a single thread. The "result" method should not
  * make the same assumption.
  * </p>
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface Authenticator extends Cloneable {
+public interface Authenticator
+        extends Cloneable {
 
     /**
      * Provides the ability to clone the authenticator. A new
@@ -50,21 +51,21 @@ public interface Authenticator extends Cloneable {
      * Using clone allows users to create a "template" version of the
      * authenticator that is then copied prior to use by each connection.
      * </p>
-     * 
+     *
      * @return The cloned authenticator.
      */
     public Authenticator clone();
 
     /**
      * Returns true if the authenticator has completed, false otherwise.
-     * 
+     *
      * @return True if the authenticator has completed.
      */
     public boolean finished();
 
     /**
      * Returns the results of the authentication attempt.
-     * 
+     *
      * @return True if the user is successfully authenticated on the connection,
      *         false if the authentication fails.
      * @throws MongoDbAuthenticationException
@@ -75,7 +76,7 @@ public interface Authenticator extends Cloneable {
 
     /**
      * Starts to authenticate the user with the specified credentials.
-     * 
+     *
      * @param credentials
      *            The credentials to use to login to the database.
      * @param connection

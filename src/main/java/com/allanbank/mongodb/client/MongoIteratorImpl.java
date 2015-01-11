@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,12 +46,13 @@ import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Iterator over the results of the MongoDB cursor.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoIteratorImpl implements MongoIterator<Document> {
+public class MongoIteratorImpl
+        implements MongoIterator<Document> {
 
     /** The log for the iterator. */
     private static final Log LOG = LogFactory.getLog(MongoIteratorImpl.class);
@@ -94,7 +95,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Create a new MongoDBInterator.
-     * 
+     *
      * @param originalQuery
      *            The original query being iterated over.
      * @param client
@@ -122,12 +123,12 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Create a new MongoIteratorImpl from a cursor document.
-     * 
+     *
      * @param client
      *            The client interface to the server.
      * @param cursorDocument
      *            The original query.
-     * 
+     *
      * @see MongoIteratorImpl#asDocument()
      */
     public MongoIteratorImpl(final Document cursorDocument, final Client client) {
@@ -159,7 +160,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      * <p>
      * Overridden to return the active cursor in the defined format.
      * </p>
-     * 
+     *
      * @see ClientImpl#isCursorDocument(Document)
      */
     @Override
@@ -223,7 +224,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
     /**
      * Returns the iterator's read preference which points to the original
      * server performing the query.
-     * 
+     *
      * @return The iterator's read preference which points to the original
      *         server performing the query.
      */
@@ -264,7 +265,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      * <p>
      * Overridden to return the next document from the query.
      * </p>
-     * 
+     *
      * @see java.util.Iterator#next()
      */
     @Override
@@ -277,7 +278,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Computes the size for the next batch of documents to get.
-     * 
+     *
      * @return The returnNex
      */
     public int nextBatchSize() {
@@ -292,7 +293,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      * <p>
      * Overridden to throw and {@link UnsupportedOperationException}.
      * </p>
-     * 
+     *
      * @see java.util.Iterator#remove()
      */
     @Override
@@ -303,7 +304,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Restarts the iterator by sending a request for more documents.
-     * 
+     *
      * @throws MongoDbException
      *             On a failure to send the request for more document.
      */
@@ -388,7 +389,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Returns the client value.
-     * 
+     *
      * @return The client value.
      */
     protected Client getClient() {
@@ -397,7 +398,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Returns the collection name.
-     * 
+     *
      * @return The collection name.
      */
     protected String getCollectionName() {
@@ -406,7 +407,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Returns the cursor Id value.
-     * 
+     *
      * @return The cursor Id value.
      */
     protected long getCursorId() {
@@ -415,7 +416,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Returns the database name value.
-     * 
+     *
      * @return The database name value.
      */
     protected String getDatabaseName() {
@@ -424,7 +425,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Returns the limit value.
-     * 
+     *
      * @return The limit value.
      */
     protected int getLimit() {
@@ -434,7 +435,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
     /**
      * Loads more documents into the iterator. This iterator issues a get_more
      * command as soon as the previous results start to be used.
-     * 
+     *
      * @throws RuntimeException
      *             On a failure to load documents.
      */
@@ -445,7 +446,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
     /**
      * Loads more documents into the iterator. This iterator issues a get_more
      * command as soon as the previous results start to be used.
-     * 
+     *
      * @param blockForTailable
      *            If true then the method will recursively call itself on a
      *            tailable cursor with no results. This makes the call blocking.
@@ -453,7 +454,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
      *            method to ensure that the outermost load blocks but the
      *            recursion is not inifinite.
      * @return The list of loaded documents.
-     * 
+     *
      * @throws RuntimeException
      *             On a failure to load documents.
      */
@@ -527,7 +528,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
     /**
      * If the current cursor id is zero then waits for the response from the
      * pending request to determine the real cursor id.
-     * 
+     *
      * @param cursorId
      *            The presumed cursor id.
      * @param replyFuture
@@ -557,7 +558,7 @@ public class MongoIteratorImpl implements MongoIterator<Document> {
 
     /**
      * Sends a request for more documents.
-     * 
+     *
      * @throws MongoDbException
      *             On a failure to send the request for more document.
      */

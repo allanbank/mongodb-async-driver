@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,13 +19,16 @@
  */
 package com.allanbank.mongodb.util.log;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * LogFactory supports the creation of the Log instances.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public abstract class LogFactory {
 
     /** The {@link LogFactory} instance. */
@@ -33,7 +36,7 @@ public abstract class LogFactory {
 
     /**
      * Creates a {@link Log} instance for the provided class.
-     * 
+     *
      * @param clazz
      *            The name of the class to create a log instance for.
      * @return The {@link Log} instance for the class.
@@ -44,7 +47,7 @@ public abstract class LogFactory {
 
     /**
      * Creates a {@link Log} instance for the provided class.
-     * 
+     *
      * @param name
      *            The name to create a log instance for.
      * @return The {@link Log} instance for the class.
@@ -87,7 +90,7 @@ public abstract class LogFactory {
 
     /**
      * Delegate method for the instantiated {@link LogFactory}.
-     * 
+     *
      * @param name
      *            The name of the logger.
      * @return The {@link Log} instance for the class.

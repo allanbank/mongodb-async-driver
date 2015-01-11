@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,12 +26,13 @@ import java.util.List;
 /**
  * LatencyServerSelector provides an implementation of the server selector that
  * uses the server latencies to determine the server to select.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class LatencyServerSelector implements ServerSelector {
+public class LatencyServerSelector
+        implements ServerSelector {
 
     /** The cluster to choose from. */
     private final Cluster myCluster;
@@ -41,7 +42,7 @@ public class LatencyServerSelector implements ServerSelector {
 
     /**
      * Creates a new LatencyServerSelector.
-     * 
+     *
      * @param cluster
      *            The cluster to choose from.
      * @param writableOnly

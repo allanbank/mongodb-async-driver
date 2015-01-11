@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ import com.allanbank.mongodb.client.transport.bio.two.TwoThreadTransportFactory;
  * ConnectionModel provides an enumeration of the connection models that the
  * driver supports. Currently this is related to the number of threads used by
  * the socket connections to the server.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -65,7 +65,7 @@ public enum ConnectionModel {
      * single {@code write()} to the socket implementation is slow and the
      * application only uses a single write thread.
      * </p>
-     * 
+     *
      * @since 1.0.0
      */
     SENDER_RECEIVER_THREAD(new TwoThreadTransportFactory());
@@ -75,18 +75,18 @@ public enum ConnectionModel {
 
     /**
      * Creates a new ConnectionModel.
-     * 
+     *
      * @param factory
      *            The {@link TransportFactory} implementing the connection
      *            model.
      */
-    private ConnectionModel(TransportFactory factory) {
+    private ConnectionModel(final TransportFactory factory) {
         myFactory = factory;
     }
 
     /**
      * Returns the {@link TransportFactory} implementing the connection model.
-     * 
+     *
      * @return The {@link TransportFactory} implementing the connection model.
      */
     public TransportFactory getFactory() {

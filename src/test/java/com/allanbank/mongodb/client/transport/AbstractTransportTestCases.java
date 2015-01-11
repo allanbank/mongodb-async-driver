@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -70,7 +70,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * AbstractTransportTestCases provides tests cases for the {@link Transport}
  * implementations.
- * 
+ *
  * @copyright 2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractTransportTestCases {
@@ -113,14 +113,14 @@ public abstract class AbstractTransportTestCases {
 
     /**
      * Overloaded fail method to support passing the root cause of the failure.
-     * 
+     *
      * @param message
      *            The message for the failure.
      * @param cause
      *            The cause of the failure.
      */
-    public static void fail(String message, Throwable cause) {
-        AssertionError error = new AssertionError(message);
+    public static void fail(final String message, final Throwable cause) {
+        final AssertionError error = new AssertionError(message);
         error.initCause(cause);
 
         throw error;
@@ -136,7 +136,7 @@ public abstract class AbstractTransportTestCases {
 
             ourMockServer.start();
         }
-        catch (IOException error) {
+        catch (final IOException error) {
             fail("Could not start the mock MongoDB server: "
                     + error.getMessage(), error);
         }
@@ -164,38 +164,13 @@ public abstract class AbstractTransportTestCases {
     protected Transport<TransportOutputBuffer> myTestTransport = null;
 
     /**
-     * Connects to the server.
-     */
-    @SuppressWarnings("unchecked")
-    protected void connect() {
-        try {
-            TransportFactory testFactory = createFactory();
-            myTestTransport = (Transport<TransportOutputBuffer>) testFactory
-                    .createTransport(myServer, myConfig, ourEncoderCache,
-                            ourDecoderCache, myListener);
-
-            myTestTransport.start();
-        }
-        catch (IOException e) {
-            fail(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Creates the transport factory for the test.
-     * 
-     * @return The {@link TransportFactory} for the test.
-     */
-    protected abstract TransportFactory createFactory();
-
-    /**
      * Initialize the test common objects.
      */
     @Before
     public void setUp() {
-        InetSocketAddress address = ourMockServer.getInetSocketAddress();
+        final InetSocketAddress address = ourMockServer.getInetSocketAddress();
 
-        Cluster cluster = new Cluster(myConfig, ClusterType.STAND_ALONE);
+        final Cluster cluster = new Cluster(myConfig, ClusterType.STAND_ALONE);
 
         myConfig = new MongoClientConfiguration(address);
         myServer = cluster.add(address);
@@ -249,7 +224,7 @@ public abstract class AbstractTransportTestCases {
 
     /**
      * Test that the transport can handle the server disconnecting.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -275,7 +250,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(10, SECONDS), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(1, new GetLastError("db", Durability.ACK), null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -293,7 +269,7 @@ public abstract class AbstractTransportTestCases {
 
     /**
      * Test that the transport can handle the server disconnecting.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -316,7 +292,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(10, SECONDS), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(1, new GetLastError("db", Durability.ACK), null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -334,7 +311,7 @@ public abstract class AbstractTransportTestCases {
 
     /**
      * Test that the transport can handle the server disconnecting.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -352,7 +329,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(10, SECONDS), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(1, new GetLastError("db", Durability.ACK), null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -371,7 +349,7 @@ public abstract class AbstractTransportTestCases {
     /**
      * Test that the transport can handle sending and receiving a
      * {@link Command} (which is read as a {@link Query}).
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -389,7 +367,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(messageId, outMessage, null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -397,15 +376,15 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, instanceOf(Query.class));
     }
 
     /**
      * Test that the transport can handle sending and receiving a {@link Delete}
      * .
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -424,7 +403,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(messageId, outMessage, null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -432,15 +412,15 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, is(outMessage));
     }
 
     /**
      * Test that the transport can handle sending and receiving a
      * {@link GetMore}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -459,7 +439,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(messageId, outMessage, null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -467,15 +448,15 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, is(outMessage));
     }
 
     /**
      * Test that the transport can handle sending and receiving an
      * {@link Insert}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -494,7 +475,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(messageId, outMessage, null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -502,15 +484,15 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, is(outMessage));
     }
 
     /**
      * Test that the transport can handle sending and receiving a
      * {@link KillCursors}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -529,7 +511,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(messageId, outMessage, null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -537,14 +520,14 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, is(outMessage));
     }
 
     /**
      * Test that the transport can handle sending and receiving a {@link Query}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -564,7 +547,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(messageId, outMessage, null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -572,15 +556,15 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, is(outMessage));
     }
 
     /**
      * Test that the transport can handle sending and receiving an
      * {@link Update}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -599,7 +583,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(messageId, outMessage, null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -607,14 +592,14 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, is(outMessage));
     }
 
     /**
      * Test that the transport can handle a normal send/receive exchange.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -641,7 +626,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(1, new GetLastError("db", Durability.ACK), null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -649,18 +635,18 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponse(10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(1));
-        TransportInputBuffer inBuffer = myListener.getResponses().get(0);
-        Message inMessage = inBuffer.read();
+        final TransportInputBuffer inBuffer = myListener.getResponses().get(0);
+        final Message inMessage = inBuffer.read();
         assertThat(inMessage, instanceOf(Reply.class));
         assertThat(((Reply) inMessage).getResults(), hasSize(1));
-        Document reply = ((Reply) inMessage).getResults().get(0);
+        final Document reply = ((Reply) inMessage).getResults().get(0);
         assertThat(reply, is(d(e("hello", "world")).build()));
     }
 
     /**
      * Test that the transport can handle the server responding with two
      * messages for a single send.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -689,7 +675,8 @@ public abstract class AbstractTransportTestCases {
         connect();
         assertThat(ourMockServer.waitForClient(SECONDS.toMillis(5)), is(true));
 
-        TransportOutputBuffer outBuffer = myTestTransport.createSendBuffer(0);
+        final TransportOutputBuffer outBuffer = myTestTransport
+                .createSendBuffer(0);
         outBuffer.write(1, new GetLastError("db", Durability.ACK), null);
         myTestTransport.send(outBuffer);
         myTestTransport.flush();
@@ -697,13 +684,38 @@ public abstract class AbstractTransportTestCases {
 
         myListener.waitForResponses(2, 10, SECONDS);
         assertThat(myListener.getResponses(), hasSize(2));
-        for (TransportInputBuffer inBuffer : myListener.getResponses()) {
-            Message inMessage = inBuffer.read();
+        for (final TransportInputBuffer inBuffer : myListener.getResponses()) {
+            final Message inMessage = inBuffer.read();
             assertThat(inMessage, instanceOf(Reply.class));
             assertThat(((Reply) inMessage).getResults(), hasSize(1));
-            Document reply = ((Reply) inMessage).getResults().get(0);
+            final Document reply = ((Reply) inMessage).getResults().get(0);
             assertThat(reply, is(d(e("hello", "world")).build()));
         }
     }
+
+    /**
+     * Connects to the server.
+     */
+    @SuppressWarnings("unchecked")
+    protected void connect() {
+        try {
+            final TransportFactory testFactory = createFactory();
+            myTestTransport = (Transport<TransportOutputBuffer>) testFactory
+                    .createTransport(myServer, myConfig, ourEncoderCache,
+                            ourDecoderCache, myListener);
+
+            myTestTransport.start();
+        }
+        catch (final IOException e) {
+            fail(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Creates the transport factory for the test.
+     *
+     * @return The {@link TransportFactory} for the test.
+     */
+    protected abstract TransportFactory createFactory();
 
 }

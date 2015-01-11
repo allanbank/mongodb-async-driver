@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,15 +31,16 @@ import com.allanbank.mongodb.client.VersionRange;
 /**
  * QueryVersionVisitor provides the ability to inspect a query document for the
  * required server version.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class QueryVersionVisitor extends VisitorAdapter {
+public class QueryVersionVisitor
+        extends VisitorAdapter {
 
     /**
      * Helper to returns the required server version to support the query
      * operators.
-     * 
+     *
      * @param query
      *            The query to inspect.
      * @return The version of the server that is required to support to support
@@ -76,7 +77,7 @@ public class QueryVersionVisitor extends VisitorAdapter {
     /**
      * Returns the version of the server that removed the ability to process the
      * visited query.
-     * 
+     *
      * @return The version of the server that removed the ability to process the
      *         visited query.
      */
@@ -86,7 +87,7 @@ public class QueryVersionVisitor extends VisitorAdapter {
 
     /**
      * Returns the required server version to support the visited query.
-     * 
+     *
      * @return The required server version to support the visited query.
      */
     public Version getRequiredServerVersion() {

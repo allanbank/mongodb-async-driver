@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,13 +36,13 @@ import com.allanbank.mongodb.error.ReplyException;
 /**
  * Callback to expect and extract a single document from the reply and then
  * extract its contained array.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplyArrayCallback extends
-        AbstractReplyCallback<MongoIterator<Element>> {
+public class ReplyArrayCallback
+        extends AbstractReplyCallback<MongoIterator<Element>> {
 
     /** The default name for the values array. */
     public static final String DEFAULT_NAME = "values";
@@ -52,7 +52,7 @@ public class ReplyArrayCallback extends
 
     /**
      * Create a new ReplyDocumentCallback.
-     * 
+     *
      * @param results
      *            The callback to notify of the reply document.
      */
@@ -62,7 +62,7 @@ public class ReplyArrayCallback extends
 
     /**
      * Create a new ReplyDocumentCallback.
-     * 
+     *
      * @param name
      *            The name of the array element in the reply document.
      * @param results
@@ -81,7 +81,7 @@ public class ReplyArrayCallback extends
      * Creates an exception if the {@link Reply} has less than or more than a
      * single reply document.
      * </p>
-     * 
+     *
      * @param reply
      *            The raw reply.
      * @return The exception created.
@@ -109,7 +109,7 @@ public class ReplyArrayCallback extends
      * <p>
      * Overridden to return the reply document.
      * </p>
-     * 
+     *
      * @see AbstractReplyCallback#convert(Reply)
      */
     @Override

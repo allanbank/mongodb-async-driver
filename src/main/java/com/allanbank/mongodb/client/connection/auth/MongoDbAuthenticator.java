@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,11 +47,12 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * MongoDbAuthenticator provides an authenticator for the legacy, pre-2.4
  * version, of MongoDB authentication.
- * 
+ *
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoDbAuthenticator extends AbstractAuthenticator implements
-        Authenticator {
+public class MongoDbAuthenticator
+        extends AbstractAuthenticator
+        implements Authenticator {
 
     /** The UTF-8 character encoding. */
     public static final Charset ASCII = Charset.forName("US-ASCII");
@@ -85,7 +86,7 @@ public class MongoDbAuthenticator extends AbstractAuthenticator implements
 
     /**
      * Creates the MongoDB authentication hash of the password.
-     * 
+     *
      * @param credentials
      *            The credentials to hash.
      * @return The hashed password/myCredential.
@@ -127,7 +128,7 @@ public class MongoDbAuthenticator extends AbstractAuthenticator implements
 
     /**
      * Creates the MongoDB authentication hash of the password.
-     * 
+     *
      * @param md5
      *            The MD5 digest to compute the hash.
      * @param credentials
@@ -152,14 +153,14 @@ public class MongoDbAuthenticator extends AbstractAuthenticator implements
     /**
      * AuthenticateReplyCallback provides the callback for the second step of
      * the authentication.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    private static class AuthenticateReplyCallback extends
-            AbstractReplyCallback<Boolean> {
+    private static class AuthenticateReplyCallback
+            extends AbstractReplyCallback<Boolean> {
         /**
          * Creates a new AuthenticateReplyCallback.
-         * 
+         *
          * @param results
          *            The results to update once the reply is received.
          */
@@ -197,10 +198,11 @@ public class MongoDbAuthenticator extends AbstractAuthenticator implements
     /**
      * NonceReplyCallback provides the callback for the reply to the nonce
      * request.
-     * 
+     *
      * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    private class NonceReplyCallback extends AbstractValidatingReplyCallback {
+    private class NonceReplyCallback
+            extends AbstractValidatingReplyCallback {
 
         /** The connection to authenticate on. */
         private final Connection myConnection;
@@ -210,7 +212,7 @@ public class MongoDbAuthenticator extends AbstractAuthenticator implements
 
         /**
          * Creates a new NonceReplyCallback.
-         * 
+         *
          * @param credential
          *            The credentials to use in authentication.
          * @param connection

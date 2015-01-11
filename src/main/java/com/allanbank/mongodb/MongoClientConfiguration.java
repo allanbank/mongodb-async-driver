@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,6 +51,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -64,14 +65,16 @@ import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Contains the configuration for the connection(s) to the MongoDB servers.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoClientConfiguration implements Cloneable, Serializable {
+@ThreadSafe
+public class MongoClientConfiguration
+        implements Cloneable, Serializable {
 
     /** The name of the administration database. */
     public static final String ADMIN_DB_NAME = "admin";
@@ -352,43 +355,6 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     private transient TransportFactory myTransportFactory = null;
 
     /**
-     * Returns the factory for creating transports/connections to the server.
-     * <p>
-     * This field is also updated by the
-     * {@link #setConnectionModel(ConnectionModel)} method.
-     * </p>
-     * <p>
-     * Defaults to {@link ConnectionModel#RECEIVER_THREAD
-     * ConnectionModel.RECEIVER_THREAD's} factory.
-     * </p>
-     * 
-     * @return The factory for creating transports/connections to the server.
-     */
-    public TransportFactory getTransportFactory() {
-        return myTransportFactory;
-    }
-
-    /**
-     * Sets the factory for creating transports/connections to the server.
-     * <p>
-     * This field is also updated by the
-     * {@link #setConnectionModel(ConnectionModel)} method. Use this method if
-     * you are using a custom transport implementation.
-     * </p>
-     * 
-     * @param transportFactory
-     *            The factory for creating transports/connections to the server.
-     */
-    public void setTransportFactory(TransportFactory transportFactory) {
-        final TransportFactory old = myTransportFactory;
-
-        myTransportFactory = transportFactory;
-
-        myPropSupport.firePropertyChange("transportFactory", old,
-                myTransportFactory);
-    }
-
-    /**
      * Determines if the {@link java.net.Socket#setKeepAlive(boolean)
      * SO_KEEPALIVE} socket option is set.
      * <p>
@@ -411,7 +377,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Creates a new MongoClientConfiguration.
-     * 
+     *
      * @param servers
      *            The initial set of servers to connect to.
      */
@@ -425,7 +391,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Creates a new MongoClientConfiguration.
-     * 
+     *
      * @param other
      *            The configuration to copy.
      */
@@ -466,14 +432,14 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Creates a new {@link MongoClientConfiguration} instance using a MongoDB
      * style URL to initialize its state. Further configuration is possible once
      * the {@link MongoClientConfiguration} has been instantiated.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -486,14 +452,14 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Creates a new {@link MongoClientConfiguration} instance using a MongoDB
      * style URL to initialize its state. Further configuration is possible once
      * the {@link MongoClientConfiguration} has been instantiated.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -506,7 +472,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Creates a new {@link MongoClientConfiguration} instance using a MongoDB
      * style URL to initialize its state. Further configuration is possible once
      * the {@link MongoClientConfiguration} has been instantiated.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
@@ -515,7 +481,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -658,7 +624,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Adds the specified credentials to the configuration.
-     * 
+     *
      * @param credentials
      *            The credentials to use when accessing the MongoDB server.
      * @throws IllegalArgumentException
@@ -700,7 +666,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Adds the specified credentials to the configuration.
-     * 
+     *
      * @param credentials
      *            The credentials to use when accessing the MongoDB server.
      * @throws IllegalArgumentException
@@ -716,7 +682,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Add a {@link PropertyChangeListener} from the configuration. The listener
      * will receive notification of all changes to the configuration.
-     * 
+     *
      * @param listener
      *            The {@link PropertyChangeListener} to be added
      */
@@ -729,7 +695,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Add a {@link PropertyChangeListener} from the configuration. The listener
      * will receive notification of all changes to the configuration's specified
      * property.
-     * 
+     *
      * @param propertyName
      *            The name of the property to listen on.
      * @param listener
@@ -743,7 +709,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Adds a server to initially attempt to connect to.
-     * 
+     *
      * @param server
      *            The server to add.
      */
@@ -759,7 +725,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Adds a server to initially attempt to connect to.
-     * 
+     *
      * @param server
      *            The server to add.
      */
@@ -771,7 +737,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Sets up the instance to authenticate with the MongoDB servers. This
      * should be done before using this configuration to instantiate a
      * {@link Mongo} instance.
-     * 
+     *
      * @param userName
      *            The user name.
      * @param password
@@ -798,7 +764,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Sets up the instance to authenticate with the MongoDB servers. This
      * should be done before using this configuration to instantiate a
      * {@link Mongo} instance.
-     * 
+     *
      * @param userName
      *            The user name.
      * @param password
@@ -853,7 +819,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link ConnectionModel#RECEIVER_THREAD}.
      * </p>
-     * 
+     *
      * @return The model used for managing connections.
      */
     public ConnectionModel getConnectionModel() {
@@ -866,7 +832,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to 0 or forever.
      * </p>
-     * 
+     *
      * @return The time to wait (in milliseconds) for a socket connection to
      *         complete.
      */
@@ -877,7 +843,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Returns the map of database names to credentials to use to access that
      * database on the server.
-     * 
+     *
      * @return The map of database names to credentials to use to access that
      *         database on the server.
      */
@@ -894,7 +860,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@value #DEFAULT_DB_NAME}.
      * </p>
-     * 
+     *
      * @return The default database value.
      * @deprecated Replaced with the more general {@link Credential} capability.
      *             Will be removed after the 1.3.0 release.
@@ -909,7 +875,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link Durability#ACK}.
      * </p>
-     * 
+     *
      * @return The default durability for write operations on the server.
      */
     public Durability getDefaultDurability() {
@@ -921,7 +887,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link ReadPreference#PRIMARY}.
      * </p>
-     * 
+     *
      * @return The default read preference for a query.
      */
     public ReadPreference getDefaultReadPreference() {
@@ -941,7 +907,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * similar should be used as the
      * {@link java.util.concurrent.RejectedExecutionHandler}.
      * </p>
-     * 
+     *
      * @return The executor value.
      */
     public Executor getExecutor() {
@@ -954,7 +920,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link LockType#MUTEX}.
      * </p>
-     * 
+     *
      * @return The type of hand off lock used.
      */
     public LockType getLockType() {
@@ -972,7 +938,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * the encoder and another for the decoder. The results is that caching 25
      * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
      * </p>
-     * 
+     *
      * @return The maximum number of strings that may have their encoded form
      *         cached.
      */
@@ -993,7 +959,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * the encoder and another for the decoder. The results is that caching 25
      * string with 10 connections can result in 500 cache entries (2 * 25 * 10).
      * </p>
-     * 
+     *
      * @return The maximum length for a string that the stream is allowed to
      *         cache.
      */
@@ -1012,7 +978,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * create single connections to the secondary servers if queries are issued
      * with a {@link ReadPreference} other than {@link ReadPreference#PRIMARY}.
      * </p>
-     * 
+     *
      * @return The maximum connections to use.
      */
     public int getMaxConnectionCount() {
@@ -1025,7 +991,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link Integer#MAX_VALUE}.
      * </p>
-     * 
+     *
      * @return The number of read timeouts (a tick) before closing the
      *         connection.
      */
@@ -1048,7 +1014,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * this value to 1 results in synchronous operations that wait for
      * responses.
      * </p>
-     * 
+     *
      * @return The maximum number of pending operations to allow per connection.
      */
     public int getMaxPendingOperationsPerConnection() {
@@ -1062,7 +1028,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to 5 minutes (300,000).
      * </p>
-     * 
+     *
      * @return The maximum number of milliseconds that a secondary can be behind
      *         the primary before they will be excluded from being used for
      *         queries on secondaries.
@@ -1083,7 +1049,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to DEBUG/500.
      * </p>
-     * 
+     *
      * @return The level to do a periodic metrics log.
      */
     public int getMetricsLogLevel() {
@@ -1095,7 +1061,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to 0.
      * </p>
-     * 
+     *
      * @return The minimum number of connections to try and keep open.
      */
     public int getMinConnectionCount() {
@@ -1104,7 +1070,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Gets the password hash for authentication with the database.
-     * 
+     *
      * @return The password hash for authentication with the database.
      * @deprecated Replaced with the more general {@link Credential} capability.
      *             Will be removed after the 1.3.0 release.
@@ -1135,7 +1101,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to 0 or never.
      * </p>
-     * 
+     *
      * @return The time to wait (in milliseconds) for a socket read to complete.
      */
     public int getReadTimeout() {
@@ -1148,7 +1114,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to 0 or forever.
      * </p>
-     * 
+     *
      * @return The time to wait (in milliseconds) for a broken connection to be
      *         reconnected.
      */
@@ -1158,7 +1124,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Returns the list of servers to initially attempt to connect to.
-     * 
+     *
      * @return The list of servers to initially attempt to connect to.
      */
     public List<InetSocketAddress> getServerAddresses() {
@@ -1167,7 +1133,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Returns the list of servers to initially attempt to connect to.
-     * 
+     *
      * @return The list of servers to initially attempt to connect to.
      */
     public List<String> getServers() {
@@ -1185,7 +1151,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Defaults to {@link SocketFactory#getDefault() SocketFactory.getDefault()}
      * .
      * </p>
-     * 
+     *
      * @return The socketFactory value.
      * @see #setSocketFactory(SocketFactory) setSocketFactory(...) or usage
      *      examples and suggestions.
@@ -1199,7 +1165,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Returns the thread factory for managing connections.
-     * 
+     *
      * @return The thread factory for managing connections.
      */
     public ThreadFactory getThreadFactory() {
@@ -1207,8 +1173,25 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Returns the factory for creating transports/connections to the server.
+     * <p>
+     * This field is also updated by the
+     * {@link #setConnectionModel(ConnectionModel)} method.
+     * </p>
+     * <p>
+     * Defaults to {@link ConnectionModel#RECEIVER_THREAD
+     * ConnectionModel.RECEIVER_THREAD's} factory.
+     * </p>
+     *
+     * @return The factory for creating transports/connections to the server.
+     */
+    public TransportFactory getTransportFactory() {
+        return myTransportFactory;
+    }
+
+    /**
      * Gets the user name for authenticating with the database.
-     * 
+     *
      * @return The user name for authenticating with the database.
      * @deprecated Replaced with the more general {@link Credential} capability.
      *             Will be removed after the 1.3.0 release.
@@ -1225,7 +1208,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Returns true if the user should authenticate as an administrative user.
-     * 
+     *
      * @return True if the user should authenticate as an administrative user.
      * @deprecated Replaced with the more general {@link Credential} capability.
      *             Will be removed after the 1.3.0 release.
@@ -1239,7 +1222,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Returns true if the connection is authenticating. If any credentials have
      * been added to this configuration then all connections will use
      * authentication.
-     * 
+     *
      * @return True if the connections should authenticate with the server.
      */
     public boolean isAuthenticating() {
@@ -1252,7 +1235,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to true, e.g., auto-discover.
      * </p>
-     * 
+     *
      * @return True if additional servers are auto discovered
      */
     public boolean isAutoDiscoverServers() {
@@ -1270,7 +1253,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to false, to not log messages.
      * </p>
-     * 
+     *
      * @return True if logging of messages is enabled.
      */
     public boolean isLogMessagesEnabled() {
@@ -1297,7 +1280,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * any changes after a {@code MongoClient} is constructed will have no
      * effect for that {@code MongoClient}.
      * </p>
-     * 
+     *
      * @return True if metrics collection is enabled.
      */
     public boolean isMetricsEnabled() {
@@ -1310,7 +1293,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to true, e.g., use SO_KEEPALIVE.
      * </p>
-     * 
+     *
      * @return True if the {@link java.net.Socket#setKeepAlive(boolean)
      *         SO_KEEPALIVE} socket option is set.
      */
@@ -1322,7 +1305,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Removes a {@link PropertyChangeListener} from the configuration. The
      * listener will no longer receive notification of all changes to the
      * configuration.
-     * 
+     *
      * @param listener
      *            The {@link PropertyChangeListener} to be removed
      */
@@ -1335,7 +1318,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * Removes a {@link PropertyChangeListener} from the configuration. The
      * listener will no longer receive notification of all changes to the
      * configuration's specified property.
-     * 
+     *
      * @param propertyName
      *            The name of the property that was listened on.
      * @param listener
@@ -1353,7 +1336,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to true, e.g., auto-discover.
      * </p>
-     * 
+     *
      * @param autoDiscoverServers
      *            The new value for auto-discovering servers.
      */
@@ -1376,7 +1359,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link ConnectionModel#RECEIVER_THREAD}.
      * </p>
-     * 
+     *
      * @param connectionModel
      *            The new value for the model the driver uses for managing
      *            connections.
@@ -1394,7 +1377,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Sets how long to wait (in milliseconds) for a socket connection to
      * complete.
-     * 
+     *
      * @param connectTimeout
      *            The time to wait (in milliseconds) for a socket connection to
      *            complete.
@@ -1411,7 +1394,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Sets the credentials to use to access the server. This removes all
      * existing credentials.
-     * 
+     *
      * @param credentials
      *            The credentials to use to access the server..
      * @throws IllegalArgumentException
@@ -1441,7 +1424,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@value #DEFAULT_DB_NAME}.
      * </p>
-     * 
+     *
      * @param defaultDatabase
      *            The new default database value.
      * @deprecated Replaced with the more general {@link Credential} capability.
@@ -1474,7 +1457,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Sets the default durability for write operations on the server to the new
      * value.
-     * 
+     *
      * @param defaultDurability
      *            The default durability for write operations on the server.
      */
@@ -1492,7 +1475,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link ReadPreference#PRIMARY} if <code>null</code> is set.
      * </p>
-     * 
+     *
      * @param defaultReadPreference
      *            The default read preference for a query.
      */
@@ -1524,7 +1507,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * similar should be used as the
      * {@link java.util.concurrent.RejectedExecutionHandler}.
      * </p>
-     * 
+     *
      * @param executor
      *            The new value for the executor.
      */
@@ -1542,7 +1525,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to {@link LockType#MUTEX}.
      * </p>
-     * 
+     *
      * @param lockType
      *            The new value for the type of hand off lock used.
      */
@@ -1565,7 +1548,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to false to not log messages.
      * </p>
-     * 
+     *
      * @param loggingMessages
      *            The new value for if messages should be logged.
      */
@@ -1587,7 +1570,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Note: The caches are maintained per {@link MongoClient} instance.
      * </p>
-     * 
+     *
      * @param maxCacheEntries
      *            The new value for the maximum number of strings that may have
      *            their encoded form cached.
@@ -1611,7 +1594,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Note: The caches are maintained per {@link MongoClient} instance.
      * </p>
-     * 
+     *
      * @param maxlength
      *            The new value for the length for a string that the encoder is
      *            allowed to cache.
@@ -1636,7 +1619,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * create single connections to the secondary servers if queries are issued
      * with a {@link ReadPreference} other than {@link ReadPreference#PRIMARY}.
      * </p>
-     * 
+     *
      * @param maxConnectionCount
      *            New maximum number of connections to use.
      */
@@ -1652,7 +1635,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Sets the value of the number of read timeouts (a tick) before closing the
      * connection.
-     * 
+     *
      * @param idleTickCount
      *            The new value for the number of read timeouts (a tick) before
      *            closing the connection.
@@ -1672,7 +1655,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * more operations being in an unknown state on a connection error. When the
      * connection has this many pending connections additional requests will
      * block.
-     * 
+     *
      * @param maxPendingOperationsPerConnection
      *            The new maximum number of pending operations to allow per
      *            connection.
@@ -1694,7 +1677,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to 5 minutes (300,000).
      * </p>
-     * 
+     *
      * @param maxSecondaryLag
      *            The new value for the maximum number of milliseconds that a
      *            secondary can be behind the primary before they will be
@@ -1729,7 +1712,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * any changes after a {@code MongoClient} is constructed will have no
      * effect for that {@code MongoClient}.
      * </p>
-     * 
+     *
      * @param metricsEnabled
      *            The new value for if metrics should be enabled.
      */
@@ -1754,7 +1737,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      * <p>
      * Defaults to DEBUG/500.
      * </p>
-     * 
+     *
      * @param metricsLogLevel
      *            The new value for the level to log periodic metrics.
      */
@@ -1769,7 +1752,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Sets the value of the minimum number of connections to try and keep open.
-     * 
+     *
      * @param minimumConnectionCount
      *            The new value for the minimum number of connections to try and
      *            keep open.
@@ -1799,7 +1782,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Sets how long to wait (in milliseconds) for a broken connection to
      * reconnect.
-     * 
+     *
      * @param connectTimeout
      *            The time to wait (in milliseconds) for a broken connection to
      *            reconnect.
@@ -1815,7 +1798,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Sets the servers to initially attempt to connect to.
-     * 
+     *
      * @param servers
      *            The servers to connect to.
      */
@@ -1884,10 +1867,10 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
      *  }
      * </pre></code></blockquote>
      * </p>
-     * 
+     *
      * @param socketFactory
      *            The socketFactory value.
-     * 
+     *
      * @see <a href="http://code.google.com/p/junixsocket">junixsocket
      *      Project</a>
      */
@@ -1906,7 +1889,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
 
     /**
      * Sets the thread factory for managing connections to the new value.
-     * 
+     *
      * @param factory
      *            The thread factory for managing connections.
      */
@@ -1919,12 +1902,32 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     }
 
     /**
+     * Sets the factory for creating transports/connections to the server.
+     * <p>
+     * This field is also updated by the
+     * {@link #setConnectionModel(ConnectionModel)} method. Use this method if
+     * you are using a custom transport implementation.
+     * </p>
+     *
+     * @param transportFactory
+     *            The factory for creating transports/connections to the server.
+     */
+    public void setTransportFactory(final TransportFactory transportFactory) {
+        final TransportFactory old = myTransportFactory;
+
+        myTransportFactory = transportFactory;
+
+        myPropSupport.firePropertyChange("transportFactory", old,
+                myTransportFactory);
+    }
+
+    /**
      * Sets if the {@link java.net.Socket#setKeepAlive(boolean) SO_KEEPALIVE}
      * socket option is set.
      * <p>
      * Defaults to true, e.g., use SO_KEEPALIVE.
      * </p>
-     * 
+     *
      * @param usingSoKeepalive
      *            The new value for using SO_KEEPALIVE.
      */
@@ -1940,7 +1943,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Reads the serialized configuration and sets the transient field to known
      * values.
-     * 
+     *
      * @param stream
      *            The stream to read from.
      * @throws IOException
@@ -1961,7 +1964,7 @@ public class MongoClientConfiguration implements Cloneable, Serializable {
     /**
      * Updates this configurations value based on the field's descriptor, name
      * and value.
-     * 
+     *
      * @param descriptor
      *            The field's descriptor.
      * @param propName

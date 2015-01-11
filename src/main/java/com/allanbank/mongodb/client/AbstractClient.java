@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,12 +30,13 @@ import com.allanbank.mongodb.error.MongoClientClosedException;
 
 /**
  * AbstractClient provides a base class for {@link Client} implementations.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractClient implements Client {
+public abstract class AbstractClient
+        implements Client {
 
     /** Tracks if the client is closed. */
     private final AtomicBoolean myClosed = new AtomicBoolean(false);
@@ -52,7 +53,7 @@ public abstract class AbstractClient implements Client {
      * <p>
      * Overridden to close all of the open connections.
      * </p>
-     * 
+     *
      * @see Closeable#close()
      */
     @Override
@@ -95,7 +96,7 @@ public abstract class AbstractClient implements Client {
 
     /**
      * Locates a {@link Connection} to send a message on.
-     * 
+     *
      * @param message1
      *            The first message that will be sent. The connection return
      *            should be compatible with all of the messages
@@ -104,7 +105,7 @@ public abstract class AbstractClient implements Client {
      *            The second message that will be sent. The connection return
      *            should be compatible with all of the messages
      *            {@link ReadPreference}. May be <code>null</code>.
-     * 
+     *
      * @return The {@link Connection} to send a message on.
      * @throws MongoDbException
      *             In the case of an error finding a {@link Connection}.
@@ -114,7 +115,7 @@ public abstract class AbstractClient implements Client {
 
     /**
      * Asserts that the command is open.
-     * 
+     *
      * @param message
      *            The message being sent.
      * @throws MongoClientClosedException

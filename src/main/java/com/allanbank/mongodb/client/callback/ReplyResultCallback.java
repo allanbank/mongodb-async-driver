@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,20 +34,20 @@ import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Callback to extract the map/reduce and aggregation results from the reply.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplyResultCallback extends
-        AbstractReplyCallback<MongoIterator<Document>> {
+public class ReplyResultCallback
+        extends AbstractReplyCallback<MongoIterator<Document>> {
 
     /** The field in the reply holding the results. */
     private final String myReplyField;
 
     /**
      * Create a new ReplyResultCallback.
-     * 
+     *
      * @param forwardCallback
      *            The callback to forward the result documents to.
      */
@@ -58,7 +58,7 @@ public class ReplyResultCallback extends
 
     /**
      * Create a new ReplyResultCallback.
-     * 
+     *
      * @param field
      *            The field in the reply holding the results.
      * @param forwardCallback
@@ -75,7 +75,7 @@ public class ReplyResultCallback extends
      * <p>
      * Overridden to extract the 'results' elements from the reply.
      * </p>
-     * 
+     *
      * @see com.allanbank.mongodb.client.callback.AbstractReplyCallback#convert(com.allanbank.mongodb.client.message.Reply)
      */
     @Override

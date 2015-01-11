@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -57,17 +57,18 @@ import com.allanbank.mongodb.builder.ParallelScan;
  * with the conversion of the asynchronous method invocations into synchronous
  * methods for those uses cases that do not require an asynchronous interface.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractAsyncMongoCollection extends
-        AbstractMongoOperations implements AsyncMongoCollection {
+public abstract class AbstractAsyncMongoCollection
+        extends AbstractMongoOperations
+        implements AsyncMongoCollection {
 
     /**
      * Create a new AbstractAsyncMongoCollection.
-     * 
+     *
      * @param client
      *            The client for interacting with MongoDB.
      * @param database
@@ -85,7 +86,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #aggregateAsync(Callback, Aggregate)}.
      * </p>
-     * 
+     *
      * @see #aggregateAsync(Callback, Aggregate)
      */
     @Override
@@ -281,7 +282,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * with {@link #getReadPreference()} as the <tt>readPreference</tt>
      * argument.
      * </p>
-     * 
+     *
      * @param query
      *            The query document.
      * @return A future that will be updated with the number of matching
@@ -422,7 +423,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * method with false as the <tt>singleDelete</tt> argument and the
      * {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see #deleteAsync(Callback, DocumentAssignable, boolean, Durability)
      */
     @Override
@@ -439,7 +440,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with the {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -456,7 +457,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with false as the <tt>singleDelete</tt> argument.
      * </p>
-     * 
+     *
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable, boolean)
      */
     @Override
@@ -474,7 +475,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * method with false as the <tt>singleDelete</tt> argument and the
      * {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -496,7 +497,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #deleteAsync(Callback, DocumentAssignable, boolean, Durability)}
      * method with the {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -516,7 +517,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the {@link #deleteAsync(Callback, DocumentAssignable)}
      * method.
      * </p>
-     * 
+     *
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -537,7 +538,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the {@link #deleteAsync(Callback, DocumentAssignable)}
      * method with false as the <tt>singleDelete</tt> argument.
      * </p>
-     * 
+     *
      * @see MongoCollection#deleteAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -748,7 +749,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #explainAsync(Callback,Find)} method.
      * </p>
-     * 
+     *
      * @see #explainAsync(Callback,Find)
      */
     @Override
@@ -845,7 +846,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the
      * {@link #findAndModifyAsync(Callback, FindAndModify)}.
      * </p>
-     * 
+     *
      * @see #findAndModifyAsync(Callback, FindAndModify)
      */
     @Override
@@ -906,7 +907,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #findAsync(Callback, Find)}.
      * </p>
-     * 
+     *
      * @see #findAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -932,7 +933,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #findAsync(Callback, DocumentAssignable)}.
      * </p>
-     * 
+     *
      * @see #findAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -951,7 +952,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #findAsync(Callback, Find)}.
      * </p>
-     * 
+     *
      * @see #findAsync(Callback, Find)
      */
     @Override
@@ -1027,7 +1028,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #findOneAsync(Callback, Find)}.
      * </p>
-     * 
+     *
      * @see #findOneAsync(Callback, Find)
      */
     @Override
@@ -1054,7 +1055,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the
      * {@link #findOneAsync(Callback, DocumentAssignable)}.
      * </p>
-     * 
+     *
      * @see #findOneAsync(Callback, DocumentAssignable)
      */
     @Override
@@ -1073,7 +1074,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #findOneAsync(Callback, Find)}.
      * </p>
-     * 
+     *
      * @see #findOneAsync(Callback, Find)
      */
     @Override
@@ -1218,7 +1219,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with the {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1241,7 +1242,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * method with <tt>continueOnError</tt> set to false and the
      * {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1264,7 +1265,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method the {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1283,7 +1284,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * method with <tt>continueOnError</tt> set to false and the
      * {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1301,7 +1302,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with <tt>continueOnError</tt> set to false.
      * </p>
-     * 
+     *
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1321,7 +1322,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * method with <tt>continueOnError</tt> set to false and the
      * {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1344,7 +1345,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #insertAsync(Callback, boolean, Durability, DocumentAssignable...)}
      * method with <tt>continueOnError</tt> set to false.
      * </p>
-     * 
+     *
      * @see MongoCollection#insertAsync(Callback, boolean, Durability,
      *      DocumentAssignable[])
      */
@@ -1470,7 +1471,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #mapReduceAsync(Callback, MapReduce)}.
      * </p>
-     * 
+     *
      * @see #mapReduceAsync(Callback, MapReduce)
      */
     @Override
@@ -1712,7 +1713,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #stream(StreamCallback, Aggregate)}.
      * </p>
-     * 
+     *
      * @see #stream(StreamCallback, Aggregate)
      */
     @Override
@@ -1738,7 +1739,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #streamingFind(Callback, Find)}.
      * </p>
-     * 
+     *
      * @see #streamingFind(Callback, Find)
      */
     @Deprecated
@@ -1753,7 +1754,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #stream(StreamCallback, Find)}.
      * </p>
-     * 
+     *
      * @see #stream(StreamCallback, Find)
      */
     @Deprecated
@@ -1786,7 +1787,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #stream(StreamCallback, Find)}.
      * </p>
-     * 
+     *
      * @see #stream(StreamCallback, Find)
      */
     @Override
@@ -1801,7 +1802,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #streamingFind(StreamCallback, Find)}.
      * </p>
-     * 
+     *
      * @see #stream(StreamCallback, Find)
      */
     @Deprecated
@@ -1833,7 +1834,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the
      * {@link #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)}.
      * </p>
-     * 
+     *
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -1856,7 +1857,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the
      * {@link #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)}.
      * </p>
-     * 
+     *
      * @see #textSearchAsync(Callback, com.allanbank.mongodb.builder.Text)
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
@@ -1885,7 +1886,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the
      * {@link #textSearchAsync(com.allanbank.mongodb.builder.Text)}.
      * </p>
-     * 
+     *
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -1909,7 +1910,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * with multiUpdate set to true, upsert set to false, and using the
      * {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -1928,7 +1929,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * using the {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -1948,7 +1949,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * with multiUpdate set to true, and upsert set to false.
      * </p>
-     * 
+     *
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -1968,7 +1969,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * with multiUpdate set to true, upsert set to false, and using the
      * {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -1991,7 +1992,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * using the {@link #getDurability() default durability}.
      * </p>
-     * 
+     *
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -2014,7 +2015,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * method.
      * </p>
-     * 
+     *
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -2038,7 +2039,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * {@link #updateAsync(Callback, DocumentAssignable, DocumentAssignable, boolean, boolean, Durability)}
      * with multiUpdate set to true, and upsert set to false.
      * </p>
-     * 
+     *
      * @see #updateAsync(Callback, DocumentAssignable, DocumentAssignable,
      *      boolean, boolean, Durability)
      */
@@ -2126,7 +2127,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
      * method.
      * </p>
-     * 
+     *
      * @see #writeAsync(Callback, BatchedWrite)
      */
     @Override
@@ -2145,7 +2146,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * <p>
      * Overridden to call the {@link #writeAsync(BatchedWrite)} method.
      * </p>
-     * 
+     *
      * @see #writeAsync(BatchedWrite)
      */
     @Override
@@ -2160,7 +2161,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
      * method.
      * </p>
-     * 
+     *
      * @see #writeAsync(Callback, BatchedWrite)
      */
     @Override
@@ -2175,7 +2176,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the {@link #writeAsync(Callback, BatchedWrite)}
      * method.
      * </p>
-     * 
+     *
      * @see #writeAsync(Callback, BatchedWrite)
      */
     @Override
@@ -2190,7 +2191,7 @@ public abstract class AbstractAsyncMongoCollection extends
      * Overridden to call the {@link #writeAsync(LambdaCallback, BatchedWrite)}
      * method.
      * </p>
-     * 
+     *
      * @see #writeAsync(LambdaCallback, BatchedWrite)
      */
     @Override
@@ -2201,7 +2202,7 @@ public abstract class AbstractAsyncMongoCollection extends
 
     /**
      * Returns the type of lock to use.
-     * 
+     *
      * @return The type of lock to use.
      */
     protected LockType getLockType() {

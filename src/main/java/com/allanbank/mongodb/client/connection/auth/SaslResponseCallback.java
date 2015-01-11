@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,14 +37,14 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
 /**
  * SaslResponseCallback provides the callback for all of the SASL requests.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the
  *         extensions.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */final class SaslResponseCallback extends
-        AbstractValidatingReplyCallback {
+/* package */final class SaslResponseCallback
+        extends AbstractValidatingReplyCallback {
 
     /** An empty set of bytes. */
     public static final byte[] EMPTY_BYTES = new byte[0];
@@ -63,7 +63,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
     /**
      * Creates a new SaslResponseCallback.
-     * 
+     *
      * @param client
      *            The SASL client holding the authentication state.
      * @param connection
@@ -155,7 +155,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
     /**
      * Extracts the first document from the reply. Throws an exception if the
      * reply does not have atleast 1 document.
-     * 
+     *
      * @param reply
      *            The reply to extract the document from.
      * @return The first document in the reply.
@@ -174,7 +174,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
     /**
      * Extracts the boolean done field. If the field does not exist or does not
      * contain a boolean then false is returned.
-     * 
+     *
      * @param reply
      *            The reply document to extract the response from.
      * @return The done field from the response or false if it does not exist.
@@ -194,7 +194,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
     /**
      * Extracts the payload from the reply document. If there is no payload then
      * an empty byte array is returned.
-     * 
+     *
      * @param reply
      *            The reply document to extract the payload from.
      * @return The payload bytes.
@@ -213,7 +213,7 @@ import com.allanbank.mongodb.error.MongoDbAuthenticationException;
 
     /**
      * Sends a reply to a challenge from the server.
-     * 
+     *
      * @param reply
      *            The reply with the challenge from the server.
      * @param response

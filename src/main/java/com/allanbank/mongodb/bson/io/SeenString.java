@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 /**
  * SeenString is a record of the byte[], value and count for each string/byte[]
  * the cache sees.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -50,7 +50,7 @@ class SeenString {
 
     /**
      * Creates a new SeenString.
-     * 
+     *
      * @param source
      *            The source of the bytes in the string.
      * @param offset
@@ -69,7 +69,7 @@ class SeenString {
 
     /**
      * Returns the encoded bytes for the seen string.
-     * 
+     *
      * @return The encoded bytes for the seen string.
      */
     public byte[] getBytes() {
@@ -78,7 +78,7 @@ class SeenString {
 
     /**
      * Returns the number of times the string is seen.
-     * 
+     *
      * @return The number of times the string is seen.
      */
     public int getCount() {
@@ -87,7 +87,7 @@ class SeenString {
 
     /**
      * Returns the decoded string for the seen string.
-     * 
+     *
      * @return The decoded string for the seen string.
      */
     public String getValue() {
@@ -103,7 +103,7 @@ class SeenString {
 
     /**
      * Sets the count to zero.
-     * 
+     *
      * @return the previous value for the count.
      */
     public int reset() {

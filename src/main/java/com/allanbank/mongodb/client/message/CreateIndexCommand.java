@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import com.allanbank.mongodb.client.VersionRange;
 
 /**
  * Helper class to make generating a {@code createIndexes} command easier.
- * 
+ *
  * @see <a
  *      href="http://docs.mongodb.org/manual/reference/command/createIndexes">createIndexes
  *      reference manual.</a>
@@ -39,7 +39,8 @@ import com.allanbank.mongodb.client.VersionRange;
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class CreateIndexCommand extends Command {
+public class CreateIndexCommand
+        extends Command {
     /**
      * The first version of MongoDB to support the {@code createIndexes}
      * command.
@@ -52,7 +53,7 @@ public class CreateIndexCommand extends Command {
 
     /**
      * Generates a name for the index based on the keys.
-     * 
+     *
      * @param keys
      *            The keys for the index.
      * @return The name for the index.
@@ -77,7 +78,7 @@ public class CreateIndexCommand extends Command {
 
     /**
      * Constructs the {@code createIndexes} command.
-     * 
+     *
      * @param collectionName
      *            The name of the collection the command is using. This should
      *            be the real collection and not
@@ -116,7 +117,7 @@ public class CreateIndexCommand extends Command {
 
     /**
      * Create a new CreateIndexCommand.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -141,10 +142,10 @@ public class CreateIndexCommand extends Command {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -161,7 +162,7 @@ public class CreateIndexCommand extends Command {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,19 +35,20 @@ import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
  * visitor uses a {@link StringEncoder} and the {@link Element#size()} to
  * compute the size item about to be written removing the requirements to buffer
  * the data being written.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class WriteVisitor implements SizeAwareVisitor {
+/* package */class WriteVisitor
+        implements SizeAwareVisitor {
 
     /** Stream to myOutput.write to. */
     protected final BsonOutputStream myOutput;
 
     /**
      * Creates a new {@link WriteVisitor}.
-     * 
+     *
      * @param output
      *            The stream to myOutput.write to.
      */
@@ -57,7 +58,7 @@ import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
 
     /**
      * Creates a new {@link WriteVisitor}.
-     * 
+     *
      * @param output
      *            The stream to myOutput.write to.
      */
@@ -67,7 +68,7 @@ import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
 
     /**
      * Returns the I/O exception encountered by the visitor.
-     * 
+     *
      * @return The I/O exception encountered by the visitor.
      */
     public IOException getError() {
@@ -76,7 +77,7 @@ import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
 
     /**
      * Returns true if the visitor had an I/O error.
-     * 
+     *
      * @return True if the visitor had an I/O error, false otherwise.
      */
     public boolean hasError() {
@@ -94,7 +95,7 @@ import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
     /**
      * Determines the size of the document written in BSON format. The
      * {@link Document}'s size is cached for subsequent write operations.
-     * 
+     *
      * @param doc
      *            The document to determine the size of.
      * @return The number of bytes require to Write the document.
@@ -108,7 +109,7 @@ import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
 
     /**
      * Computes the size of the encoded UTF8 String.
-     * 
+     *
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
@@ -377,7 +378,7 @@ import com.allanbank.mongodb.bson.element.SizeAwareVisitor;
 
     /**
      * Writes a list of elements.
-     * 
+     *
      * @param elements
      *            The sub elements of the document.
      * @param size

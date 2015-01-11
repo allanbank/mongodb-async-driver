@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -58,7 +58,7 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * AbstractProxyConnectionTest provides tests for the
  * {@link AbstractProxyConnection} class.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AbstractProxyConnectionTest {
@@ -69,7 +69,7 @@ public class AbstractProxyConnectionTest {
      * Test method for
      * {@link AbstractProxyConnection#addPropertyChangeListener(PropertyChangeListener)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -106,7 +106,7 @@ public class AbstractProxyConnectionTest {
      * Test method for
      * {@link AbstractProxyConnection#addPropertyChangeListener(PropertyChangeListener)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -144,7 +144,7 @@ public class AbstractProxyConnectionTest {
      * Test method for
      * {@link AbstractProxyConnection#addPropertyChangeListener(PropertyChangeListener)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -182,7 +182,7 @@ public class AbstractProxyConnectionTest {
      * Test method for
      * {@link AbstractProxyConnection#addPropertyChangeListener(PropertyChangeListener)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -222,7 +222,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#close()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -245,7 +245,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#flush()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -274,7 +274,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#flush()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -312,7 +312,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#getPendingCount()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -341,7 +341,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#getPendingCount()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -378,7 +378,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#getProxiedConnection()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -403,7 +403,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#getServerName}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -432,7 +432,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#isAvailable()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -461,7 +461,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#isAvailable()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -497,7 +497,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#isIdle()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -526,7 +526,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#isIdle()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -562,7 +562,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#isOpen()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -591,7 +591,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#isOpen()} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -628,7 +628,7 @@ public class AbstractProxyConnectionTest {
     /**
      * Test method for
      * {@link AbstractProxyConnection#raiseErrors(MongoDbException)} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -659,7 +659,7 @@ public class AbstractProxyConnectionTest {
     /**
      * Test method for
      * {@link AbstractProxyConnection#send(Message, ReplyCallback)} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -692,7 +692,7 @@ public class AbstractProxyConnectionTest {
     /**
      * Test method for
      * {@link AbstractProxyConnection#send(Message, ReplyCallback)} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -730,7 +730,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#send}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -762,7 +762,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#send}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -801,7 +801,7 @@ public class AbstractProxyConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyConnection#shutdown(boolean)} .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -831,7 +831,7 @@ public class AbstractProxyConnectionTest {
     /**
      * Test method for
      * {@link AbstractProxyConnection#waitForClosed(int, TimeUnit)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -861,7 +861,7 @@ public class AbstractProxyConnectionTest {
     /**
      * Test method for
      * {@link AbstractProxyConnection#waitForClosed(int, TimeUnit)}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
      */
@@ -897,15 +897,15 @@ public class AbstractProxyConnectionTest {
 
     /**
      * TestProxiedConnection provides a connection for testing.
-     * 
+     *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class TestProxiedConnection extends
-            AbstractProxyConnection {
+    public static final class TestProxiedConnection
+            extends AbstractProxyConnection {
 
         /**
          * Creates a new TestProxiedConnection.
-         * 
+         *
          * @param proxiedConnection
          *            The connection to forward to.
          */

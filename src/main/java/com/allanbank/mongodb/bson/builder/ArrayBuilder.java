@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
@@ -32,21 +34,23 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * Interface for a builder used to construct a BSON array.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface ArrayBuilder extends Builder {
+@NotThreadSafe
+public interface ArrayBuilder
+        extends Builder {
 
     /**
      * Adds a boolean element.
      * <p>
      * This is a equivalent to {@link #addBoolean(boolean)} but less verbose.
      * </p>
-     * 
+     *
      * @param value
      *            The boolean value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -59,7 +63,7 @@ public interface ArrayBuilder extends Builder {
      * This is a equivalent to {@link #addBinary(byte, byte[])} but less
      * verbose.
      * </p>
-     * 
+     *
      * @param subType
      *            The sub-type for the binary data.
      * @param data
@@ -78,7 +82,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} if the {@code data} is <code>null</code> instead of
      * throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param data
      *            The binary value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -94,7 +98,7 @@ public interface ArrayBuilder extends Builder {
      * if the {@code timestamp} is <code>null</code> instead of throwing an
      * {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param timestamp
      *            The number of milliseconds since the Unix epoch.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -108,7 +112,7 @@ public interface ArrayBuilder extends Builder {
      * insert a {@link NullElement} if the {@code document} is <code>null</code>
      * instead of throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param document
      *            The document to add to the array.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -126,7 +130,7 @@ public interface ArrayBuilder extends Builder {
      * Added to resolve ambiguity between the {@link DocumentElement} being both
      * a {@link DocumentAssignable} and an {@link ElementAssignable}.
      * </p>
-     * 
+     *
      * @param document
      *            The document to add to the array.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -138,7 +142,7 @@ public interface ArrayBuilder extends Builder {
      * <p>
      * This is a equivalent to {@link #addDouble(double)} but less verbose.
      * </p>
-     * 
+     *
      * @param value
      *            The double value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -147,7 +151,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a pre-built element to the document.
-     * 
+     *
      * @param element
      *            The element to add.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -162,7 +166,7 @@ public interface ArrayBuilder extends Builder {
      * <p>
      * This is a equivalent to {@link #addInteger(int)} but less verbose.
      * </p>
-     * 
+     *
      * @param value
      *            The integer value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -174,7 +178,7 @@ public interface ArrayBuilder extends Builder {
      * <p>
      * This is a equivalent to {@link #addLong(long)} but less verbose.
      * </p>
-     * 
+     *
      * @param value
      *            The long value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -189,7 +193,7 @@ public interface ArrayBuilder extends Builder {
      * This method does type inspection which can be slow. It is generally much
      * faster to use the type specific methods of this interface.
      * </p>
-     * 
+     *
      * @param value
      *            The Object value to coerce into an element.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -205,7 +209,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} if the {@code id} is <code>null</code> instead of
      * throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param id
      *            The ObjectId to add.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -219,7 +223,7 @@ public interface ArrayBuilder extends Builder {
      * insert a {@link NullElement} if the {@code pattern} is <code>null</code>
      * instead of throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param pattern
      *            The pattern for the regular expression.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -233,7 +237,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} if the {@code value} is <code>null</code> instead of
      * throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param value
      *            The string value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -246,7 +250,7 @@ public interface ArrayBuilder extends Builder {
      * This is a equivalent to {@link #addDBPointer(String, String, ObjectId)}
      * but less verbose.
      * </p>
-     * 
+     *
      * @param databaseName
      *            The name of the database containing the document.
      * @param collectionName
@@ -257,7 +261,7 @@ public interface ArrayBuilder extends Builder {
      * @throws IllegalArgumentException
      *             If {@code databaseName}, {@code collectionName}, or
      *             {@code id} is <code>null</code>.
-     * 
+     *
      * @deprecated See BSON specification.
      */
     @Deprecated
@@ -271,7 +275,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} if the {@code uuid} is <code>null</code> instead of
      * throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param uuid
      *            The {@link UUID} to add.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -280,7 +284,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a binary element.
-     * 
+     *
      * @param subType
      *            The sub-type for the binary data.
      * @param data
@@ -300,7 +304,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(byte[])} method instead.
      * </p>
-     * 
+     *
      * @param data
      *            The binary value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -311,7 +315,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a boolean element.
-     * 
+     *
      * @param value
      *            The boolean value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -320,7 +324,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a deprecated DBPointer element.
-     * 
+     *
      * @param databaseName
      *            The name of the database containing the document.
      * @param collectionName
@@ -331,7 +335,7 @@ public interface ArrayBuilder extends Builder {
      * @throws IllegalArgumentException
      *             If {@code databaseName}, {@code collectionName}, or
      *             {@code id} is <code>null</code>.
-     * 
+     *
      * @deprecated See BSON specification.
      */
     @Deprecated
@@ -346,7 +350,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(DocumentAssignable)} method instead.
      * </p>
-     * 
+     *
      * @param document
      *            The document to add to the array.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -358,7 +362,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a double element.
-     * 
+     *
      * @param value
      *            The double value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -367,7 +371,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a integer (32-bit signed) element.
-     * 
+     *
      * @param value
      *            The integer value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -376,7 +380,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a JavaScript element.
-     * 
+     *
      * @param code
      *            The java script code.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -388,7 +392,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a JavaScript with Scope element.
-     * 
+     *
      * @param code
      *            The java script code.
      * @param scope
@@ -406,7 +410,7 @@ public interface ArrayBuilder extends Builder {
      * This method throws an {@link IllegalArgumentException} if the
      * {@code uuid} is <code>null</code>.
      * </p>
-     * 
+     *
      * @param uuid
      *            The {@link UUID} to add.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -418,7 +422,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a long (64-bit signed) element.
-     * 
+     *
      * @param value
      *            The long value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -427,21 +431,21 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a minimum key value element. Used as an absolute upper bounds.
-     * 
+     *
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder addMaxKey();
 
     /**
      * Adds a minimum key value element. Used as an absolute lower bounds.
-     * 
+     *
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder addMinKey();
 
     /**
      * Adds a MongoDB Timestamp element.
-     * 
+     *
      * @param value
      *            The mongoDB timstamp value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -450,7 +454,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a <code>null</code> valued element.
-     * 
+     *
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder addNull();
@@ -462,7 +466,7 @@ public interface ArrayBuilder extends Builder {
      * is <code>null</code>. If you would prefer a {@link NullElement} be
      * inserted in the document use the {@link #add(ObjectId)} method instead.
      * </p>
-     * 
+     *
      * @param id
      *            The ObjectId to add.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -480,7 +484,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(Pattern)} method instead.
      * </p>
-     * 
+     *
      * @param pattern
      *            The pattern for the regular expression.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -492,7 +496,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a regular expression element.
-     * 
+     *
      * @param pattern
      *            The pattern for the regular expression.
      * @param options
@@ -514,7 +518,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(String)} method instead.
      * </p>
-     * 
+     *
      * @param value
      *            The string value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -525,7 +529,7 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Adds a symbol element.
-     * 
+     *
      * @param symbol
      *            The symbol value.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -538,7 +542,7 @@ public interface ArrayBuilder extends Builder {
     /**
      * Adds a timestamp element. The timestamp is the number of milliseconds
      * since the Unix epoch.
-     * 
+     *
      * @param timestamp
      *            The number of milliseconds since the Unix epoch.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -553,7 +557,7 @@ public interface ArrayBuilder extends Builder {
      * {@link NullElement} be inserted in the array use the {@link #add(UUID)}
      * method instead.
      * </p>
-     * 
+     *
      * @param uuid
      *            The {@link UUID} to add.
      * @return This {@link ArrayBuilder} for method chaining.
@@ -564,21 +568,21 @@ public interface ArrayBuilder extends Builder {
 
     /**
      * Returns the array of {@link Element}s being constructed.
-     * 
+     *
      * @return The constructed array of {@link Element}.
      */
     public Element[] build();
 
     /**
      * Pushes a context for constructing a sub-document.
-     * 
+     *
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public DocumentBuilder push();
 
     /**
      * Pushes a context for constructing a sub-array.
-     * 
+     *
      * @return This {@link ArrayBuilder} for method chaining.
      */
     public ArrayBuilder pushArray();

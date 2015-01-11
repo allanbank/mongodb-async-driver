@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,9 @@
  */
 package com.allanbank.mongodb.bson.element;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.NumericElement;
@@ -27,14 +30,18 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON (signed 64-bit) integer or long.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class LongElement extends AbstractElement implements NumericElement {
+@Immutable
+@ThreadSafe
+public class LongElement
+        extends AbstractElement
+        implements NumericElement {
 
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.LONG;
@@ -45,7 +52,7 @@ public class LongElement extends AbstractElement implements NumericElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @return The size of the element when encoded in bytes.
@@ -62,7 +69,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Constructs a new {@link LongElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON long.
      * @param value
@@ -76,7 +83,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Constructs a new {@link LongElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON long.
      * @param value
@@ -96,7 +103,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitLong} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -141,10 +148,10 @@ public class LongElement extends AbstractElement implements NumericElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -204,7 +211,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Returns the BSON long value.
-     * 
+     *
      * @return The BSON long value.
      */
     public long getValue() {
@@ -235,7 +242,7 @@ public class LongElement extends AbstractElement implements NumericElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

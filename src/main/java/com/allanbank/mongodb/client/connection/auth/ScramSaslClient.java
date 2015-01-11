@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,7 +56,7 @@ import com.allanbank.mongodb.util.IOUtils;
  * {@code saslPrep} algorithm for the username and password as specified by RFC
  * 4013 which is itself a profile for {@code stringprep} from RFC 3454.
  * </p>
- * 
+ *
  * @see <a href="http://tools.ietf.org/html/rfc5802">RFC 5802</a>
  * @see <a href="http://tools.ietf.org/html/rfc4013">RFC 4013</a>
  * @see <a href="http://tools.ietf.org/html/rfc3454">RFC 3454</a>
@@ -65,7 +65,8 @@ import com.allanbank.mongodb.util.IOUtils;
  *         extensions.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class ScramSaslClient implements SaslClient {
+/* package */class ScramSaslClient
+        implements SaslClient {
 
     /** The official name of the SASL Mechanism. */
     public static final String MECHANISM = "SCRAM-SHA-1";
@@ -275,7 +276,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
     /**
      * Adds a range to the set of code points.
-     * 
+     *
      * @param codepoints
      *            The set of code points to augment.
      * @param start
@@ -320,7 +321,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
     /**
      * Creates a new ScramSaslClient.
-     * 
+     *
      * @param callbackHandler
      *            The handler to retrieve the user's name and password.
      */
@@ -356,7 +357,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * Overridden to evaluate the challenge based on the current state of the
      * client.
      * </p>
-     * 
+     *
      * @see javax.security.sasl.SaslClient#evaluateChallenge(byte[])
      */
     @Override
@@ -387,7 +388,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * <p>
      * Overridden to return {@value #MECHANISM}.
      * </p>
-     * 
+     *
      * @return Returns the constant {@value #MECHANISM}.
      */
     @Override
@@ -412,7 +413,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * <p>
      * Overridden to return {@code true}.
      * </p>
-     * 
+     *
      * @return Returns {@code true}.
      */
     @Override
@@ -438,7 +439,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * Overridden to throw an IllegalStateException as the {@value #MECHANISM}
      * does not "support integrity and/or privacy as the quality of protection".
      * </p>
-     * 
+     *
      * @throws IllegalStateException
      *             As the {@value #MECHANISM} does not
      *             "support integrity and/or privacy as the quality of protection."
@@ -456,7 +457,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * Overridden to throw an IllegalStateException as the {@value #MECHANISM}
      * does not "support integrity and/or privacy as the quality of protection".
      * </p>
-     * 
+     *
      * @throws IllegalStateException
      *             As the {@value #MECHANISM} does not
      *             "support integrity and/or privacy as the quality of protection."
@@ -473,7 +474,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * <p>
      * See RFC 5802 Section 5 for the details on the message and its contents.
      * </p>
-     * 
+     *
      * @return The message to send to the server.
      * @throws SaslException
      *             On a failure to create the message.
@@ -505,7 +506,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
     /**
      * Creates a random nonce of the same length as the hash algorithm.
-     * 
+     *
      * @return The random nonce.
      */
     protected String createNonce() {
@@ -523,7 +524,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * <p>
      * See RFC 5802 Section 5 for the details on the message and its contents.
      * </p>
-     * 
+     *
      * @param challenge
      *            The challenge message from the server.
      * @return The message to send to the server.
@@ -667,7 +668,7 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Verifies that the final message from the server matches the server
      * signature we computed.
-     * 
+     *
      * @param challenge
      *            The final message from the server.
      * @throws SaslException
@@ -696,7 +697,7 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Performs a {@link #saslPrep(char[])} on the {@code name} and then
      * converts all '=' characters to "=3D" and all ',' characters to "=2C".
-     * 
+     *
      * @param name
      *            The name to prepare.
      * @return The name after {@link #saslPrep(char[])} and replacement.
@@ -724,7 +725,7 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Implements the SASLPrep algorithm on the {@code text} as defined by RFC
      * 4013.
-     * 
+     *
      * @param text
      *            The text to be prepared.
      * @return The prepared text.
@@ -763,7 +764,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
     /**
      * Generates the SCRAM keyed hash. See section 3 of RFC 5802.
-     * 
+     *
      * @param keyBytes
      *            The {@link Mac}'s key bytes.
      * @param string
@@ -781,7 +782,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
     /**
      * Generates the SCRAM salted password. See section 3 of RFC 5802.
-     * 
+     *
      * @param passwordBytes
      *            The password bytes.
      * @return The salted password.
@@ -809,7 +810,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
     /**
      * Creates and initializes the {@link Mac}.
-     * 
+     *
      * @param keyBytes
      *            The key for the {@link Mac}.
      * @return The initialized {@link Mac}.
@@ -836,7 +837,7 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Parses the message into the fields and returns the map of field names
      * (one character each) and values.
-     * 
+     *
      * @param message
      *            The message to parse.
      * @return The parsed fields from the message.
@@ -871,17 +872,17 @@ import com.allanbank.mongodb.util.IOUtils;
      * invariants<blockquote>
      * <ol>
      * <li>The characters in section 5.8 MUST be prohibited.</li>
-     * 
+     *
      * <li>If a string contains any RandALCat character, the string MUST NOT
      * contain any LCat character.</li>
-     * 
+     *
      * <li>If a string contains any RandALCat character, a RandALCat character
      * MUST be the first character of the string, and a RandALCat character MUST
      * be the last character of the string.</li>
      * </ol>
      * </blockquote>
      * </p>
-     * 
+     *
      * @param text
      *            The text to check.
      * @throws SaslException
@@ -955,7 +956,7 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Per-RFC 4013 section 2.3, throws a {@link SaslException} for any code
      * points in the {@code text} that are disallowed.
-     * 
+     *
      * @param text
      *            The text to inspect.
      * @throws SaslException
@@ -988,7 +989,7 @@ import com.allanbank.mongodb.util.IOUtils;
      * Per-RFC 4013 section 2.5, throws a {@link SaslException} for any code
      * points in the {@code text} that have a {@link Character#getType(int)
      * type} of {@link Character#UNASSIGNED}.
-     * 
+     *
      * @param text
      *            The text to inspect.
      * @throws SaslException
@@ -1016,7 +1017,7 @@ import com.allanbank.mongodb.util.IOUtils;
     /**
      * Per-RFC 4013 section 2.1, maps the specified character to the specified
      * replacements.
-     * 
+     *
      * @param text
      *            The text to map.
      * @return The text updated with replacements.
@@ -1039,7 +1040,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
     /**
      * State provides the state of the client.
-     * 
+     *
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static enum State {

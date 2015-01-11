@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,9 @@
  */
 
 package com.allanbank.mongodb.builder;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
@@ -30,7 +33,7 @@ import com.allanbank.mongodb.Version;
  * <b>Note</b>: The {@code parallelCollectionScan} does not work with sharded
  * clusters.
  * <p>
- * 
+ *
  * @see <a
  *      href="http://docs.mongodb.org/manual/reference/command/parallelCollectionScan/">parallelCollectionScan
  *      Command</a>
@@ -40,6 +43,8 @@ import com.allanbank.mongodb.Version;
  *          removed or modified.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Immutable
+@ThreadSafe
 public class ParallelScan {
     /**
      * The first version of MongoDB to support the
@@ -49,7 +54,7 @@ public class ParallelScan {
 
     /**
      * Creates a new builder for a {@link ParallelScan}.
-     * 
+     *
      * @return The builder to construct a {@link ParallelScan}.
      */
     public static Builder builder() {
@@ -73,7 +78,7 @@ public class ParallelScan {
 
     /**
      * Creates a new ParallelScan.
-     * 
+     *
      * @param builder
      *            The builder to copy the query fields from.
      */
@@ -85,7 +90,7 @@ public class ParallelScan {
 
     /**
      * Returns the number of documents to be returned in each batch of results.
-     * 
+     *
      * @return The number of documents to be returned in each batch of results.
      */
     public int getBatchSize() {
@@ -96,7 +101,7 @@ public class ParallelScan {
      * Returns the preference for the servers to retrieve the results from. May
      * be <code>null</code> in which case the default read preference should be
      * used.
-     * 
+     *
      * @return The preference for the servers to retrieve the results from.
      */
     public ReadPreference getReadPreference() {
@@ -109,7 +114,7 @@ public class ParallelScan {
      * <p>
      * This value will be forced into the range [1, 10,000].
      * </p>
-     * 
+     *
      * @return The requested number of iterators/cursors to create.
      */
     public int getRequestedIteratorCount() {
@@ -118,13 +123,14 @@ public class ParallelScan {
 
     /**
      * Helper for creating immutable {@link ParallelScan} queries.
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    @ThreadSafe
     public static class Builder {
 
         /** The number of documents to be returned in each batch of results. */
@@ -155,7 +161,7 @@ public class ParallelScan {
          * <p>
          * This method delegates to {@link #setBatchSize(int)}.
          * </p>
-         * 
+         *
          * @param batchSize
          *            The new value for the number of documents to be returned
          *            in each batch.
@@ -168,7 +174,7 @@ public class ParallelScan {
         /**
          * Constructs a new {@link ParallelScan} object from the state of the
          * builder.
-         * 
+         *
          * @return The new {@link ParallelScan} object.
          */
         public ParallelScan build() {
@@ -181,7 +187,7 @@ public class ParallelScan {
          * <p>
          * This method delegates to {@link #setReadPreference(ReadPreference)}.
          * </p>
-         * 
+         *
          * @param readPreference
          *            The new value for the preference of which server to return
          *            the results from.
@@ -200,7 +206,7 @@ public class ParallelScan {
          * <p>
          * This method delegates to {@link #setRequestedIteratorCount(int)}.
          * </p>
-         * 
+         *
          * @param numberOfIterators
          *            The requested number of iterators/cursors to create.
          * @return This builder for chaining method calls.
@@ -211,7 +217,7 @@ public class ParallelScan {
 
         /**
          * Resets the builder back to its initial state for reuse.
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder reset() {
@@ -225,7 +231,7 @@ public class ParallelScan {
         /**
          * Sets the value of the number of documents to be returned in each
          * batch.
-         * 
+         *
          * @param batchSize
          *            The new value for the number of documents to be returned
          *            in each batch.
@@ -239,7 +245,7 @@ public class ParallelScan {
         /**
          * Sets the preference for the set of servers to retrieve the results
          * from.
-         * 
+         *
          * @param readPreference
          *            The new value for the preference of which server to return
          *            the results from.
@@ -256,7 +262,7 @@ public class ParallelScan {
          * <p>
          * This value will be forced into the range [1, 10,000].
          * </p>
-         * 
+         *
          * @param numberOfIterators
          *            The requested number of iterators/cursors to create.
          * @return This builder for chaining method calls.

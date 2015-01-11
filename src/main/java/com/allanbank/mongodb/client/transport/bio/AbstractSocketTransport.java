@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,10 +49,10 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * AbstractSocketTransport provides the basic functionality for a socket
  * connection that passes messages between the sender and receiver.
- * 
+ *
  * @param <OUT>
  *            The type of the transport's output buffer.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -72,6 +72,9 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /** The buffered output stream. */
     protected final BufferedOutputStream myOutput;
 
+    /** The listener for responses from the server. */
+    protected final TransportResponseListener myResponseListener;
+
     /** The open socket. */
     protected final Server myServer;
 
@@ -84,12 +87,9 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /** The writer for BSON documents. Shares this objects {@link #myInput}. */
     private final BsonInputStream myBsonIn;
 
-    /** The listener for responses from the server. */
-    protected final TransportResponseListener myResponseListener;
-
     /**
      * Creates a new AbstractSocketConnection.
-     * 
+     *
      * @param server
      *            The MongoDB server to connect to.
      * @param config
@@ -143,6 +143,18 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     }
 
     /**
+     * Closes the connection to the server without allowing an exception to be
+     * thrown.
+     *
+     * @throws IOException
+     *             On a failure to close the transport.
+     */
+    @Override
+    public final void close() throws IOException {
+        close(new MongoDbException("Connection closed."));
+    }
+
+    /**
      * {@inheritDoc}
      * <p>
      * Overridden to flush the output stream.
@@ -165,7 +177,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /**
      * Returns the {@link Socket Socket's}
      * {@link Socket#getRemoteSocketAddress() remote socket address}.
-     * 
+     *
      * @return The Socket's remote socket address.
      */
     public SocketAddress getRemoteAddress() {
@@ -175,7 +187,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /**
      * Returns the listener for changes in the transport and responses we
      * receive.
-     * 
+     *
      * @return The listener for changes in the transport and responses we
      *         receive.
      */
@@ -185,14 +197,14 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
 
     /**
      * Returns true if the transport is idle (has not pending work).
-     * 
+     *
      * @return True if the transport is idle.
      */
     public abstract boolean isIdle();
 
     /**
      * Returns true if the socket is currently open.
-     * 
+     *
      * @return True if the socket is currently open.
      */
     public boolean isOpen() {
@@ -202,7 +214,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /**
      * Returns true if the connection is being gracefully closed, false
      * otherwise.
-     * 
+     *
      * @return True if the connection is being gracefully closed, false
      *         otherwise.
      */
@@ -214,12 +226,12 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
      * Notifies the connection that once all outstanding requests have been sent
      * and all replies received the Connection should be closed. This method
      * will return prior to the connection being closed.
-     * 
+     *
      * @param force
      *            If true then the connection can be immediately closed as the
      *            caller knows there are no outstanding requests to the server.
      */
-    public void shutdown(boolean force) {
+    public void shutdown(final boolean force) {
         // Mark
         myShutdown.set(true);
 
@@ -230,10 +242,10 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
             if (isOpen()) {
                 // Force a message with a callback to wake the receiver up.
                 try {
-                    OUT buffer = createIsMasterBuffer();
+                    final OUT buffer = createIsMasterBuffer();
                     send(buffer);
                 }
-                catch (IOException e) {
+                catch (final IOException e) {
                     myLog.warn("Could not send a message to wake up the "
                             + "receive thread on a shutdown.", e);
                 }
@@ -243,7 +255,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
 
     /**
      * Shuts down the connection on an error.
-     * 
+     *
      * @param error
      *            The error causing the shutdown.
      * @param receiveError
@@ -258,7 +270,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
         try {
             close(error);
         }
-        catch (IOException ignored) {
+        catch (final IOException ignored) {
             myLog.warn(ignored, "Exception while closing the transport.");
         }
     }
@@ -278,18 +290,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /**
      * Closes the connection to the server without allowing an exception to be
      * thrown.
-     * 
-     * @throws IOException
-     *             On a failure to close the transport.
-     */
-    public final void close() throws IOException {
-        close(new MongoDbException("Connection closed."));
-    }
-
-    /**
-     * Closes the connection to the server without allowing an exception to be
-     * thrown.
-     * 
+     *
      * @param error
      *            The error triggering the close.
      * @throws IOException
@@ -300,7 +301,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
     /**
      * Creates a {@link TransportOutputBuffer} that contains an isMaster command
      * to wake up the send thread.
-     * 
+     *
      * @return A buffer containing the isMaster command.
      * @throws IOException
      *             On a failure to create the message.
@@ -309,7 +310,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
 
     /**
      * Updates to raise an error on the callback, if any.
-     * 
+     *
      * @param exception
      *            The thrown exception.
      * @param replyCallback
@@ -322,7 +323,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
 
     /**
      * Updates the socket with the configuration's socket options.
-     * 
+     *
      * @param config
      *            The configuration to apply.
      * @throws SocketException
@@ -349,7 +350,7 @@ public abstract class AbstractSocketTransport<OUT extends TransportOutputBuffer>
 
     /**
      * Tries to open a connection to the server.
-     * 
+     *
      * @param server
      *            The server to open the connection to.
      * @param config

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,19 +21,22 @@ package com.allanbank.mongodb;
 
 import java.util.List;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 
 /**
  * Interface for interacting with a MongoDB database. Primarily used to
  * {@link #getCollection(String) get} a {@link MongoCollection} .
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public interface MongoDatabase {
     /** The name of the administration database. */
     public static final String ADMIN_NAME = MongoClientConfiguration.ADMIN_DB_NAME;
@@ -50,7 +53,7 @@ public interface MongoDatabase {
     /**
      * Creates the capped collection with the specified name and size on the
      * server.
-     * 
+     *
      * @param name
      *            The name of the collection.
      * @param size
@@ -65,7 +68,7 @@ public interface MongoDatabase {
 
     /**
      * Creates the collection with the specified name on the server.
-     * 
+     *
      * @param name
      *            The name of the collection.
      * @param options
@@ -80,7 +83,7 @@ public interface MongoDatabase {
 
     /**
      * Drops the database.
-     * 
+     *
      * @return True if the database was successfully dropped, false otherwise.
      * @throws MongoDbException
      *             On an error issuing the drop command or in running the
@@ -94,7 +97,7 @@ public interface MongoDatabase {
      * This method is simply a helper name to check if this database's name
      * appears in the parent {@link MongoClient client's} list of databases.
      * </p>
-     * 
+     *
      * @return True if the parent client's returns this database's name in its
      *         list of database's names.
      * @throws MongoDbException
@@ -105,7 +108,7 @@ public interface MongoDatabase {
     /**
      * Returns the MongoCollection with the specified name. This method does not
      * validate that the collection already exists in the MongoDB database.
-     * 
+     *
      * @param name
      *            The name of the collection.
      * @return The {@link MongoCollection}.
@@ -119,23 +122,23 @@ public interface MongoDatabase {
      * Defaults to the {@link Durability} from the {@link MongoClient}'s
      * configuration.
      * </p>
-     * 
+     *
      * @return The durability for write operations on the server.
-     * 
+     *
      * @see MongoClientConfiguration#getDefaultDurability()
      */
     public Durability getDurability();
 
     /**
      * Returns the name of the database.
-     * 
+     *
      * @return The name of the database.
      */
     public String getName();
 
     /**
      * Retrieves the profiling level for the database.
-     * 
+     *
      * @return The current profiling level.
      * @throws MongoDbException
      *             On a failure to create the collection.
@@ -152,16 +155,16 @@ public interface MongoDatabase {
      * Defaults to {@link ReadPreference} from the {@link MongoClient}'s
      * configuration.
      * </p>
-     * 
+     *
      * @return The default read preference for a query.
-     * 
+     *
      * @see MongoClientConfiguration#getDefaultReadPreference()
      */
     public ReadPreference getReadPreference();
 
     /**
      * Returns the list of the collections contained within the database.
-     * 
+     *
      * @return The list of the collections contained within the database.
      * @throws MongoDbException
      *             On an error listing the collections.
@@ -170,7 +173,7 @@ public interface MongoDatabase {
 
     /**
      * Returns the list of the collections contained within the database.
-     * 
+     *
      * @return The list of the collections contained within the database.
      * @throws MongoDbException
      *             On an error listing the collections.
@@ -181,7 +184,7 @@ public interface MongoDatabase {
 
     /**
      * Runs an administrative command against the 'admin' database.
-     * 
+     *
      * @param command
      *            The name of the command to run.
      * @return The result of the command.
@@ -192,7 +195,7 @@ public interface MongoDatabase {
 
     /**
      * Runs an administrative command against the 'admin' database.
-     * 
+     *
      * @param command
      *            The name of the command to run.
      * @param options
@@ -206,7 +209,7 @@ public interface MongoDatabase {
 
     /**
      * Runs an administrative command against the 'admin' database.
-     * 
+     *
      * @param commandName
      *            The name of the command to run.
      * @param commandValue
@@ -222,7 +225,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param command
      *            The command document to run.
      * @return The result of the command.
@@ -234,7 +237,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param command
      *            The name of the command to run.
      * @return The result of the command.
@@ -245,7 +248,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param command
      *            The name of the command to run.
      * @param options
@@ -259,7 +262,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param commandName
      *            The name of the command to run.
      * @param commandValue
@@ -275,7 +278,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param commandName
      *            The name of the command to run.
      * @param commandValue
@@ -291,7 +294,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link Callback} that will be notified of the command results.
      * @param command
@@ -304,7 +307,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link Callback} that will be notified of the command results.
      * @param command
@@ -320,7 +323,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link Callback} that will be notified of the command results.
      * @param command
@@ -333,7 +336,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link Callback} that will be notified of the command results.
      * @param command
@@ -348,7 +351,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link Callback} that will be notified of the command results.
      * @param commandName
@@ -366,7 +369,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link Callback} that will be notified of the command results.
      * @param commandName
@@ -384,7 +387,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param command
      *            The command document to run.
      * @return The result of the command.
@@ -396,7 +399,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link LambdaCallback} that will be notified of the command
      *            results.
@@ -410,7 +413,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link LambdaCallback} that will be notified of the command
      *            results.
@@ -427,7 +430,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link LambdaCallback} that will be notified of the command
      *            results.
@@ -441,7 +444,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link LambdaCallback} that will be notified of the command
      *            results.
@@ -457,7 +460,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link LambdaCallback} that will be notified of the command
      *            results.
@@ -476,7 +479,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param reply
      *            {@link LambdaCallback} that will be notified of the command
      *            results.
@@ -495,7 +498,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param command
      *            The name of the command to run.
      * @return The result of the command.
@@ -507,7 +510,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param command
      *            The name of the command to run.
      * @param options
@@ -521,7 +524,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param commandName
      *            The name of the command to run.
      * @param commandValue
@@ -538,7 +541,7 @@ public interface MongoDatabase {
 
     /**
      * Runs a command against the database.
-     * 
+     *
      * @param commandName
      *            The name of the command to run.
      * @param commandValue
@@ -560,17 +563,17 @@ public interface MongoDatabase {
      * Defaults to the {@link Durability} from the {@link MongoClient}'s
      * configuration if set to <code>null</code>.
      * </p>
-     * 
+     *
      * @param durability
      *            The durability for write operations on the server.
-     * 
+     *
      * @see MongoClientConfiguration#getDefaultDurability()
      */
     public void setDurability(final Durability durability);
 
     /**
      * Sets the profiling level for the database.
-     * 
+     *
      * @param profileLevel
      *            The desired profiling level
      * @return True if the profiling level was changed. Note if the level
@@ -592,17 +595,17 @@ public interface MongoDatabase {
      * Defaults to the {@link ReadPreference} from the {@link MongoClient}'s
      * configuration if set to <code>null</code>.
      * </p>
-     * 
+     *
      * @param readPreference
      *            The read preference for a query.
-     * 
+     *
      * @see MongoClientConfiguration#getDefaultReadPreference()
      */
     public void setReadPreference(final ReadPreference readPreference);
 
     /**
      * Returns the statistics for the database.
-     * 
+     *
      * @return The results document with the database statistics.
      * @throws MongoDbException
      *             On an error collecting the database statistics.

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,12 +34,13 @@ import com.allanbank.mongodb.client.metrics.AbstractMetrics;
 /**
  * BasicDatabaseMetrics provides the ability to accumulate metrics for a single
  * logical database.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BasicDatabaseMetrics extends AbstractMetrics {
+public class BasicDatabaseMetrics
+        extends AbstractMetrics {
     /** The metrics for each collection. */
     private final ConcurrentMap<String, BasicCollectionMetrics> myCollectionMetrics;
 
@@ -48,7 +49,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
 
     /**
      * Creates a new BasicDatabaseMetrics.
-     * 
+     *
      * @param database
      *            The name of the database we are collecting metrics for.
      */
@@ -72,7 +73,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
 
     /**
      * Returns the map of collection names to the collection metrics.
-     * 
+     *
      * @return The map of collection names to the collection metrics.
      */
     public Map<String, BasicCollectionMetrics> getCollectionMetrics() {
@@ -81,7 +82,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
 
     /**
      * Returns the name of the database.
-     * 
+     *
      * @return The name of the database.
      */
     public String getName() {
@@ -123,7 +124,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
 
     /**
      * Writes a human readable form of the database and collection metrics.
-     * 
+     *
      * @param writer
      *            The writer to write to.
      */
@@ -145,7 +146,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
     /**
      * Extension point for derived classes to know when a collection has been
      * added.
-     * 
+     *
      * @param metrics
      *            The metrics for the collection.
      */
@@ -157,7 +158,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
     /**
      * Creates a a new {@link BasicCollectionMetrics} instance. This instance
      * may or may not be used.
-     * 
+     *
      * @param collection
      *            The name of the collection to create a new metrics for.
      * @return The {@link BasicCollectionMetrics} for the database.
@@ -168,7 +169,7 @@ public class BasicDatabaseMetrics extends AbstractMetrics {
 
     /**
      * Locates or create the {@link BasicCollectionMetrics} for the message.
-     * 
+     *
      * @param message
      *            The message to find the collection for.
      * @return The {@link BasicCollectionMetrics} for the message's collection.

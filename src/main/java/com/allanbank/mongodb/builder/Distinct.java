@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,10 @@ import static com.allanbank.mongodb.util.Assertions.assertNotEmpty;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
@@ -34,13 +38,15 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * Distinct provides container for all of the options to a <tt>distinct</tt>
  * command. A {@link Builder} is provided to assist in creating a
  * {@link Distinct}.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Immutable
+@ThreadSafe
 public class Distinct {
     /**
      * The first version of MongoDB to support the {@code distinct} command with
@@ -50,7 +56,7 @@ public class Distinct {
 
     /**
      * Creates a new builder for a {@link Distinct}.
-     * 
+     *
      * @return The builder to construct a {@link Distinct}.
      */
     public static Builder builder() {
@@ -71,7 +77,7 @@ public class Distinct {
 
     /**
      * Creates a new Distinct.
-     * 
+     *
      * @param builder
      *            The builder to copy the state from.
      * @throws IllegalArgumentException
@@ -90,7 +96,7 @@ public class Distinct {
 
     /**
      * Returns the name of the key to collect distinct values for.
-     * 
+     *
      * @return The name of the key to collect distinct values for.
      */
     public String getKey() {
@@ -100,10 +106,10 @@ public class Distinct {
     /**
      * Returns the maximum amount of time to allow the command to run on the
      * Server before it is aborted.
-     * 
+     *
      * @return The maximum amount of time to allow the command to run on the
      *         Server before it is aborted.
-     * 
+     *
      * @since MongoDB 2.6
      */
     public long getMaximumTimeMilliseconds() {
@@ -112,7 +118,7 @@ public class Distinct {
 
     /**
      * Returns the query to select the documents to run the distinct against.
-     * 
+     *
      * @return The query to select the documents to run the distinct against.
      */
     public Document getQuery() {
@@ -126,9 +132,9 @@ public class Distinct {
      * If <code>null</code> then the {@link MongoCollection} instance's
      * {@link ReadPreference} will be used.
      * </p>
-     * 
+     *
      * @return The read preference to use.
-     * 
+     *
      * @see MongoCollection#getReadPreference()
      */
     public ReadPreference getReadPreference() {
@@ -137,13 +143,14 @@ public class Distinct {
 
     /**
      * Builder provides support for creating a {@link Distinct} object.
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    @NotThreadSafe
     public static class Builder {
 
         /** The name of the key to collect distinct values for. */
@@ -168,7 +175,7 @@ public class Distinct {
         /**
          * Creates a new {@link GroupBy} based on the current state of the
          * builder.
-         * 
+         *
          * @return A new {@link GroupBy} based on the current state of the
          *         builder.
          * @throws IllegalArgumentException
@@ -184,7 +191,7 @@ public class Distinct {
          * <p>
          * This method delegates to {@link #setKey(String)}.
          * </p>
-         * 
+         *
          * @param key
          *            The new name of the key to collect distinct values for.
          * @return This {@link Builder} for method call chaining.
@@ -200,16 +207,16 @@ public class Distinct {
          * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
          * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
          * </p>
-         * 
+         *
          * @param timeLimit
          *            The new maximum amount of time to allow the command to
          *            run.
          * @param timeLimitUnits
          *            The units for the maximum amount of time to allow the
          *            command to run.
-         * 
+         *
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder maximumTime(final long timeLimit,
@@ -224,7 +231,7 @@ public class Distinct {
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param query
          *            The new value for the query to select the documents to run
          *            the distinct against.
@@ -245,11 +252,11 @@ public class Distinct {
          * <p>
          * This method delegates to {@link #setReadPreference(ReadPreference)}.
          * </p>
-         * 
+         *
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see MongoCollection#getReadPreference()
          */
         public Builder readPreference(final ReadPreference readPreference) {
@@ -258,7 +265,7 @@ public class Distinct {
 
         /**
          * Resets the builder back to its initial state.
-         * 
+         *
          * @return This {@link Builder} for method call chaining.
          */
         public Builder reset() {
@@ -272,7 +279,7 @@ public class Distinct {
 
         /**
          * Sets the name of the key to collect distinct values for.
-         * 
+         *
          * @param key
          *            The new name of the key to collect distinct values for.
          * @return This {@link Builder} for method call chaining.
@@ -285,12 +292,12 @@ public class Distinct {
         /**
          * Sets the maximum number of milliseconds to allow the command to run
          * before aborting the request on the server.
-         * 
+         *
          * @param maximumTimeMilliseconds
          *            The new maximum number of milliseconds to allow the
          *            command to run.
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder setMaximumTimeMilliseconds(
@@ -302,7 +309,7 @@ public class Distinct {
         /**
          * Sets the value of the query to select the documents to run the
          * distinct against.
-         * 
+         *
          * @param query
          *            The new value for the query to select the documents to run
          *            the distinct against.
@@ -321,11 +328,11 @@ public class Distinct {
          * {@link MongoCollection} instance's {@link ReadPreference} will be
          * used.
          * </p>
-         * 
+         *
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see MongoCollection#getReadPreference()
          */
         public Builder setReadPreference(final ReadPreference readPreference) {

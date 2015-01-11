@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,7 +34,7 @@ import org.junit.Test;
 
 /**
  * Tests for the {@link RandomAccessOutputStream} class.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class RandomAccessOutputStreamTest {
@@ -69,7 +69,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#reset()}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -111,7 +111,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#writeAt(long, byte[])}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -160,7 +160,7 @@ public class RandomAccessOutputStreamTest {
     /**
      * Test method for
      * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -276,7 +276,7 @@ public class RandomAccessOutputStreamTest {
     /**
      * Test method for
      * {@link RandomAccessOutputStream#writeAt(long, byte[], int, int)}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -313,7 +313,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#writeAt(long, int)}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -350,7 +350,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -382,7 +382,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(byte[], int, int)}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */
@@ -472,7 +472,7 @@ public class RandomAccessOutputStreamTest {
 
     /**
      * Test method for {@link RandomAccessOutputStream#write(int)}.
-     * 
+     *
      * @throws IOException
      *             On a failure writing the test results.
      */

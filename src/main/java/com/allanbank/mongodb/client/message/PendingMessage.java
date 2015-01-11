@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,7 +26,7 @@ import com.allanbank.mongodb.client.callback.ReplyCallback;
  * Container for a pending message. Before the message is sent the message id
  * will be zero. After it will contain the assigned message id for the
  * connection.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
@@ -54,7 +54,7 @@ public class PendingMessage {
 
     /**
      * Create a new PendingMessage.
-     * 
+     *
      * @param messageId
      *            The id assigned to the message.
      * @param message
@@ -66,14 +66,14 @@ public class PendingMessage {
 
     /**
      * Create a new PendingMessage.
-     * 
+     *
      * @param messageId
      *            The id assigned to the message.
      * @param message
      *            The sent message.
      * @param replyCallback
      *            The callback for the reply to the message.
-     * 
+     *
      */
     public PendingMessage(final int messageId, final Message message,
             final ReplyCallback replyCallback) {
@@ -95,7 +95,7 @@ public class PendingMessage {
 
     /**
      * Returns the sent message.
-     * 
+     *
      * @return The sent message.
      */
     public Message getMessage() {
@@ -104,7 +104,7 @@ public class PendingMessage {
 
     /**
      * Returns the message id assigned to the sent message.
-     * 
+     *
      * @return The message id assigned to the sent message.
      */
     public int getMessageId() {
@@ -113,7 +113,7 @@ public class PendingMessage {
 
     /**
      * Returns the callback for the reply to the message.
-     * 
+     *
      * @return The callback for the reply to the message.
      */
     public ReplyCallback getReplyCallback() {
@@ -123,7 +123,7 @@ public class PendingMessage {
     /**
      * Determines the latency of the message in nano-seconds. If the message
      * does not have a time stamp then zero is returned.
-     * 
+     *
      * @return The current latency for the message.
      */
     public long latency() {
@@ -138,7 +138,7 @@ public class PendingMessage {
 
     /**
      * Sets the state of the pending message.
-     * 
+     *
      * @param messageId
      *            The id of the sent message.
      * @param message
@@ -156,7 +156,7 @@ public class PendingMessage {
 
     /**
      * Sets the state of the pending message.
-     * 
+     *
      * @param other
      *            The pending message to copy from.
      */

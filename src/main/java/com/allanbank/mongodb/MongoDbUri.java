@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.element.UuidElement;
 
@@ -108,7 +111,7 @@ import com.allanbank.mongodb.bson.element.UuidElement;
  * determined via the URI. See the {@link CredentialEditor},
  * {@link ReadPreferenceEditor}, and {@link DurabilityEditor} for details
  * </p>
- * 
+ *
  * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
  *      Connections</a>
  * @api.yes This class is part of the driver's API. Public and protected members
@@ -117,6 +120,8 @@ import com.allanbank.mongodb.bson.element.UuidElement;
  *          removed or modified.
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Immutable
+@ThreadSafe
 public class MongoDbUri {
     /** The prefix for a MongoDB URI. */
     public static final String MONGODB_URI_PREFIX = "mongodb://";
@@ -127,7 +132,7 @@ public class MongoDbUri {
     /**
      * Tests if the {@code mongoDbUri} starts with the correct prefix to be a
      * MongoDB URI.
-     * 
+     *
      * @param mongoDbUri
      *            The presumed MongoDB URI.
      * @return True if the {@code mongoDbUri} starts with
@@ -165,14 +170,14 @@ public class MongoDbUri {
 
     /**
      * Creates a new MongoDbUri.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @throws IllegalArgumentException
      *             If the <tt>mongoDbUri</tt> is not a properly formated MongoDB
      *             style URL.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -275,7 +280,7 @@ public class MongoDbUri {
 
     /**
      * Returns the database contained in the URI.
-     * 
+     *
      * @return The database contained in the URI.
      */
     public String getDatabase() {
@@ -284,7 +289,7 @@ public class MongoDbUri {
 
     /**
      * Returns the hosts contained in the URI.
-     * 
+     *
      * @return The hosts contained in the URI.
      */
     public List<String> getHosts() {
@@ -294,7 +299,7 @@ public class MongoDbUri {
     /**
      * Returns the options contained in the URI. Will never be null bu may be an
      * empty string.
-     * 
+     *
      * @return The options contained in the URI.
      */
     public String getOptions() {
@@ -304,7 +309,7 @@ public class MongoDbUri {
     /**
      * Returns the options contained in the URI parsed into a map of token
      * values.
-     * 
+     *
      * @return The options contained in the URI.
      */
     public Map<String, String> getParsedOptions() {
@@ -339,7 +344,7 @@ public class MongoDbUri {
 
     /**
      * Returns the password contained in the URI. May be <code>null</code>.
-     * 
+     *
      * @return The password contained in the URI.
      */
     public String getPassword() {
@@ -348,7 +353,7 @@ public class MongoDbUri {
 
     /**
      * Returns the user name contained in the URI. May be <code>null</code>.
-     * 
+     *
      * @return The user name contained in the URI.
      */
     public String getUserName() {
@@ -358,7 +363,7 @@ public class MongoDbUri {
     /**
      * Returns the values for a single property. This allows for duplicate
      * values.
-     * 
+     *
      * @param field
      *            The field to return all values for.
      * @return The options contained in the URI.
@@ -392,7 +397,7 @@ public class MongoDbUri {
 
     /**
      * Returns true if the URL uses the {@value #MONGODBS_URI_PREFIX} prefix.
-     * 
+     *
      * @return True if the URL uses the {@value #MONGODBS_URI_PREFIX} prefix.
      */
     public boolean isUseSsl() {

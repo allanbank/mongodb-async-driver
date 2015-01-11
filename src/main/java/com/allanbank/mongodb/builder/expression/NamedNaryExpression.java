@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementAssignable;
 import com.allanbank.mongodb.bson.element.DocumentElement;
@@ -33,19 +36,22 @@ import com.allanbank.mongodb.bson.element.JsonSerializationVisitor;
 /**
  * NamedNaryExpression provides an implementation of an {@link Expression} with
  * 2-N operands where each operand has a specific name.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class NamedNaryExpression implements Expression, ElementAssignable {
+@Immutable
+@ThreadSafe
+public class NamedNaryExpression
+        implements Expression, ElementAssignable {
 
     /** The expression expressed as an {@link DocumentElement}. */
     protected final DocumentElement myExpressions;
 
     /**
      * Creates a new NaryExpression.
-     * 
+     *
      * @param operator
      *            The operator this object represents.
      * @param fieldNames
@@ -74,18 +80,18 @@ public class NamedNaryExpression implements Expression, ElementAssignable {
      * Overridden to return the sub expressions as a {@link DocumentElement}:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
-     * "$op" : {  
+     * "$op" : {
      *     &lt;fieldName1&gt; : &lt;e1&gt;,
      *     &lt;fieldName2&gt; : &lt;e2&gt;,
-     *     &lt;fieldName3&gt; : &lt;e2&gt;, 
+     *     &lt;fieldName3&gt; : &lt;e2&gt;,
      *      ...
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override
@@ -100,20 +106,20 @@ public class NamedNaryExpression implements Expression, ElementAssignable {
      * array element:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
-     * { &lt;name&gt; : { 
-     *     "$op" : {  
+     * { &lt;name&gt; : {
+     *     "$op" : {
      *         &lt;fieldName1&gt; : &lt;e1&gt;,
      *         &lt;fieldName2&gt; : &lt;e2&gt;,
-     *         &lt;fieldName3&gt; : &lt;e2&gt;, 
+     *         &lt;fieldName3&gt; : &lt;e2&gt;,
      *         ...
      *     }
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override
@@ -127,18 +133,18 @@ public class NamedNaryExpression implements Expression, ElementAssignable {
      * Overridden to return the expression in JSON format.
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
-     * "$op" : {  
+     * "$op" : {
      *     &lt;fieldName1&gt; : &lt;e1&gt;,
      *     &lt;fieldName2&gt; : &lt;e2&gt;,
-     *     &lt;fieldName3&gt; : &lt;e2&gt;, 
+     *     &lt;fieldName3&gt; : &lt;e2&gt;,
      *      ...
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Override

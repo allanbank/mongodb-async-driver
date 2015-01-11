@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,15 +22,19 @@ package com.allanbank.mongodb.util.log;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * AbstractLog implements all of the public log method to delegate to a single
  * {@link #doLog(Level, Throwable, String, Object...)} method.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractLog implements Log {
+@ThreadSafe
+public abstract class AbstractLog
+        implements Log {
 
     /** The name of this class. */
     protected static final Object CLASS_NAME = AbstractLog.class.getName();
@@ -56,7 +60,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#debug(String)
      */
     @Override
@@ -69,7 +73,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#debug(String, Object[])
      */
     @Override
@@ -82,7 +86,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#debug(Throwable, String, Object[])
      */
     @Override
@@ -96,7 +100,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#error(String)
      */
     @Override
@@ -109,7 +113,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#error(String, Object[])
      */
     @Override
@@ -122,7 +126,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#error(Throwable, String, Object[])
      */
     @Override
@@ -136,7 +140,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#info(String)
      */
     @Override
@@ -149,7 +153,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#info(String, Object[])
      */
     @Override
@@ -162,7 +166,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#info(Throwable, String, Object[])
      */
     @Override
@@ -174,7 +178,7 @@ public abstract class AbstractLog implements Log {
     /**
      * Returns true if logging {@link Level#FINE DEBUG} messages is enabled,
      * false otherwise.
-     * 
+     *
      * @return True if logging debug messages is enabled.
      */
     @Override
@@ -185,7 +189,7 @@ public abstract class AbstractLog implements Log {
     /**
      * Returns true if logging messages with the specified level is enabled,
      * false otherwise.
-     * 
+     *
      * @param level
      *            The level to determine if it is enabled.
      * @return True if logging with the specified level is enabled.
@@ -198,7 +202,7 @@ public abstract class AbstractLog implements Log {
     /**
      * Returns true if logging {@link Level#SEVERE ERROR} messages is enabled,
      * false otherwise.
-     * 
+     *
      * @return True if logging {@link Level#SEVERE ERROR} messages is enabled.
      */
     @Override
@@ -209,7 +213,7 @@ public abstract class AbstractLog implements Log {
     /**
      * Returns true if logging {@link Level#INFO} messages is enabled, false
      * otherwise.
-     * 
+     *
      * @return True if logging {@link Level#INFO} messages is enabled.
      */
     @Override
@@ -220,7 +224,7 @@ public abstract class AbstractLog implements Log {
     /**
      * Returns true if logging {@link Level#WARNING} messages is enabled, false
      * otherwise.
-     * 
+     *
      * @return True if logging {@link Level#WARNING} messages is enabled.
      */
     @Override
@@ -233,7 +237,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#log(Level, String)
      */
     @Override
@@ -246,7 +250,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#log(Level, String, Object[])
      */
     @Override
@@ -260,7 +264,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#log(Level, Throwable, String, Object[])
      */
     @Override
@@ -275,7 +279,7 @@ public abstract class AbstractLog implements Log {
      * Overridden to forces the next log attempt to re-determine the logging
      * level.
      * </p>
-     * 
+     *
      * @see Log#warn(String)
      */
     @Override
@@ -288,7 +292,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#warn(String)
      */
     @Override
@@ -301,7 +305,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#warn(String, Object[])
      */
     @Override
@@ -314,7 +318,7 @@ public abstract class AbstractLog implements Log {
      * <p>
      * Overridden to call {@link #doLog(Level, Throwable, String, Object...)}.
      * </p>
-     * 
+     *
      * @see Log#warn(Throwable, String, Object[])
      */
     @Override
@@ -325,14 +329,14 @@ public abstract class AbstractLog implements Log {
 
     /**
      * Delegate method for the {@link Log} implementation.
-     * 
+     *
      * @return The current log level.
      */
     protected abstract Level doGetLevel();
 
     /**
      * Delegate method for the {@link Log} implementation.
-     * 
+     *
      * @param level
      *            The logging level for the message.
      * @param thrown
@@ -348,7 +352,7 @@ public abstract class AbstractLog implements Log {
 
     /**
      * Returns the current logging level.
-     * 
+     *
      * @return The current logging level.
      */
     protected final Level level() {

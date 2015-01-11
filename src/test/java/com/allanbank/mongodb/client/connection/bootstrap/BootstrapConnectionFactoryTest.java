@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,7 @@ import com.allanbank.mongodb.error.CannotConnectException;
 
 /**
  * Integration test for the {@link BootstrapConnectionFactory}.
- * 
+ *
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class BootstrapConnectionFactoryTest {
@@ -87,7 +87,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -99,7 +99,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to stop the Mock MongoDB server.
      */
@@ -115,7 +115,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Cleans up the test connection.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -153,7 +153,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
-     * 
+     *
      * @throws UnknownHostException
      *             On a failure to resolve localhost.
      */
@@ -191,7 +191,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#bootstrap()} .
-     * 
+     *
      * @throws UnknownHostException
      *             On a failure to resolve localhost.
      */
@@ -349,7 +349,7 @@ public class BootstrapConnectionFactoryTest {
 
     /**
      * Test method for {@link BootstrapConnectionFactory#close()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */

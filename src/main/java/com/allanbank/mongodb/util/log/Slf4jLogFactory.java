@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,14 +24,18 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Slf4jLogFactory provides factory to create {@link Slf4jLog} instances.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Slf4jLogFactory extends LogFactory {
+@ThreadSafe
+public class Slf4jLogFactory
+        extends LogFactory {
     /** The <code>LocationAwareLogger</code> class. */
     private final Class<?> myLocationAwareLoggerClass;
 
@@ -49,7 +53,7 @@ public class Slf4jLogFactory extends LogFactory {
 
     /**
      * Creates a new Slf4jLogFactory.
-     * 
+     *
      * @throws RuntimeException
      *             On a failure to find the SLF4J Logger.
      */

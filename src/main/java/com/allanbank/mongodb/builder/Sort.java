@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@
  */
 
 package com.allanbank.mongodb.builder;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
@@ -31,13 +33,14 @@ import com.allanbank.mongodb.bson.element.StringElement;
  * ascending and descending order. See the {@link Index} helper for more
  * information.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public final class Sort {
 
     /** The value to indicate an ascending sort order. */
@@ -52,7 +55,7 @@ public final class Sort {
      * <p>
      * This method is equivalent to {@link Index#asc(String)} method.
      * </p>
-     * 
+     *
      * @param field
      *            The field to create the ascending sort on.
      * @return The ascending sort specification.
@@ -67,7 +70,7 @@ public final class Sort {
      * <p>
      * This method is equivalent to {@link Index#desc(String)} method.
      * </p>
-     * 
+     *
      * @param field
      *            The field to create the descending sort on.
      * @return The descending sort specification.
@@ -79,7 +82,7 @@ public final class Sort {
     /**
      * Creates an 2D index specification, e.g.,
      * <tt>{ &lt;field&gt; : "2d" }</tt>.
-     * 
+     *
      * @param field
      *            The field to create the '2d' sort on.
      * @return The 2D index specification.
@@ -95,7 +98,7 @@ public final class Sort {
     /**
      * Creates an natural ascending order sort specification, e.g.,
      * <tt>{ "$natural" : 1 }</tt>.
-     * 
+     *
      * @return The natural ascending sort specification.
      */
     public static IntegerElement natural() {
@@ -106,7 +109,7 @@ public final class Sort {
      * Creates an natural order sort specification with the specified
      * {@link #ASCENDING} or {@link #DESCENDING} order, e.g.,
      * <tt>{ "$natural" : &lt;direction&gt; }</tt>.
-     * 
+     *
      * @param direction
      *            The direction for the natural ordering, either
      *            {@link #ASCENDING} or {@link #DESCENDING}.

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,18 +25,24 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 
 /**
  * A base class for the basic BSON types.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractElement implements Element {
+@Immutable
+@ThreadSafe
+public abstract class AbstractElement
+        implements Element {
 
     /** The base type (interface) for all elements. */
     protected static final Class<Element> ELEMENT_TYPE = Element.class;
@@ -47,11 +53,11 @@ public abstract class AbstractElement implements Element {
     /**
      * Compares two {@code int} values numerically. The value returned is
      * identical to what would be returned by:
-     * 
+     *
      * <pre>
      * Integer.valueOf(x).compareTo(Integer.valueOf(y))
      * </pre>
-     * 
+     *
      * @param x
      *            the first {@code int} to compare
      * @param y
@@ -68,11 +74,11 @@ public abstract class AbstractElement implements Element {
     /**
      * Compares two {@code long} values numerically. The value returned is
      * identical to what would be returned by:
-     * 
+     *
      * <pre>
      * Long.valueOf(x).compareTo(Long.valueOf(y))
      * </pre>
-     * 
+     *
      * @param x
      *            the first {@code long} to compare
      * @param y
@@ -94,7 +100,7 @@ public abstract class AbstractElement implements Element {
 
     /**
      * Constructs a new {@link AbstractElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON type.
      * @param size
@@ -145,10 +151,10 @@ public abstract class AbstractElement implements Element {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -171,7 +177,7 @@ public abstract class AbstractElement implements Element {
      * Returns a singleton list if the nameRegexs is empty and this element's
      * type is assignable to E. An empty list otherwise.
      * </p>
-     * 
+     *
      * @see Element#find
      */
     @Override
@@ -191,7 +197,7 @@ public abstract class AbstractElement implements Element {
      * Returns a singleton list if the nameRegexs is empty. An empty list
      * otherwise.
      * </p>
-     * 
+     *
      * @see Element#find
      */
     @Override
@@ -205,7 +211,7 @@ public abstract class AbstractElement implements Element {
      * Returns a {@code this} if the nameRegexs is empty and this element's type
      * is assignable to E. An empty list otherwise.
      * </p>
-     * 
+     *
      * @see Element#findFirst
      */
     @Override
@@ -225,7 +231,7 @@ public abstract class AbstractElement implements Element {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Element#findFirst
      */
     @Override
@@ -235,7 +241,7 @@ public abstract class AbstractElement implements Element {
 
     /**
      * Returns the name for the BSON type.
-     * 
+     *
      * @return The name for the BSON type.
      */
     @Override
@@ -267,7 +273,7 @@ public abstract class AbstractElement implements Element {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -279,7 +285,7 @@ public abstract class AbstractElement implements Element {
 
     /**
      * Returns the number of bytes that are used to encode the element.
-     * 
+     *
      * @return The bytes that are used to encode the element.
      */
     @Override
@@ -289,9 +295,9 @@ public abstract class AbstractElement implements Element {
 
     /**
      * String form of the object.
-     * 
+     *
      * @return A human readable form of the object.
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
@@ -307,7 +313,7 @@ public abstract class AbstractElement implements Element {
 
     /**
      * Does a null safe equals comparison.
-     * 
+     *
      * @param rhs
      *            The right-hand-side of the comparison.
      * @param lhs

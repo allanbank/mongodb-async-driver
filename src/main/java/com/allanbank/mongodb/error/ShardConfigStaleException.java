@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,26 +19,32 @@
  */
 package com.allanbank.mongodb.error;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.client.message.Reply;
 
 /**
  * Exception raised when a a request to a shard server is based on an invalid or
  * stale configuration. Clients should never see this exception.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ShardConfigStaleException extends ReplyException {
+@Immutable
+@ThreadSafe
+public class ShardConfigStaleException
+        extends ReplyException {
 
     /** The serialization version for the class. */
     private static final long serialVersionUID = -3588171889388956082L;
 
     /**
      * Create a new ShardConfigStaleException.
-     * 
+     *
      * @param reply
      *            The reply that raised the exception.
      * @param cause

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,8 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -32,17 +34,19 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * Interface for a builder used to construct a BSON document.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public interface DocumentBuilder extends Builder, DocumentAssignable {
+@NotThreadSafe
+public interface DocumentBuilder
+        extends Builder, DocumentAssignable {
     /**
      * Adds a pre-built element to the document.
-     * 
+     *
      * @param element
      *            The element to add.
      * @return This {@link DocumentBuilder} for method chaining.
@@ -58,7 +62,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * This is a equivalent to {@link #addBoolean(String,boolean)} but less
      * verbose.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -76,7 +80,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * This is a equivalent to {@link #addBinary(String,byte, byte[])} but less
      * verbose.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param subType
@@ -97,7 +101,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * a {@link NullElement} if the {@code data} is <code>null</code> instead of
      * throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param data
@@ -118,7 +122,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * if the {@code timestamp} is <code>null</code> instead of throwing an
      * {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param timestamp
@@ -138,7 +142,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * <code>null</code> instead of throwing an {@link IllegalArgumentException}
      * .
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param document
@@ -156,7 +160,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * This is a equivalent to {@link #addDouble(String,double)} but less
      * verbose.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -173,7 +177,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * <p>
      * This is a equivalent to {@link #addInteger(String,int)} but less verbose.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -190,7 +194,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * <p>
      * This is a equivalent to {@link #addLong(String,long)} but less verbose.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -210,7 +214,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * This method does type inspection which can be slow. It is generally much
      * faster to use the type specific methods of this interface.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -230,7 +234,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * insert a {@link NullElement} if the {@code id} is <code>null</code>
      * instead of throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param id
@@ -250,7 +254,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * <code>null</code> instead of throwing an {@link IllegalArgumentException}
      * .
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param pattern
@@ -269,7 +273,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * a {@link NullElement} if the {@code value} is <code>null</code> instead
      * of throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -287,7 +291,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * This is a equivalent to
      * {@link #addDBPointer(String,String, String, ObjectId)} but less verbose.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param databaseName
@@ -300,7 +304,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * @throws IllegalArgumentException
      *             If the {@code name}, {@code databaseName},
      *             {@code collectionName}, or {@code id} is <code>null</code>.
-     * 
+     *
      * @deprecated See BSON specification.
      */
     @Deprecated
@@ -314,7 +318,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * {@link NullElement} if the {@code uuid} is <code>null</code> instead of
      * throwing an {@link IllegalArgumentException}.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param uuid
@@ -328,7 +332,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a binary element using sub-type zero (the default).
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param subType
@@ -350,7 +354,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(String, byte[])} method instead.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param data
@@ -364,7 +368,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a boolean element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -378,7 +382,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a deprecated DBPointer element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param databaseName
@@ -391,7 +395,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * @throws IllegalArgumentException
      *             If the {@code name}, {@code databaseName},
      *             {@code collectionName}, or {@code id} is <code>null</code>.
-     * 
+     *
      * @deprecated See BSON specification.
      */
     @Deprecated
@@ -407,7 +411,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(String, DocumentAssignable)} method instead.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -421,7 +425,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a double element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -435,7 +439,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a integer (32-bit signed) element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -449,7 +453,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a JavaScript element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param code
@@ -463,7 +467,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a JavaScript with Scope element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param code
@@ -484,7 +488,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * This method throws an {@link IllegalArgumentException} if the
      * {@code uuid} is <code>null</code>.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param uuid
@@ -498,7 +502,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a long (64-bit signed) element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -512,7 +516,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a minimum key value element. Used as an absolute upper bounds.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @return This {@link DocumentBuilder} for method chaining.
@@ -524,7 +528,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a minimum key value element. Used as an absolute lower bounds.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @return This {@link DocumentBuilder} for method chaining.
@@ -536,7 +540,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a MongoDB Timestamp element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -550,7 +554,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a <code>null</code> valued element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @return This {@link DocumentBuilder} for method chaining.
@@ -567,7 +571,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * inserted in the document use the {@link #add(String, ObjectId)} method
      * instead.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param id
@@ -587,7 +591,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(String, Pattern)} method instead.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param pattern
@@ -601,7 +605,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a regular expression element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param pattern
@@ -625,7 +629,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(String, String)} method instead.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param value
@@ -639,7 +643,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Adds a symbol element.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param symbol
@@ -654,7 +658,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
     /**
      * Adds a timestamp element. The timestamp is the number of milliseconds
      * since the Unix epoch.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param timestamp
@@ -674,7 +678,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * {@link NullElement} be inserted in the document use the
      * {@link #add(String, UUID)} method instead.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param uuid
@@ -688,14 +692,14 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Returns the {@link Document} being constructed.
-     * 
+     *
      * @return The constructed {@link Document}.
      */
     public Document build();
 
     /**
      * Pushes a context for constructing a sub-document.
-     * 
+     *
      * @param name
      *            The name of the sub-document.
      * @return A {@link DocumentBuilder} for constructing the sub-document.
@@ -706,7 +710,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
 
     /**
      * Pushes a context for constructing a sub-array.
-     * 
+     *
      * @param name
      *            The name of the sub-array.
      * @return A {@link ArrayBuilder} for constructing the sub-array.
@@ -722,7 +726,7 @@ public interface DocumentBuilder extends Builder, DocumentAssignable {
      * Note that adding a new element with the same name adds that element to
      * the end of document's element list.
      * </p>
-     * 
+     *
      * @param name
      *            The name of the element to remove.
      * @return This {@link DocumentBuilder} for method chaining.

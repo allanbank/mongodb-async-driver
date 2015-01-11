@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,9 @@
 package com.allanbank.mongodb.builder;
 
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
@@ -37,13 +40,15 @@ import com.allanbank.mongodb.bson.element.IntegerElement;
 
 /**
  * Find provides an immutable container for all of the options for a query.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Immutable
+@ThreadSafe
 public class Find {
     /** An (empty) query document to find all documents. */
     public static final Document ALL = MongoCollection.ALL;
@@ -56,7 +61,7 @@ public class Find {
 
     /**
      * Creates a new builder for a {@link Find}.
-     * 
+     *
      * @return The builder to construct a {@link Find}.
      */
     public static Builder builder() {
@@ -146,7 +151,7 @@ public class Find {
 
     /**
      * Creates a new Find.
-     * 
+     *
      * @param builder
      *            The builder to copy the query fields from.
      */
@@ -175,7 +180,7 @@ public class Find {
 
     /**
      * Returns the number of documents to be returned in each batch of results.
-     * 
+     *
      * @return The number of documents to be returned in each batch of results.
      */
     public int getBatchSize() {
@@ -184,7 +189,7 @@ public class Find {
 
     /**
      * Returns the hint for which index to use.
-     * 
+     *
      * @return The hint for which index to use.
      */
     public Document getHint() {
@@ -193,7 +198,7 @@ public class Find {
 
     /**
      * Returns the hint for which index to use by name.
-     * 
+     *
      * @return The hint for which index to use by name.
      */
     public String getHintName() {
@@ -202,7 +207,7 @@ public class Find {
 
     /**
      * Returns the total number of documents to be returned.
-     * 
+     *
      * @return The total number of documents to be returned.
      */
     public int getLimit() {
@@ -212,10 +217,10 @@ public class Find {
     /**
      * Returns a value greater than zero to controls the maximum number of
      * documents that will be scanned for results.
-     * 
+     *
      * @return A value greater than zero to controls the maximum number of
      *         documents that will be scanned for results.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/operator/maxScan/">$maxScan
      *      Documentation</a>
@@ -227,10 +232,10 @@ public class Find {
     /**
      * Returns a non-null value to controls the maximum value for the range
      * within the used index.
-     * 
+     *
      * @return A non-null value to controls the maximum value for the range
      *         within the used index.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/operator/max/">$max
      *      Documentation</a>
@@ -242,10 +247,10 @@ public class Find {
     /**
      * Returns the maximum amount of time to allow the query to run on the
      * Server before it is aborted.
-     * 
+     *
      * @return The maximum amount of time to allow the query to run on the
      *         Server before it is aborted.
-     * 
+     *
      * @since MongoDB 2.6
      */
     public long getMaximumTimeMilliseconds() {
@@ -255,10 +260,10 @@ public class Find {
     /**
      * Returns a non-null value to controls the minimum value for the range
      * within the used index.
-     * 
+     *
      * @return A non-null value to controls the minimum value for the range
      *         within the used index.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/operator/min/">$min
      *      Documentation</a>
@@ -270,7 +275,7 @@ public class Find {
     /**
      * Returns the number of documents to skip before returning the first
      * document.
-     * 
+     *
      * @return The number of documents to skip before returning the first
      *         document.
      */
@@ -281,7 +286,7 @@ public class Find {
     /**
      * Returns the fields to be projected or returned from the matching
      * documents.
-     * 
+     *
      * @return The fields to be projected from the matching documents.
      */
     public Document getProjection() {
@@ -290,7 +295,7 @@ public class Find {
 
     /**
      * Returns the query document.
-     * 
+     *
      * @return The query document.
      */
     public Document getQuery() {
@@ -301,7 +306,7 @@ public class Find {
      * Returns the preference for the servers to retrieve the results from. May
      * be <code>null</code> in which case the default read preference should be
      * used.
-     * 
+     *
      * @return The preference for the servers to retrieve the results from.
      */
     public ReadPreference getReadPreference() {
@@ -310,7 +315,7 @@ public class Find {
 
     /**
      * Returns the fields to be returned from the matching documents.
-     * 
+     *
      * @return The fields to be returned from the matching documents.
      * @deprecated Replaced with the MongoDB standardized name:
      *             {@link #getProjection() projection}. This method will be
@@ -323,7 +328,7 @@ public class Find {
 
     /**
      * Returns the fields to order document by.
-     * 
+     *
      * @return The fields to order document by.
      */
     public Document getSort() {
@@ -333,7 +338,7 @@ public class Find {
     /**
      * Returns true if the cursor returned from the query will block or wait for
      * data. This is mainly useful with {@link Builder#tailable()} cursors.
-     * 
+     *
      * @return True if the cursor returned from the query will block or wait for
      *         data.
      */
@@ -344,7 +349,7 @@ public class Find {
     /**
      * Returns true if the cursor returned from the query will not timeout or
      * die automatically, e.g., immortal, false otherwise.
-     * 
+     *
      * @return True if the cursor returned from the query will not timeout or
      *         die automatically, e.g., immortal.
      * @see Builder#setImmortalCursor(boolean)
@@ -358,7 +363,7 @@ public class Find {
     /**
      * Returns the partial okay value. If true then an error in the query should
      * return any partial results.
-     * 
+     *
      * @return The partial okay value. If true then an error in the query should
      *         return any partial results.
      */
@@ -368,9 +373,9 @@ public class Find {
 
     /**
      * Returns true if only the index keys will be returned.
-     * 
+     *
      * @return True if only the index keys will be returned.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$returnKey
      *      Documentation</a>
@@ -382,10 +387,10 @@ public class Find {
     /**
      * Returns true if a "$diskLoc" entry will be added to every returned
      * document with the disk location information.
-     * 
+     *
      * @return True if a "$diskLoc" entry will be added to every returned
      *         document with the disk location information.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$showDiskLoc
      *      Documentation</a>
@@ -397,7 +402,7 @@ public class Find {
     /**
      * If returns true then use snapshot mode to ensure document are only
      * returned once.
-     * 
+     *
      * @return True then use snapshot mode to ensure document are only returned
      *         once.
      */
@@ -408,7 +413,7 @@ public class Find {
     /**
      * Returns true if the cursor returned from the query will be tailable,
      * false otherwise.
-     * 
+     *
      * @return True if the cursor returned from the query will be tailable,
      *         false otherwise.
      * @see Builder#setTailable(boolean) Find.Builder.setTailable(boolean) for
@@ -427,7 +432,7 @@ public class Find {
      * Converts the {@link Find} into a raw query request document to send to
      * the MongoDB server.
      * </p>
-     * 
+     *
      * @param explain
      *            If true then explain the query procedure instead of returning
      *            results.
@@ -446,7 +451,7 @@ public class Find {
      * Converts the {@link Find} into a raw query request document to send to
      * the MongoDB server including the provided read preferences.
      * </p>
-     * 
+     *
      * @param explain
      *            If true then explain the query procedure instead of returning
      *            results.
@@ -522,13 +527,14 @@ public class Find {
 
     /**
      * Helper for creating immutable {@link Find} queries.
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    @ThreadSafe
     public static class Builder {
 
         /**
@@ -623,7 +629,7 @@ public class Find {
 
         /**
          * Creates a new Builder.
-         * 
+         *
          * @param query
          *            The query document.
          */
@@ -638,7 +644,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setBatchSize(int)}.
          * </p>
-         * 
+         *
          * @param batchSize
          *            The new value for the number of documents to be returned
          *            in each batch.
@@ -650,7 +656,7 @@ public class Find {
 
         /**
          * Constructs a new {@link Find} object from the state of the builder.
-         * 
+         *
          * @return The new {@link Find} object.
          */
         public Find build() {
@@ -663,7 +669,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setHint(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param indexFields
          *            The new value for the fields of the index to use to
          *            execute the query.
@@ -682,7 +688,7 @@ public class Find {
          * <p>
          * This method is intended to be used with the {@link Index} class's
          * static methods: <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
@@ -694,9 +700,9 @@ public class Find {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param indexFields
          *            The new value for the fields of the index to use to
          *            execute the query.
@@ -712,7 +718,7 @@ public class Find {
          * <p>
          * This method delegates to the {@link #setHint(String)} method.
          * </p>
-         * 
+         *
          * @param indexName
          *            The new value for the name of the index to use to execute
          *            the query.
@@ -730,7 +736,7 @@ public class Find {
          * setImmortalCursor(true)}. See its JavaDoc for <b>important usage</b>
          * guidelines.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder immortalCursor() {
@@ -744,7 +750,7 @@ public class Find {
          * This method delegates to {@link #setImmortalCursor(boolean)}. See its
          * JavaDoc <b>important usage</b> guidelines.
          * </p>
-         * 
+         *
          * @param immortal
          *            True if the cursor returned from the query should be
          *            immortal.
@@ -759,7 +765,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setLimit(int)}.
          * </p>
-         * 
+         *
          * @param limit
          *            The new value for the total number of documents to be
          *            returned.
@@ -775,7 +781,7 @@ public class Find {
          * This method delegates to {@link #setMaximumRange(DocumentAssignable)}
          * .
          * </p>
-         * 
+         *
          * @param maximumRange
          *            The new value for the maximum range for the index used.
          * @return This builder for chaining method calls.
@@ -791,15 +797,15 @@ public class Find {
          * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
          * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
          * </p>
-         * 
+         *
          * @param timeLimit
          *            The new maximum amount of time to allow the query to run.
          * @param timeLimitUnits
          *            The units for the maximum amount of time to allow the
          *            query to run.
-         * 
+         *
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder maximumTime(final long timeLimit,
@@ -814,7 +820,7 @@ public class Find {
          * <p>
          * This method Delegates to {@link #setMaximumDocumentsToScan(long)}.
          * </p>
-         * 
+         *
          * @param maximumDocumentsToScan
          *            The new value for the maximum number of documents that
          *            will be scanned for results.
@@ -830,7 +836,7 @@ public class Find {
          * This method delegates to {@link #setMinimumRange(DocumentAssignable)}
          * .
          * </p>
-         * 
+         *
          * @param minimumRange
          *            The new value for the minimum range for the index used.
          * @return This builder for chaining method calls.
@@ -846,7 +852,7 @@ public class Find {
          * This method delegates to {@link #setPartialOk(boolean)
          * setPartialOk(true)}.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder partialOk() {
@@ -859,7 +865,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setPartialOk(boolean)}.
          * </p>
-         * 
+         *
          * @param partialOk
          *            The new value for the partial okay.
          * @return This builder for chaining method calls.
@@ -874,7 +880,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setProjection(DocumentAssignable)} .
          * </p>
-         * 
+         *
          * @param projection
          *            The new value for the fields to be projected from the
          *            matching documents.
@@ -892,7 +898,7 @@ public class Find {
          * and then delegates to the {@link #setProjection(DocumentAssignable)}
          * method.
          * </p>
-         * 
+         *
          * @param fieldNames
          *            The names of the fields to be returned.
          * @return This builder for chaining method calls.
@@ -910,7 +916,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param query
          *            The new value for the query document.
          * @return This builder for chaining method calls.
@@ -925,7 +931,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setReadPreference(ReadPreference)}.
          * </p>
-         * 
+         *
          * @param readPreference
          *            The new value for the preference of which server to return
          *            the results from.
@@ -937,7 +943,7 @@ public class Find {
 
         /**
          * Resets the builder back to its initial state for reuse.
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder reset() {
@@ -971,7 +977,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #projection(DocumentAssignable)} .
          * </p>
-         * 
+         *
          * @param returnFields
          *            The new value for the fields to be returned from the
          *            matching documents.
@@ -991,7 +997,7 @@ public class Find {
          * <p>
          * This method delegates to the {@link #projection(String[])} method.
          * </p>
-         * 
+         *
          * @param fieldNames
          *            The names of the fields to be returned.
          * @return This builder for chaining method calls.
@@ -1010,7 +1016,7 @@ public class Find {
          * This method delegates to {@link #setReturnIndexKeysOnly(boolean)
          * setReturnIndexKeysOnly(true)}
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder returnKey() {
@@ -1023,11 +1029,11 @@ public class Find {
          * <p>
          * This method delegates to {@link #setReturnIndexKeysOnly(boolean)}
          * </p>
-         * 
+         *
          * @param returnIndexKeysOnly
          *            The new value for if only index keys should be returned.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$returnKey
          *      Documentation</a>
@@ -1039,7 +1045,7 @@ public class Find {
         /**
          * If set to true requests for data will block, waiting for data. Useful
          * with {@link #tailable()} cursors.
-         * 
+         *
          * @param awaitData
          *            True if requests for data will block, waiting for data.
          *            Useful with {@link #tailable()} cursors.
@@ -1053,7 +1059,7 @@ public class Find {
         /**
          * Sets the value of the number of documents to be returned in each
          * batch.
-         * 
+         *
          * @param batchSize
          *            The new value for the number of documents to be returned
          *            in each batch.
@@ -1067,12 +1073,12 @@ public class Find {
         /**
          * Sets the value of hint as to which index should be used to execute
          * the query.
-         * 
+         *
          * @param indexFields
          *            The new value for the fields of the index to use to
          *            execute the query.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/hint/">$hint
          *      Documentation</a>
@@ -1089,7 +1095,7 @@ public class Find {
          * <p>
          * This method is intended to be used with the {@link Index} class's
          * static methods: <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link Index#asc(String) com.allanbank.mongodb.builder.Index.asc};
@@ -1101,14 +1107,14 @@ public class Find {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param indexFields
          *            The new value for the fields of the index to use to
          *            execute the query.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/hint/">$hint
          *      Documentation</a>
@@ -1126,12 +1132,12 @@ public class Find {
         /**
          * Sets the value of hint as to which index should be used to execute
          * the query.
-         * 
+         *
          * @param indexName
          *            The new value for the name of the index to use to execute
          *            the query.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/hint/">$hint
          *      Documentation</a>
@@ -1154,7 +1160,7 @@ public class Find {
          * ensure the number of active cursors on the server does not grow
          * without bounds.
          * </p>
-         * 
+         *
          * @param immortal
          *            True if the cursor returned from the query should be
          *            immortal.
@@ -1167,7 +1173,7 @@ public class Find {
 
         /**
          * Sets the value of the total number of documents to be returned.
-         * 
+         *
          * @param limit
          *            The new value for the total number of documents to be
          *            returned.
@@ -1185,12 +1191,12 @@ public class Find {
          * If set to a value greater than zero then controls the maximum number
          * of documents that will be scanned for results.
          * </p>
-         * 
+         *
          * @param maximumDocumentsToScan
          *            The new value for the maximum number of documents that
          *            will be scanned for results.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/maxScan/">$maxScan
          *      Documentation</a>
@@ -1207,11 +1213,11 @@ public class Find {
          * If set then controls the maximum value for the range within the used
          * index.
          * </p>
-         * 
+         *
          * @param maximumRange
          *            The new value for the maximum range for the index used.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/max/">$max
          *      Documentation</a>
@@ -1229,12 +1235,12 @@ public class Find {
         /**
          * Sets the maximum number of milliseconds to allow the query to run
          * before aborting the request on the server.
-         * 
+         *
          * @param maximumTimeMilliseconds
          *            The new maximum number of milliseconds to allow the query
          *            to run.
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder setMaximumTimeMilliseconds(
@@ -1249,11 +1255,11 @@ public class Find {
          * If set then controls the minimum value for the range within the used
          * index.
          * </p>
-         * 
+         *
          * @param minimumRange
          *            The new value for the minimum range for the index used.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/min/">$min
          *      Documentation</a>
@@ -1271,7 +1277,7 @@ public class Find {
         /**
          * Sets the value of the number of documents to skip before returning
          * the first document to the new value.
-         * 
+         *
          * @param numberToSkip
          *            The new value for the number of documents to skip before
          *            returning the first document.
@@ -1285,7 +1291,7 @@ public class Find {
         /**
          * Sets the value of partial okay to the new value. If true then an
          * error in the query should return any partial results.
-         * 
+         *
          * @param partialOk
          *            The new value for the partial okay.
          * @return This builder for chaining method calls.
@@ -1298,7 +1304,7 @@ public class Find {
         /**
          * Sets the value of the fields to be projected or returned from the
          * matching documents to the new value.
-         * 
+         *
          * @param projection
          *            The new value for the fields to be projected from the
          *            matching documents.
@@ -1311,7 +1317,7 @@ public class Find {
 
         /**
          * Sets the value of the query document to the new value.
-         * 
+         *
          * @param query
          *            The new value for the query document.
          * @return This builder for chaining method calls.
@@ -1324,7 +1330,7 @@ public class Find {
         /**
          * Sets the preference for the set of servers to retrieve the results
          * from.
-         * 
+         *
          * @param readPreference
          *            The new value for the preference of which server to return
          *            the results from.
@@ -1341,7 +1347,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setProjection(DocumentAssignable)} .
          * </p>
-         * 
+         *
          * @param returnFields
          *            The new value for the fields to be returned from the
          *            matching documents.
@@ -1361,11 +1367,11 @@ public class Find {
          * <p>
          * If set to true then only the index keys will be returned.
          * </p>
-         * 
+         *
          * @param returnIndexKeysOnly
          *            The new value for if only index keys should be returned.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$returnKey
          *      Documentation</a>
@@ -1382,12 +1388,12 @@ public class Find {
          * If set to true then a "$diskLoc" entry will be added to every
          * returned document with the disk location information.
          * </p>
-         * 
+         *
          * @param showDiskLocation
          *            The new value for the if the disk location for each
          *            document should be returned.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/returnKey/">$showDiskLoc
          *      Documentation</a>
@@ -1400,11 +1406,11 @@ public class Find {
         /**
          * Sets the value of snapshot to the new value. If set to true then use
          * snapshot mode to ensure document are only returned once.
-         * 
+         *
          * @param snapshot
          *            The new value for the partial okay.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/snapshot/">$snapshot
          *      Documentation</a>
@@ -1416,12 +1422,12 @@ public class Find {
 
         /**
          * Sets the value of the fields to to sort matching documents by.
-         * 
+         *
          * @param sortFields
          *            The new value for the fields to sort matching documents
          *            by.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/orderby/">$orderby
          *      Documentation</a>
@@ -1436,7 +1442,7 @@ public class Find {
          * <p>
          * This method is intended to be used with the {@link Sort} class's
          * static methods: <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
@@ -1448,14 +1454,14 @@ public class Find {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param sortFields
          *            The new value for the fields to sort matching documents
          *            by.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/operator/orderby/">$orderby
          *      Documentation</a>
@@ -1489,7 +1495,7 @@ public class Find {
          * {@link MongoClientConfiguration} be at least 1 more than the maximum
          * number of active tailable cursors.
          * </p>
-         * 
+         *
          * @param tailable
          *            The new value for if the cursor returned from the query
          *            will be tailable.
@@ -1507,7 +1513,7 @@ public class Find {
          * This method delegates to {@link #setShowDiskLocation(boolean)
          * setShowDiskLocation(true)}.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder showDiskLoc() {
@@ -1520,7 +1526,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setShowDiskLocation(boolean)}.
          * </p>
-         * 
+         *
          * @param showDiskLocation
          *            The new value for the if the disk location for each
          *            document should be returned.
@@ -1536,7 +1542,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setNumberToSkip(int)}.
          * </p>
-         * 
+         *
          * @param numberToSkip
          *            The new value for the number of documents to skip before
          *            returning the first document.
@@ -1553,7 +1559,7 @@ public class Find {
          * This method delegates to {@link #setSnapshot(boolean)
          * setSnapshot(true)}.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder snapshot() {
@@ -1566,8 +1572,8 @@ public class Find {
          * <p>
          * This method delegates to {@link #setSnapshot(boolean)}.
          * </p>
-         * 
-         * 
+         *
+         *
          * @param snapshot
          *            The new value for the partial okay.
          * @return This builder for chaining method calls.
@@ -1581,7 +1587,7 @@ public class Find {
          * <p>
          * This method delegates to {@link #setSort(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param sortFields
          *            The new value for the fields to sort matching documents
          *            by.
@@ -1599,7 +1605,7 @@ public class Find {
          * <p>
          * This method is intended to be used with the {@link Sort} class's
          * static methods: <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
@@ -1611,9 +1617,9 @@ public class Find {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param sortFields
          *            The new value for the fields to sort matching documents
          *            by.
@@ -1627,7 +1633,7 @@ public class Find {
          * Sets the the cursor returned from the query to be
          * {@link #setTailable(boolean) setTailable(true)} and
          * {@link #setAwaitData(boolean) setAwaitData(true)}.
-         * 
+         *
          * @return This builder for chaining method calls.
          * @see #setTailable(boolean) setTailable(boolean) for important usage
          *      information.

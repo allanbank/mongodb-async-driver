@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,14 +54,14 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ScramSaslClientTest provides tests for the {@link ScramSaslClient}.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createInitialMessage()}.
-     * 
+     *
      * @throws UnsupportedCallbackException
      *             On a test failure.
      * @throws IOException
@@ -96,7 +96,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createInitialMessage()}.
-     * 
+     *
      * @throws UnsupportedCallbackException
      *             On a test failure.
      * @throws IOException
@@ -150,7 +150,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -184,7 +184,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws UnsupportedCallbackException
      *             On a test failure.
      * @throws IOException
@@ -245,7 +245,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws UnsupportedCallbackException
      *             On a test failure.
      * @throws IOException
@@ -307,7 +307,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -337,7 +337,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -366,7 +366,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -395,7 +395,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -446,7 +446,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -476,7 +476,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#createProof(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -525,7 +525,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#dispose()}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -583,7 +583,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#evaluateChallenge(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -634,7 +634,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#evaluateFinalResult(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -670,7 +670,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#evaluateFinalResult(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -716,7 +716,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#evaluateFinalResult(byte[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -788,20 +788,20 @@ public class ScramSaslClientTest {
 
     /**
      * Test based on the example in the RFC 5802, section 5. <blockquote>
-     * 
+     *
      * This is a simple example of a SCRAM-SHA-1 authentication exchange when
      * the client doesn't support channel bindings (username 'user' and password
      * 'pencil' are used):
-     * 
+     *
      * <pre>
      * C: n,,n=user,r=fyko+d2lbbFgONRv9qkxdawL
      * S: r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j,s=QSXCR+Q6sek8bf92,i=4096
-     * C: c=biws,r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j,p=v0X8v3Bz2T0CJGbJQyF0X+HI4Ts= 
+     * C: c=biws,r=fyko+d2lbbFgONRv9qkxdawL3rfcNHYJY1ZVvWVs7j,p=v0X8v3Bz2T0CJGbJQyF0X+HI4Ts=
      * S: v=rmF9pqV8S7suAoZWja4dJRkFsKQ=
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -842,7 +842,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#saslName(String)}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -858,7 +858,7 @@ public class ScramSaslClientTest {
 
     /**
      * Test method for {@link ScramSaslClient#saslPrep(char[])}.
-     * 
+     *
      * @throws SaslException
      *             On a test failure.
      */
@@ -996,10 +996,11 @@ public class ScramSaslClientTest {
     /**
      * TestHandler provides a simple callback for user names and passwords for
      * use in the tests.
-     * 
+     *
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected static final class TestHandler implements CallbackHandler {
+    protected static final class TestHandler
+            implements CallbackHandler {
 
         /** The password to provide via the handler. */
         private final String myPassword;
@@ -1009,7 +1010,7 @@ public class ScramSaslClientTest {
 
         /**
          * Creates a new TestHandler.
-         * 
+         *
          * @param userName
          *            The user name to provide via the handler.
          * @param password
@@ -1045,13 +1046,14 @@ public class ScramSaslClientTest {
     /**
      * TestRfcScramSaslClient provides a specialization of the
      * {@link ScramSaslClient} that returns a fixed nonce.
-     * 
+     *
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected static final class TestRfcScramSaslClient extends ScramSaslClient {
+    protected static final class TestRfcScramSaslClient
+            extends ScramSaslClient {
         /**
          * Creates a new TestRfcScramSaslClient.
-         * 
+         *
          * @param callbackHandler
          *            The handler for the user name and password.
          */

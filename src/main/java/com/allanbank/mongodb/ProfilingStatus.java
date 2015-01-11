@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,18 +21,23 @@ package com.allanbank.mongodb;
 
 import java.io.Serializable;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * ProfilingStatus provides a container for the {@link Level} and number of
  * milliseconds beyond which to consider an operation to be slow.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ProfilingStatus implements Comparable<ProfilingStatus>,
-        Serializable {
+@Immutable
+@ThreadSafe
+public class ProfilingStatus
+        implements Comparable<ProfilingStatus>, Serializable {
 
     /**
      * The default threshold ({@value} )for the number of milliseconds beyond
@@ -52,7 +57,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
     /**
      * Creates a profiling state to profile operations taking more than
      * {@code slowMillis} to complete.
-     * 
+     *
      * @param slowMillis
      *            The number of milliseconds beyond which to consider an
      *            operation to be slow.
@@ -73,7 +78,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
     /**
      * Creates a new ProfilingStatus.
-     * 
+     *
      * @param level
      *            The profiling level to use.
      */
@@ -83,7 +88,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
     /**
      * Creates a new ProfilingStatus.
-     * 
+     *
      * @param level
      *            The profiling level to use.
      * @param slowMillis
@@ -143,7 +148,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
     /**
      * Returns the profiling level to use.
-     * 
+     *
      * @return The profiling level to use.
      */
     public Level getLevel() {
@@ -153,7 +158,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
     /**
      * Returns the number of milliseconds beyond which to consider an operation
      * to be slow.
-     * 
+     *
      * @return The number of milliseconds beyond which to consider an operation
      *         to be slow.
      */
@@ -193,7 +198,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
     /**
      * Hook into serialization to replace <tt>this</tt> object with the local
      * {@link #ON} or {@link #OFF} instance as appropriate.
-     * 
+     *
      * @return Either the {@link #ON} or {@link #OFF} instance if <tt>this</tt>
      *         instance equals one of those instances otherwise <tt>this</tt>
      *         instance.
@@ -213,7 +218,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
     /**
      * Level provides the set of available profiling levels provided by the
      * MongoDB server.
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
@@ -233,7 +238,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
         /**
          * Returns the {@link Level} for the specified value.
-         * 
+         *
          * @param value
          *            The value of the profile level.
          * @return The profile level for the value.
@@ -253,7 +258,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
         /**
          * Creates a new Level.
-         * 
+         *
          * @param value
          *            The profile level value to send to MongoDB.
          */
@@ -263,7 +268,7 @@ public class ProfilingStatus implements Comparable<ProfilingStatus>,
 
         /**
          * Returns the profile level value to send to MongoDB.
-         * 
+         *
          * @return The profile level value to send to MongoDB.
          */
         public int getValue() {

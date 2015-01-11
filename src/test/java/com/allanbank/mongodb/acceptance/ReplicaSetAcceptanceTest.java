@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,10 +61,11 @@ import com.allanbank.mongodb.error.ConnectionLostException;
 /**
  * BasicAcceptanceTestCases provides acceptance test cases for when interacting
  * with a replica set.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
+public class ReplicaSetAcceptanceTest
+        extends BasicAcceptanceTestCases {
 
     /** The expected ports for the servers. */
     private static final int[] PORTS = new int[] { 27018, 27019, 27020 };
@@ -121,7 +122,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
     /**
      * Tests that using the secondary preferred read preference submits queries
      * to secondaries.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      * @throws ExecutionException
@@ -152,7 +153,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
         for (int i = 0; i < PORTS.length; ++i) {
             final int port = PORTS[i];
 
-            Server server = cluster.add(new InetSocketAddress(defaultAddr
+            final Server server = cluster.add(new InetSocketAddress(defaultAddr
                     .getHostName(), port));
             conns[i] = factory.connect(server, myConfig);
         }
@@ -285,7 +286,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Test recovery from a sudden server failure.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure to sleep in the test.
      */
@@ -414,7 +415,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Extracts the specified opcounter value from the document.
-     * 
+     *
      * @param doc
      *            The document to pull the value from.
      * @param op
@@ -432,7 +433,7 @@ public class ReplicaSetAcceptanceTest extends BasicAcceptanceTestCases {
 
     /**
      * Keeps trying to step down the primary until it works.
-     * 
+     *
      * @param deferSeconds
      *            The number of seconds to stay a secondary after the step down.
      * @throws MongoDbException

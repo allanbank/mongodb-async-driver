@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -50,243 +50,250 @@ import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Runnable to receive messages from an {@link AbstractSocketTransport}.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReceiveRunnable implements Runnable, Receiver {
-	/** The logger for the receive thread. */
-	private static final Log LOG = LogFactory.getLog(ReceiveRunnable.class);
+public class ReceiveRunnable
+        implements Runnable, Receiver {
+    /** The logger for the receive thread. */
+    private static final Log LOG = LogFactory.getLog(ReceiveRunnable.class);
 
-	/** The configuration for the client. */
-	private final MongoClientConfiguration myConfig;
+    /** The input to read from. */
+    private final BsonInputStream myBsonIn;
 
-	/** The transport. */
-	private final AbstractSocketTransport<?> myTransport;
+    /** The configuration for the client. */
+    private final MongoClientConfiguration myConfig;
 
-	/** The input to read from. */
-	private final BsonInputStream myBsonIn;
+    /** Tracks the number of sequential read timeouts. */
+    private int myIdleTicks = 0;
 
-	/** The listener for responses from the server. */
-	private final TransportResponseListener myResponseListener;
+    /** Tracks the address for the remote/far/other end of the socket. */
+    private final SocketAddress myRemoteAddress;
 
-	/** Tracks the number of sequential read timeouts. */
-	private int myIdleTicks = 0;
+    /** The listener for responses from the server. */
+    private final TransportResponseListener myResponseListener;
 
-	/** Tracks the address for the remote/far/other end of the socket. */
-	private final SocketAddress myRemoteAddress;
+    /** The transport. */
+    private final AbstractSocketTransport<?> myTransport;
 
-	/**
-	 * Creates a new ReceiveRunnable.
-	 * 
-	 * @param config
-	 *            The configuration for the client.
-	 * @param transport
-	 *            The socket we are reading from.
-	 */
-	public ReceiveRunnable(MongoClientConfiguration config,
-			final AbstractSocketTransport<?> transport) {
-		myConfig = config;
-		myTransport = transport;
-		myBsonIn = transport.getBsonIn();
-		myResponseListener = transport.getResponseListener();
-		myRemoteAddress = transport.getRemoteAddress();
-	}
+    /**
+     * Creates a new ReceiveRunnable.
+     *
+     * @param config
+     *            The configuration for the client.
+     * @param transport
+     *            The socket we are reading from.
+     */
+    public ReceiveRunnable(final MongoClientConfiguration config,
+            final AbstractSocketTransport<?> transport) {
+        myConfig = config;
+        myTransport = transport;
+        myBsonIn = transport.getBsonIn();
+        myResponseListener = transport.getResponseListener();
+        myRemoteAddress = transport.getRemoteAddress();
+    }
 
-	/**
-	 * Processing thread for receiving responses from the server.
-	 */
-	@Override
-	public void run() {
-		try {
-			while (myTransport.isOpen()) {
-				try {
-					doReceiveOne();
+    /**
+     * Processing thread for receiving responses from the server.
+     */
+    @Override
+    public void run() {
+        try {
+            while (myTransport.isOpen()) {
+                try {
+                    doReceiveOne();
 
-					// Check if we are shutdown. Note the shutdown() method
-					// makes sure the last message gets a reply.
-					if (myTransport.isShuttingDown() && myTransport.isIdle()) {
-						// All done.
-						return;
-					}
-				} catch (final MongoDbException error) {
-					if (myTransport.isOpen()) {
-						LOG.log(Level.WARNING, "Error reading a message: "
-								+ error.getMessage(), error);
+                    // Check if we are shutdown. Note the shutdown() method
+                    // makes sure the last message gets a reply.
+                    if (myTransport.isShuttingDown() && myTransport.isIdle()) {
+                        // All done.
+                        return;
+                    }
+                }
+                catch (final MongoDbException error) {
+                    if (myTransport.isOpen()) {
+                        LOG.log(Level.WARNING, "Error reading a message: "
+                                + error.getMessage(), error);
 
-						myTransport.shutdown(
-								new ConnectionLostException(error), false);
-					}
-					// All done.
-					return;
-				}
-			}
-		} finally {
-			// Make sure the connection is closed completely.
-			IOUtils.close(myTransport);
-		}
-	}
+                        myTransport.shutdown(
+                                new ConnectionLostException(error), false);
+                    }
+                    // All done.
+                    return;
+                }
+            }
+        }
+        finally {
+            // Make sure the connection is closed completely.
+            IOUtils.close(myTransport);
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * <p>
-	 * If there is a pending flush then flushes.
-	 * </p>
-	 * <p>
-	 * If there is any available data then does a single receive.
-	 * </p>
-	 */
-	@Override
-	public void tryReceive() {
-		try {
-			if (myBsonIn.available() > 0) {
-				doReceiveOne();
-			}
-		} catch (final IOException error) {
-			LOG.info(
-					"Received an error when checking for pending messages: {}.",
-					error.getMessage());
-		}
-	}
+    /**
+     * {@inheritDoc}
+     * <p>
+     * If there is a pending flush then flushes.
+     * </p>
+     * <p>
+     * If there is any available data then does a single receive.
+     * </p>
+     */
+    @Override
+    public void tryReceive() {
+        try {
+            if (myBsonIn.available() > 0) {
+                doReceiveOne();
+            }
+        }
+        catch (final IOException error) {
+            LOG.info(
+                    "Received an error when checking for pending messages: {}.",
+                    error.getMessage());
+        }
+    }
 
-	/**
-	 * Receives and process a single message.
-	 */
-	protected void doReceiveOne() {
+    /**
+     * Receives a single message from the connection.
+     *
+     * @return The {@link Message} received.
+     * @throws MongoDbException
+     *             On an error receiving the message.
+     */
+    protected Message doReceive() throws MongoDbException {
+        try {
+            int length;
+            try {
+                length = readIntSuppressTimeoutOnNonFirstByte();
+            }
+            catch (final SocketTimeoutException ok) {
+                // This is OK. We check if we are still running and come right
+                // back.
+                return null;
+            }
 
-		final Message received = doReceive();
-		if (received != null) {
-			myIdleTicks = 0;
-			handle(received);
-		} else {
-			myIdleTicks += 1;
+            myBsonIn.prefetch(length - 4);
 
-			if (myConfig.getMaxIdleTickCount() <= myIdleTicks) {
-				// Shutdown the connection., nicely.
-				myTransport.shutdown(new ConnectionLostException(
-						"Connection closed due to idle."), false);
-			}
-		}
-	}
+            final int requestId = myBsonIn.readInt();
+            final int responseId = myBsonIn.readInt();
+            final int opCode = myBsonIn.readInt();
 
-	/**
-	 * Process a single reply.
-	 * 
-	 * @param reply
-	 *            The received reply.
-	 */
-	protected void handle(final Message reply) {
-		myResponseListener.response(new MessageInputBuffer(reply));
-	}
+            final Operation op = Operation.fromCode(opCode);
+            if (op == null) {
+                // Huh? Dazed and confused
+                throw new MongoDbException(new StreamCorruptedException(
+                        "Unexpected operation read '" + opCode + "'."));
+            }
 
-	/**
-	 * Reads a little-endian 4 byte signed integer from the stream.
-	 * 
-	 * @return The integer value.
-	 * @throws EOFException
-	 *             On insufficient data for the integer.
-	 * @throws IOException
-	 *             On a failure reading the integer.
-	 */
-	protected int readIntSuppressTimeoutOnNonFirstByte() throws EOFException,
-			IOException {
-		int read = 0;
-		int eofCheck = 0;
-		int result = 0;
+            final Header header = new Header(length, requestId, responseId, op);
+            Message message;
+            switch (op) {
+            case REPLY:
+                message = new Reply(header, myBsonIn);
+                break;
+            case QUERY:
+                message = new Query(header, myBsonIn);
+                break;
+            case UPDATE:
+                message = new Update(myBsonIn);
+                break;
+            case INSERT:
+                message = new Insert(header, myBsonIn);
+                break;
+            case GET_MORE:
+                message = new GetMore(myBsonIn);
+                break;
+            case DELETE:
+                message = new Delete(myBsonIn);
+                break;
+            case KILL_CURSORS:
+                message = new KillCursors(myBsonIn);
+                break;
+            default:
+                message = null;
+                break;
+            }
 
-		read = myBsonIn.read();
-		eofCheck |= read;
-		result += (read << 0);
+            return message;
+        }
 
-		for (int i = Byte.SIZE; i < Integer.SIZE; i += Byte.SIZE) {
-			try {
-				read = myBsonIn.read();
-			} catch (final SocketTimeoutException ste) {
-				// Bad - Only the first byte should timeout.
-				throw new IOException(ste);
-			}
-			eofCheck |= read;
-			result += (read << i);
-		}
+        catch (final IOException ioe) {
+            final MongoDbException error = new ConnectionLostException(ioe);
 
-		if (eofCheck < 0) {
-			throw new EOFException("Remote connection closed: "
-					+ myRemoteAddress);
-		}
-		return result;
-	}
+            myTransport
+            .shutdown(error, (ioe instanceof InterruptedIOException));
 
-	/**
-	 * Receives a single message from the connection.
-	 * 
-	 * @return The {@link Message} received.
-	 * @throws MongoDbException
-	 *             On an error receiving the message.
-	 */
-	protected Message doReceive() throws MongoDbException {
-		try {
-			int length;
-			try {
-				length = readIntSuppressTimeoutOnNonFirstByte();
-			} catch (final SocketTimeoutException ok) {
-				// This is OK. We check if we are still running and come right
-				// back.
-				return null;
-			}
+            throw error;
+        }
+    }
 
-			myBsonIn.prefetch(length - 4);
+    /**
+     * Receives and process a single message.
+     */
+    protected void doReceiveOne() {
 
-			final int requestId = myBsonIn.readInt();
-			final int responseId = myBsonIn.readInt();
-			final int opCode = myBsonIn.readInt();
+        final Message received = doReceive();
+        if (received != null) {
+            myIdleTicks = 0;
+            handle(received);
+        }
+        else {
+            myIdleTicks += 1;
 
-			final Operation op = Operation.fromCode(opCode);
-			if (op == null) {
-				// Huh? Dazed and confused
-				throw new MongoDbException(new StreamCorruptedException(
-						"Unexpected operation read '" + opCode + "'."));
-			}
+            if (myConfig.getMaxIdleTickCount() <= myIdleTicks) {
+                // Shutdown the connection., nicely.
+                myTransport.shutdown(new ConnectionLostException(
+                        "Connection closed due to idle."), false);
+            }
+        }
+    }
 
-			final Header header = new Header(length, requestId, responseId, op);
-			Message message;
-			switch (op) {
-			case REPLY:
-				message = new Reply(header, myBsonIn);
-				break;
-			case QUERY:
-				message = new Query(header, myBsonIn);
-				break;
-			case UPDATE:
-				message = new Update(myBsonIn);
-				break;
-			case INSERT:
-				message = new Insert(header, myBsonIn);
-				break;
-			case GET_MORE:
-				message = new GetMore(myBsonIn);
-				break;
-			case DELETE:
-				message = new Delete(myBsonIn);
-				break;
-			case KILL_CURSORS:
-				message = new KillCursors(myBsonIn);
-				break;
-			default:
-				message = null;
-				break;
-			}
+    /**
+     * Process a single reply.
+     *
+     * @param reply
+     *            The received reply.
+     */
+    protected void handle(final Message reply) {
+        myResponseListener.response(new MessageInputBuffer(reply));
+    }
 
-			return message;
-		}
+    /**
+     * Reads a little-endian 4 byte signed integer from the stream.
+     *
+     * @return The integer value.
+     * @throws EOFException
+     *             On insufficient data for the integer.
+     * @throws IOException
+     *             On a failure reading the integer.
+     */
+    protected int readIntSuppressTimeoutOnNonFirstByte() throws EOFException,
+    IOException {
+        int read = 0;
+        int eofCheck = 0;
+        int result = 0;
 
-		catch (final IOException ioe) {
-			final MongoDbException error = new ConnectionLostException(ioe);
+        read = myBsonIn.read();
+        eofCheck |= read;
+        result += (read << 0);
 
-			myTransport
-					.shutdown(error, (ioe instanceof InterruptedIOException));
+        for (int i = Byte.SIZE; i < Integer.SIZE; i += Byte.SIZE) {
+            try {
+                read = myBsonIn.read();
+            }
+            catch (final SocketTimeoutException ste) {
+                // Bad - Only the first byte should timeout.
+                throw new IOException(ste);
+            }
+            eofCheck |= read;
+            result += (read << i);
+        }
 
-			throw error;
-		}
-	}
+        if (eofCheck < 0) {
+            throw new EOFException("Remote connection closed: "
+                    + myRemoteAddress);
+        }
+        return result;
+    }
 }

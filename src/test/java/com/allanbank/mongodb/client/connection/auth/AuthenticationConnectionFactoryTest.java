@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,7 +47,7 @@ import com.allanbank.mongodb.client.state.Server;
 /**
  * AuthenticationConnectionFactoryTest provides test for the
  * {@link AuthenticationConnectionFactory}.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class AuthenticationConnectionFactoryTest {
@@ -57,7 +57,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Cleans up the test connection.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -68,7 +68,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for {@link AuthenticationConnectionFactory#close()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -93,7 +93,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for {@link AuthenticationConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up the test mocks.
      */
@@ -119,7 +119,7 @@ public class AuthenticationConnectionFactoryTest {
      * Test method for
      * {@link AuthenticationConnectionFactory#connect(Server, MongoClientConfiguration)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a test failure setting up mocks.
      */
@@ -147,7 +147,7 @@ public class AuthenticationConnectionFactoryTest {
 
     /**
      * Test method for {@link AuthenticationConnectionFactory#getClusterType()}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */

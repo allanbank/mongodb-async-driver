@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,9 @@ package com.allanbank.mongodb.bson;
 import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
 import java.io.Serializable;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
@@ -39,7 +42,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * <li>The name of the database where the referenced document resides:
  * {@code $db} (Optional).</li>
  * </ol>
- * 
+ *
  * @see <a
  *      href="http://docs.mongodb.org/manual/applications/database-references/#dbref">MongoDB
  *      DBRef Information</a>
@@ -49,7 +52,10 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class DocumentReference implements DocumentAssignable, Serializable {
+@Immutable
+@ThreadSafe
+public class DocumentReference
+        implements DocumentAssignable, Serializable {
 
     /** The name for the collection name field. */
     public static final String COLLECTION_FIELD_NAME = "$ref";
@@ -74,7 +80,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Creates a new DocumentReference.
-     * 
+     *
      * @param collectionName
      *            The name of the collection being referenced.
      * @param id
@@ -91,7 +97,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Creates a new DocumentReference.
-     * 
+     *
      * @param databaseName
      *            The name of the database being referenced.
      * @param collectionName
@@ -163,7 +169,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Returns the name of the collection being referenced.
-     * 
+     *
      * @return The name of the collection being referenced.
      */
     public String getCollectionName() {
@@ -173,7 +179,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
     /**
      * Returns the name of the database being referenced. This may be
      * <code>null</code>.
-     * 
+     *
      * @return The name of the database being referenced.
      */
     public String getDatabaseName() {
@@ -182,7 +188,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Returns the id of the document being referenced.
-     * 
+     *
      * @return The id of the document being referenced.
      */
     public Element getId() {
@@ -239,7 +245,7 @@ public class DocumentReference implements DocumentAssignable, Serializable {
 
     /**
      * Does a null safe equals comparison.
-     * 
+     *
      * @param rhs
      *            The right-hand-side of the comparison.
      * @param lhs

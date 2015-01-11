@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +31,7 @@ import org.junit.Test;
 
 /**
  * StringEncoderTest provides tests for the {@link StringEncoder} class.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class StringEncoderTest {
@@ -115,7 +115,7 @@ public class StringEncoderTest {
     /**
      * Test method for
      * {@link StringEncoder#encode(String, java.io.OutputStream)}.
-     * 
+     *
      * @throws IOException
      *             On a failure encoding the string.
      */
@@ -259,7 +259,7 @@ public class StringEncoderTest {
 
     /**
      * Checks the encoding of a string matches the expected value.
-     * 
+     *
      * @param encoder
      *            The encoder to use in the test.
      * @param string

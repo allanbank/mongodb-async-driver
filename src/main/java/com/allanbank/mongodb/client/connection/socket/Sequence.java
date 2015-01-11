@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,7 +39,7 @@ import com.allanbank.mongodb.client.message.PendingMessageQueue;
  * <p>
  * We use an array of longs to avoid false sharing.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
@@ -78,7 +78,7 @@ public class Sequence {
 
     /**
      * Create a sequence with a specified initial value.
-     * 
+     *
      * @param initialValue
      *            The initial value for this sequence.
      */
@@ -88,7 +88,7 @@ public class Sequence {
 
     /**
      * Create a sequence with a specified initial value.
-     * 
+     *
      * @param initialValue
      *            The initial value for this sequence.
      * @param lockType
@@ -108,7 +108,7 @@ public class Sequence {
 
     /**
      * Returns an estimate of the number of waiters.
-     * 
+     *
      * @return The waiters.
      */
     public int getWaitersCount() {
@@ -120,7 +120,7 @@ public class Sequence {
 
     /**
      * Returns true if the sequence is idle (reserve == release).
-     * 
+     *
      * @return True if the sequence is idle.
      */
     public boolean isIdle() {
@@ -131,7 +131,7 @@ public class Sequence {
 
     /**
      * Checks if there is a waiter for the sequence to be released.
-     * 
+     *
      * @param expectedReserve
      *            The expected value for the reserve if there is no waiter.
      * @return True if there is a waiter (e.g., the reserve has advanced).
@@ -144,7 +144,7 @@ public class Sequence {
 
     /**
      * Release the position in the sequence.
-     * 
+     *
      * @param expectedValue
      *            The expected/reserved value for the sequence.
      * @param newValue
@@ -161,7 +161,7 @@ public class Sequence {
 
     /**
      * Reserves a spot in the sequence for the messages to be sent.
-     * 
+     *
      * @param numberOfMessages
      *            The number of messages to be sent.
      * @return The current value of the sequence.
@@ -181,7 +181,7 @@ public class Sequence {
 
     /**
      * Waits for the reserved sequence to be released.
-     * 
+     *
      * @param wanted
      *            The sequence to wait to be released.
      */
@@ -241,7 +241,7 @@ public class Sequence {
 
     /**
      * Perform a compare and set operation on the sequence release position.
-     * 
+     *
      * @param expectedValue
      *            The expected current value.
      * @param newValue
@@ -256,7 +256,7 @@ public class Sequence {
 
     /**
      * Perform a compare and set operation on the sequence reserve position.
-     * 
+     *
      * @param expectedValue
      *            The expected current value.
      * @param newValue

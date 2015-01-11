@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
@@ -48,7 +52,7 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  * Due to the potential complexity of pipelines and the associated operators the
  * <tt>Builder</tt> is intended to be used with the various support classes
  * including the {@link Expressions} library. For example:<blockquote>
- * 
+ *
  * <pre>
  * <code>
  *  import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
@@ -86,11 +90,11 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  *          .sort(desc("biggestCity.pop"));
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
- * 
- * 
+ *
+ *
  * @see <a
  *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Example
  *      Inspired By</a>
@@ -100,6 +104,8 @@ import com.allanbank.mongodb.builder.expression.Expressions;
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Immutable
+@ThreadSafe
 public class Aggregate {
 
     /**
@@ -145,7 +151,7 @@ public class Aggregate {
 
     /**
      * Creates a new builder for a {@link Aggregate}.
-     * 
+     *
      * @return The builder to construct a {@link Aggregate}.
      */
     public static Builder builder() {
@@ -181,7 +187,7 @@ public class Aggregate {
 
     /**
      * Creates a new Aggregation.
-     * 
+     *
      * @param builder
      *            The builder for the Aggregation instance.
      */
@@ -200,7 +206,7 @@ public class Aggregate {
     /**
      * Returns the number of documents to be returned in each batch of results
      * by the cursor.
-     * 
+     *
      * @return The number of documents to be returned in each batch of results
      *         by the cursor.
      */
@@ -210,7 +216,7 @@ public class Aggregate {
 
     /**
      * Returns the total number of documents to be returned by the cursor.
-     * 
+     *
      * @return The total number of documents to be returned the cursor.
      */
     public int getCursorLimit() {
@@ -220,10 +226,10 @@ public class Aggregate {
     /**
      * Returns the maximum amount of time to allow the command to run on the
      * Server before it is aborted.
-     * 
+     *
      * @return The maximum amount of time to allow the command to run on the
      *         Server before it is aborted.
-     * 
+     *
      * @since MongoDB 2.6
      */
     public long getMaximumTimeMilliseconds() {
@@ -232,7 +238,7 @@ public class Aggregate {
 
     /**
      * Returns the pipeline of operations to apply.
-     * 
+     *
      * @return The pipeline of operations to apply.
      */
     public List<Element> getPipeline() {
@@ -246,9 +252,9 @@ public class Aggregate {
      * If <code>null</code> then the {@link MongoCollection} instance's
      * {@link ReadPreference} will be used.
      * </p>
-     * 
+     *
      * @return The read preference to use.
-     * 
+     *
      * @see MongoCollection#getReadPreference()
      */
     public ReadPreference getReadPreference() {
@@ -257,7 +263,7 @@ public class Aggregate {
 
     /**
      * Returns the version required for the aggregation.
-     * 
+     *
      * @return The version required for the aggregation.
      */
     public Version getRequiredVersion() {
@@ -267,7 +273,7 @@ public class Aggregate {
     /**
      * Returns true if the aggregation results should be allowed to spill to
      * disk.
-     * 
+     *
      * @return True if the aggregation results should be allowed to spill to
      *         disk.
      */
@@ -277,7 +283,7 @@ public class Aggregate {
 
     /**
      * Returns true if the aggregation results should be returned as a cursor.
-     * 
+     *
      * @return True if the aggregation results should be returned as a cursor.
      */
     public boolean isUseCursor() {
@@ -294,7 +300,7 @@ public class Aggregate {
      * <p>
      * This builder is intended to be used with the various support classes
      * including the {@link Expressions} library. For example:<blockquote>
-     * 
+     *
      * <pre>
      * <code>
      *  import static {@link AggregationGroupField#set com.allanbank.mongodb.builder.AggregationGroupField.set};
@@ -332,10 +338,10 @@ public class Aggregate {
      *          .sort(desc("biggestCity.pop"));
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      * </p>
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Example
      *      Inspired By</a>
@@ -345,6 +351,7 @@ public class Aggregate {
      *          before being removed or modified.
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    @NotThreadSafe
     public static class Builder {
 
         /**
@@ -397,7 +404,7 @@ public class Aggregate {
          * <p>
          * This method also sets the builder to use a cursor to true.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder allowDiskUsage() {
@@ -412,7 +419,7 @@ public class Aggregate {
          * <p>
          * This method also sets the builder to use a cursor to true.
          * </p>
-         * 
+         *
          * @param allowDiskUsage
          *            The new value for if the aggregation command can spill to
          *            disk.
@@ -431,7 +438,7 @@ public class Aggregate {
          * <p>
          * This method also sets the builder to use a cursor to true.
          * </p>
-         * 
+         *
          * @param batchSize
          *            The new value for the number of documents to be returned
          *            in each batch.
@@ -444,7 +451,7 @@ public class Aggregate {
         /**
          * Constructs a new {@link Aggregate} object from the state of the
          * builder.
-         * 
+         *
          * @return The new {@link Aggregate} object.
          */
         public Aggregate build() {
@@ -459,7 +466,7 @@ public class Aggregate {
          * <p>
          * This method also sets the builder to use a cursor to true.
          * </p>
-         * 
+         *
          * @param limit
          *            The new value for the total number of documents to be
          *            returned.
@@ -474,7 +481,7 @@ public class Aggregate {
          * documents for the aggregation pipeline based on their relative
          * location to a set point. The <tt>$geoNear</tt> must be the first
          * option in the aggregation pipeline. <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
@@ -486,13 +493,13 @@ public class Aggregate {
          *           .limit( 5 ).build() );
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param geoNear
          *            The options for the GeoNear operation.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @since MongoDB 2.4
          */
         public Builder geoNear(final AggregationGeoNear geoNear) {
@@ -507,7 +514,7 @@ public class Aggregate {
          * documents for the aggregation pipeline based on their relative
          * location to a set point. The <tt>$geoNear</tt> must be the first
          * option in the aggregation pipeline. <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import {@link AggregationGeoNear com.allanbank.mongodb.builder.AggregationGeoNear};
@@ -519,13 +526,13 @@ public class Aggregate {
          *           .limit( 5 ) );
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param geoNear
          *            The options for the GeoNear operation.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @since MongoDB 2.4
          */
         public Builder geoNear(final AggregationGeoNear.Builder geoNear) {
@@ -541,7 +548,7 @@ public class Aggregate {
          * static id documents.
          * </p>
          * <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
@@ -555,9 +562,9 @@ public class Aggregate {
          *           set("sum").sum("$field4") );
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param id
          *            The builder for the <tt>_id</tt> field to specify unique
          *            groups.
@@ -589,7 +596,7 @@ public class Aggregate {
          * complex _id documents.
          * </p>
          * <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
@@ -603,9 +610,9 @@ public class Aggregate {
          *           set("count").count() );
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param id
          *            The builder for the <tt>_id</tt> field to specify unique
          *            groups.
@@ -623,7 +630,7 @@ public class Aggregate {
          * Adds a <tt>$group</tt> operation to the pipeline to aggregate
          * documents passing this point in the pipeline into a group of
          * documents.
-         * 
+         *
          * @param aggregations
          *            The specification for the group id and what fields to
          *            aggregate in the form of a document.
@@ -644,7 +651,7 @@ public class Aggregate {
          * complex _id documents.
          * </p>
          * <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link AggregationGroupId#id com.allanbank.mongodb.builder.AggregationGroupId.id};
@@ -658,9 +665,9 @@ public class Aggregate {
          *           set("count").count() );
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param id
          *            The builder for the <tt>_id</tt> field to specify unique
          *            groups.
@@ -678,12 +685,12 @@ public class Aggregate {
          * Adds a <tt>$limit</tt> operation to the pipeline to stop producing
          * documents passing this point in the pipeline once the limit of
          * documents is reached.
-         * 
+         *
          * @param numberOfDocuments
          *            The number of documents to allow past this point in the
          *            pipeline.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_limit">Aggregation
          *      Framework Operators - $limit</a>
@@ -696,12 +703,12 @@ public class Aggregate {
          * Adds a <tt>$limit</tt> operation to the pipeline to stop producing
          * documents passing this point in the pipeline once the limit of
          * documents is reached.
-         * 
+         *
          * @param numberOfDocuments
          *            The number of documents to allow past this point in the
          *            pipeline.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_limit">
          *      Aggregation Framework Operators - $limit</a>
@@ -716,7 +723,7 @@ public class Aggregate {
          * <p>
          * This method may be used with the {@link QueryBuilder} to easily
          * specify the criteria to match against. <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link QueryBuilder#where com.allanbank.mongodb.builder.QueryBuilder.where}
@@ -727,14 +734,14 @@ public class Aggregate {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
          * </p>
-         * 
+         *
          * @param query
          *            The query to match documents against.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_match">
          *      Aggregation Framework Operators - $match</a>
@@ -750,16 +757,16 @@ public class Aggregate {
          * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
          * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
          * </p>
-         * 
+         *
          * @param timeLimit
          *            The new maximum amount of time to allow the command to
          *            run.
          * @param timeLimitUnits
          *            The units for the maximum amount of time to allow the
          *            command to run.
-         * 
+         *
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder maximumTime(final long timeLimit,
@@ -775,11 +782,11 @@ public class Aggregate {
          * This method also forces the {@link ReadPreference} to be
          * {@link ReadPreference#PRIMARY}.
          * </p>
-         * 
+         *
          * @param collectionName
          *            The name of the collection to output the results to.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/master/reference/operator/aggregation/out">Aggregation
          *      $out Operator</a>
@@ -799,7 +806,7 @@ public class Aggregate {
          * Expressions} static helper methods.
          * </p>
          * <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link AggregationProjectFields#include com.allanbank.mongodb.builder.AggregationProjectFields.include};
@@ -821,9 +828,9 @@ public class Aggregate {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param fields
          *            The fields to copy into the projected results.
          * @param elements
@@ -845,7 +852,7 @@ public class Aggregate {
         /**
          * Adds a <tt>$project</tt> operation to the pipeline to create a
          * projection of the documents passing this point in the pipeline.
-         * 
+         *
          * @param projection
          *            The specification for the projection to perform.
          * @return This builder for chaining method calls.
@@ -857,7 +864,7 @@ public class Aggregate {
         /**
          * Adds a <tt>$redact</tt> operation to potentially prune sub-documents
          * from the results.
-         * 
+         *
          * @param ifExpression
          *            The expression to evaluate to determine if the current
          *            sub-document should be pruned or not.
@@ -886,7 +893,7 @@ public class Aggregate {
         /**
          * Adds a <tt>$redact</tt> operation to potentially prune sub-documents
          * from the results.
-         * 
+         *
          * @param ifExpression
          *            The expression to evaluate to determine if the current
          *            sub-document should be pruned or not.
@@ -913,7 +920,7 @@ public class Aggregate {
 
         /**
          * Resets the builder back to an empty pipeline.
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder reset() {
@@ -934,7 +941,7 @@ public class Aggregate {
          * <p>
          * This method also sets the builder to use a cursor to true.
          * </p>
-         * 
+         *
          * @param allowDiskUsage
          *            The new value for if the aggregation command can spill to
          *            disk.
@@ -954,7 +961,7 @@ public class Aggregate {
          * <p>
          * This method also sets the builder to use a cursor to true.
          * </p>
-         * 
+         *
          * @param batchSize
          *            The new value for the number of documents to be returned
          *            in each batch.
@@ -970,7 +977,7 @@ public class Aggregate {
          * <p>
          * This method also sets the builder to use a cursor to true.
          * </p>
-         * 
+         *
          * @param limit
          *            The new value for the total number of documents to be
          *            returned.
@@ -984,12 +991,12 @@ public class Aggregate {
         /**
          * Sets the maximum number of milliseconds to allow the command to run
          * before aborting the request on the server.
-         * 
+         *
          * @param maximumTimeMilliseconds
          *            The new maximum number of milliseconds to allow the
          *            command to run.
          * @return This {@link Builder} for method call chaining.
-         * 
+         *
          * @since MongoDB 2.6
          */
         public Builder setMaximumTimeMilliseconds(
@@ -1009,11 +1016,11 @@ public class Aggregate {
          * {@link MongoCollection} instance's {@link ReadPreference} will be
          * used.
          * </p>
-         * 
+         *
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see MongoCollection#getReadPreference()
          */
         public Builder setReadPreference(final ReadPreference readPreference) {
@@ -1024,7 +1031,7 @@ public class Aggregate {
         /**
          * Sets to true if the aggregation results should be returned as a
          * cursor.
-         * 
+         *
          * @param useCursor
          *            The new value for if the results should be returned via a
          *            cursor.
@@ -1041,12 +1048,12 @@ public class Aggregate {
          * Adds a <tt>$skip</tt> operation to the pipeline to skip the specified
          * number of documents before allowing any document past this point in
          * the pipeline.
-         * 
+         *
          * @param numberOfDocuments
          *            The number of documents to skip past before allowing any
          *            documents to pass this point in the pipeline.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_skip">
          *      Aggregation Framework Operators - $skip</a>
@@ -1059,12 +1066,12 @@ public class Aggregate {
          * Adds a <tt>$skip</tt> operation to the pipeline to skip the specified
          * number of documents before allowing any document past this point in
          * the pipeline.
-         * 
+         *
          * @param numberOfDocuments
          *            The number of documents to skip past before allowing any
          *            documents to pass this point in the pipeline.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_skip">
          *      Aggregation Framework Operators - $skip</a>
@@ -1079,7 +1086,7 @@ public class Aggregate {
          * <p>
          * This method is intended to be used with the {@link Sort} class's
          * static methods: <blockquote>
-         * 
+         *
          * <pre>
          * <code>
          * import static {@link Sort#asc(String) com.allanbank.mongodb.builder.Sort.asc};
@@ -1091,13 +1098,13 @@ public class Aggregate {
          * ...
          * </code>
          * </pre>
-         * 
+         *
          * </blockquote>
-         * 
+         *
          * @param sortFields
          *            The sort fields to use.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_sort">
          *      Aggregation Framework Operators - $sort</a>
@@ -1109,11 +1116,11 @@ public class Aggregate {
         /**
          * Adds a <tt>$sort</tt> operation to sort the documents passing this
          * point based on the sort fields provides in ascending order.
-         * 
+         *
          * @param sortFields
          *            The sort fields to use in ascending order.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_sort">
          *      Aggregation Framework Operators - $sort</a>
@@ -1128,7 +1135,7 @@ public class Aggregate {
 
         /**
          * Adds a generic step to the builder's pipeline.
-         * 
+         *
          * @param operator
          *            The operator to add to the pipeline.
          * @param stepDocument
@@ -1143,7 +1150,7 @@ public class Aggregate {
 
         /**
          * Adds a generic step to the builder's pipeline.
-         * 
+         *
          * @param operator
          *            The operator to add to the pipeline.
          * @param value
@@ -1157,7 +1164,7 @@ public class Aggregate {
 
         /**
          * Adds a generic step to the builder's pipeline.
-         * 
+         *
          * @param operator
          *            The operator to add to the pipeline.
          * @param elements
@@ -1170,7 +1177,7 @@ public class Aggregate {
 
         /**
          * Adds a generic step to the builder's pipeline.
-         * 
+         *
          * @param operator
          *            The operator to add to the pipeline.
          * @param value
@@ -1184,7 +1191,7 @@ public class Aggregate {
 
         /**
          * Adds a generic step to the builder's pipeline.
-         * 
+         *
          * @param operator
          *            The operator to add to the pipeline.
          * @param elements
@@ -1202,7 +1209,7 @@ public class Aggregate {
 
         /**
          * Adds a generic step to the builder's pipeline.
-         * 
+         *
          * @param operator
          *            The operator to add to the pipeline.
          * @param value
@@ -1216,7 +1223,7 @@ public class Aggregate {
 
         /**
          * Adds a generic step to the builder's pipeline.
-         * 
+         *
          * @param operator
          *            The operator to add to the pipeline.
          * @param value
@@ -1242,13 +1249,13 @@ public class Aggregate {
          * Adds a <tt>$unwind</tt> operation generate a document for each
          * element of the specified array field with the array replaced with the
          * value of the element.
-         * 
+         *
          * @param fieldName
          *            The name of the array field within the document to unwind.
          *            This name must start with a '$'. If it does not a '$' will
          *            be prepended to the field name..
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see <a
          *      href="http://docs.mongodb.org/manual/reference/aggregation/#_S_unwind">
          *      Aggregation Framework Operators - $unwind</a>
@@ -1269,7 +1276,7 @@ public class Aggregate {
          * This method delegates to {@link #setUseCursor(boolean)
          * setUseCursor(true)}.
          * </p>
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder useCursor() {
@@ -1282,7 +1289,7 @@ public class Aggregate {
          * <p>
          * This method delegates to {@link #setUseCursor(boolean)}.
          * </p>
-         * 
+         *
          * @param useCursor
          *            The new value for if the results should be returned via a
          *            cursor.

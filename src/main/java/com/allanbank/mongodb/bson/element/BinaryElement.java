@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,9 @@ import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 import java.io.IOException;
 import java.util.Arrays;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -32,14 +35,17 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON binary.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BinaryElement extends AbstractElement {
+@Immutable
+@ThreadSafe
+public class BinaryElement
+        extends AbstractElement {
 
     /** The sub type used when no sub type is specified. */
     public static final byte DEFAULT_SUB_TYPE = 0;
@@ -53,7 +59,7 @@ public class BinaryElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param subType
@@ -65,7 +71,7 @@ public class BinaryElement extends AbstractElement {
     private static long computeSize(final String name, final byte subType,
             final int bytesLength) {
         long result = 7; // type (1) + name null byte (1) + data length (4) +
-                         // subtype (1).
+        // subtype (1).
         result += StringEncoder.utf8Size(name);
         result += bytesLength;
 
@@ -85,7 +91,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -106,7 +112,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -138,7 +144,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -156,7 +162,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Constructs a new {@link BinaryElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param subType
@@ -185,7 +191,7 @@ public class BinaryElement extends AbstractElement {
     /**
      * Constructs a new {@link BinaryElement}. Uses the
      * {@link #DEFAULT_SUB_TYPE}.
-     * 
+     *
      * @param name
      *            The name for the BSON binary.
      * @param value
@@ -199,7 +205,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitBinary} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -242,10 +248,10 @@ public class BinaryElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -265,7 +271,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Returns the byte value at the specified offset.
-     * 
+     *
      * @param offset
      *            The offset of the desired value.
      * @return The byte value at the offset.
@@ -278,7 +284,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Return the binary sub-type.
-     * 
+     *
      * @return The binary sub-type.
      */
     public byte getSubType() {
@@ -298,7 +304,7 @@ public class BinaryElement extends AbstractElement {
      * internal byte array. To avoid the copying of the bytes use the
      * {@link #length()} and {@link #get(int)} methods to access each byte
      * value.
-     * 
+     *
      * @return The BSON binary value.
      */
     public byte[] getValue() {
@@ -326,7 +332,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -340,7 +346,7 @@ public class BinaryElement extends AbstractElement {
 
     /**
      * Returns the length of the contained byte array.
-     * 
+     *
      * @return The length of the contained byte array.
      */
     public final int length() {

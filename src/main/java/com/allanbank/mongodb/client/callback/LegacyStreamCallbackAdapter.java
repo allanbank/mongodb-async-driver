@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ import com.allanbank.mongodb.bson.Document;
  * and
  * {@link MongoCollection#streamingFind(Callback, com.allanbank.mongodb.builder.Find)}
  * using the new interface.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @deprecated Deprecated to ensure this class is removed with the
@@ -44,15 +44,15 @@ import com.allanbank.mongodb.bson.Document;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
-public final class LegacyStreamCallbackAdapter implements
-        StreamCallback<Document> {
+public final class LegacyStreamCallbackAdapter
+        implements StreamCallback<Document> {
 
     /** The legacy callback to delegate to. */
     private final Callback<Document> myDelegate;
 
     /**
      * Creates a new LegacyStreamCallbackAdapter.
-     * 
+     *
      * @param delegate
      *            The legacy callback to delegate to.
      */

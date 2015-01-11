@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * StringEncoderCache provides the ability to cache the encoding of a string to
  * speed the writing of strings.
@@ -37,12 +39,14 @@ import java.util.SortedMap;
  * cached {@link String} to the encoded {@code byte[]}. The map has no locking
  * or synchronization since it is read-only after construction.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class StringEncoderCache extends AbstractStringCache {
+@ThreadSafe
+public class StringEncoderCache
+        extends AbstractStringCache {
 
     /** The cache of strings to bytes. */
     private Map<String, byte[]> myCache;
@@ -59,7 +63,7 @@ public class StringEncoderCache extends AbstractStringCache {
 
     /**
      * Looks in the cache for encoded bytes for the specified string.
-     * 
+     *
      * @param string
      *            The string value to find the cached bytes for.
      * @return The cached bytes for the string. May be <code>null</code>.

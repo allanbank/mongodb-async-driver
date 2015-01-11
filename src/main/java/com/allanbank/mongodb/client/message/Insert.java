@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * Message to <a href=
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPINSERT"
  * >insert</a> a set of documents into a collection.
- * 
+ *
  * <pre>
  * <code>
  * struct {
@@ -52,13 +52,14 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * }
  * </code>
  * </pre>
- * 
- * 
+ *
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Insert extends AbstractMessage {
+public class Insert
+        extends AbstractMessage {
 
     /** The flag bit to keep inserting documents on an error. */
     public static final int CONTINUE_ON_ERROR_BIT = 1;
@@ -80,7 +81,7 @@ public class Insert extends AbstractMessage {
 
     /**
      * Creates a new Insert.
-     * 
+     *
      * @param header
      *            The header proceeding the insert message. This is used to
      *            locate the end of the insert.
@@ -110,7 +111,7 @@ public class Insert extends AbstractMessage {
 
     /**
      * Creates a new Insert.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -128,7 +129,7 @@ public class Insert extends AbstractMessage {
 
     /**
      * Creates a new Insert.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -156,10 +157,10 @@ public class Insert extends AbstractMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -180,7 +181,7 @@ public class Insert extends AbstractMessage {
 
     /**
      * Returns the documents to insert.
-     * 
+     *
      * @return The documents to insert.
      */
     public List<Document> getDocuments() {
@@ -200,7 +201,7 @@ public class Insert extends AbstractMessage {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -215,7 +216,7 @@ public class Insert extends AbstractMessage {
     /**
      * Returns true if the insert should continue with other documents if one of
      * the document inserts encounters an error.
-     * 
+     *
      * @return True if the insert should continue with other documents if one of
      *         the document inserts encounters an error.
      */
@@ -307,7 +308,7 @@ public class Insert extends AbstractMessage {
      * <p>
      * Overridden to write the insert message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -335,7 +336,7 @@ public class Insert extends AbstractMessage {
      * <p>
      * Overridden to write the insert message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -356,7 +357,7 @@ public class Insert extends AbstractMessage {
 
     /**
      * Computes the message flags bit field.
-     * 
+     *
      * @return The message flags bit field.
      */
     private int computeFlags() {

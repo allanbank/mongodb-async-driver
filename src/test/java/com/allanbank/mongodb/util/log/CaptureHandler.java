@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,10 +27,11 @@ import java.util.logging.LogRecord;
 
 /**
  * A JUL Handler to capture the log records created.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class CaptureHandler extends Handler {
+public class CaptureHandler
+        extends Handler {
 
     /** The captured log records. */
     private final List<LogRecord> myRecords = new ArrayList<LogRecord>();
@@ -53,7 +54,7 @@ public class CaptureHandler extends Handler {
 
     /**
      * Returns the captured {@link LogRecord}s.
-     * 
+     *
      * @return the captured {@link LogRecord}s.
      */
     public List<LogRecord> getRecords() {

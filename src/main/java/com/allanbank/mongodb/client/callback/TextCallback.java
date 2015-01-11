@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
  * TextCallback provides conversion from a
  * {@link com.allanbank.mongodb.builder.Text text} command's result document to
  * a {@link com.allanbank.mongodb.builder.TextResult}.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @deprecated Support for the {@code text} command was deprecated in the 2.6
@@ -44,12 +44,13 @@ import com.allanbank.mongodb.client.SimpleMongoIteratorImpl;
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
-public class TextCallback implements Callback<MongoIterator<Document>> {
+public class TextCallback
+        implements Callback<MongoIterator<Document>> {
 
     /**
      * The delegate callback to receive the
      * {@link com.allanbank.mongodb.builder.TextResult}s.
-     * 
+     *
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -62,7 +63,7 @@ public class TextCallback implements Callback<MongoIterator<Document>> {
 
     /**
      * Creates a new TextCallback.
-     * 
+     *
      * @param delegate
      *            The delegate callback to receive the
      *            {@link com.allanbank.mongodb.builder.TextResult}s.
@@ -86,7 +87,7 @@ public class TextCallback implements Callback<MongoIterator<Document>> {
      * {@link com.allanbank.mongodb.builder.TextResult} and forward to the
      * delegate.
      * </p>
-     * 
+     *
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -113,7 +114,7 @@ public class TextCallback implements Callback<MongoIterator<Document>> {
      * <p>
      * Overridden to forward to the delegate callback.
      * </p>
-     * 
+     *
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator

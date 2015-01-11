@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,14 +34,14 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * CallbackReply provides the ability to trigger the callback when called from
  * an {@link EasyMock} mock.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class CallbackReply {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param builders
      *            The reply to provide to the callback.
      * @return The CallbackReply.
@@ -53,7 +53,7 @@ public class CallbackReply {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param reply
      *            The reply to provide to the callback.
      * @return The CallbackReply.
@@ -65,7 +65,7 @@ public class CallbackReply {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @param error
      *            The error to provide to the callback.
      * @return The CallbackReply.
@@ -77,7 +77,7 @@ public class CallbackReply {
 
     /**
      * Creates a new CallbackReply.
-     * 
+     *
      * @return The CallbackReply.
      */
     public static ReplyCallback cbError() {
@@ -87,7 +87,7 @@ public class CallbackReply {
 
     /**
      * Creates a reply with the specified document.
-     * 
+     *
      * @param builders
      *            The builder for the reply document.
      * @return The Repy.

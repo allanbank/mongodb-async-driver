@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,9 @@ package com.allanbank.mongodb.bson.element;
 
 import java.util.Date;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -28,14 +31,17 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 
 /**
  * A wrapper for a BSON timestamp as the milliseconds since the epoch.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class TimestampElement extends AbstractElement {
+@Immutable
+@ThreadSafe
+public class TimestampElement
+        extends AbstractElement {
 
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.UTC_TIMESTAMP;
@@ -46,7 +52,7 @@ public class TimestampElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the element.
      * @return The size of the element when encoded in bytes.
@@ -63,7 +69,7 @@ public class TimestampElement extends AbstractElement {
 
     /**
      * Constructs a new {@link TimestampElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON long.
      * @param value
@@ -77,7 +83,7 @@ public class TimestampElement extends AbstractElement {
 
     /**
      * Constructs a new {@link TimestampElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON long.
      * @param value
@@ -98,7 +104,7 @@ public class TimestampElement extends AbstractElement {
 
     /**
      * Accepts the visitor and calls the {@link Visitor#visitTimestamp} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -142,10 +148,10 @@ public class TimestampElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -164,7 +170,7 @@ public class TimestampElement extends AbstractElement {
 
     /**
      * Returns the BSON timestamp value as the milliseconds since the epoch.
-     * 
+     *
      * @return The BSON timestamp value as the milliseconds since the epoch.
      */
     public long getTime() {
@@ -192,7 +198,7 @@ public class TimestampElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

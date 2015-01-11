@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,8 @@ package com.allanbank.mongodb.builder;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.List;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
@@ -42,7 +44,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  * <p>
  * As an example of using this class consider the following Polygon with a hole
  * from the GeoJSON specification: <blockquote>
- * 
+ *
  * <pre>
  * <code>
  * { "type": "Polygon",
@@ -53,11 +55,11 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  *  }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * The equivalent BSON document can be constructed via:<blockquote>
- * 
+ *
  * <pre>
  * <code>
  * import static com.allanbank.mongodb.builder.GeoJson.polygon;
@@ -68,13 +70,14 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
  *      Arrays.asList( p(100.2, 0.2), p(100.8, 0.2), p(100.8, 0.8), p(100.2, 0.8), p(100.2, 0.2) ) );
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * @see <a href="http://www.geojson.org/geojson-spec.html">The GeoJSON Format
  *      Specification</a>
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public final class GeoJson {
 
     /** The version of MongoDB that provided support for Multi* GeoJSON objects. */
@@ -85,11 +88,11 @@ public final class GeoJson {
 
     /**
      * Constructs a GeoJSON 'LineString' document from the coordinates provided.
-     * 
+     *
      * @param points
      *            The positions in the line string. There should be at least 2
      *            positions for the document to be a valid LineString.
-     * 
+     *
      * @return A GeoJSON LineString document from the coordinates provided.
      * @throws IllegalArgumentException
      *             If the list does not contain at least 2 points.
@@ -114,14 +117,14 @@ public final class GeoJson {
 
     /**
      * Constructs a GeoJSON 'LineString' document from the coordinates provided.
-     * 
+     *
      * @param p1
      *            The first position in the line string.
      * @param p2
      *            The second position in the line string.
      * @param remaining
      *            The remaining positions in the line string.
-     * 
+     *
      * @return A GeoJSON LineString document from the coordinates provided.
      * @see <a
      *      href="http://www.geojson.org/geojson-spec.html#linestring">GeoJSON
@@ -151,13 +154,13 @@ public final class GeoJson {
      * The {@code @SafeVarargs} annotation is not available in Java 1.6, the
      * minimum version for the driver.
      * </p>
-     * 
+     *
      * @param firstLineString
      *            The first line string.
      * @param additionalLineStrings
      *            The remaining line strings.
      * @return A GeoJSON MultiLineString document from the coordinates provided.
-     * 
+     *
      * @see <a href="http://www.geojson.org/geojson-spec.html#polygon">GeoJSON
      *      Polygon</a>
      */
@@ -180,7 +183,7 @@ public final class GeoJson {
 
     /**
      * Constructs a GeoJSON 'MultiPoint' document from the positions provided.
-     * 
+     *
      * @param positions
      *            The positions
      * @return A GeoJSON MultiPoint document from the coordinates provided.
@@ -201,7 +204,7 @@ public final class GeoJson {
 
     /**
      * Constructs a GeoJSON 'MultiPoint' document from the positions provided.
-     * 
+     *
      * @param firstPosition
      *            The first position
      * @param additionalPositions
@@ -226,7 +229,7 @@ public final class GeoJson {
 
     /**
      * Helper method to construct a {@link Point2D} from the (x, y) coordinates.
-     * 
+     *
      * @param x
      *            The point's x position or longitude.
      * @param y
@@ -239,7 +242,7 @@ public final class GeoJson {
 
     /**
      * Helper method to construct a {@link Point} from the (x, y) coordinates.
-     * 
+     *
      * @param x
      *            The point's x position or longitude.
      * @param y
@@ -252,7 +255,7 @@ public final class GeoJson {
 
     /**
      * Constructs a GeoJSON 'Point' document from the coordinates provided.
-     * 
+     *
      * @param position
      *            The point's position
      * @return A GeoJSON Point document from the coordinates provided.
@@ -270,14 +273,14 @@ public final class GeoJson {
 
     /**
      * Constructs a GeoJSON 'Polygon' document from the coordinates provided.
-     * 
+     *
      * @param boundary
      *            The boundary positions for the polygon.
      * @return A GeoJSON Polygon document from the coordinates provided.
      * @throws IllegalArgumentException
      *             If the line ring does not have at least 4 positions or the
      *             first and last positions are not equivalent.
-     * 
+     *
      * @see <a href="http://www.geojson.org/geojson-spec.html#polygon">GeoJSON
      *      Polygon</a>
      */
@@ -301,7 +304,7 @@ public final class GeoJson {
      * The {@code @SafeVarargs} annotation is not available in Java 1.6, the
      * minimum version for the driver.
      * </p>
-     * 
+     *
      * @param boundary
      *            The boundary positions for the polygon.
      * @param holes
@@ -310,7 +313,7 @@ public final class GeoJson {
      * @throws IllegalArgumentException
      *             If the line ring does not have at least 4 positions or the
      *             first and last positions are not equivalent.
-     * 
+     *
      * @see <a href="http://www.geojson.org/geojson-spec.html#polygon">GeoJSON
      *      Polygon</a>
      */
@@ -333,7 +336,7 @@ public final class GeoJson {
 
     /**
      * Adds a positions to the coordinates array.
-     * 
+     *
      * @param coordinates
      *            The array to add the position to.
      * @param positions
@@ -348,7 +351,7 @@ public final class GeoJson {
 
     /**
      * Adds a position to the coordinates array.
-     * 
+     *
      * @param coordinates
      *            The array to add the position to.
      * @param position
@@ -361,7 +364,7 @@ public final class GeoJson {
 
     /**
      * Adds the (x,y) coordinates from the point directly to the array provided.
-     * 
+     *
      * @param arrayBuilder
      *            The builder to append the (x,y) coordinates to.
      * @param position
@@ -380,7 +383,7 @@ public final class GeoJson {
 
     /**
      * Fills in the LineRing coordinates.
-     * 
+     *
      * @param positionArray
      *            The array to fill with the positions.
      * @param positions

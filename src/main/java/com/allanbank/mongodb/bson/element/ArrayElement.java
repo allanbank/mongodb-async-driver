@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
@@ -35,14 +38,17 @@ import com.allanbank.mongodb.util.PatternUtils;
 
 /**
  * A wrapper for a BSON array.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ArrayElement extends AbstractElement {
+@Immutable
+@ThreadSafe
+public class ArrayElement
+        extends AbstractElement {
 
     /** The BSON type for an array. */
     public static final ElementType TYPE = ElementType.ARRAY;
@@ -63,7 +69,7 @@ public class ArrayElement extends AbstractElement {
     /**
      * Similar to the caching of Integer object values for a range we cache the
      * index names for an array's first 256 positions.
-     * 
+     *
      * @param index
      *            The index for the array element.
      * @return The name of the value at that index.
@@ -78,7 +84,7 @@ public class ArrayElement extends AbstractElement {
     /**
      * Computes and returns the number of bytes that are used to encode the
      * element.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param entries
@@ -107,7 +113,7 @@ public class ArrayElement extends AbstractElement {
 
     /**
      * Constructs a new {@link ArrayElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param entries
@@ -122,7 +128,7 @@ public class ArrayElement extends AbstractElement {
 
     /**
      * Constructs a new {@link ArrayElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param entries
@@ -137,7 +143,7 @@ public class ArrayElement extends AbstractElement {
 
     /**
      * Constructs a new {@link ArrayElement}.
-     * 
+     *
      * @param name
      *            The name for the BSON array.
      * @param entries
@@ -175,7 +181,7 @@ public class ArrayElement extends AbstractElement {
     /**
      * Accepts the visitor and calls the
      * {@link Visitor#visitArray(String, List)} method.
-     * 
+     *
      * @see Element#accept(Visitor)
      */
     @Override
@@ -220,10 +226,10 @@ public class ArrayElement extends AbstractElement {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -246,7 +252,7 @@ public class ArrayElement extends AbstractElement {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Element#find
      */
     @Override
@@ -290,7 +296,7 @@ public class ArrayElement extends AbstractElement {
      * Searches this sub-elements for matching elements on the path and are of
      * the right type.
      * </p>
-     * 
+     *
      * @see Element#findFirst
      */
     @Override
@@ -336,7 +342,7 @@ public class ArrayElement extends AbstractElement {
      * Returns the entries in the array. The name attribute will be ignored when
      * encoding the elements. When decoded the names will be the strings 0, 1,
      * 2, 3, etc..
-     * 
+     *
      * @return The entries in the array.
      */
     public List<Element> getEntries() {
@@ -364,7 +370,7 @@ public class ArrayElement extends AbstractElement {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override

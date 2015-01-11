@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,12 +32,13 @@ import com.allanbank.mongodb.client.transport.TransportOutputBuffer;
 /**
  * TwoThreadOutputBuffer provides the ability to carry messages to the send
  * thread.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-/* package */class TwoThreadOutputBuffer implements TransportOutputBuffer {
+/* package */class TwoThreadOutputBuffer
+        implements TransportOutputBuffer {
 
     /** The messages to be sent via the buffer. */
     private final List<PendingMessage> myMessages;
@@ -50,19 +51,15 @@ import com.allanbank.mongodb.client.transport.TransportOutputBuffer;
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to copy the message into a pending message to be sent.
-     * </p>
+     * Clears the pending messages.
      */
-    @Override
-    public void write(int messageId, Message message, ReplyCallback callback) {
-        myMessages.add(new PendingMessage(messageId, message, callback));
+    public void clear() {
+        myMessages.clear();
     }
 
     /**
      * Returns the messages to be sent via the buffer.
-     * 
+     *
      * @return The messages to be sent via the buffer.
      */
     public List<PendingMessage> getMessages() {
@@ -70,9 +67,14 @@ import com.allanbank.mongodb.client.transport.TransportOutputBuffer;
     }
 
     /**
-     * Clears the pending messages.
+     * {@inheritDoc}
+     * <p>
+     * Overridden to copy the message into a pending message to be sent.
+     * </p>
      */
-    public void clear() {
-        myMessages.clear();
+    @Override
+    public void write(final int messageId, final Message message,
+            final ReplyCallback callback) {
+        myMessages.add(new PendingMessage(messageId, message, callback));
     }
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -162,10 +162,11 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * are expected to verify that the format and structure of the messages the
  * driver generates are acceptable to the MongoDB servers.
  * </p>
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
+public abstract class BasicAcceptanceTestCases
+        extends ServerTestDriverSupport {
 
     /** The name of the test collection to use. */
     public static final String GEO_TEST_COLLECTION_NAME = "geo";
@@ -254,7 +255,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Creates the address to connect to.
-     * 
+     *
      * @return The {@link InetSocketAddress} for the MongoDB server.
      */
     protected static InetSocketAddress createAddress() {
@@ -290,7 +291,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns the large collection handle.
-     * 
+     *
      * @param mongoClient
      *            The client to connect to the collection.
      * @return The handle to the large collection.
@@ -381,7 +382,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Verifies the function of Aggregate framework.
      * <p>
      * Using the drivers support classes: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static {@link com.allanbank.mongodb.builder.AggregationGroupField#set com.allanbank.mongodb.builder.AggregateGroupField.set};
@@ -418,12 +419,12 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      *         .sort(desc("biggestCity.pop"));
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      * </p>
      * <p>
      * Using the MongoDB Shell: <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * > db.things.insert( { state : "NZ", city : "big", pop : 1000  } );
@@ -495,9 +496,9 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/manual/tutorial/aggregation-examples/#largest-and-smallest-cities-by-state">Inspired
      *      By</a>
@@ -868,7 +869,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * closed to submit the requests so we use a try-finally. In Java 1.7 we
      * could use a try-with-resources.
      * </p>
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -1214,7 +1215,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies counting the number of documents in the collection will timeout
      * if it takes too long.
-     * 
+     *
      * @throws ExecutionException
      *             On a test failure.
      * @throws InterruptedException
@@ -1416,7 +1417,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies running a distinct command. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * db.addresses.insert({"zip-code": 10010})
@@ -1427,7 +1428,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * [ 10010, 99701 ]
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -1508,7 +1509,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies that a database is removed from the server on a drop.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure to sleep as part of the test.
      */
@@ -2191,7 +2192,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies the function of a GroupBy command. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * { domain: "www.mongodb.org"
@@ -2219,7 +2220,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * 
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -2396,7 +2397,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies that the MongoDB iteration over a large collection works as
      * expected.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure of the test to wait.
      * @throws ExecutionException
@@ -2438,7 +2439,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies that the MongoDB iteration over a large collection works as
      * expected.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure of the test to wait.
      * @throws ExecutionException
@@ -2532,7 +2533,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Verifies the function of MapReduce via a sample Map/Reduce <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * > db.things.insert( { _id : 1, tags : ['dog', 'cat'] } );
@@ -2575,7 +2576,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * {"_id" : "mouse" , "value" : {"count" : 1}}
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
      */
     @Test
@@ -8895,7 +8896,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Verifies the function of the {@link com.allanbank.mongodb.builder.Text
      * text} command.
-     * 
+     *
      * <pre>
      * <code>
      * > db.collection.find()
@@ -8933,7 +8934,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * }
      * </code>
      * </pre>
-     * 
+     *
      * @deprecated Support for the {@code text} command was deprecated in the
      *             2.6 version of MongoDB. Use the
      *             {@link ConditionBuilder#text(String) $text} query operator
@@ -9269,7 +9270,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Calculates the distance between the two point in km.
-     * 
+     *
      * @param x1
      *            The first x coordinate.
      * @param y1
@@ -9301,7 +9302,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Fails the test.
-     * 
+     *
      * @param t
      *            The cause of the failure.
      */
@@ -9314,7 +9315,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns a collection with a geospatial 2D index on the 'p' field.
-     * 
+     *
      * @return The collection with a geospatial 2D index on the 'p' field.
      */
     protected MongoCollection getGeoCollection() {
@@ -9328,7 +9329,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Returns a collection with a geospatial 2Dshpere index on the 'p' field.
-     * 
+     *
      * @return The collection with a geospatial 2Dshpere index on the 'p' field.
      */
     protected MongoCollection getGeoSphereCollection() {
@@ -9352,7 +9353,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Initializes the {@link MongoClientConfiguration}.
-     * 
+     *
      * @return The {@link MongoClientConfiguration} for the tests.
      */
     protected MongoClientConfiguration initConfig() {
@@ -9371,7 +9372,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     /**
      * Returns true when running against a replica set configuration (may be
      * shards of replica sets.
-     * 
+     *
      * @return True when connecting to a replica set.
      */
     protected boolean isReplicaSetConfiguration() {
@@ -9382,7 +9383,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      * Returns true when running against a sharded configuration. Not all
      * commands are supported in shared environments, e.g., when connected to a
      * mongos.
-     * 
+     *
      * @return True when connecting to a mongos.
      */
     protected boolean isShardedConfiguration() {
@@ -9391,7 +9392,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Shards the collection with the specified name.
-     * 
+     *
      * @param collectionName
      *            The name of the collection to shard.
      */
@@ -9402,7 +9403,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * Shards the collection with the specified name.
-     * 
+     *
      * @param collectionName
      *            The name of the collection to shard.
      * @param shardKey
@@ -9452,11 +9453,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * DocumentCallback provides a simple callback for testing streaming finds.
-     * 
+     *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static final class DocumentCallback implements
-            StreamCallback<Document> {
+    public static final class DocumentCallback
+            implements StreamCallback<Document> {
 
         /** The number of documents received. */
         private int myCount = 0;
@@ -9513,7 +9514,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the number of documents received.
-         * 
+         *
          * @return The number of documents received.
          */
         public synchronized int getCount() {
@@ -9522,7 +9523,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the exception if seen.
-         * 
+         *
          * @return The exception if seen.
          */
         public synchronized Throwable getException() {
@@ -9531,7 +9532,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns true if the callback has been terminated.
-         * 
+         *
          * @return True if the callback has been terminated.
          */
         public synchronized boolean isTerminated() {
@@ -9540,7 +9541,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the terminatedByException value.
-         * 
+         *
          * @return The terminatedByException value.
          */
         public boolean isTerminatedByException() {
@@ -9549,7 +9550,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the terminatedByNull value.
-         * 
+         *
          * @return The terminatedByNull value.
          */
         public boolean isTerminatedByNull() {
@@ -9559,7 +9560,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         /**
          * Waits for the specified number of documents to be received or the
          * callback to be termined or the timeout.
-         * 
+         *
          * @param timeMs
          *            The maximum number of milliseconds to wait.
          */
@@ -9583,11 +9584,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * TestIteratorAsyncCallback provides a test callback.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    static class TestIterateInAsyncCallback implements
-            Callback<MongoIterator<Document>> {
+    static class TestIterateInAsyncCallback
+            implements Callback<MongoIterator<Document>> {
 
         /** The number of times the callback methods have been invoked. */
         private int myCalls = 0;
@@ -9614,7 +9615,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         /**
          * Checks the number of times the callback is invoked. Will wait for the
          * first call.
-         * 
+         *
          * @throws InterruptedException
          *             On a failure to wait.
          */
@@ -9637,7 +9638,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns number of documents returned by the iterator.
-         * 
+         *
          * @return The number of documents returned by the iterator.
          */
         public synchronized int count() {
@@ -9659,11 +9660,11 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
     /**
      * TestIteratorAsyncCallback provides a test callback.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    static class TestIteratorAsyncCallback implements
-            Callback<MongoIterator<Document>> {
+    static class TestIteratorAsyncCallback
+            implements Callback<MongoIterator<Document>> {
 
         /** The number of times the callback methods have been invoked. */
         private int myCalls = 0;
@@ -9690,7 +9691,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         /**
          * Checks the number of times the callback is invoked. Will wait for the
          * first call.
-         * 
+         *
          * @throws InterruptedException
          *             On a failure to wait.
          */
@@ -9728,7 +9729,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         /**
          * Returns the iterator returned.
-         * 
+         *
          * @return The iterator provided to the callback.
          */
         public MongoIterator<Document> iter() {

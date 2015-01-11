@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@
  */
 package com.allanbank.mongodb;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.client.MongoClientImpl;
 
 /**
@@ -26,19 +28,20 @@ import com.allanbank.mongodb.client.MongoClientImpl;
  * represented via a {@link MongoClient} instance) to a MongoDB cluster. Both
  * explicit construction with a pre-instantiated
  * {@link MongoClientConfiguration} and via a MongoDB URI are supported.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public class MongoFactory {
 
     /**
      * Creates a new {@link Mongo} instance using the
      * {@link MongoClientConfiguration}.
-     * 
+     *
      * @param config
      *            The configuration for the connection to MongoDB.
      * @return The {@link Mongo} representation of the connections to MongoDB.
@@ -53,12 +56,12 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link Mongo} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link Mongo} representation of the connections to MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      * @deprecated Use the {@link #createClient(MongoDbUri)} instead. This
@@ -71,12 +74,12 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link Mongo} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link Mongo} representation of the connections to MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      * @deprecated Use the {@link #createClient(String)} instead. This method
@@ -90,7 +93,7 @@ public class MongoFactory {
     /**
      * Creates a new {@link MongoClient} instance using the
      * {@link MongoClientConfiguration}.
-     * 
+     *
      * @param config
      *            The configuration for the connection to MongoDB.
      * @return The {@link MongoClient} representation of the connections to
@@ -102,13 +105,13 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link MongoClient} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link MongoClient} representation of the connections to
      *         MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */
@@ -118,13 +121,13 @@ public class MongoFactory {
 
     /**
      * Creates a new {@link MongoClient} instance using a MongoDB style URL.
-     * 
+     *
      * @param mongoDbUri
      *            The configuration for the connection to MongoDB expressed as a
      *            MongoDB URL.
      * @return The {@link MongoClient} representation of the connections to
      *         MongoDB.
-     * 
+     *
      * @see <a href="http://www.mongodb.org/display/DOCS/Connections"> MongoDB
      *      Connections</a>
      */

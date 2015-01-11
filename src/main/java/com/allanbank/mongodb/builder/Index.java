@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,19 +20,22 @@
 
 package com.allanbank.mongodb.builder;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.element.IntegerElement;
 import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * Provides the ability to easily specify the index type of a field within an
  * index specification.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public final class Index {
 
     /** The value to indicate an ascending index order. */
@@ -62,7 +65,7 @@ public final class Index {
      * <p>
      * This method is equivalent to {@link Sort#asc(String)} method.
      * </p>
-     * 
+     *
      * @param field
      *            The field to create the ascending index on.
      * @return The ascending sort specification.
@@ -77,7 +80,7 @@ public final class Index {
      * <p>
      * This method is equivalent to the {@link Sort#desc(String)} method.
      * </p>
-     * 
+     *
      * @param field
      *            The field to create the descending index on.
      * @return The descending sort specification.
@@ -89,7 +92,7 @@ public final class Index {
     /**
      * Creates an 2D index specification, e.g.,
      * <tt>{ &lt;field&gt; : "2d" }</tt>.
-     * 
+     *
      * @param field
      *            The field to create the '2d' index on.
      * @return The 2D index specification.
@@ -101,7 +104,7 @@ public final class Index {
     /**
      * Creates an 2D Sphere index specification, e.g.,
      * <tt>{ &lt;field&gt; : "2dsphere" }</tt>.
-     * 
+     *
      * @param field
      *            The field to create the '2dsphere' index on.
      * @return The 2D Sphere index specification.
@@ -114,7 +117,7 @@ public final class Index {
     /**
      * Creates a haystack index specification, e.g.,
      * <tt>{ &lt;field&gt; : "geoHaystack" }</tt>.
-     * 
+     *
      * @param field
      *            The field to create the 'geoHaystack' index on.
      * @return The 2D Sphere index specification.
@@ -129,7 +132,7 @@ public final class Index {
     /**
      * Creates an 'hashed' index specification, e.g.,
      * <tt>{ &lt;field&gt; : "hashed" }</tt>.
-     * 
+     *
      * @param field
      *            The field to create the 'hashed' index on.
      * @return The 'hashed' index specification.
@@ -149,7 +152,7 @@ public final class Index {
      * href="http://docs.mongodb.org/manual/release-notes/2.4/#text-indexes"
      * >MongoDB Text Index Documentation</a>.
      * </p>
-     * 
+     *
      * @param field
      *            The field to create the 'text' index on.
      * @return The 'text' index specification.

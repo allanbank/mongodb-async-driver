@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,12 +39,13 @@ import com.allanbank.mongodb.bson.element.StringElement;
 
 /**
  * Implements the bootstrap point for interactions with MongoDB.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class MongoClientImpl implements MongoClient {
+public class MongoClientImpl
+        implements MongoClient {
 
     /** The client to interact with MongoDB. */
     private final Client myClient;
@@ -57,7 +58,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Create a new MongoClient.
-     * 
+     *
      * @param client
      *            The client interface for interacting with the database.
      */
@@ -69,7 +70,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Create a new MongoClient.
-     * 
+     *
      * @param config
      *            The configuration for interacting with MongoDB.
      */
@@ -105,7 +106,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Returns the client value.
-     * 
+     *
      * @return The client value.
      */
     public Client getClient() {
@@ -129,7 +130,7 @@ public class MongoClientImpl implements MongoClient {
      * Overridden to create a {@link MongoDatabase} instance with the given
      * name.
      * </p>
-     * 
+     *
      * @see MongoClient#getDatabase(String)
      */
     @Override
@@ -180,7 +181,7 @@ public class MongoClientImpl implements MongoClient {
      * <p>
      * Overridden to issue a listDatabases command against the 'admin' database.
      * </p>
-     * 
+     *
      * @see MongoClient#listDatabaseNames()
      */
     @Override
@@ -210,7 +211,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Restarts an iterator that was previously saved.
-     * 
+     *
      * @param cursorDocument
      *            The document containing the state of the cursor.
      * @return The restarted iterator.
@@ -241,7 +242,7 @@ public class MongoClientImpl implements MongoClient {
 
     /**
      * Restarts a document stream from a cursor that was previously saved.
-     * 
+     *
      * @param results
      *            Callback that will be notified of the results of the cursor.
      * @param cursorDocument

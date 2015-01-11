@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,19 +34,20 @@ import com.allanbank.mongodb.util.IOUtils;
 /**
  * A helper class for constructing connections that are really just proxies on
  * top of other connections.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractProxyConnection implements Connection {
+public abstract class AbstractProxyConnection
+        implements Connection {
 
     /** The proxied connection. */
     private final Connection myProxiedConnection;
 
     /**
      * Creates a AbstractProxyConnection.
-     * 
+     *
      * @param proxiedConnection
      *            The connection to forward to.
      */
@@ -77,7 +78,7 @@ public abstract class AbstractProxyConnection implements Connection {
 
     /**
      * Closes the underlying connection.
-     * 
+     *
      * @see Connection#close()
      */
     @Override
@@ -90,7 +91,7 @@ public abstract class AbstractProxyConnection implements Connection {
      * <p>
      * Forwards the call to the proxied {@link Connection}.
      * </p>
-     * 
+     *
      * @see java.io.Flushable#flush()
      */
     @Override
@@ -286,7 +287,7 @@ public abstract class AbstractProxyConnection implements Connection {
 
     /**
      * Returns the proxiedConnection value.
-     * 
+     *
      * @return The proxiedConnection value.
      */
     protected Connection getProxiedConnection() {
@@ -299,7 +300,7 @@ public abstract class AbstractProxyConnection implements Connection {
      * <p>
      * Closes the underlying connection.
      * </p>
-     * 
+     *
      */
     protected void onExceptin() {
         // Close without fear of an exception.
@@ -309,11 +310,11 @@ public abstract class AbstractProxyConnection implements Connection {
     /**
      * ProxiedChangeListener provides a change listener to modify the source of
      * the event to the outer connection from the (inner) proxied connection.
-     * 
+     *
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected static class ProxiedChangeListener implements
-            PropertyChangeListener {
+    protected static class ProxiedChangeListener
+            implements PropertyChangeListener {
 
         /** The delegate listener. */
         private final PropertyChangeListener myDelegate;
@@ -323,7 +324,7 @@ public abstract class AbstractProxyConnection implements Connection {
 
         /**
          * Creates a new ProxiedChangeListener.
-         * 
+         *
          * @param proxiedConn
          *            The proxied connection.
          * @param delegate

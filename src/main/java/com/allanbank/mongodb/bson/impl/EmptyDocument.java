@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,18 +23,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Element;
 
 /**
  * An immutable empty document.
- * 
+ *
  * @api.yes This interface is part of the driver's API. Public and protected
  *          members will be deprecated for at least 1 non-bugfix release
  *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
  *          before being removed or modified.
  * @copyright 2011, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class EmptyDocument extends AbstractDocument {
+@Immutable
+@ThreadSafe
+public class EmptyDocument
+        extends AbstractDocument {
 
     /** An instance of the Empty Document. */
     public static final EmptyDocument INSTANCE = new EmptyDocument();
@@ -60,7 +66,7 @@ public class EmptyDocument extends AbstractDocument {
      * <p>
      * Overridden to return an empty list of elements.
      * </p>
-     * 
+     *
      * @return The elements in the document.
      */
     @Override
@@ -71,7 +77,7 @@ public class EmptyDocument extends AbstractDocument {
     /**
      * Returns the size of the empty document when encoded as bytes. This is
      * always 5 bytes.
-     * 
+     *
      * @return The size of the document when encoded as bytes.
      */
     @Override

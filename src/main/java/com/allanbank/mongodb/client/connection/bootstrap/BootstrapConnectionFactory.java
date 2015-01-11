@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -54,12 +54,13 @@ import com.allanbank.mongodb.util.log.LogFactory;
  * Provides the ability to bootstrap into the appropriate
  * {@link ConnectionFactory} based on the configuration of the server(s)
  * connected to.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BootstrapConnectionFactory implements ConnectionFactory {
+public class BootstrapConnectionFactory
+        implements ConnectionFactory {
 
     /** The logger for the {@link BootstrapConnectionFactory}. */
     protected static final Log LOG = LogFactory
@@ -76,7 +77,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a {@link BootstrapConnectionFactory}
-     * 
+     *
      * @param config
      *            The configuration to use in discovering the server
      *            configuration.
@@ -133,7 +134,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Returns the metrics collection agent to the connection factory.
-     * 
+     *
      * @return The metrics agent for the client.
      */
     @Override
@@ -157,7 +158,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
      * connection factory should ensure that all of the connections report
      * metrics via a {@link MongoMessageListener} from the
      * {@link MongoClientMetrics#newConnection(String)} method.
-     * 
+     *
      * @param metrics
      *            The metrics agent for the client.
      */
@@ -260,7 +261,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Initializes the factory for connecting to the replica set.
-     * 
+     *
      * @param factory
      *            The factory for connecting to the servers directly.
      * @return The connection factory for connecting to the replica set.
@@ -272,7 +273,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Initializes the factory for connecting to the sharded cluster.
-     * 
+     *
      * @param factory
      *            The factory for connecting to the servers directly.
      * @return The connection factory for connecting to the sharded cluster.
@@ -284,10 +285,10 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates the base socket factory.
-     * 
+     *
      * @param config
      *            The client's configuration.
-     * 
+     *
      * @return The base socket factory.
      */
     protected SocketConnectionFactory createSocketFactory(
@@ -297,7 +298,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * The configuration for the client.
-     * 
+     *
      * @return The configuration for the client.
      */
     protected MongoClientConfiguration getConfig() {
@@ -306,7 +307,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Returns the underlying delegate factory.
-     * 
+     *
      * @return The underlying delegate factory.
      */
     protected ConnectionFactory getDelegate() {
@@ -318,7 +319,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Sets the underlying delegate factory.
-     * 
+     *
      * @param delegate
      *            The underlying delegate factory.
      */
@@ -328,7 +329,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates the delegate connection factory.
-     * 
+     *
      * @return The delegate connection factory.
      */
     private synchronized ConnectionFactory createDelegate() {
@@ -346,7 +347,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     /**
      * Returns true if the document contains a "process" element that is a
      * string and contains the value "mongos".
-     * 
+     *
      * @param doc
      *            The document to validate.
      * @return True if the document contains a "process" element that is a
@@ -365,7 +366,7 @@ public class BootstrapConnectionFactory implements ConnectionFactory {
     /**
      * Returns true if the document contains a "repl" element that is a
      * sub-document.
-     * 
+     *
      * @param doc
      *            The document to validate.
      * @return True if the document contains a "repl" element that is a

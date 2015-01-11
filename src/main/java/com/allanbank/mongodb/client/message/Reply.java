@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -38,7 +38,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * Message received from the database in <a href=
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPREPLY"
  * >reply</a> to a query.
- * 
+ *
  * <pre>
  * <code>
  * struct {
@@ -51,13 +51,14 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * }
  * </code>
  * </pre>
- * 
- * 
+ *
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Reply extends AbstractMessage {
+public class Reply
+        extends AbstractMessage {
     /** Bit for the await capable flag. */
     public static final int AWAIT_CAPABLE_BIT = 8;
 
@@ -99,7 +100,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Creates a new Reply.
-     * 
+     *
      * @param header
      *            The header from the reply message.
      * @param in
@@ -131,7 +132,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Creates a new Reply.
-     * 
+     *
      * @param responseToId
      *            The id of the request this response is for.
      * @param cursorId
@@ -153,7 +154,7 @@ public class Reply extends AbstractMessage {
      * @param shardConfigStale
      *            If true, indicates (to a MongoS?) that its shard configuration
      *            is stale.
-     * 
+     *
      */
     public Reply(final int responseToId, final long cursorId,
             final int cursorOffset, final List<Document> results,
@@ -174,10 +175,10 @@ public class Reply extends AbstractMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -205,7 +206,7 @@ public class Reply extends AbstractMessage {
     /**
      * Returns the id of the cursor if the user needs to do a get_more to get
      * the complete results.
-     * 
+     *
      * @return The id of the cursor if the user needs to do a get_more to get
      *         the complete results.
      */
@@ -216,7 +217,7 @@ public class Reply extends AbstractMessage {
     /**
      * Returns the offset (index) of the first document returned from the
      * cursor.
-     * 
+     *
      * @return The offset (index) of the first document returned from the
      *         cursor.
      */
@@ -237,7 +238,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Returns the id of the request this response is for.
-     * 
+     *
      * @return The id of the request this response is for.
      */
     public int getResponseToId() {
@@ -246,7 +247,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Returns the query results.
-     * 
+     *
      * @return The query results.
      */
     public List<Document> getResults() {
@@ -255,7 +256,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -276,7 +277,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Returns true if the server is await capable for tailable cursors.
-     * 
+     *
      * @return True if the server is await capable for tailable cursors.
      */
     public boolean isAwaitCapable() {
@@ -286,7 +287,7 @@ public class Reply extends AbstractMessage {
     /**
      * Returns true if the cursor in the <tt>get_more</tt> message was not
      * found.
-     * 
+     *
      * @return True if the cursor in the <tt>get_more</tt> message was not
      *         found.
      */
@@ -296,7 +297,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Returns true if the query failed.
-     * 
+     *
      * @return True if the query failed.
      */
     public boolean isQueryFailed() {
@@ -305,7 +306,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Returns true if the shard configuration is stale.
-     * 
+     *
      * @return True if the shard configuration is stale.
      */
     public boolean isShardConfigStale() {
@@ -405,7 +406,7 @@ public class Reply extends AbstractMessage {
      * <p>
      * Overridden to write the reply message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -437,7 +438,7 @@ public class Reply extends AbstractMessage {
      * <p>
      * Overridden to write the reply message.
      * </p>
-     * 
+     *
      * @see Message#write(int, BsonOutputStream)
      */
     @Override
@@ -461,7 +462,7 @@ public class Reply extends AbstractMessage {
 
     /**
      * Computes the message flags bit field.
-     * 
+     *
      * @return The message flags bit field.
      */
     private int computeFlags() {

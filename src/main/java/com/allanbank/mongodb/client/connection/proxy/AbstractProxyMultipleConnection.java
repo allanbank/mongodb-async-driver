@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,14 +51,15 @@ import com.allanbank.mongodb.util.log.LogFactory;
 /**
  * AbstractProxyMultipleConnection provides the core functionality for a
  * connection that multiplexes requests across multiple connections.
- * 
+ *
  * @param <K>
  *            The key used to track the various connections.
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractProxyMultipleConnection<K> implements Connection {
+public abstract class AbstractProxyMultipleConnection<K>
+        implements Connection {
 
     /** The logger for the {@link AbstractProxyMultipleConnection}. */
     private static final Log LOG = LogFactory
@@ -96,7 +97,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Creates a new {@link AbstractProxyMultipleConnection}.
-     * 
+     *
      * @param proxiedConnection
      *            The connection being proxied.
      * @param server
@@ -145,7 +146,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Closes the underlying connection.
-     * 
+     *
      * @see Connection#close()
      */
     @Override
@@ -170,7 +171,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * <p>
      * Forwards the call to the proxied {@link Connection}.
      * </p>
-     * 
+     *
      * @see java.io.Flushable#flush()
      */
     @Override
@@ -355,7 +356,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * Caches the connection to the server if there is not already a connection
      * in the cache. If there is a connection already in the cache then the one
      * provided is closed and the cached connection it returned.
-     * 
+     *
      * @param server
      *            The server connected to.
      * @param conn
@@ -379,7 +380,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * Attempts to create a connection to the server, catching any exceptions
      * thrown. If a connection is created it should be
      * {@link #cacheConnection(Object, Connection) cached}.
-     * 
+     *
      * @param server
      *            The server to connect to.
      * @return The connection to the server.
@@ -389,7 +390,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
     /**
      * Returns the cached connection for the specified key. This method may
      * return {@code null}.
-     * 
+     *
      * @param server
      *            The server connected to.
      * @return The connection in the cache.
@@ -400,7 +401,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Creates a exception for a reconnect failure.
-     * 
+     *
      * @param message1
      *            The first message to send.
      * @param message2
@@ -430,7 +431,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Sends the message on the connection.
-     * 
+     *
      * @param conn
      *            The connection to send on.
      * @param message1
@@ -458,7 +459,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
      * Locates the set of servers that can be used to send the specified
      * messages. This method will attempt to connect to the primary server if
      * there is not a current connection to the primary.
-     * 
+     *
      * @param message1
      *            The first message to send.
      * @param message2
@@ -473,7 +474,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Returns the type of connection (for logs, etc.).
-     * 
+     *
      * @return The connection type.
      */
     protected abstract String getConnectionType();
@@ -481,7 +482,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
     /**
      * Tries to reconnect previously open {@link Connection}s. If a connection
      * was being closed then cleans up the remaining state.
-     * 
+     *
      * @param connection
      *            The connection that was closed.
      */
@@ -554,14 +555,14 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Creates a connection back to the main server for this connection.
-     * 
+     *
      * @return The information for the new connection.
      */
     protected abstract ConnectionInfo<K> reconnectMain();
 
     /**
      * Remove the connection from the cache.
-     * 
+     *
      * @param key
      *            The key to remove the connection for.
      * @param connection
@@ -587,7 +588,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
     /**
      * Tries to send the messages to the first server with either an open
      * connection or that we can open a connection to.
-     * 
+     *
      * @param servers
      *            The servers the messages can be sent to.
      * @param message1
@@ -632,7 +633,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Update the state with the new primary server.
-     * 
+     *
      * @param newConn
      *            The new primary server.
      */
@@ -646,7 +647,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * Finds the server for the connection.
-     * 
+     *
      * @param connection
      *            The connection to remove.
      * @return The K for the connection.
@@ -662,14 +663,14 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
 
     /**
      * ClusterListener provides a listener for changes in the cluster.
-     * 
+     *
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected final class ClusterAndConnectionListener implements
-            PropertyChangeListener {
+    protected final class ClusterAndConnectionListener
+            implements PropertyChangeListener {
         /**
          * {@inheritDoc}
          * <p>
@@ -679,7 +680,7 @@ public abstract class AbstractProxyMultipleConnection<K> implements Connection {
          * {@link AbstractProxyMultipleConnection#handleConnectionClosed(Connection)}
          * methods.
          * </p>
-         * 
+         *
          * @see PropertyChangeListener#propertyChange
          */
         @Override

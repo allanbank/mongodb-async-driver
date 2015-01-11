@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * {@link java.beans.PropertyEditor} for the {@link Durability} class.
@@ -52,14 +54,16 @@ import java.util.Set;
  * >Connection String URI Format</a> documentation for information on
  * constructing a MongoDB URI.
  * </p>
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class DurabilityEditor extends PropertyEditorSupport {
+@NotThreadSafe
+public class DurabilityEditor
+        extends PropertyEditorSupport {
 
     /** The default wait time for tokenized durabilities: {@value} ms. */
     public static final int DEFAULT_WAIT_TIME_MS = 30000;
@@ -91,7 +95,7 @@ public class DurabilityEditor extends PropertyEditorSupport {
      * <p>
      * Overridden to parse a string to a {@link Durability}.
      * </p>
-     * 
+     *
      * @throws IllegalArgumentException
      *             If the string cannot be parsed into a {@link Durability}.
      */
@@ -138,7 +142,7 @@ public class DurabilityEditor extends PropertyEditorSupport {
     /**
      * Uses the URI parameters to determine a durability. May return null if the
      * URI did not contain any durability settings.
-     * 
+     *
      * @param parameters
      *            The URI parameters.
      * @return The {@link Durability} from the URI parameters.

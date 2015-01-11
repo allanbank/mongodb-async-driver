@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -66,7 +66,7 @@ import com.allanbank.mongodb.client.state.Server;
 
 /**
  * ReplicaSetConnectionTest provides tests of the {@link ReplicaSetConnection}.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetConnectionTest {
@@ -125,7 +125,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -189,7 +189,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -242,7 +242,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -319,7 +319,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -409,7 +409,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -486,7 +486,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -569,7 +569,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -652,7 +652,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -688,7 +688,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -727,7 +727,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -768,7 +768,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -816,7 +816,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -856,7 +856,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -914,7 +914,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -991,7 +991,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -1052,7 +1052,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -1129,7 +1129,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -1212,7 +1212,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -1314,7 +1314,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -1365,7 +1365,7 @@ public class ReplicaSetConnectionTest {
     /**
      * Test method for {@link ReplicaSetConnection#send(Message, ReplyCallback)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */
@@ -1418,7 +1418,7 @@ public class ReplicaSetConnectionTest {
 
     /**
      * Test method for {@link ReplicaSetConnection#toString()}.
-     * 
+     *
      * @throws IOException
      *             On a failure setting up mocks.
      */

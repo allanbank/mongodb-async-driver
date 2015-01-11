@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,14 +34,14 @@ import com.allanbank.mongodb.LockType;
 
 /**
  * SequenceTest provides tests for the {@link Sequence} class.
- * 
+ *
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class SequenceTest {
 
     /**
      * Test method for {@link Sequence#release(long, long)}.
-     * 
+     *
      * @throws InterruptedException
      *             On a failure to wait for the test threads to finish.
      */
@@ -198,7 +198,7 @@ public class SequenceTest {
 
     /**
      * Runs a threaded test with the sequence, iterations and thread count.
-     * 
+     *
      * @param sequence
      *            The sequence to test.
      * @param iterations
@@ -237,10 +237,11 @@ public class SequenceTest {
 
     /**
      * Runner provides a class to run the sequence.
-     * 
+     *
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public class Runner implements Runnable {
+    public class Runner
+            implements Runnable {
 
         /** Set to the exception thrown. */
         private Throwable myError;
@@ -259,7 +260,7 @@ public class SequenceTest {
 
         /**
          * Creates a new Runner.
-         * 
+         *
          * @param iterations
          *            The number of iterations to run.
          * @param piSlices
@@ -280,7 +281,7 @@ public class SequenceTest {
 
         /**
          * Returns the error value.
-         * 
+         *
          * @return The error value.
          */
         public Throwable getError() {

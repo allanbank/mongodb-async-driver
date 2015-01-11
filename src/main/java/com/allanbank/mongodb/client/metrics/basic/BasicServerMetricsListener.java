@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,12 +35,13 @@ import com.allanbank.mongodb.client.metrics.MongoMessageListener;
 /**
  * BasicServerMetricsListener accumulates the metrics on the messages sent to a
  * single server.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BasicServerMetricsListener implements MongoMessageListener {
+public class BasicServerMetricsListener
+        implements MongoMessageListener {
 
     /** The metrics for each server. */
     private final ConcurrentMap<String, BasicServerMetrics> myServerMetrics;
@@ -64,7 +65,7 @@ public class BasicServerMetricsListener implements MongoMessageListener {
 
     /**
      * Returns the map of server metrics.
-     * 
+     *
      * @return The map of server metrics.
      */
     public Map<String, BasicServerMetrics> getServerMetrics() {
@@ -119,7 +120,7 @@ public class BasicServerMetricsListener implements MongoMessageListener {
 
     /**
      * Writes a human readable version of the server metrics to the writer.
-     * 
+     *
      * @param writer
      *            The sink for the text.
      */
@@ -140,7 +141,7 @@ public class BasicServerMetricsListener implements MongoMessageListener {
 
     /**
      * Extension point for derived classes to know when a server has been added.
-     * 
+     *
      * @param metrics
      *            The metrics for the server.
      */
@@ -152,7 +153,7 @@ public class BasicServerMetricsListener implements MongoMessageListener {
     /**
      * Creates a a new {@link BasicServerMetrics} instance. This instance may or
      * may not be used.
-     * 
+     *
      * @param serverName
      *            The name of the server to create a new metrics for.
      * @return The {@link BasicServerMetrics} for the database.
@@ -163,7 +164,7 @@ public class BasicServerMetricsListener implements MongoMessageListener {
 
     /**
      * Locates or create the {@link BasicServerMetrics} for the message.
-     * 
+     *
      * @param serverName
      *            The name of the server that the message was sent to or
      *            received from.

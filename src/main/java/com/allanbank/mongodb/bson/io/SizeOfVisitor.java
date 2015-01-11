@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,8 @@ package com.allanbank.mongodb.bson.io;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
@@ -31,12 +33,14 @@ import com.allanbank.mongodb.bson.element.ObjectId;
 
 /**
  * A visitor to determine the size of the documents it visits.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class SizeOfVisitor implements Visitor {
+@NotThreadSafe
+public class SizeOfVisitor
+        implements Visitor {
     /** UTF-8 Character set for encoding strings. */
     public final static Charset UTF8 = StringDecoder.UTF8;
 
@@ -55,7 +59,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Creates a new SizeOfVisitor.
-     * 
+     *
      * @param encoder
      *            The encoder for strings.
      */
@@ -67,7 +71,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Returns the visitor's output buffer.
-     * 
+     *
      * @param string
      *            The 'C' string to determine the size of.
      * @return The visitor's output buffer.
@@ -78,7 +82,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Returns the visitor's output buffer.
-     * 
+     *
      * @param string
      *            The 'UTF8' string to determine the size of.
      * @return The visitor's output buffer.
@@ -89,7 +93,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Return the current Size of the written document.
-     * 
+     *
      * @return The current size of the encoded document.
      */
     public int getSize() {
@@ -115,7 +119,7 @@ public class SizeOfVisitor implements Visitor {
 
     /**
      * Computes the size of the encoded UTF8 String based on the table below.
-     * 
+     *
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
@@ -129,7 +133,7 @@ public class SizeOfVisitor implements Visitor {
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4
      * </pre>
-     * 
+     *
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
@@ -363,7 +367,7 @@ public class SizeOfVisitor implements Visitor {
     /**
      * Computes the size of the binary based on the name, type and length of the
      * data.
-     * 
+     *
      * @param name
      *            The name of the element.
      * @param subType

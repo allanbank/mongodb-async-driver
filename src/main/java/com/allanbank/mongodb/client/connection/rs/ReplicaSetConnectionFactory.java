@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,12 +52,13 @@ import com.allanbank.mongodb.util.log.LogFactory;
 
 /**
  * Provides the ability to create connections to a replica-set environment.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class ReplicaSetConnectionFactory implements ConnectionFactory {
+public class ReplicaSetConnectionFactory
+        implements ConnectionFactory {
 
     /** The logger for the {@link ReplicaSetConnectionFactory}. */
     protected static final Log LOG = LogFactory
@@ -80,7 +81,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new {@link ReplicaSetConnectionFactory}.
-     * 
+     *
      * @param factory
      *            The factory to create proxied connections.
      * @param config
@@ -131,7 +132,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
     /**
      * Creates a new connection to the replica set.
-     * 
+     *
      * @see ConnectionFactory#connect()
      */
     @Override
@@ -236,7 +237,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
     /**
      * Returns the clusterState value.
-     * 
+     *
      * @return The clusterState value.
      */
     protected Cluster getCluster() {
@@ -245,7 +246,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
     /**
      * Determines if the connection is to the primary member of the cluster.
-     * 
+     *
      * @param server
      *            The server connected to.
      * @param connection
@@ -290,7 +291,7 @@ public class ReplicaSetConnectionFactory implements ConnectionFactory {
 
     /**
      * Locates the primary server in the cluster.
-     * 
+     *
      * @return The list of primary servers.
      */
     protected List<Server> locatePrimary() {

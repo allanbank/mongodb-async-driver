@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,21 +23,24 @@ package com.allanbank.mongodb.bson.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
  * StringEncoder provides a single location for the string encoding and sizing
  * logic. This class if backed by a cache of strings to the encoded bytes.
  * <p>
  * The cache is controlled via two parameters:
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@NotThreadSafe
 public class StringEncoder {
 
     /**
      * Returns the visitor's output buffer.
-     * 
+     *
      * @param string
      *            The 'C' string to determine the size of.
      * @return The visitor's output buffer.
@@ -48,7 +51,7 @@ public class StringEncoder {
 
     /**
      * Returns the visitor's output buffer.
-     * 
+     *
      * @param string
      *            The 'UTF8' string to determine the size of.
      * @return The visitor's output buffer.
@@ -59,7 +62,7 @@ public class StringEncoder {
 
     /**
      * Computes the size of the encoded UTF8 String based on the table below.
-     * 
+     *
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
@@ -73,7 +76,7 @@ public class StringEncoder {
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4
      * </pre>
-     * 
+     *
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
@@ -117,7 +120,7 @@ public class StringEncoder {
 
     /**
      * Creates a new StringEncoder.
-     * 
+     *
      * @param cache
      *            The cache for the encoder to use.
      */
@@ -129,7 +132,7 @@ public class StringEncoder {
      * Writes the string as a UTF-8 string. This method handles the
      * "normal/easy" cases and delegates to the full character set if things get
      * complicated.
-     * 
+     *
      * @param string
      *            The string to encode.
      * @param out
@@ -158,7 +161,7 @@ public class StringEncoder {
      * Computes the size of the encoded UTF8 String based on the table below.
      * This method may use a cached copy of the encoded string to determine the
      * size.
-     * 
+     *
      * <pre>
      * #    Code Points      Bytes
      * 1    U+0000..U+007F   1
@@ -172,7 +175,7 @@ public class StringEncoder {
      *     U+40000..U+FFFFF  4
      *    U+100000..U10FFFF  4
      * </pre>
-     * 
+     *
      * @param string
      *            The string to determine the length of.
      * @return The length of the string encoded as UTF8.
@@ -192,7 +195,7 @@ public class StringEncoder {
 
     /**
      * Returns the cache value.
-     * 
+     *
      * @return The cache value.
      * @deprecated The cache {@link StringEncoderCache} should be controlled
      *             directly. This method will be removed after the 2.1.0
@@ -207,7 +210,7 @@ public class StringEncoder {
      * Writes the string as a UTF-8 string. This method handles the
      * "normal/easy" cases and delegates to the full character set if things get
      * complicated.
-     * 
+     *
      * @param string
      *            The string to encode.
      * @param out

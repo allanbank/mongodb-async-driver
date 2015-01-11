@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,11 +52,12 @@ import com.allanbank.mongodb.client.message.Update;
 /**
  * BatchedAsyncMongoCollectionImpl provides the implementation for the
  * {@link BatchedAsyncMongoCollection}.
- * 
+ *
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BatchedAsyncMongoCollectionImpl extends
-        AbstractAsyncMongoCollection implements BatchedAsyncMongoCollection {
+public class BatchedAsyncMongoCollectionImpl
+        extends AbstractAsyncMongoCollection
+        implements BatchedAsyncMongoCollection {
 
     /** The interfaces to implement via the proxy. */
     private static final Class<?>[] CLIENT_INTERFACE = new Class[] { Client.class };
@@ -72,7 +73,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
     /**
      * Creates a new BatchedAsyncMongoCollectionImpl.
-     * 
+     *
      * @param client
      *            The client for interacting with MongoDB.
      * @param database
@@ -130,7 +131,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
     /**
      * Returns the mode for the batched writes.
-     * 
+     *
      * @return The mode for the batched writes.
      */
     public BatchedWriteMode getMode() {
@@ -139,7 +140,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
     /**
      * Returns true if the deletes should be batched.
-     * 
+     *
      * @return True if the deletes should be batched.
      */
     public boolean isBatchDeletes() {
@@ -148,7 +149,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
     /**
      * Returns true if the updates should be batched.
-     * 
+     *
      * @return True if the updates should be batched.
      */
     public boolean isBatchUpdates() {
@@ -195,10 +196,11 @@ public class BatchedAsyncMongoCollectionImpl extends
     /**
      * CaptureClientHandler provides an {@link InvocationHandler} to capture all
      * send requests and defer them until flushed.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    private static class CaptureClientHandler implements InvocationHandler {
+    private static class CaptureClientHandler
+            implements InvocationHandler {
 
         /** The first version to support batch write commands. */
         public static final Version BATCH_WRITE_VERSION = Version
@@ -230,7 +232,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Creates a new CaptureClientHandler.
-         * 
+         *
          * @param realClient
          *            The {@link Client} implementation to delegate to when
          *            sending messages or handling other method calls.
@@ -273,7 +275,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Flushes the pending messages to a serialized client.
-         * 
+         *
          * @param collection
          *            The Collection the we are flushing operations for.
          */
@@ -339,7 +341,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Adds a delete to the batch.
-         * 
+         *
          * @param delete
          *            The delete to add to the batch.
          * @param args
@@ -355,7 +357,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Adds an insert to the batch.
-         * 
+         *
          * @param insert
          *            The insert to add to the batch.
          * @param args
@@ -389,7 +391,7 @@ public class BatchedAsyncMongoCollectionImpl extends
 
         /**
          * Adds an update to the batch.
-         * 
+         *
          * @param update
          *            The update to add to the batch.
          * @param args
@@ -430,7 +432,7 @@ public class BatchedAsyncMongoCollectionImpl extends
         /**
          * Extracts the callback from the write arguments. If the write has a
          * {@link Callback} then it will be the last argument.
-         * 
+         *
          * @param args
          *            The arguments for the original {@link Client#send} call.
          * @return The callback for the call. Returns null if there is no
@@ -449,7 +451,7 @@ public class BatchedAsyncMongoCollectionImpl extends
          * Tries the optimize the messages we will send to the server by
          * coalescing the sequential insert, update and delete messages into the
          * batched write commands of the same name.
-         * 
+         *
          * @param collection
          *            The collection we are sending requests to.
          * @return The list of optimized messages.
@@ -515,7 +517,7 @@ public class BatchedAsyncMongoCollectionImpl extends
         /**
          * Updates the durability for the batch. If the durability changes
          * mid-batch then we force a break in the batch.
-         * 
+         *
          * @param args
          *            The arguments for the send() call. The
          *            {@link GetLastError} will be the second of three

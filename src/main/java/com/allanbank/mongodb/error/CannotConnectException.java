@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,19 +19,25 @@
  */
 package com.allanbank.mongodb.error;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.MongoDbException;
 
 /**
  * CannotConnectException is thrown to report a failure when attempting to
  * connect to MongoDB.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class CannotConnectException extends MongoDbException {
+@Immutable
+@ThreadSafe
+public class CannotConnectException
+        extends MongoDbException {
 
     /** Serialization exception for the class. */
     private static final long serialVersionUID = 1729264905521755667L;
@@ -45,7 +51,7 @@ public class CannotConnectException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     * 
+     *
      * @param message
      *            Message for the exception.
      */
@@ -55,7 +61,7 @@ public class CannotConnectException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     * 
+     *
      * @param message
      *            Message for the exception.
      * @param cause
@@ -67,7 +73,7 @@ public class CannotConnectException extends MongoDbException {
 
     /**
      * Creates a new CannotConnectException.
-     * 
+     *
      * @param cause
      *            The cause of the error.
      */

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -76,7 +76,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
 /**
  * ReplicaSetConnectionFactoryTest provides tests for the
  * {@link ReplicaSetConnectionFactory}.
- * 
+ *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ReplicaSetConnectionFactoryTest {
@@ -89,7 +89,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Returns true if a driver thread is found.
-     * 
+     *
      * @return True if a driver thread is found.
      */
     public static final boolean driverThreadRunning() {
@@ -105,7 +105,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -117,7 +117,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Makes sure all of the threads have terminates at the end of the tests.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -150,7 +150,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Starts a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to start the Mock MongoDB server.
      */
@@ -166,7 +166,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Cleans up the test connection and stops a Mock MongoDB server.
-     * 
+     *
      * @throws IOException
      *             On a failure to shutdown the test connection.
      */
@@ -349,7 +349,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#close()} .
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the Mock MongoDB server.
      */
@@ -384,7 +384,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -418,7 +418,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -484,7 +484,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -641,7 +641,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -681,7 +681,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -709,7 +709,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -783,7 +783,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      */
@@ -823,7 +823,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException
@@ -892,7 +892,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#getClusterType()}.
-     * 
+     *
      * @throws IOException
      *             on a test failure.
      */
@@ -953,7 +953,7 @@ public class ReplicaSetConnectionFactoryTest {
 
     /**
      * Test method for {@link ReplicaSetConnectionFactory#connect()}.
-     * 
+     *
      * @throws IOException
      *             On a failure.
      * @throws InterruptedException

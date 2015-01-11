@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -51,7 +51,7 @@ import com.allanbank.mongodb.bson.element.DocumentElement;
 /**
  * AggregateTest provides tests for the example usage of the {@link Aggregate}
  * class.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  * @deprecated See deprecation of {@link Aggregate}.
  */
@@ -116,7 +116,7 @@ public class AggregateTest {
 
     /**
      * Test method for {@link Aggregate.Builder} usability.
-     * 
+     *
      * @see <a
      *      href="https://groups.google.com/d/topic/mongodb-user/1cYch580h0w/discussion">Inspired
      *      By</a>

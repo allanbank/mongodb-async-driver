@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,12 +44,13 @@ import com.allanbank.mongodb.error.BatchedWriteException;
  * an N value based on the expected count. That limits the utility of this class
  * to inserts.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class BatchedInsertCountingCallback implements Callback<Reply> {
+public class BatchedInsertCountingCallback
+        implements Callback<Reply> {
 
     /** The count of the number of callbacks received so far. */
     private int myCount = 0;
@@ -77,7 +78,7 @@ public class BatchedInsertCountingCallback implements Callback<Reply> {
 
     /**
      * Creates a new CountingCallback.
-     * 
+     *
      * @param forwardCallback
      *            The callback to notify with the final results once we receive
      *            them all.

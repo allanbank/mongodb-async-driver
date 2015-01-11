@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * Message to <a href=
  * "http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol#MongoWireProtocol-OPDELETE"
  * >delete</a> documents from a collection. The format of the message is:
- * 
+ *
  * <pre>
  * <code>
  * struct {
@@ -49,12 +49,13 @@ import com.allanbank.mongodb.error.DocumentToLargeException;
  * }
  * </code>
  * </pre>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Delete extends AbstractMessage {
+public class Delete
+        extends AbstractMessage {
 
     /** The flag bit for performing a single delete only. */
     public static final int SINGLE_DELETE_BIT = 1;
@@ -70,7 +71,7 @@ public class Delete extends AbstractMessage {
 
     /**
      * Create a new Delete message.
-     * 
+     *
      * @param in
      *            The stream to read the delete message from.
      * @throws IOException
@@ -86,7 +87,7 @@ public class Delete extends AbstractMessage {
 
     /**
      * Create a new Delete message.
-     * 
+     *
      * @param databaseName
      *            The name of the database.
      * @param collectionName
@@ -107,10 +108,10 @@ public class Delete extends AbstractMessage {
     /**
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
-     * 
+     *
      * @param object
      *            The object to compare to.
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -142,7 +143,7 @@ public class Delete extends AbstractMessage {
 
     /**
      * Returns the query {@link Document}.
-     * 
+     *
      * @return The query {@link Document}.
      */
     public Document getQuery() {
@@ -151,7 +152,7 @@ public class Delete extends AbstractMessage {
 
     /**
      * Computes a reasonable hash code.
-     * 
+     *
      * @return The hash code value.
      */
     @Override
@@ -165,7 +166,7 @@ public class Delete extends AbstractMessage {
 
     /**
      * Returns if only a single or all matching documents should be deleted.
-     * 
+     *
      * @return True if only the first document found will be deleted, otherwise
      *         all matching documents will be deleted.
      */
@@ -238,7 +239,7 @@ public class Delete extends AbstractMessage {
      * <p>
      * Overridden to write a delete message.
      * </p>
-     * 
+     *
      * @see Message#write
      */
     @Override
@@ -264,7 +265,7 @@ public class Delete extends AbstractMessage {
      * <p>
      * Overridden to write a delete message.
      * </p>
-     * 
+     *
      * @see Message#write
      */
     @Override
@@ -284,7 +285,7 @@ public class Delete extends AbstractMessage {
 
     /**
      * Computes the message flags bit field.
-     * 
+     *
      * @return The message flags bit field.
      */
     private int computeFlags() {

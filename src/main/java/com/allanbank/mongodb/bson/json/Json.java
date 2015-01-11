@@ -24,6 +24,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.DocumentReference;
@@ -152,6 +154,7 @@ import com.allanbank.mongodb.error.JsonParseException;
  * @copyright 2012-2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 @SuppressWarnings("javadoc")
+@ThreadSafe
 public class Json {
 
     /**
@@ -359,6 +362,14 @@ public class Json {
         /** If true then strict JSON should be emitted. */
         private final boolean myStrict;
 
+        /**
+         * Creates a new Mode.
+         *
+         * @param oneLine
+         *            If true the JSON should be on a single line.
+         * @param strict
+         *            If true then strict JSON should be emitted.
+         */
         private Mode(final boolean oneLine, final boolean strict) {
             myOneLine = oneLine;
             myStrict = strict;

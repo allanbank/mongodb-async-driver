@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,6 +30,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * AbstractStringCache provides the basic functionality for tracking string
@@ -56,12 +58,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * the runtime-cache and how often the accumulated statistics are trimmed. Each
  * entry represents a single encoded string.</li>
  * </ol>
- * 
- * 
+ *
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public abstract class AbstractStringCache {
 
     /** The default maximum number of entries to keep in the cache. */
@@ -117,7 +120,7 @@ public abstract class AbstractStringCache {
 
     /**
      * Returns the maximum node count.
-     * 
+     *
      * @return The maximum node count.
      */
     public int getMaxCacheEntries() {
@@ -127,7 +130,7 @@ public abstract class AbstractStringCache {
     /**
      * Returns the maximum length of strings to cache. This can be used to stop
      * a single long string from pushing useful values out of the cache.
-     * 
+     *
      * @return The maximum length of strings to cache.
      */
     public int getMaxCacheLength() {
@@ -136,7 +139,7 @@ public abstract class AbstractStringCache {
 
     /**
      * Sets the value of maximum number of cached strings.
-     * 
+     *
      * @param maxCacheEntries
      *            The new value for the maximum number of cached strings.
      */
@@ -148,7 +151,7 @@ public abstract class AbstractStringCache {
      * Sets the value of maximum length of strings to cache to the new value.
      * This can be used to stop a single long string from pushing useful values
      * out of the cache.
-     * 
+     *
      * @param maxlength
      *            The new value for the maximum length of strings to cache.
      */
@@ -163,7 +166,7 @@ public abstract class AbstractStringCache {
 
     /**
      * Notification that a string/byte[] have been used.
-     * 
+     *
      * @param source
      *            The bytes in the string.
      * @param offset
@@ -209,7 +212,7 @@ public abstract class AbstractStringCache {
     /**
      * Builds a map of the seen strings at each count. The order of the map is
      * reversed so that higher counts are first in the map.
-     * 
+     *
      * @return A map of the seen strings at each count.
      */
     protected SortedMap<Integer, List<SeenString>> buildCacheGroups() {
@@ -271,7 +274,7 @@ public abstract class AbstractStringCache {
 
     /**
      * Attempts to rebuild the cache.
-     * 
+     *
      * @param use
      *            The expected use count.
      * @return The use count after the attempt.
@@ -288,11 +291,11 @@ public abstract class AbstractStringCache {
     /**
      * ReverseIntegerComparator provides a {@link Comparator} that considers
      * higher value integers to be less then lower value integers.
-     * 
+     *
      * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
      */
-    public static class ReverseIntegerComparator implements
-            Comparator<Integer>, Serializable {
+    public static class ReverseIntegerComparator
+            implements Comparator<Integer>, Serializable {
 
         /** The single instance of the comparator. */
         public static final Comparator<Integer> INSTANCE = new ReverseIntegerComparator();

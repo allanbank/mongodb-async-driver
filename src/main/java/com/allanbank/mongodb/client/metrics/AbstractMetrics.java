@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,13 +32,13 @@ import com.allanbank.mongodb.client.message.Reply;
 /**
  * AbstractMetrics provides the ability to accumulate the basic send/receive
  * metrics.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public abstract class AbstractMetrics implements MongoMessageListener,
-        Closeable {
+public abstract class AbstractMetrics
+        implements MongoMessageListener, Closeable {
 
     /** The decay rate for the exponential average for the latency. */
     private static final double DECAY_ALPHA;
@@ -137,7 +137,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the average latency for all received messages in nanoseconds.
-     * 
+     *
      * @return The average latency for all received messages in nanoseconds.
      */
     public double getAverageLatencyMillis() {
@@ -149,7 +149,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the latency for the last message received in nanoseconds.
-     * 
+     *
      * @return The latency for the last message received in nanoseconds.
      */
     public long getLastLatencyNanos() {
@@ -158,7 +158,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the number of received bytes.
-     * 
+     *
      * @return The number of received bytes.
      */
     public long getMessageReceivedBytes() {
@@ -167,7 +167,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the number of received messages.
-     * 
+     *
      * @return The number of received messages.
      */
     public long getMessageReceivedCount() {
@@ -176,7 +176,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the number of sent bytes.
-     * 
+     *
      * @return The number of sent bytes.
      */
     public long getMessageSentBytes() {
@@ -185,7 +185,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the number of sent messages.
-     * 
+     *
      * @return The number of sent messages.
      */
     public long getMessageSentCount() {
@@ -194,7 +194,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the recent average received latency in nanoseconds.
-     * 
+     *
      * @return The recent average received latency in nanoseconds.
      */
     public double getRecentAverageLatencyMillis() {
@@ -203,7 +203,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Returns the total latency for all received messages in nanoseconds.
-     * 
+     *
      * @return The total latency for all received messages in nanoseconds.
      */
     public long getTotalLatencyNanos() {
@@ -286,7 +286,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Writes a human readable form of the metrics.
-     * 
+     *
      * @param writer
      *            The writer to write to.
      */
@@ -294,7 +294,7 @@ public abstract class AbstractMetrics implements MongoMessageListener,
 
     /**
      * Creates a human readable form of the metrics with the specified name.
-     * 
+     *
      * @param writer
      *            The writer to write the string to.
      * @param type

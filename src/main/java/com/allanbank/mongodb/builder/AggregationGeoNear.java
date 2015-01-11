@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,10 @@ import static com.allanbank.mongodb.util.Assertions.assertNotNull;
 
 import java.awt.geom.Point2D;
 
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
+
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -33,20 +37,23 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 /**
  * AggregationGeoNear provides the options for the {@code $geoNear} pipeline
  * stage of an aggregation.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
- * 
+ *
  * @since MongoDB 2.4
  */
-public class AggregationGeoNear implements DocumentAssignable {
+@Immutable
+@ThreadSafe
+public class AggregationGeoNear
+        implements DocumentAssignable {
 
     /**
      * Creates a new builder for an {@link AggregationGeoNear}.
-     * 
+     *
      * @return The builder to construct an {@link AggregationGeoNear}.
      */
     public static Builder builder() {
@@ -106,7 +113,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
     /**
      * Creates a new AggregationGeoNear.
-     * 
+     *
      * @param builder
      *            he builder for the AggregationGeoNear stage.
      * @throws IllegalArgumentException
@@ -173,7 +180,7 @@ public class AggregationGeoNear implements DocumentAssignable {
     /**
      * Returns the name of the field to place the distance from the source
      * {@link #getLocation() location}.
-     * 
+     *
      * @return The name of the field to place the distance from the source
      *         {@link #getLocation() location}.
      */
@@ -183,7 +190,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
     /**
      * If set returns the distance multiplier to use in the {@code $geoNear}.
-     * 
+     *
      * @return The distance multiplier to use in the {@code $geoNear}, if set.
      *         <code>null</code> otherwise.
      */
@@ -193,7 +200,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
     /**
      * If set returns the maximum number of documents to return.
-     * 
+     *
      * @return The maximum number of documents to return, if set.
      *         <code>null</code> otherwise.
      */
@@ -203,7 +210,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
     /**
      * Returns the location to find documents near.
-     * 
+     *
      * @return The location to find documents near.
      */
     public Point2D getLocation() {
@@ -213,7 +220,7 @@ public class AggregationGeoNear implements DocumentAssignable {
     /**
      * If set returns the name of the field to place the location information
      * from the document.
-     * 
+     *
      * @return The name of the field to place the location information from the
      *         document, if set. <code>null</code> otherwise.
      */
@@ -224,7 +231,7 @@ public class AggregationGeoNear implements DocumentAssignable {
     /**
      * If set returns the maximum distance to return documents from the
      * specified location
-     * 
+     *
      * @return The maximum distance to return documents from the specified
      *         location, if set. <code>null</code> otherwise.
      */
@@ -235,7 +242,7 @@ public class AggregationGeoNear implements DocumentAssignable {
     /**
      * If set returns the optional query for further refining the documents to
      * add to the pipeline.
-     * 
+     *
      * @return The optional query for further refining the documents to add to
      *         the pipeline, if set. <code>null</code> otherwise.
      */
@@ -246,7 +253,7 @@ public class AggregationGeoNear implements DocumentAssignable {
     /**
      * Returns true if the {@code $geoNear} should compute distances using
      * spherical coordinates instead of planar coordinates. Defaults to false.
-     * 
+     *
      * @return True if the {@code $geoNear} should compute distances using
      *         spherical coordinates instead of planar coordinates.
      */
@@ -257,7 +264,7 @@ public class AggregationGeoNear implements DocumentAssignable {
     /**
      * Returns true if the {@code $geoNear} should only return documents once.
      * Defaults to true.
-     * 
+     *
      * @return True if the {@code $geoNear} should only return documents once.
      */
     public boolean isUniqueDocs() {
@@ -266,13 +273,14 @@ public class AggregationGeoNear implements DocumentAssignable {
 
     /**
      * Helper for creating immutable {@link Find} queries.
-     * 
+     *
      * @api.yes This class is part of the driver's API. Public and protected
      *          members will be deprecated for at least 1 non-bugfix release
      *          (version numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;)
      *          before being removed or modified.
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
+    @NotThreadSafe
     public static class Builder {
         /**
          * The name of the field to place the distance from the source
@@ -335,7 +343,7 @@ public class AggregationGeoNear implements DocumentAssignable {
         /**
          * Constructs a new {@link AggregationGeoNear} object from the state of
          * the builder.
-         * 
+         *
          * @return The new {@link AggregationGeoNear} object.
          * @throws IllegalArgumentException
          *             If the {@link #setLocation(Point2D) location} or
@@ -352,7 +360,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setDistanceField(String)}.
          * </p>
-         * 
+         *
          * @param distanceField
          *            The new name of the field to place the distance from the
          *            source {@link #setLocation(Point2D) location}.
@@ -367,7 +375,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setDistanceMultiplier(double)}.
          * </p>
-         * 
+         *
          * @param distanceMultiplier
          *            The new distance multiplier to use in the {@code $geoNear}
          *            .
@@ -382,7 +390,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setLimit(long)}.
          * </p>
-         * 
+         *
          * @param limit
          *            The new maximum number of documents to return.
          * @return This builder for chaining method calls.
@@ -396,7 +404,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setLocation(Point2D)}.
          * </p>
-         * 
+         *
          * @param location
          *            The new location to find documents near.
          * @return This builder for chaining method calls.
@@ -412,7 +420,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setLocationField(String)}.
          * </p>
-         * 
+         *
          * @param locationField
          *            The new name of the field to place the location
          *            information from the document.
@@ -428,7 +436,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setMaxDistance(double)}.
          * </p>
-         * 
+         *
          * @param maxDistance
          *            The new maximum distance to return documents from the
          *            specified location.
@@ -444,7 +452,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}.
          * </p>
-         * 
+         *
          * @param query
          *            The new optional query for further refining the documents
          *            to add to the pipeline.
@@ -456,7 +464,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
         /**
          * Resets the builder back to its initial state for reuse.
-         * 
+         *
          * @return This builder for chaining method calls.
          */
         public Builder reset() {
@@ -475,7 +483,7 @@ public class AggregationGeoNear implements DocumentAssignable {
         /**
          * Sets the name of the field to place the distance from the source
          * {@link #getLocation() location}.
-         * 
+         *
          * @param distanceField
          *            The new name of the field to place the distance from the
          *            source {@link #setLocation(Point2D) location}.
@@ -488,7 +496,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
         /**
          * Sets the distance multiplier to use in the {@code $geoNear}.
-         * 
+         *
          * @param distanceMultiplier
          *            The new distance multiplier to use in the {@code $geoNear}
          *            .
@@ -501,7 +509,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
         /**
          * Sets the maximum number of documents to return.
-         * 
+         *
          * @param limit
          *            The new maximum number of documents to return.
          * @return This builder for chaining method calls.
@@ -513,7 +521,7 @@ public class AggregationGeoNear implements DocumentAssignable {
 
         /**
          * Sets the location to find documents near.
-         * 
+         *
          * @param location
          *            The new location to find documents near.
          * @return This builder for chaining method calls.
@@ -527,7 +535,7 @@ public class AggregationGeoNear implements DocumentAssignable {
         /**
          * Sets the name of the field to place the location information from the
          * document.
-         * 
+         *
          * @param locationField
          *            The new name of the field to place the location
          *            information from the document.
@@ -541,7 +549,7 @@ public class AggregationGeoNear implements DocumentAssignable {
         /**
          * Sets the maximum distance to return documents from the specified
          * location.
-         * 
+         *
          * @param maxDistance
          *            The new maximum distance to return documents from the
          *            specified location.
@@ -555,7 +563,7 @@ public class AggregationGeoNear implements DocumentAssignable {
         /**
          * Sets the optional query for further refining the documents to add to
          * the pipeline.
-         * 
+         *
          * @param query
          *            The new optional query for further refining the documents
          *            to add to the pipeline.
@@ -575,7 +583,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * Sets if (true) the {@code $geoNear} should compute distances using
          * spherical coordinates instead of planar coordinates. Defaults to
          * false.
-         * 
+         *
          * @param spherical
          *            The new value for if the {@code $geoNear} should compute
          *            distances using spherical coordinates instead of planar
@@ -590,7 +598,7 @@ public class AggregationGeoNear implements DocumentAssignable {
         /**
          * Sets if (true) the {@code $geoNear} should only return documents
          * once. Defaults to true.
-         * 
+         *
          * @param uniqueDocs
          *            The new value for if the {@code $geoNear} should only
          *            return documents once.
@@ -608,8 +616,8 @@ public class AggregationGeoNear implements DocumentAssignable {
          * This method delegates to {@link #setSpherical(boolean)
          * setSpherical(true)}.
          * </p>
-         * 
-         * 
+         *
+         *
          * @return This builder for chaining method calls.
          */
         public Builder spherical() {
@@ -623,7 +631,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setSpherical(boolean)}.
          * </p>
-         * 
+         *
          * @param spherical
          *            The new value for if the {@code $geoNear} should compute
          *            distances using spherical coordinates instead of planar
@@ -640,7 +648,7 @@ public class AggregationGeoNear implements DocumentAssignable {
          * <p>
          * This method delegates to {@link #setUniqueDocs(boolean)}.
          * </p>
-         * 
+         *
          * @param uniqueDocs
          *            The new value for if the {@code $geoNear} should only
          *            return documents once.

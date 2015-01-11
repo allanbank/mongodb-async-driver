@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,7 +45,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * ClusterTestSupport provides a class to manage a cluster.
- * 
+ *
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterTestSupport {
@@ -83,7 +83,7 @@ public class ClusterTestSupport {
 
     /**
      * Deletes the files.
-     * 
+     *
      * @param file
      *            The file to delete. Will delete all sub directories and files
      *            if a directory.
@@ -114,7 +114,7 @@ public class ClusterTestSupport {
 
     /**
      * Runs a process and returns the merged stderr and stdout.
-     * 
+     *
      * @param workingDirectory
      *            The working directory for the executable.
      * @param executable
@@ -354,7 +354,7 @@ public class ClusterTestSupport {
 
     /**
      * Fails with the message and exception.
-     * 
+     *
      * @param message
      *            The failure message.
      * @throws AssertionError
@@ -366,7 +366,7 @@ public class ClusterTestSupport {
 
     /**
      * Fails with the message and exception.
-     * 
+     *
      * @param message
      *            The failure message.
      * @param cause
@@ -384,7 +384,7 @@ public class ClusterTestSupport {
 
     /**
      * Repairs a replica set on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the replica set.
      * @param startPort
@@ -444,7 +444,7 @@ public class ClusterTestSupport {
 
     /**
      * Sleeps for the specified number of milliseconds.
-     * 
+     *
      * @param millis
      *            The number of milliseconds to sleep.
      */
@@ -459,7 +459,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a replica set on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the replica set.
      * @param startPort
@@ -578,7 +578,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a sharded cluster on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the shards.
      * @param startPort
@@ -658,7 +658,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a sharded cluster on the specified start port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the shards.
      * @param startPort
@@ -733,7 +733,7 @@ public class ClusterTestSupport {
 
     /**
      * Starts a mongod on the specified port.
-     * 
+     *
      * @param workingDirectory
      *            The work directory for the mongod.
      * @param port
@@ -762,7 +762,7 @@ public class ClusterTestSupport {
     /**
      * Waits for the log file to contain the standard message that mongod is
      * waiting on the specified port.
-     * 
+     *
      * @param log
      *            The log file to scan.
      * @param port
@@ -777,7 +777,7 @@ public class ClusterTestSupport {
     /**
      * Waits for the log file to contain the specified token {@code count}
      * times.
-     * 
+     *
      * @param log
      *            The log file to scan.
      * @param token
@@ -829,7 +829,7 @@ public class ClusterTestSupport {
 
     /**
      * Waits for the log file to contain the specified token.
-     * 
+     *
      * @param log
      *            The log file to scan.
      * @param token
@@ -844,17 +844,17 @@ public class ClusterTestSupport {
     /**
      * TestDirectoryFilenameFilter provides a file name filter to locate test
      * directories left behind.
-     * 
+     *
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected final static class TestDirectoryFilenameFilter implements
-            FilenameFilter {
+    protected final static class TestDirectoryFilenameFilter
+            implements FilenameFilter {
         /**
          * {@inheritDoc}
          * <p>
          * Overridden to find test directories.
          * </p>
-         * 
+         *
          * @see FilenameFilter#accept(File, String)
          */
         @Override

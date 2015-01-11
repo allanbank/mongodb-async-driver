@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.Element;
@@ -46,13 +48,14 @@ import com.allanbank.mongodb.bson.element.TimestampElement;
 /**
  * Expressions provides a collection of static helper method for constructing
  * complex expression.
- * 
+ *
  * @api.yes This class is part of the driver's API. Public and protected members
  *          will be deprecated for at least 1 non-bugfix release (version
  *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
  *          removed or modified.
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
+@ThreadSafe
 public final class Expressions {
 
     /** The {@value} operator token */
@@ -183,7 +186,7 @@ public final class Expressions {
 
     /**
      * Returns an {@link NaryExpression} {@value #ADD} expression.
-     * 
+     *
      * @param expressions
      *            The sub-expressions.
      * @return The {@link NaryExpression} {@value #ADD} expression.
@@ -194,7 +197,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #ALL_ELEMENTS_TRUE} expression.
-     * 
+     *
      * @param expression
      *            The expression that will be evaluated to create the set to
      *            inspect for a true element.
@@ -207,7 +210,7 @@ public final class Expressions {
 
     /**
      * Returns an {@link NaryExpression} {@value #AND} expression.
-     * 
+     *
      * @param expressions
      *            The sub-expressions.
      * @return The {@link NaryExpression} {@value #AND} expression.
@@ -218,7 +221,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #ANY_ELEMENT_TRUE} expression.
-     * 
+     *
      * @param expression
      *            The expression that will be evaluated to create the set to
      *            inspect for a true element.
@@ -231,7 +234,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #COMPARE} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the operation.
      * @param rhs
@@ -244,11 +247,11 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #CONCATENATE} expression.
-     * 
+     *
      * @param expression
      *            The string expressions for the operator.
      * @return The {@link NaryExpression} {@value #CONCATENATE} expression.
-     * 
+     *
      * @since MongoDB 2.4
      */
     public static NaryExpression concatenate(final Expression... expression) {
@@ -257,7 +260,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #CONDITION} expression.
-     * 
+     *
      * @param test
      *            The conditions test.
      * @param trueResult
@@ -273,7 +276,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -284,7 +287,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -295,7 +298,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -308,7 +311,7 @@ public final class Expressions {
      * Returns a {@link Constant} expression wrapping the provided
      * <tt>element</tt>. This method is intended mainly for wrapping arrays
      * using the {@link BuilderFactory#a} method.<blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static {@link BuilderFactory#a com.allanbank.mongodb.bson.builder.BuilderFactory.a}
@@ -317,9 +320,9 @@ public final class Expressions {
      * constant( a( "This", "is", "an", "array" ) );
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param element
      *            The element value.
      * @return The {@link Constant} expression.
@@ -330,7 +333,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -341,7 +344,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -352,7 +355,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -363,7 +366,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -374,7 +377,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -385,7 +388,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -396,7 +399,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link Constant} expression with the provided <tt>value</tt>.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -408,7 +411,7 @@ public final class Expressions {
     /**
      * Returns a {@link NamedNaryExpression} {@value #DATE_TO_STRING}
      * expression.
-     * 
+     *
      * @param formatString
      *            The format string for the operator.
      * @param expression
@@ -425,7 +428,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #DAY_OF_MONTH} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #DAY_OF_MONTH} expression.
@@ -436,7 +439,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #DAY_OF_WEEK} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #DAY_OF_WEEK} expression.
@@ -447,7 +450,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #DAY_OF_YEAR} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #DAY_OF_YEAR} expression.
@@ -458,7 +461,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #DIVIDE} expression.
-     * 
+     *
      * @param numerator
      *            The numerator of the division.
      * @param denominator
@@ -472,7 +475,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #EQUAL} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the equals.
      * @param rhs
@@ -490,19 +493,19 @@ public final class Expressions {
      * Prepends a {@code $} to the field name if not already present.
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * Constant field = Expressions.field("field");
      * 
-     * // Produces output: 
+     * // Produces output:
      * //      $field
      * System.out.println(field);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param fieldName
      *            The name of the field.
      * @return The {@link Constant} expression.
@@ -516,7 +519,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #GREATER_THAN} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the comparison.
      * @param rhs
@@ -530,7 +533,7 @@ public final class Expressions {
     /**
      * Returns a {@link NaryExpression} {@value #GREATER_THAN_OR_EQUAL}
      * expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the comparison.
      * @param rhs
@@ -544,7 +547,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #HOUR} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #HOUR} expression.
@@ -555,7 +558,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #IF_NULL} expression.
-     * 
+     *
      * @param first
      *            The first expression.
      * @param second
@@ -575,7 +578,7 @@ public final class Expressions {
      * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
      * <code>let</code> expression's documentation</a> aggregation pipe line
      * using this helper class. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
@@ -620,21 +623,21 @@ public final class Expressions {
      * //           vars : {
      * //             total : {
      * //               '$add' : [
-     * //                 '$price', 
+     * //                 '$price',
      * //                 '$tax'
      * //               ]
      * //             },
      * //             discounted : {
      * //               '$cond' : [
-     * //                 '$applyDiscount', 
-     * //                 0.9, 
+     * //                 '$applyDiscount',
+     * //                 0.9,
      * //                 1
      * //               ]
      * //             }
      * //           },
      * //           in : {
      * //             '$multiply' : [
-     * //               '$$total', 
+     * //               '$$total',
      * //               '$$discounted'
      * //             ]
      * //           }
@@ -646,9 +649,9 @@ public final class Expressions {
      * System.out.println("Aggregation Pipeline : " + aggregation);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param inExpression
      *            The expression to be evaluated with the variables within the
      *            {@code $let} expression.
@@ -669,7 +672,7 @@ public final class Expressions {
      * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
      * <code>let</code> expression's documentation</a> aggregation pipe line
      * using this helper class. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
@@ -715,21 +718,21 @@ public final class Expressions {
      * //           vars : {
      * //             total : {
      * //               '$add' : [
-     * //                 '$price', 
+     * //                 '$price',
      * //                 '$tax'
      * //               ]
      * //             },
      * //             discounted : {
      * //               '$cond' : [
-     * //                 '$applyDiscount', 
-     * //                 0.9, 
+     * //                 '$applyDiscount',
+     * //                 0.9,
      * //                 1
      * //               ]
      * //             }
      * //           },
      * //           in : {
      * //             '$multiply' : [
-     * //               '$$total', 
+     * //               '$$total',
      * //               '$$discounted'
      * //             ]
      * //           }
@@ -741,9 +744,9 @@ public final class Expressions {
      * System.out.println("Aggregation Pipeline : " + aggregation);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param variables
      *            The variables for the {@code $let} expression.
      * @param inExpression
@@ -769,7 +772,7 @@ public final class Expressions {
      * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
      * <code>let</code> expression's documentation</a> aggregation pipe line
      * using this helper class. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
@@ -800,7 +803,7 @@ public final class Expressions {
      *         include(),
      *         set("finalTotal",
      *                         let("total", add(field("price"), field("tax")))
-     *                            .let("discounted", cond(field("applyDiscount"), 
+     *                            .let("discounted", cond(field("applyDiscount"),
      *                                                    constant(0.9),
      *                                                    constant(1)))
      *                            .in(multiply(var("total"), var("discounted")))));
@@ -813,21 +816,21 @@ public final class Expressions {
      * //           vars : {
      * //             total : {
      * //               '$add' : [
-     * //                 '$price', 
+     * //                 '$price',
      * //                 '$tax'
      * //               ]
      * //             },
      * //             discounted : {
      * //               '$cond' : [
-     * //                 '$applyDiscount', 
-     * //                 0.9, 
+     * //                 '$applyDiscount',
+     * //                 0.9,
      * //                 1
      * //               ]
      * //             }
      * //           },
      * //           in : {
      * //             '$multiply' : [
-     * //               '$$total', 
+     * //               '$$total',
      * //               '$$discounted'
      * //             ]
      * //           }
@@ -839,9 +842,9 @@ public final class Expressions {
      * System.out.println("Aggregation Pipeline : " + aggregation);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param name
      *            The name of the first field to set.
      * @param document
@@ -862,7 +865,7 @@ public final class Expressions {
      * "http://docs.mongodb.org/master/reference/operator/aggregation/let/">
      * <code>let</code> expression's documentation</a> aggregation pipe line
      * using this helper class. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
@@ -893,7 +896,7 @@ public final class Expressions {
      *         include(),
      *         set("finalTotal",
      *                         let("total", add(field("price"), field("tax")))
-     *                            .let("discounted", cond(field("applyDiscount"), 
+     *                            .let("discounted", cond(field("applyDiscount"),
      *                                                    constant(0.9),
      *                                                    constant(1)))
      *                            .in(multiply(var("total"), var("discounted")))));
@@ -906,21 +909,21 @@ public final class Expressions {
      * //           vars : {
      * //             total : {
      * //               '$add' : [
-     * //                 '$price', 
+     * //                 '$price',
      * //                 '$tax'
      * //               ]
      * //             },
      * //             discounted : {
      * //               '$cond' : [
-     * //                 '$applyDiscount', 
-     * //                 0.9, 
+     * //                 '$applyDiscount',
+     * //                 0.9,
      * //                 1
      * //               ]
      * //             }
      * //           },
      * //           in : {
      * //             '$multiply' : [
-     * //               '$$total', 
+     * //               '$$total',
      * //               '$$discounted'
      * //             ]
      * //           }
@@ -932,9 +935,9 @@ public final class Expressions {
      * System.out.println("Aggregation Pipeline : " + aggregation);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param name
      *            The name of the field to set.
      * @param expression
@@ -948,7 +951,7 @@ public final class Expressions {
     /**
      * Returns a {@link Constant} expression wrapping the <tt>value</tt> in a
      * {@value #LITERAL} sub-document.
-     * 
+     *
      * @param value
      *            The constants value.
      * @return The {@link Constant} expression.
@@ -960,7 +963,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #LESS_THAN} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the comparison.
      * @param rhs
@@ -973,7 +976,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #LESS_THAN_OR_EQUAL} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the comparison.
      * @param rhs
@@ -996,7 +999,7 @@ public final class Expressions {
      * "http://docs.mongodb.org/master/reference/operator/aggregation/map/">
      * <code>map</code> expression's documentation</a> aggregation pipe line
      * using this helper class. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
@@ -1013,10 +1016,10 @@ public final class Expressions {
      * //                            in: { $add: [ "$$adj", 12 ] } } } } }
      * aggregate.project(
      *     include(),
-     *     set( "adjustments", 
+     *     set( "adjustments",
      *         map("skews").as("adj").in( add( var("adj"), constant(12) ) ) ) );
      * 
-     * // Produces output: 
+     * // Produces output:
      * //    {
      * //       '$project' : {
      * //          adjustments : {
@@ -1036,14 +1039,14 @@ public final class Expressions {
      * System.out.println(aggregate);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param inputField
      *            The name of the {@code input} field. The map operation
      *            expression.
      * @return The first stage of the {@code $map} expression construction.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/master/reference/operator/aggregation/map/"><code>map</code>
      *      expression documentation</a>
@@ -1064,7 +1067,7 @@ public final class Expressions {
      * "http://docs.mongodb.org/master/reference/operator/aggregation/map/">
      * <code>map</code> expression's documentation</a> aggregation pipe line
      * using this helper class. <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * import static com.allanbank.mongodb.builder.AggregationProjectFields.include;
@@ -1081,11 +1084,11 @@ public final class Expressions {
      * //                            in: { $add: [ "$$adj", 12 ] } } } } }
      * aggregate.project(
      *     include(),
-     *     set( "adjustments", 
+     *     set( "adjustments",
      *         map( "skews", "adj",
      *            add( var("adj"), constant(12) ) ) ) );
      * 
-     * // Produces output: 
+     * // Produces output:
      * //    {
      * //       '$project' : {
      * //          adjustments : {
@@ -1105,9 +1108,9 @@ public final class Expressions {
      * System.out.println(aggregate);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param inputField
      *            The name of the {@code input} field.
      * @param variableName
@@ -1115,7 +1118,7 @@ public final class Expressions {
      * @param mapOperation
      *            The map operation expression.
      * @return The {@link UnaryExpression} expression.
-     * 
+     *
      * @see <a
      *      href="http://docs.mongodb.org/master/reference/operator/aggregation/map/"><code>map</code>
      *      expression documentation</a>
@@ -1133,7 +1136,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #MILLISECOND} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #MILLISECOND} expression.
@@ -1144,7 +1147,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #MINUTE} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #MINUTE} expression.
@@ -1155,7 +1158,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #MODULO} expression.
-     * 
+     *
      * @param numerator
      *            The numerator of the modulo operation.
      * @param denominator
@@ -1169,7 +1172,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #MONTH} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #MONTH} expression.
@@ -1180,7 +1183,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #MULTIPLY} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the operator.
      * @param rhs
@@ -1194,7 +1197,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #NOT_EQUAL} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the comparison.
      * @param rhs
@@ -1207,7 +1210,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #NOT} expression.
-     * 
+     *
      * @param expression
      *            The sub expressions for the $not.
      * @return The {@link UnaryExpression} {@value #NOT} expression.
@@ -1218,7 +1221,7 @@ public final class Expressions {
 
     /**
      * Returns a <code>null</code> {@link Constant} expression.
-     * 
+     *
      * @return The {@link Constant} expression.
      */
     public static Constant nullConstant() {
@@ -1227,7 +1230,7 @@ public final class Expressions {
 
     /**
      * Returns an {@link NaryExpression} {@value #OR} expression.
-     * 
+     *
      * @param expressions
      *            The sub-expressions.
      * @return The {@link NaryExpression} {@value #OR} expression.
@@ -1238,7 +1241,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #SECOND} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #SECOND} expression.
@@ -1249,7 +1252,7 @@ public final class Expressions {
 
     /**
      * Returns an element to set the value to.
-     * 
+     *
      * @param name
      *            The name of the field to set.
      * @param document
@@ -1263,7 +1266,7 @@ public final class Expressions {
 
     /**
      * Returns an element to set the value to.
-     * 
+     *
      * @param name
      *            The name of the field to set.
      * @param expression
@@ -1276,7 +1279,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #SET_DIFFERENCE} expression.
-     * 
+     *
      * @param lhs
      *            The expression that will be evaluated to create the first set.
      * @param rhs
@@ -1291,7 +1294,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #SET_EQUALS} expression.
-     * 
+     *
      * @param lhs
      *            The expression that will be evaluated to create the first set.
      * @param rhs
@@ -1306,7 +1309,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #SET_INTERSECTION} expression.
-     * 
+     *
      * @param lhs
      *            The expression that will be evaluated to create the first set.
      * @param rhs
@@ -1321,7 +1324,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #SET_IS_SUBSET} expression.
-     * 
+     *
      * @param subSet
      *            The expression that will be tested to see if it is a subset of
      *            the {@code completeSet}.
@@ -1337,7 +1340,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #SET_UNION} expression.
-     * 
+     *
      * @param lhs
      *            The expression that will be evaluated to create the first set.
      * @param rhs
@@ -1352,7 +1355,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #SIZE} expression.
-     * 
+     *
      * @param expression
      *            The expression that will be evaluated to create the set to
      *            inspect for a true element.
@@ -1365,7 +1368,7 @@ public final class Expressions {
     /**
      * Returns a {@link NaryExpression}
      * {@value #STRING_CASE_INSENSITIVE_COMPARE} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the comparison.
      * @param rhs
@@ -1380,7 +1383,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #SUB_STRING} expression.
-     * 
+     *
      * @param string
      *            The string to pull a sub-string from.
      * @param skip
@@ -1396,7 +1399,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link NaryExpression} {@value #SUBTRACT} expression.
-     * 
+     *
      * @param lhs
      *            The left hand side of the operator.
      * @param rhs
@@ -1410,7 +1413,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #TO_LOWER} expression.
-     * 
+     *
      * @param string
      *            The string to modify.
      * @return The {@link UnaryExpression} {@value #TO_LOWER} expression.
@@ -1421,7 +1424,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #TO_UPPER} expression.
-     * 
+     *
      * @param string
      *            The string to modify.
      * @return The {@link UnaryExpression} {@value #TO_UPPER} expression.
@@ -1438,19 +1441,19 @@ public final class Expressions {
      * Prepends a {@code $$} to the variable name if not already present.
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      * <code>
      * Constant variable = Expressions.var("variable");
      * 
-     * // Produces output: 
+     * // Produces output:
      * //      $$variable
      * System.out.println(variable);
      * </code>
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * @param variableName
      *            The name of the field.
      * @return The {@link Constant} expression.
@@ -1472,7 +1475,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #WEEK} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #WEEK} expression.
@@ -1483,7 +1486,7 @@ public final class Expressions {
 
     /**
      * Returns a {@link UnaryExpression} {@value #YEAR} expression.
-     * 
+     *
      * @param expression
      *            The date for the operator.
      * @return The {@link UnaryExpression} {@value #YEAR} expression.

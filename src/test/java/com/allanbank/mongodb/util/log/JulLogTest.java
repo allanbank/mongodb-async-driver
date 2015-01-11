@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,7 +37,7 @@ import org.junit.Test;
 
 /**
  * JulLogTest provides tests for the {@link JulLog} class.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class JulLogTest {
@@ -53,7 +53,7 @@ public class JulLogTest {
 
     /**
      * Initializes the logger for the test.
-     * 
+     *
      * @throws Exception
      *             On a failure initializing the logger.
      */
@@ -71,7 +71,7 @@ public class JulLogTest {
 
     /**
      * Cleanup after the test.
-     * 
+     *
      * @throws Exception
      *             On a failure cleaning up the logger.
      */
@@ -375,7 +375,7 @@ public class JulLogTest {
 
     /**
      * Test for the {@link AbstractLog#isDebugEnabled()} method.
-     * 
+     *
      * @throws Exception
      *             On a failure to initialize the logger.
      */
@@ -395,7 +395,7 @@ public class JulLogTest {
 
     /**
      * Test for the {@link AbstractLog#isErrorEnabled()} method.
-     * 
+     *
      * @throws Exception
      *             On a failure to initialize the logger.
      */
@@ -415,7 +415,7 @@ public class JulLogTest {
 
     /**
      * Test for the {@link AbstractLog#isInfoEnabled()} method.
-     * 
+     *
      * @throws Exception
      *             On a failure to initialize the logger.
      */
@@ -435,7 +435,7 @@ public class JulLogTest {
 
     /**
      * Test for the {@link AbstractLog#isWarnEnabled()} method.
-     * 
+     *
      * @throws Exception
      *             On a failure to initialize the logger.
      */

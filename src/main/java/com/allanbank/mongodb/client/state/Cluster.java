@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,12 +55,13 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * modified the simplest mechanism is to keep querying for the cluster state on
  * the connection until no addition change events are seen.
  * </p>
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Cluster implements ClusterStats {
+public class Cluster
+        implements ClusterStats {
 
     /** The property sued for adding a new server. */
     public static final String SERVER_PROP = "server";
@@ -100,7 +101,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Creates a new CLusterState.
-     * 
+     *
      * @param config
      *            The configuration for the cluster.
      * @param type
@@ -121,7 +122,7 @@ public class Cluster implements ClusterStats {
     /**
      * Adds a {@link Server} to the {@link Cluster} for the address provided if
      * one does not already exist.
-     * 
+     *
      * @param address
      *            The address of the {@link Server} to return.
      * @return The {@link Server} for the address.
@@ -158,7 +159,7 @@ public class Cluster implements ClusterStats {
      * This method is equivalent to calling {@link #add(InetSocketAddress)
      * add(ServerNameUtils.parse(address))}.
      * </p>
-     * 
+     *
      * @param address
      *            The address of the {@link Server} to return.
      * @return The {@link Server} for the address.
@@ -174,7 +175,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Adds a listener to the state.
-     * 
+     *
      * @param listener
      *            The listener for the state changes.
      */
@@ -196,7 +197,7 @@ public class Cluster implements ClusterStats {
     /**
      * Returns the set of servers that can be used based on the provided
      * {@link ReadPreference}.
-     * 
+     *
      * @param readPreference
      *            The {@link ReadPreference} to filter the servers.
      * @return The {@link List} of servers that can be used. Servers will be
@@ -235,7 +236,7 @@ public class Cluster implements ClusterStats {
     /**
      * Locates the set of servers that can be used to send the specified
      * messages.
-     * 
+     *
      * @param message1
      *            The first message to send.
      * @param message2
@@ -267,7 +268,7 @@ public class Cluster implements ClusterStats {
      * <p>
      * This method is equivalent to calling {@link #add(String) add(address)}.
      * </p>
-     * 
+     *
      * @param address
      *            The address of the {@link Server} to return.
      * @return The {@link Server} for the address.
@@ -279,7 +280,7 @@ public class Cluster implements ClusterStats {
     /**
      * Returns a copy of the list of non-writable servers. The list returned is
      * a copy of the internal list and can be modified by the caller.
-     * 
+     *
      * @return The complete list of non-writable servers.
      */
     public List<Server> getNonWritableServers() {
@@ -289,7 +290,7 @@ public class Cluster implements ClusterStats {
     /**
      * Returns a copy of the list of servers. The list returned is a copy of the
      * internal list and can be modified by the caller.
-     * 
+     *
      * @return The complete list of servers.
      */
     public List<Server> getServers() {
@@ -307,7 +308,7 @@ public class Cluster implements ClusterStats {
     /**
      * Returns smallest value for the maximum number of write operations allowed
      * in a single write command.
-     * 
+     *
      * @return The smallest value for maximum number of write operations allowed
      *         in a single write command.
      */
@@ -319,7 +320,7 @@ public class Cluster implements ClusterStats {
     /**
      * Returns the smallest value for the maximum BSON object size within the
      * cluster.
-     * 
+     *
      * @return The smallest value for the maximum BSON object size within the
      *         cluster.
      */
@@ -330,7 +331,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Returns the type of cluster.
-     * 
+     *
      * @return The type of cluster.
      */
     public ClusterType getType() {
@@ -340,7 +341,7 @@ public class Cluster implements ClusterStats {
     /**
      * Returns a copy of the list of writable servers. The list returned is a
      * copy of the internal list and can be modified by the caller.
-     * 
+     *
      * @return The complete list of writable servers.
      */
     public List<Server> getWritableServers() {
@@ -349,7 +350,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Removes the specified server from the cluster.
-     * 
+     *
      * @param server
      *            The server to remove from the cluster.
      */
@@ -367,7 +368,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Removes a listener to the state.
-     * 
+     *
      * @param listener
      *            The listener for the state changes.
      */
@@ -386,32 +387,32 @@ public class Cluster implements ClusterStats {
      * is then calculated based on the function:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      *                                       latency[0]
      *                relative_latency[i] =  ----------
      *                                       latency[i]
      * </pre>
-     * 
+     *
      * </blockquote>
      * <p>
      * The relative latencies are then then summed and the probability of
      * selecting each server is then calculated by:
      * </p>
      * <blockquote>
-     * 
+     *
      * <pre>
      *                                  relative_latency[i]
      *     probability[i] = -------------------------------------------------
      *                      sum(relative_latency[0], ... relative_latency[n])
      * </pre>
-     * 
+     *
      * </blockquote>
-     * 
+     *
      * <p>
      * The CDF over these probabilities is returned.
      * </p>
-     * 
+     *
      * @param servers
      *            The servers to compute the CDF for.
      * @return The CDF for the server latencies.
@@ -455,7 +456,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Finds the candidate server, if known.
-     * 
+     *
      * @param readPreference
      *            The read preference to match the server against.
      * @return The Server found in a singleton list or an empty list if the
@@ -472,13 +473,13 @@ public class Cluster implements ClusterStats {
 
     /**
      * Returns the list of servers that match the read preference's tags.
-     * 
+     *
      * @param readPreference
      *            The read preference to match the server against.
      * @return The servers found in order of preference. Generally this is in
      *         latency order but we randomly move one of the servers to the
      *         front of the list to distribute the load across more servers.
-     * 
+     *
      * @see #sort
      */
     protected List<Server> findNearestCandidates(
@@ -499,13 +500,13 @@ public class Cluster implements ClusterStats {
     /**
      * Returns the list of non-writable servers that match the read preference's
      * tags.
-     * 
+     *
      * @param readPreference
      *            The read preference to match the server against.
      * @return The servers found in order of preference. Generally this is in
      *         latency order but we randomly move one of the servers to the
      *         front of the list to distribute the load across more servers.
-     * 
+     *
      * @see #sort
      */
     protected List<Server> findNonWritableCandidates(
@@ -528,13 +529,13 @@ public class Cluster implements ClusterStats {
     /**
      * Returns the list of writable servers that match the read preference's
      * tags.
-     * 
+     *
      * @param readPreference
      *            The read preference to match the server against.
      * @return The servers found in order of preference. Generally this is in
      *         latency order but we randomly move one of the servers to the
      *         front of the list to distribute the load across more servers.
-     * 
+     *
      * @see #sort
      */
     protected List<Server> findWritableCandidates(
@@ -560,10 +561,10 @@ public class Cluster implements ClusterStats {
      * replaced with a random server based on a single sided simplified Gaussian
      * distribution.
      * </p>
-     * 
+     *
      * @param servers
      *            The servers to be sorted.
-     * 
+     *
      * @see #cdf(List)
      */
     protected final void sort(final List<Server> servers) {
@@ -626,7 +627,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Returns true if the server is recent enough to be queried.
-     * 
+     *
      * @param secondsBehind
      *            The number of seconds the server is behind.
      * @return True if the server is recent enough to be queried, false
@@ -638,7 +639,7 @@ public class Cluster implements ClusterStats {
 
     /**
      * Merges the two lists into a single list.
-     * 
+     *
      * @param list1
      *            The first list of servers.
      * @param list2
@@ -665,19 +666,20 @@ public class Cluster implements ClusterStats {
     /**
      * ServerListener provides a listener for the state updates of the
      * {@link Server}.
-     * 
+     *
      * @api.no This class is <b>NOT</b> part of the drivers API. This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver.
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
-    protected final class ServerListener implements PropertyChangeListener {
+    protected final class ServerListener
+            implements PropertyChangeListener {
         /**
          * {@inheritDoc}
          * <p>
          * Overridden to track the state of the cluster.
          * </p>
-         * 
+         *
          * @see PropertyChangeListener#propertyChange
          */
         @Override

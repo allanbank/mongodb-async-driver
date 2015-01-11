@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,10 @@
 package com.allanbank.mongodb.builder;
 
 import static com.allanbank.mongodb.util.Assertions.assertNotEmpty;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.MongoCollection;
 import com.allanbank.mongodb.ReadPreference;
@@ -34,7 +38,7 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * <p>
  * The result of a {@code text} command is a document that looks like the
  * following:<blockquote>
- * 
+ *
  * <pre>
  * <code>
  * > db.collection.runCommand( { "text": "collection" , search: "coffee magic" } )
@@ -68,14 +72,14 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * }
  * </code>
  * </pre>
- * 
+ *
  * </blockquote>
  * </p>
  * <p>
  * The {@link TextResult} class wraps a single entry from the {@code results}
  * array.
  * </p>
- * 
+ *
  * @api.no <b>This class is NOT part of the Public API.</b> This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  *         This class <b>WILL</b>, eventually, be part of the driver's API.
@@ -94,13 +98,15 @@ import com.allanbank.mongodb.bson.DocumentAssignable;
  * @copyright 2013-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 @Deprecated
+@Immutable
+@ThreadSafe
 public class Text {
     /** The first version of MongoDB to support the text command. */
     public static final Version REQUIRED_VERSION = Version.VERSION_2_4;
 
     /**
      * Creates a new builder for a {@link Text} command.
-     * 
+     *
      * @return The builder to construct a {@link Text} command.
      */
     public static Builder builder() {
@@ -127,7 +133,7 @@ public class Text {
 
     /**
      * Creates a new Text.
-     * 
+     *
      * @param builder
      *            The builder containing the state of the text command.
      * @throws IllegalArgumentException
@@ -147,7 +153,7 @@ public class Text {
 
     /**
      * Returns the language to use when stemming the search terms.
-     * 
+     *
      * @return The language to use when stemming the search terms.
      */
     public String getLanguage() {
@@ -156,7 +162,7 @@ public class Text {
 
     /**
      * Returns the maximum number of document to return.
-     * 
+     *
      * @return The maximum number of document to return.
      */
     public int getLimit() {
@@ -165,7 +171,7 @@ public class Text {
 
     /**
      * Returns the query document to limit the final results.
-     * 
+     *
      * @return The query document to limit the final results.
      */
     public Document getQuery() {
@@ -179,9 +185,9 @@ public class Text {
      * If <code>null</code> then the {@link MongoCollection} instance's
      * {@link ReadPreference} will be used.
      * </p>
-     * 
+     *
      * @return The read preference to use.
-     * 
+     *
      * @see MongoCollection#getReadPreference()
      */
     public ReadPreference getReadPreference() {
@@ -190,7 +196,7 @@ public class Text {
 
     /**
      * Returns the fields to return from the query.
-     * 
+     *
      * @return The fields to return from the query.
      */
     public Document getReturnFields() {
@@ -199,7 +205,7 @@ public class Text {
 
     /**
      * Returns the search terms.
-     * 
+     *
      * @return The search terms.
      */
     public String getSearchTerm() {
@@ -208,7 +214,7 @@ public class Text {
 
     /**
      * Builder provides a builder for Text commands.
-     * 
+     *
      * @api.no <b>This class is NOT part of the Public API.</b> This class may
      *         be mutated in incompatible ways between any two releases of the
      *         driver. This class <b>WILL</b>, eventually, be part of the
@@ -224,6 +230,7 @@ public class Text {
      *             2.8 and 2.10).
      */
     @Deprecated
+    @NotThreadSafe
     public static class Builder {
         /** The language to use when stemming the search terms. */
         protected String myLanguage;
@@ -252,7 +259,7 @@ public class Text {
 
         /**
          * Creates a new {@link Text} based on the current state of the builder.
-         * 
+         *
          * @return A new {@link Text} based on the current state of the builder.
          * @throws IllegalArgumentException
          *             On the search term not being set.
@@ -267,7 +274,7 @@ public class Text {
          * <p>
          * This method delegates to {@link #setLanguage(String)}
          * </p>
-         * 
+         *
          * @param language
          *            The new value for the language to use when stemming the
          *            search terms.
@@ -282,7 +289,7 @@ public class Text {
          * <p>
          * This method delegates to {@link #setLimit(int)}
          * </p>
-         * 
+         *
          * @param limit
          *            The new value for the maximum number of document to
          *            return.
@@ -298,7 +305,7 @@ public class Text {
          * <p>
          * This method delegates to {@link #setQuery(DocumentAssignable)}
          * </p>
-         * 
+         *
          * @param query
          *            The new value for the standard MongoDB query document to
          *            limit the final results.
@@ -319,11 +326,11 @@ public class Text {
          * <p>
          * This method delegates to {@link #setReadPreference(ReadPreference)}.
          * </p>
-         * 
+         *
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see MongoCollection#getReadPreference()
          */
         public Builder readPreference(final ReadPreference readPreference) {
@@ -332,7 +339,7 @@ public class Text {
 
         /**
          * Resets the builder back to its initial state.
-         * 
+         *
          * @return This {@link Builder} for method call chaining.
          */
         public Builder reset() {
@@ -351,7 +358,7 @@ public class Text {
          * <p>
          * This method delegates to {@link #setReturnFields(DocumentAssignable)}
          * </p>
-         * 
+         *
          * @param returnFields
          *            The new value for the fields to return from the query.
          * @return This {@link Builder} for method call chaining.
@@ -365,7 +372,7 @@ public class Text {
          * <p>
          * This method delegates to {@link #setSearchTerm(String)}
          * </p>
-         * 
+         *
          * @param searchTerm
          *            The new value for the search terms.
          * @return This {@link Builder} for method call chaining.
@@ -377,7 +384,7 @@ public class Text {
         /**
          * Sets the language to use when stemming the search terms to the new
          * value.
-         * 
+         *
          * @param language
          *            The new value for the language to use when stemming the
          *            search terms.
@@ -390,7 +397,7 @@ public class Text {
 
         /**
          * Sets the maximum number of document to return to the new value.
-         * 
+         *
          * @param limit
          *            The new value for the maximum number of document to
          *            return.
@@ -404,7 +411,7 @@ public class Text {
         /**
          * Sets the standard MongoDB query document to limit the final results
          * to the new value.
-         * 
+         *
          * @param query
          *            The new value for the standard MongoDB query document to
          *            limit the final results.
@@ -428,11 +435,11 @@ public class Text {
          * {@link MongoCollection} instance's {@link ReadPreference} will be
          * used.
          * </p>
-         * 
+         *
          * @param readPreference
          *            The read preferences specifying which servers may be used.
          * @return This builder for chaining method calls.
-         * 
+         *
          * @see MongoCollection#getReadPreference()
          */
         public Builder setReadPreference(final ReadPreference readPreference) {
@@ -442,7 +449,7 @@ public class Text {
 
         /**
          * Sets the fields to return from the query to the new value.
-         * 
+         *
          * @param returnFields
          *            The new value for the fields to return from the query.
          * @return This {@link Builder} for method call chaining.
@@ -459,7 +466,7 @@ public class Text {
 
         /**
          * Sets the search term to the new value.
-         * 
+         *
          * @param searchTerm
          *            The new value for the search terms.
          * @return This {@link Builder} for method call chaining.

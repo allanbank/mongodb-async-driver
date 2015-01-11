@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,22 +26,23 @@ import com.allanbank.mongodb.StreamCallback;
 /**
  * LambdaCallbackAdapter provides an adapter for the {@link LambdaCallback} to a
  * {@link Callback} or {@link StreamCallback}.
- * 
+ *
  * @param <V>
  *            The type of the operation's result.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
  */
-public final class LambdaCallbackAdapter<V> implements StreamCallback<V> {
+public final class LambdaCallbackAdapter<V>
+        implements StreamCallback<V> {
 
     /** The {@link LambdaCallback} to trigger. */
     private final LambdaCallback<V> myLambda;
 
     /**
      * Creates a new LambdaCallbackAdapter.
-     * 
+     *
      * @param lambda
      *            The {@link LambdaCallback} to trigger.
      */

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -56,14 +56,14 @@ import com.allanbank.mongodb.client.state.ServerSelector;
 
 /**
  * ShardedConnectionTest provides tests for the {@link ShardedConnection}.
- * 
+ *
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#connection(Server)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -104,7 +104,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#connect(Server)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -157,7 +157,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#connect(Server)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -204,7 +204,7 @@ public class ShardedConnectionTest {
     /**
      * Test method for
      * {@link ShardedConnection#findPotentialKeys(Message, Message)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -253,7 +253,7 @@ public class ShardedConnectionTest {
     /**
      * Test method for
      * {@link ShardedConnection#findPotentialKeys(Message, Message)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -300,7 +300,7 @@ public class ShardedConnectionTest {
     /**
      * Test method for
      * {@link ShardedConnection#findPotentialKeys(Message, Message)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -346,7 +346,7 @@ public class ShardedConnectionTest {
     /**
      * Test method for
      * {@link ShardedConnection#findPotentialKeys(Message, Message)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -395,7 +395,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#getConnectionType()}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -437,7 +437,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#getPendingCount()}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -480,7 +480,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#getServerName()}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -521,7 +521,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#isIdle()}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -568,7 +568,7 @@ public class ShardedConnectionTest {
      * and
      * {@link ShardedConnection#removePropertyChangeListener(PropertyChangeListener)}
      * .
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -611,7 +611,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link AbstractProxyMultipleConnection#raiseErrors}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -656,7 +656,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#reconnectMain()}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -704,7 +704,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#reconnectMain()}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -754,7 +754,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#shutdown(boolean)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -798,7 +798,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#waitForClosed(int, TimeUnit)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */
@@ -842,7 +842,7 @@ public class ShardedConnectionTest {
 
     /**
      * Test method for {@link ShardedConnection#waitForClosed(int, TimeUnit)}.
-     * 
+     *
      * @throws IOException
      *             On a test failure.
      */

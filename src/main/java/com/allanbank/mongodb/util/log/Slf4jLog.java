@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,14 +28,18 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Slf4jLog is the simplified logging implementation for SLF4J logging facade.
- * 
+ *
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-public class Slf4jLog extends AbstractLog {
+@ThreadSafe
+public class Slf4jLog
+        extends AbstractLog {
 
     /** The mapping from the logger's "level check" methods to the level. */
     private static final Map<String, Level> LEVEL_METHODS;
@@ -64,7 +68,7 @@ public class Slf4jLog extends AbstractLog {
 
     /**
      * Creates a new {@link Slf4jLog}.
-     * 
+     *
      * @param logMethod
      *            The <code>log(Marker, String, int, String, Object[])</code>
      *            method from the <code>LocationAwareLogger</code> interface.
@@ -135,7 +139,7 @@ public class Slf4jLog extends AbstractLog {
      * <p>
      * Overridden to create a {@link LogRecord} based on the log information.
      * </p>
-     * 
+     *
      * @see AbstractLog#doLog(Level, Throwable, String, Object...)
      */
     @Override
@@ -166,7 +170,7 @@ public class Slf4jLog extends AbstractLog {
     /**
      * Returns the integer level for the {@link Level} as defined in the
      * LocationAwareLogger interface.
-     * 
+     *
      * @param level
      *            The level to convert.
      * @return The integer level.
