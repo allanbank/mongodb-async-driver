@@ -38,6 +38,10 @@ import com.allanbank.mongodb.util.IOUtils;
  * JsonSerializationVisitor provides a BSON Visitor that generates a JSON
  * document.
  * 
+ * @see <a
+ *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
+ *      Extended JSON</a>
+ * 
  * @api.no This class is <b>NOT</b> part of the drivers API. This class may be
  *         mutated in incompatible ways between any two releases of the driver.
  * @copyright 2012-2013, Allanbank Conublic sulting, Inc., All Rights Reserved
@@ -60,6 +64,16 @@ public class JsonSerializationVisitor implements Visitor {
     /** If true then the visitor will write the document to 1 line. */
     private final boolean myOneLine;
 
+    /**
+     * If true then the visitor will write strict JSON using the strict mode for
+     * BSON's types.
+     * 
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
+     *      Extended JSON</a>
+     */
+    private final boolean myStrict;
+
     /** The Writer to write to. */
     private final Writer mySink;
 
@@ -80,8 +94,30 @@ public class JsonSerializationVisitor implements Visitor {
      *            lines with indenting.
      */
     public JsonSerializationVisitor(final Writer sink, final boolean oneLine) {
+        this(sink, oneLine, false);
+    }
+
+    /**
+     * Creates a new JsonSerializationVisitor.
+     * 
+     * @param sink
+     *            The Writer to write to.
+     * @param oneLine
+     *            If true then the visitor will write the document to 1 line,
+     *            otherwise the visitor will write the document accross multiple
+     *            lines with indenting.
+     * @param strict
+     *            If true then the visitor will write strict JSON using the
+     *            strict format for BSON's types.
+     * @see <a
+     *      href="http://docs.mongodb.org/manual/reference/mongodb-extended-json/">MongoDB
+     *      Extended JSON</a>
+     */
+    public JsonSerializationVisitor(final Writer sink, final boolean oneLine,
+            final boolean strict) {
         mySink = sink;
         myOneLine = oneLine;
+        myStrict = strict;
         myIndentLevel = 0;
     }
 
@@ -206,11 +242,26 @@ public class JsonSerializationVisitor implements Visitor {
             final byte[] data) {
         try {
             writeName(name);
-            mySink.write("BinData( ");
-            mySink.write(Integer.toString(subType));
-            mySink.write(", '");
-            mySink.write(IOUtils.toBase64(data));
-            mySink.write("' )");
+            if (myStrict) {
+                mySink.write("{ ");
+
+                writeName("$binary");
+                mySink.write('"');
+                mySink.write(IOUtils.toBase64(data));
+                mySink.write("\", ");
+
+                writeName("$type");
+                mySink.write('"');
+                mySink.write(Integer.toHexString(subType));
+                mySink.write("\" }");
+            }
+            else {
+                mySink.write("BinData( ");
+                mySink.write(Integer.toString(subType));
+                mySink.write(", '");
+                mySink.write(IOUtils.toBase64(data));
+                mySink.write("' )");
+            }
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -250,13 +301,27 @@ public class JsonSerializationVisitor implements Visitor {
             final String collectionName, final ObjectId id) {
         try {
             writeName(name);
-            mySink.write("DBPointer( ");
-            writeQuotedString(databaseName);
-            mySink.write(", ");
-            writeQuotedString(collectionName);
-            mySink.write(", ");
-            writeObjectId(id);
-            mySink.write(" )");
+            if (myStrict) {
+                mySink.write("{ ");
+                writeName("$db");
+                writeQuotedString(databaseName);
+                mySink.write(", ");
+                writeName("$collection");
+                writeQuotedString(collectionName);
+                mySink.write(", ");
+                writeName("$id");
+                writeObjectId(id);
+                mySink.write(" }");
+            }
+            else {
+                mySink.write("DBPointer( ");
+                writeQuotedString(databaseName);
+                mySink.write(", ");
+                writeQuotedString(collectionName);
+                mySink.write(", ");
+                writeObjectId(id);
+                mySink.write(" )");
+            }
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -381,9 +446,17 @@ public class JsonSerializationVisitor implements Visitor {
     public void visitLong(final String name, final long value) {
         try {
             writeName(name);
-            mySink.write("NumberLong('");
-            mySink.write(Long.toString(value));
-            mySink.write("')");
+            if (myStrict) {
+                mySink.write("{ ");
+                writeName("$numberLong");
+                writeQuotedString(Long.toString(value));
+                mySink.write(" }");
+            }
+            else {
+                mySink.write("NumberLong('");
+                mySink.write(Long.toString(value));
+                mySink.write("')");
+            }
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -403,7 +476,12 @@ public class JsonSerializationVisitor implements Visitor {
     public void visitMaxKey(final String name) {
         try {
             writeName(name);
-            mySink.write("MaxKey()");
+            if (myStrict) {
+                mySink.write("{ \"$maxKey\" : 1 }");
+            }
+            else {
+                mySink.write("MaxKey()");
+            }
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -423,7 +501,12 @@ public class JsonSerializationVisitor implements Visitor {
     public void visitMinKey(final String name) {
         try {
             writeName(name);
-            mySink.write("MinKey()");
+            if (myStrict) {
+                mySink.write("{ \"$minKey\" : 1 }");
+            }
+            else {
+                mySink.write("MinKey()");
+            }
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -446,11 +529,26 @@ public class JsonSerializationVisitor implements Visitor {
             final long increment = value & 0xFFFFFFFFL;
 
             writeName(name);
-            mySink.write("Timestamp(");
-            mySink.write(Long.toString(time * 1000));
-            mySink.write(", ");
-            mySink.write(Long.toString(increment));
-            mySink.write(')');
+            if (myStrict) {
+                mySink.write("{ ");
+
+                writeName("$timestamp");
+
+                mySink.write("{ ");
+                writeName("t");
+                mySink.write(Long.toString(time * 1000));
+                mySink.write(", ");
+                writeName("i");
+                mySink.write(Long.toString(increment));
+                mySink.write(" } }");
+            }
+            else {
+                mySink.write("Timestamp(");
+                mySink.write(Long.toString(time * 1000));
+                mySink.write(", ");
+                mySink.write(Long.toString(increment));
+                mySink.write(')');
+            }
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -512,16 +610,18 @@ public class JsonSerializationVisitor implements Visitor {
             final String options) {
         try {
             writeName(name);
-            mySink.write("{ $regex : '");
-            mySink.write(pattern);
+            mySink.write("{ ");
+            writeName("$regex");
+            writeQuotedString(pattern);
             if (options.isEmpty()) {
-                mySink.write("' }");
+                mySink.write(" }");
             }
             else {
-                mySink.write("', $options : '");
-                mySink.write(options);
-                mySink.write("' }");
+                mySink.write(", ");
+                writeName("$options");
+                writeQuotedString(options);
             }
+            mySink.write(" }");
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -589,9 +689,19 @@ public class JsonSerializationVisitor implements Visitor {
 
         try {
             writeName(name);
-            mySink.write("ISODate('");
-            mySink.write(sdf.format(new Date(timestamp)));
-            mySink.write("')");
+            if (myStrict) {
+                mySink.write("{ ");
+
+                writeName("$date");
+                mySink.write('"');
+                mySink.write(sdf.format(new Date(timestamp)));
+                mySink.write("\" }");
+            }
+            else {
+                mySink.write("ISODate('");
+                mySink.write(sdf.format(new Date(timestamp)));
+                mySink.write("')");
+            }
             mySink.flush();
         }
         catch (final IOException ioe) {
@@ -651,11 +761,16 @@ public class JsonSerializationVisitor implements Visitor {
      */
     protected void writeName(final String name) throws IOException {
         if (!mySuppressNames) {
-            if (SYMBOL_PATTERN.matcher(name).matches()) {
-                mySink.write(name);
+            if (myStrict) {
+                writeQuotedString(name);
             }
             else {
-                writeQuotedString(name);
+                if (SYMBOL_PATTERN.matcher(name).matches()) {
+                    mySink.write(name);
+                }
+                else {
+                    writeQuotedString(name);
+                }
             }
             mySink.write(" : ");
         }
@@ -670,17 +785,20 @@ public class JsonSerializationVisitor implements Visitor {
      *             On a failure writing to the sink.
      */
     protected void writeObjectId(final ObjectId id) throws IOException {
-        mySink.write("ObjectId('");
 
-        String hex = Integer.toHexString(id.getTimestamp());
-        mySink.write("00000000".substring(hex.length()));
-        mySink.write(hex);
+        String hexId = id.toHexString();
 
-        hex = Long.toHexString(id.getMachineId());
-        mySink.write("0000000000000000".substring(hex.length()));
-        mySink.write(hex);
-
-        mySink.write("')");
+        if (myStrict) {
+            mySink.write("{ ");
+            writeName("$oid");
+            writeQuotedString(hexId);
+            mySink.write(" }");
+        }
+        else {
+            mySink.write("ObjectId(");
+            writeQuotedString(hexId);
+            mySink.write(")");
+        }
     }
 
     /**
@@ -692,7 +810,13 @@ public class JsonSerializationVisitor implements Visitor {
      *             On a failure writing the String.
      */
     protected void writeQuotedString(final String string) throws IOException {
-        if (string.indexOf('\'') < 0) {
+        if (myStrict) {
+            mySink.write('"');
+            // Escape any embedded single quotes.
+            mySink.write(string.replaceAll("\"", "\\\\\""));
+            mySink.write('"');
+        }
+        else if (string.indexOf('\'') < 0) {
             mySink.write('\'');
             mySink.write(string);
             mySink.write('\'');

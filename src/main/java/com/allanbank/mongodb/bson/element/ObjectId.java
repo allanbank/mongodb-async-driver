@@ -322,7 +322,7 @@ public class ObjectId implements Serializable, Comparable<ObjectId> {
      * @return The HEX string form of the ObjectId.
      */
     public String toHexString() {
-        final StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder(24);
         String hex = Integer.toHexString(myTimestamp);
         builder.append("00000000".substring(hex.length()));
         builder.append(hex);
