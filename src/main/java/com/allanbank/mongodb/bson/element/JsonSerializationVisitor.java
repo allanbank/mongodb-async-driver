@@ -245,12 +245,12 @@ public class JsonSerializationVisitor implements Visitor {
             if (myStrict) {
                 mySink.write("{ ");
 
-                writeName("$binary");
+                writeInnerName("$binary");
                 mySink.write('"');
                 mySink.write(IOUtils.toBase64(data));
                 mySink.write("\", ");
 
-                writeName("$type");
+                writeInnerName("$type");
                 mySink.write('"');
                 mySink.write(Integer.toHexString(subType));
                 mySink.write("\" }");
@@ -303,13 +303,13 @@ public class JsonSerializationVisitor implements Visitor {
             writeName(name);
             if (myStrict) {
                 mySink.write("{ ");
-                writeName("$db");
+                writeInnerName("$db");
                 writeQuotedString(databaseName);
                 mySink.write(", ");
-                writeName("$collection");
+                writeInnerName("$collection");
                 writeQuotedString(collectionName);
                 mySink.write(", ");
-                writeName("$id");
+                writeInnerName("$id");
                 writeObjectId(id);
                 mySink.write(" }");
             }
@@ -448,7 +448,7 @@ public class JsonSerializationVisitor implements Visitor {
             writeName(name);
             if (myStrict) {
                 mySink.write("{ ");
-                writeName("$numberLong");
+                writeInnerName("$numberLong");
                 writeQuotedString(Long.toString(value));
                 mySink.write(" }");
             }
@@ -532,13 +532,13 @@ public class JsonSerializationVisitor implements Visitor {
             if (myStrict) {
                 mySink.write("{ ");
 
-                writeName("$timestamp");
+                writeInnerName("$timestamp");
 
                 mySink.write("{ ");
-                writeName("t");
+                writeInnerName("t");
                 mySink.write(Long.toString(time * 1000));
                 mySink.write(", ");
-                writeName("i");
+                writeInnerName("i");
                 mySink.write(Long.toString(increment));
                 mySink.write(" } }");
             }
@@ -611,14 +611,11 @@ public class JsonSerializationVisitor implements Visitor {
         try {
             writeName(name);
             mySink.write("{ ");
-            writeName("$regex");
+            writeInnerName("$regex");
             writeQuotedString(pattern);
-            if (options.isEmpty()) {
-                mySink.write(" }");
-            }
-            else {
+            if (!options.isEmpty()) {
                 mySink.write(", ");
-                writeName("$options");
+                writeInnerName("$options");
                 writeQuotedString(options);
             }
             mySink.write(" }");
@@ -692,7 +689,7 @@ public class JsonSerializationVisitor implements Visitor {
             if (myStrict) {
                 mySink.write("{ ");
 
-                writeName("$date");
+                writeInnerName("$date");
                 mySink.write('"');
                 mySink.write(sdf.format(new Date(timestamp)));
                 mySink.write("\" }");
@@ -761,19 +758,31 @@ public class JsonSerializationVisitor implements Visitor {
      */
     protected void writeName(final String name) throws IOException {
         if (!mySuppressNames) {
-            if (myStrict) {
-                writeQuotedString(name);
+            writeInnerName(name);
+        }
+    }
+
+    /**
+     * Writes the name if {@link #mySuppressNames} is false.
+     * 
+     * @param name
+     *            The name to write, if not suppressed.
+     * @throws IOException
+     *             On a failure to write the new line.
+     */
+    protected void writeInnerName(final String name) throws IOException {
+        if (myStrict) {
+            writeQuotedString(name);
+        }
+        else {
+            if (SYMBOL_PATTERN.matcher(name).matches()) {
+                mySink.write(name);
             }
             else {
-                if (SYMBOL_PATTERN.matcher(name).matches()) {
-                    mySink.write(name);
-                }
-                else {
-                    writeQuotedString(name);
-                }
+                writeQuotedString(name);
             }
-            mySink.write(" : ");
         }
+        mySink.write(" : ");
     }
 
     /**
@@ -790,7 +799,7 @@ public class JsonSerializationVisitor implements Visitor {
 
         if (myStrict) {
             mySink.write("{ ");
-            writeName("$oid");
+            writeInnerName("$oid");
             writeQuotedString(hexId);
             mySink.write(" }");
         }
