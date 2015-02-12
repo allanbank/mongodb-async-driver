@@ -1158,7 +1158,7 @@ public abstract class AbstractMongoOperations {
 
         // Options
         if (command.isAllowDiskUsage()) {
-            builder.add("allowDiskUsage", true);
+            builder.add("allowDiskUse", true);
         }
         if (command.isUseCursor()) {
             final DocumentBuilder cursor = builder.push("cursor");

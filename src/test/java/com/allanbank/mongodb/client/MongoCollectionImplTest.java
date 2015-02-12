@@ -409,7 +409,7 @@ public class MongoCollectionImplTest {
         final DocumentBuilder expectedCommand = BuilderFactory.start();
         expectedCommand.addString("aggregate", "test");
         expectedCommand.pushArray("pipeline").push().addInteger("$limit", 5);
-        expectedCommand.add("allowDiskUsage", true);
+        expectedCommand.add("allowDiskUse", true);
         expectedCommand.push("cursor").add("batchSize", 10);
 
         final AggregateCommand message = new AggregateCommand(builder.build(),
