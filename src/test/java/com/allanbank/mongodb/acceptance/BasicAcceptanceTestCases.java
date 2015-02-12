@@ -661,12 +661,9 @@ public abstract class BasicAcceptanceTestCases
 
             assertEquals(LARGE_COLLECTION_COUNT, count);
         }
-        catch (final MaximumTimeLimitExceededException expected) {
-            // Good.
-        }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance
-            // That supports the maximum time attribute.
+            // That supports the cursor attribute.
             assumeThat(sve.getActualVersion(),
                     greaterThanOrEqualTo(Aggregate.CURSOR_VERSION));
 
@@ -760,14 +757,11 @@ public abstract class BasicAcceptanceTestCases
             assertEquals(command.getCursorLimit(), callback.getCount());
             assertNull(callback.getException());
         }
-        catch (final MaximumTimeLimitExceededException expected) {
-            // Good.
-        }
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Aggregate.MAX_TIMEOUT_VERSION));
+                    greaterThanOrEqualTo(Aggregate.CURSOR_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
@@ -802,10 +796,54 @@ public abstract class BasicAcceptanceTestCases
             // Check if we are talking to a recent MongoDB instance
             // That supports the maximum time attribute.
             assumeThat(sve.getActualVersion(),
-                    greaterThanOrEqualTo(Version.VERSION_2_6));
+                    greaterThanOrEqualTo(Aggregate.MAX_TIMEOUT_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
+        }
+    }
+
+    /**
+     * Verifies the {@link Aggregate} command will allow disk use.
+     */
+    @Test
+    public void testAggregateWithAllowDiskUsage() {
+        myConfig.setDefaultDurability(Durability.ACK);
+        
+        final int limit = 100;
+
+        final MongoCollection collection = largeCollection(ourMongo);
+
+        final Aggregate.Builder builder = new Aggregate.Builder();
+        builder.match(Find.ALL);
+        builder.project(AggregationProjectFields.include("a"));
+        builder.limit(limit);
+
+        builder.allowDiskUsage();
+
+        MongoIterator<Document> iter = null;
+        try {
+            int count = 0;
+            iter = collection.aggregate(builder);
+            for (final Document found : iter) {
+                assertNotNull(found);
+
+                count += 1;
+            }
+
+            assertEquals(limit, count);
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the allowDiskUse attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Aggregate.ALLOW_DISK_USAGE_REQUIRED_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        finally {
+            IOUtils.close(iter);
         }
     }
 
