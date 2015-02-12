@@ -797,7 +797,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         
         final int limit = 100;
 
-        final MongoCollection collection = largeCollection(ourMongo);
+        final MongoCollection collection = largeCollection(myMongo);
 
         final Aggregate.Builder builder = new Aggregate.Builder();
         builder.match(Find.ALL);
