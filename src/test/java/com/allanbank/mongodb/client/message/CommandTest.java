@@ -21,6 +21,7 @@
 package com.allanbank.mongodb.client.message;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -209,6 +210,17 @@ public class CommandTest {
         assertThat(command.toString(), is("foo([db=db,collection=coll,"
                 + "readPreference=PRIMARY_ONLY,"
                 + "requiredVersionRange=[2.2, 2.4)]:{ foo : 1 })"));
+    }
+
+    /**
+     * Test method for {@link Message#transformFor(Version)}.
+     */
+    @Test
+    public void testTransformFor() {
+        final Message command = new Command("db", "coll", BuilderFactory
+                .start().add("foo", 1).build());
+
+        assertThat(command.transformFor(null), sameInstance(command));
     }
 
     /**

@@ -74,7 +74,7 @@ public class AggregateCommand
      * @param object
      *            The object to compare to.
      *
-     * @see java.lang.Object#equals(java.lang.Object)
+     * @see Object#equals(Object)
      */
     @Override
     public boolean equals(final Object object) {

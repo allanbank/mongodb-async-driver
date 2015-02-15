@@ -22,6 +22,9 @@ package com.allanbank.mongodb.client.message;
 import java.io.StringWriter;
 
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.client.Message;
@@ -36,10 +39,35 @@ import com.allanbank.mongodb.client.VersionRange;
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractMessage
-        implements Message {
+implements Message {
 
     /** The size of a message header. */
     public static final int HEADER_SIZE = Header.SIZE;
+
+    /**
+     * Determines the {@link ReadPreference} to be used based on the command's
+     * {@code ReadPreference} or the collection's if the command's
+     * {@code ReadPreference} is <code>null</code>. Updates the command's
+     * {@link DocumentBuilder} with the {@code ReadPreference} details if
+     * connected to a sharded cluster and the resulting {@code ReadPreference}
+     * is not supported by the legacy settings.
+     *
+     * @param builder
+     *            The builder for the command document to augment with the read
+     *            preferences if connected to a sharded cluster.
+     * @param readPreference
+     *            The read preferences to add to the command.
+     */
+    protected static void updateReadPreference(final DocumentBuilder builder,
+            final ReadPreference readPreference) {
+
+        if (!readPreference.isLegacy()) {
+            final Document query = builder.asDocument();
+            builder.reset();
+            builder.add("$query", query);
+            builder.add(ReadPreference.FIELD_NAME, readPreference);
+        }
+    }
 
     /** The name of the collection to operate on. */
     protected String myCollectionName;
@@ -179,6 +207,19 @@ public abstract class AbstractMessage
         result = (31 * result) + myDatabaseName.hashCode();
         result = (31 * result) + myReadPreference.hashCode();
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return {@code this}.
+     * </p>
+     *
+     * @see Message#transformFor
+     */
+    @Override
+    public Message transformFor(final Version serverVersion) {
+        return this;
     }
 
     /**

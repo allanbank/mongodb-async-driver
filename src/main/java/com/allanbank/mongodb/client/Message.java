@@ -22,9 +22,11 @@ package com.allanbank.mongodb.client;
 import java.io.IOException;
 
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.io.BsonOutputStream;
 import com.allanbank.mongodb.bson.io.BufferingBsonOutputStream;
 import com.allanbank.mongodb.error.DocumentToLargeException;
+import com.allanbank.mongodb.error.ServerVersionException;
 
 /**
  * Common interface for all MongoDB messages read from and sent to a MongoDB
@@ -85,6 +87,29 @@ public interface Message {
      * @return The size of the message on the wire.
      */
     public int size();
+
+    /**
+     * Transforms the message to, potentially, a different operation that is
+     * optimized for the specific server version.
+     * <p>
+     * The best example of this method's usage is the ListCollectionsMessage and
+     * ListIndexesMessage. Both of these operations changed in MongoDB 2.7.7
+     * from queries on special collections to actual commands to fully support
+     * pluggable storage engines. This method allows the message to be
+     * transformed based on the version of the server it is being sent to.
+     * </p>
+     * For most commands this method will return the same message. </p>
+     *
+     * @param serverVersion
+     *            The version of the server the message will be sent to.
+     * @return The transformed message optimized for the server's version. Most
+     *         likely the same message but never <code>null</code>.
+     * @throws ServerVersionException
+     *             On the message not being supported on the specified server
+     *             version.
+     */
+    public Message transformFor(Version serverVersion)
+            throws ServerVersionException;
 
     /**
      * Validates that the documents with the message do not exceed the maximum
