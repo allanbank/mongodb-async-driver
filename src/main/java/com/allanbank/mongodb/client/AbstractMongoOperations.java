@@ -52,6 +52,7 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.ListIndexes;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.builder.write.WriteOperation;
@@ -72,6 +73,7 @@ import com.allanbank.mongodb.client.message.Command;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
 import com.allanbank.mongodb.client.message.Insert;
+import com.allanbank.mongodb.client.message.ListIndexesCommand;
 import com.allanbank.mongodb.client.message.ParallelScanCommand;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.QueryVersionVisitor;
@@ -336,7 +338,7 @@ public abstract class AbstractMongoOperations {
 
         Document queryDoc;
         if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+                && (myClient.getClusterType().isSharded())) {
             queryDoc = query.toQueryRequest(true, readPreference);
         }
         else {
@@ -826,6 +828,69 @@ public abstract class AbstractMongoOperations {
     }
 
     /**
+     * Constructs a {@link ListIndexesCommand} message and sends it to the
+     * server via the {@link Client}.
+     * 
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listIndexes
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     * @see AsyncMongoCollection#stream(StreamCallback, ListIndexes)
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListIndexes listIndexes) throws MongoDbException {
+        ReadPreference readPreference = listIndexes.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        final ListIndexesCommand commandMsg = new ListIndexesCommand(
+                getDatabaseName(), getName(), listIndexes, readPreference,
+                myClient.getClusterType().isSharded());
+
+        final CursorStreamingCallback callback = new CursorStreamingCallback(
+                myClient, commandMsg, true, results);
+
+        myClient.send(commandMsg, callback);
+
+        return callback;
+    }
+
+    /**
+     * Constructs a {@link ListIndexesCommand} message and sends it to the
+     * server via the {@link Client}.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listIndexes
+     *            The specification for the index documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     * @see AsyncMongoCollection#listIndexesAsync(Callback, ListIndexes)
+     */
+    public void listIndexesAsync(Callback<MongoIterator<Document>> results,
+            ListIndexes listIndexes) throws MongoDbException {
+        ReadPreference readPreference = listIndexes.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        final ListIndexesCommand commandMsg = new ListIndexesCommand(
+                getDatabaseName(), getName(), listIndexes, readPreference,
+                myClient.getClusterType().isSharded());
+
+        final CursorCallback callback = new CursorCallback(myClient,
+                commandMsg, true, results);
+
+        myClient.send(commandMsg, callback);
+    }
+
+    /**
      * Constructs a {@code text} command and sends it to the server via the
      * {@link Client}.
      *
@@ -999,7 +1064,7 @@ public abstract class AbstractMongoOperations {
 
         Document queryDoc;
         if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+                && (myClient.getClusterType().isSharded())) {
             queryDoc = query.toQueryRequest(false, readPreference);
         }
         else {
@@ -1227,7 +1292,7 @@ public abstract class AbstractMongoOperations {
         }
 
         if (!readPreference.isLegacy()
-                && (myClient.getClusterType() == ClusterType.SHARDED)) {
+                && (myClient.getClusterType().isSharded())) {
             if (createQueryElement) {
                 final Document query = builder.asDocument();
                 builder.reset();

@@ -49,6 +49,7 @@ import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
+import com.allanbank.mongodb.builder.ListIndexes;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
@@ -751,6 +752,30 @@ public class SynchronousMongoCollectionImpl
 
         // Not found implies not capped.
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #listIndexesAsync(ListIndexes)}.
+     * </p>
+     */
+    @Override
+    public MongoIterator<Document> listIndexes(
+            ListIndexes listCollections) throws MongoDbException {
+        return FutureUtils.unwrap(listIndexesAsync(listCollections));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #listIndexes(ListIndexes)}.
+     * </p>
+     */
+    @Override
+    public MongoIterator<Document> listIndexes(ListIndexes.Builder listIndexes)
+            throws MongoDbException {
+        return listIndexes(listIndexes.build());
     }
 
     /**

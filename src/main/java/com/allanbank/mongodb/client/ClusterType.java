@@ -38,4 +38,12 @@ public enum ClusterType {
     /** A single 'mongod' server. */
     STAND_ALONE;
 
+    /**
+     * Returns true if the cluster is sharded, false otherwise.
+     * 
+     * @return True if the cluster is sharded.
+     */
+    public boolean isSharded() {
+        return this == SHARDED;
+    }
 }

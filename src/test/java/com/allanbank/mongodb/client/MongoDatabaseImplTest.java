@@ -22,10 +22,12 @@ package com.allanbank.mongodb.client;
 
 import static com.allanbank.mongodb.AnswerCallback.callback;
 import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.isNull;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
@@ -34,11 +36,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
+import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -47,18 +52,22 @@ import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.LambdaCallback;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
+import com.allanbank.mongodb.builder.ListCollections;
 import com.allanbank.mongodb.client.callback.SingleDocumentReplyCallback;
 import com.allanbank.mongodb.client.message.Command;
-import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.ListCollectionsCommand;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.util.IOUtils;
 
@@ -444,15 +453,20 @@ public class MongoDatabaseImplTest {
     public void testListCollectionNames() {
 
         final Document result1 = BuilderFactory.start()
-                .addString("name", "test.collection").build();
+                .addString("name", "collection").build();
         final Document result2 = BuilderFactory.start()
-                .addString("name", "test.1.oplog.$").build();
+                .addString("name", "1.oplog.$").build();
 
-        final Query query = new Query("test", "system.namespaces",
-                BuilderFactory.start().build(), null, 0, 0, 0, false,
-                ReadPreference.PRIMARY, false, false, false, false);
+        ListCollections.Builder cmd = ListCollections.builder();
 
-        myMockClient.send(eq(query), callback(reply(result1, result2)));
+        final Message msg = new ListCollectionsCommand("test", cmd.build(),
+                ReadPreference.PRIMARY, false);
+
+        expect(myMockClient.getDefaultReadPreference()).andReturn(
+                ReadPreference.PRIMARY);
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        myMockClient.send(eq(msg), callback(reply(result1, result2)));
         expectLastCall();
 
         replay();
@@ -464,10 +478,10 @@ public class MongoDatabaseImplTest {
     }
 
     /**
-     * Test method for {@link MongoDatabaseImpl#listCollections()}.
+     * Test method for
+     * {@link MongoDatabaseImpl#listCollections(ListCollections.Builder)}.
      */
     @Test
-    @Deprecated
     public void testListCollections() {
 
         final Document result1 = BuilderFactory.start()
@@ -475,19 +489,236 @@ public class MongoDatabaseImplTest {
         final Document result2 = BuilderFactory.start()
                 .addString("name", "test.1.oplog.$").build();
 
-        final Query query = new Query("test", "system.namespaces",
-                BuilderFactory.start().build(), null, 0, 0, 0, false,
-                ReadPreference.PRIMARY, false, false, false, false);
+        ListCollections.Builder cmd = ListCollections.builder().readPreference(
+                ReadPreference.PRIMARY);
 
-        myMockClient.send(eq(query), callback(reply(result1, result2)));
+        final Message msg = new ListCollectionsCommand("test", cmd.build(),
+                ReadPreference.PRIMARY, false);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        myMockClient.send(eq(msg), callback(reply(result1, result2)));
         expectLastCall();
 
         replay();
 
-        assertEquals(Arrays.asList("collection", "1.oplog.$"),
-                myTestInstance.listCollections());
+        MongoIterator<Document> iter = myTestInstance.listCollections(cmd);
+        assertThat(iter.hasNext(), is(true));
+        assertThat(iter.next(), is(result1));
+        assertThat(iter.hasNext(), is(true));
+        assertThat(iter.next(), is(result2));
+        assertThat(iter.hasNext(), is(false));
 
         verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDatabaseImpl#listCollectionsAsync(ListCollections.Builder)}.
+     */
+    @Test
+    public void testListCollectionsAsync() {
+
+        final Document result1 = BuilderFactory.start()
+                .addString("name", "test.collection").build();
+        final Document result2 = BuilderFactory.start()
+                .addString("name", "test.1.oplog.$").build();
+
+        ListCollections.Builder cmd = ListCollections.builder().readPreference(
+                ReadPreference.PRIMARY);
+
+        final Message msg = new ListCollectionsCommand("test", cmd.build(),
+                ReadPreference.PRIMARY, false);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        myMockClient.send(eq(msg), callback(reply(result1, result2)));
+        expectLastCall();
+
+        replay();
+
+        try {
+            MongoIterator<Document> iter = myTestInstance.listCollectionsAsync(
+                    cmd).get();
+            assertThat(iter.hasNext(), is(true));
+            assertThat(iter.next(), is(result1));
+            assertThat(iter.hasNext(), is(true));
+            assertThat(iter.next(), is(result2));
+            assertThat(iter.hasNext(), is(false));
+        }
+        catch (InterruptedException e) {
+            fail(e.getMessage());
+        }
+        catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDatabaseImpl#listCollectionsAsync(Callback, ListCollections.Builder)}
+     * .
+     */
+    @Test
+    public void testListCollectionsAsyncWithCallback() {
+
+        final Document result1 = BuilderFactory.start()
+                .addString("name", "test.collection").build();
+        final Document result2 = BuilderFactory.start()
+                .addString("name", "test.1.oplog.$").build();
+
+        ListCollections.Builder cmd = ListCollections.builder().readPreference(
+                ReadPreference.PRIMARY);
+
+        final Message msg = new ListCollectionsCommand("test", cmd.build(),
+                ReadPreference.PRIMARY, false);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        myMockClient.send(eq(msg), callback(reply(result1, result2)));
+        expectLastCall();
+
+        replay();
+
+        try {
+            FutureCallback<MongoIterator<Document>> cb = new FutureCallback<MongoIterator<Document>>();
+            myTestInstance.listCollectionsAsync(cb, cmd);
+            MongoIterator<Document> iter = cb.get();
+            assertThat(iter.hasNext(), is(true));
+            assertThat(iter.next(), is(result1));
+            assertThat(iter.hasNext(), is(true));
+            assertThat(iter.next(), is(result2));
+            assertThat(iter.hasNext(), is(false));
+        }
+        catch (InterruptedException e) {
+            fail(e.getMessage());
+        }
+        catch (ExecutionException e) {
+            fail(e.getMessage());
+        }
+
+        verify();
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDatabaseImpl#stream(StreamCallback, ListCollections.Builder)}
+     * .
+     */
+    @Test
+    public void testStreamListCollections() {
+
+        final Document result1 = BuilderFactory.start()
+                .addString("name", "test.collection").build();
+        final Document result2 = BuilderFactory.start()
+                .addString("name", "test.1.oplog.$").build();
+
+        ListCollections.Builder cmd = ListCollections.builder().readPreference(
+                ReadPreference.PRIMARY);
+
+        final Message msg = new ListCollectionsCommand("test", cmd.build(),
+                ReadPreference.PRIMARY, false);
+        final StreamCallback<Document> mockCallback = createMock(StreamCallback.class);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        myMockClient.send(eq(msg), callback(reply(result1, result2)));
+        expectLastCall();
+
+        mockCallback.callback(result1);
+        expectLastCall();
+        mockCallback.callback(result2);
+        expectLastCall();
+        mockCallback.done();
+        expectLastCall();
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, cmd);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDatabaseImpl#stream(LambdaCallback, ListCollections.Builder)}
+     * .
+     */
+    @Test
+    public void testStreamListCollectionsWithLambda() {
+
+        final Document result1 = BuilderFactory.start()
+                .addString("name", "test.collection").build();
+        final Document result2 = BuilderFactory.start()
+                .addString("name", "test.1.oplog.$").build();
+
+        ListCollections.Builder cmd = ListCollections.builder().readPreference(
+                ReadPreference.PRIMARY);
+
+        final Message msg = new ListCollectionsCommand("test", cmd.build(),
+                ReadPreference.PRIMARY, false);
+        final LambdaCallback<Document> mockCallback = createMock(LambdaCallback.class);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        myMockClient.send(eq(msg), callback(reply(result1, result2)));
+        expectLastCall();
+
+        mockCallback.accept(isNull(Throwable.class), eq(result1));
+        expectLastCall();
+        mockCallback.accept(isNull(Throwable.class), eq(result2));
+        expectLastCall();
+        mockCallback.accept(isNull(Throwable.class), isNull(Document.class));
+        expectLastCall();
+
+        replay(mockCallback);
+
+        myTestInstance.stream(mockCallback, cmd);
+
+        verify(mockCallback);
+    }
+
+    /**
+     * Test method for
+     * {@link MongoDatabaseImpl#listCollectionsAsync(LambdaCallback, ListCollections.Builder)}
+     * .
+     */
+    @Test
+    public void testListCollectionsAsyncWithLambdaCallback() {
+
+        final Document result1 = BuilderFactory.start()
+                .addString("name", "test.collection").build();
+        final Document result2 = BuilderFactory.start()
+                .addString("name", "test.1.oplog.$").build();
+
+        final ListCollections.Builder cmd = ListCollections.builder()
+                .readPreference(ReadPreference.PRIMARY);
+        final LambdaCallback<MongoIterator<Document>> mockCallback = createMock(LambdaCallback.class);
+        final Message msg = new ListCollectionsCommand("test", cmd.build(),
+                ReadPreference.PRIMARY, false);
+
+        expect(myMockClient.getClusterType())
+                .andReturn(ClusterType.REPLICA_SET);
+        myMockClient.send(eq(msg), callback(reply(result1, result2)));
+        expectLastCall();
+
+        Capture<MongoIterator<Document>> capture = new Capture<MongoIterator<Document>>();
+        mockCallback.accept(isNull(Throwable.class), capture(capture));
+
+        replay(mockCallback);
+
+        myTestInstance.listCollectionsAsync(mockCallback, cmd);
+
+        verify(mockCallback);
+
+        MongoIterator<Document> iter = capture.getValue();
+        assertThat(iter.hasNext(), is(true));
+        assertThat(iter.next(), is(result1));
+        assertThat(iter.hasNext(), is(true));
+        assertThat(iter.next(), is(result2));
+        assertThat(iter.hasNext(), is(false));
     }
 
     /**

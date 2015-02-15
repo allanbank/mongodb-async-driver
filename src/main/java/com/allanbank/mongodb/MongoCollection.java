@@ -35,6 +35,7 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.ListIndexes;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
 
@@ -906,6 +907,30 @@ public interface MongoCollection
      *             On an error collecting the collection statistics.
      */
     public boolean isCapped() throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param listIndexes
+     *            The specification for the index documents to be returned.
+     * @return The iterator over of the indexes on the collection.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public MongoIterator<Document> listIndexes(ListIndexes listIndexes)
+            throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param listIndexes
+     *            The specification for the index documents to be returned.
+     * @return The iterator over of the indexes on the collection.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public MongoIterator<Document> listIndexes(ListIndexes.Builder listIndexes)
+            throws MongoDbException;
 
     /**
      * Invokes a mapReduce command on the server.

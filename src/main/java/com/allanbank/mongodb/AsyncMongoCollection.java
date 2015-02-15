@@ -35,6 +35,7 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.ListIndexes;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
 
@@ -1645,6 +1646,86 @@ public interface AsyncMongoCollection {
             throws MongoDbException;
 
     /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listIndexes
+     *            The specification for the index documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public void listIndexesAsync(Callback<MongoIterator<Document>> results,
+            ListIndexes listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listIndexes
+     *            The specification for the index documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public void listIndexesAsync(Callback<MongoIterator<Document>> results,
+            ListIndexes.Builder listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listIndexes
+     *            The specification for the index documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public void listIndexesAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListIndexes listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listIndexes
+     *            The specification for the index documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public void listIndexesAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListIndexes.Builder listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param listIndexes
+     *            The specification for the collection documents to be returned.
+     * @return The future for the iterator over of the indexes on the
+     *         collection.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public ListenableFuture<MongoIterator<Document>> listIndexesAsync(
+            ListIndexes listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes on the collection.
+     *
+     * @param listIndexes
+     *            The specification for the collection documents to be returned.
+     * @return The future for the iterator over of the indexes on the
+     *         collection.
+     * @throws MongoDbException
+     *             On an error listing the indexes.
+     */
+    public ListenableFuture<MongoIterator<Document>> listIndexesAsync(
+            ListIndexes.Builder listIndexes) throws MongoDbException;
+
+    /**
      * Invokes a mapReduce command on the server.
      *
      * @param results
@@ -2348,6 +2429,162 @@ public interface AsyncMongoCollection {
      */
     public MongoCursorControl stream(StreamCallback<Document> results,
             Find.Builder query) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listIndexes
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListIndexes.Builder listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listIndexes
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListIndexes listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listIndexes
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListIndexes listIndexes) throws MongoDbException;
+
+    /**
+     * Returns the list of the indexes contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listIndexes
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListIndexes.Builder listIndexes) throws MongoDbException;
 
     /**
      * Finds the set of documents matching the query document in the collection

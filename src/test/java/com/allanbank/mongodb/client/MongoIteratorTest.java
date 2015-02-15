@@ -590,6 +590,7 @@ public class MongoIteratorTest {
         MongoIteratorImpl iter = new MongoIteratorImpl(myQuery, mockClient,
                 myAddress, reply);
         assertEquals(batchSize, iter.nextBatchSize());
+        iter.close();
 
         limit = 5;
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,
@@ -597,6 +598,7 @@ public class MongoIteratorTest {
                 false);
         iter = new MongoIteratorImpl(myQuery, mockClient, myAddress, reply);
         assertEquals(limit, iter.nextBatchSize());
+        iter.close();
 
         limit = -1;
         myQuery = new Query("db", "c", myDocs.get(0), myDocs.get(0), batchSize,

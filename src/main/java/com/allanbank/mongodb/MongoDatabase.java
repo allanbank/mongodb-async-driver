@@ -25,6 +25,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
+import com.allanbank.mongodb.builder.ListCollections;
 
 /**
  * Interface for interacting with a MongoDB database. Primarily used to
@@ -163,9 +164,9 @@ public interface MongoDatabase {
     public ReadPreference getReadPreference();
 
     /**
-     * Returns the list of the collections contained within the database.
+     * Returns the list of the collection names contained within the database.
      *
-     * @return The list of the collections contained within the database.
+     * @return The list of the collection names contained within the database.
      * @throws MongoDbException
      *             On an error listing the collections.
      */
@@ -174,13 +175,108 @@ public interface MongoDatabase {
     /**
      * Returns the list of the collections contained within the database.
      *
-     * @return The list of the collections contained within the database.
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @return The iterator over of the collections contained within the
+     *         database.
      * @throws MongoDbException
      *             On an error listing the collections.
-     * @deprecated Use the {@link #listCollectionNames()} method instead.
      */
-    @Deprecated
-    public List<String> listCollections() throws MongoDbException;
+    public MongoIterator<Document> listCollections(
+            ListCollections listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     *
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @return The iterator over of the collections contained within the
+     *         database.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     */
+    public MongoIterator<Document> listCollections(
+            ListCollections.Builder listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     */
+    public void listCollectionsAsync(Callback<MongoIterator<Document>> results,
+            ListCollections listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     */
+    public void listCollectionsAsync(Callback<MongoIterator<Document>> results,
+            ListCollections.Builder listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     */
+    public void listCollectionsAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListCollections listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     *
+     * @param results
+     *            The callback to notify of the results.
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     */
+    public void listCollectionsAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListCollections.Builder listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     *
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @return The future for the iterator over of the collections contained
+     *         within the database.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     */
+    public ListenableFuture<MongoIterator<Document>> listCollectionsAsync(
+            ListCollections listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     *
+     * @param listCollections
+     *            The specification for the collection documents to be returned.
+     * @return The future for the iterator over of the collections contained
+     *         within the database.
+     * @throws MongoDbException
+     *             On an error listing the collections.
+     */
+    public ListenableFuture<MongoIterator<Document>> listCollectionsAsync(
+            ListCollections.Builder listCollections) throws MongoDbException;
 
     /**
      * Runs an administrative command against the 'admin' database.
@@ -319,7 +415,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply,
             DocumentAssignable command, Version requiredServerVersion)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -365,7 +461,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply, String commandName,
             int commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -383,7 +479,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(Callback<Document> reply, String commandName,
             String commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -426,7 +522,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(LambdaCallback<Document> reply,
             DocumentAssignable command, Version requiredServerVersion)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -475,7 +571,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(LambdaCallback<Document> reply,
             String commandName, int commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -494,7 +590,7 @@ public interface MongoDatabase {
      */
     public void runCommandAsync(LambdaCallback<Document> reply,
             String commandName, String commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -537,7 +633,7 @@ public interface MongoDatabase {
      */
     public ListenableFuture<Document> runCommandAsync(String commandName,
             int commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Runs a command against the database.
@@ -554,7 +650,7 @@ public interface MongoDatabase {
      */
     public ListenableFuture<Document> runCommandAsync(String commandName,
             String commandValue, DocumentAssignable options)
-            throws MongoDbException;
+                    throws MongoDbException;
 
     /**
      * Sets the durability for write operations from this {@link MongoDatabase}
@@ -614,4 +710,160 @@ public interface MongoDatabase {
      *      Command Reference</a>
      */
     public Document stats() throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listCollections
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListCollections.Builder listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listCollections
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListCollections listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listCollections
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListCollections listCollections) throws MongoDbException;
+
+    /**
+     * Returns the list of the collections contained within the database.
+     * <p>
+     * The sequence of callbacks will be terminated by either calling the
+     * {@link StreamCallback#done() results.done()} method or by calling the
+     * {@link StreamCallback#exception(Throwable) results.exception(...)} method
+     * (in the event of an error).
+     * </p>
+     * <p>
+     * Applications can terminate the stream by throwing a
+     * {@link RuntimeException} from the {@link StreamCallback#callback} method
+     * (which will then call the {@link StreamCallback#exception} method or by
+     * closing the {@link MongoCursorControl} returned from this method.
+     * </p>
+     * <p>
+     * Only a single thread will invoke the callback at a time but that thread
+     * may change over time.
+     * </p>
+     * <p>
+     * If the callback processing requires any significant time (including I/O)
+     * it is recommended that an
+     * {@link MongoClientConfiguration#setExecutor(java.util.concurrent.Executor)
+     * Executor} be configured within the {@link MongoClientConfiguration} to
+     * off-load the processing from the receive thread.
+     * </p>
+     *
+     * @param results
+     *            Callback that will be notified of the results of the query.
+     * @param listCollections
+     *            The query details.
+     * @return A {@link MongoCursorControl} to control the cursor streaming
+     *         documents to the caller. This includes the ability to stop the
+     *         cursor and persist its state.
+     * @throws MongoDbException
+     *             On an error finding the documents.
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListCollections.Builder listCollections) throws MongoDbException;
 }

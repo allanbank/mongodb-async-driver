@@ -22,7 +22,6 @@ package com.allanbank.mongodb.client;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,11 +33,13 @@ import com.allanbank.mongodb.ListenableFuture;
 import com.allanbank.mongodb.LockType;
 import com.allanbank.mongodb.MongoClient;
 import com.allanbank.mongodb.MongoCollection;
+import com.allanbank.mongodb.MongoCursorControl;
 import com.allanbank.mongodb.MongoDatabase;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.ProfilingStatus;
 import com.allanbank.mongodb.ReadPreference;
+import com.allanbank.mongodb.StreamCallback;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.DocumentAssignable;
@@ -47,10 +48,13 @@ import com.allanbank.mongodb.bson.NumericElement;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
+import com.allanbank.mongodb.builder.ListCollections;
+import com.allanbank.mongodb.builder.ListCollections.Builder;
 import com.allanbank.mongodb.client.callback.CursorCallback;
+import com.allanbank.mongodb.client.callback.CursorStreamingCallback;
 import com.allanbank.mongodb.client.callback.ReplyCommandCallback;
 import com.allanbank.mongodb.client.message.Command;
-import com.allanbank.mongodb.client.message.Query;
+import com.allanbank.mongodb.client.message.ListCollectionsCommand;
 import com.allanbank.mongodb.util.FutureUtils;
 
 /**
@@ -288,59 +292,33 @@ public class MongoDatabaseImpl
     /**
      * {@inheritDoc}
      * <p>
-     * Overridden to query the system.namespace collection for the names of all
-     * of the collections.
+     * Overridden to call {@link #listCollections(Builder)} and extract the
+     * names from the returned documents.
      * </p>
      *
      * @see MongoDatabase#listCollectionNames()
      */
     @Override
     public List<String> listCollectionNames() {
-        final Query query = new Query(myName, "system.namespaces", EMPTY_QUERY,
-        /* fields= */null,
-        /* batchSize= */0, /* limit= */0, /* numberToSkip= */0,
-        /* tailable= */false, ReadPreference.PRIMARY,
-        /* noCursorTimeout= */false, /* awaitData= */false,
-        /* exhaust= */false, /* partial= */false);
-
-        final FutureCallback<MongoIterator<Document>> iterFuture = new FutureCallback<MongoIterator<Document>>(
-                getLockType());
-        final CursorCallback callback = new CursorCallback(myClient, query,
-                false, iterFuture);
-
-        myClient.send(query, callback);
-
         final List<String> names = new ArrayList<String>();
-        final Iterator<Document> iter = FutureUtils.unwrap(iterFuture);
-        while (iter.hasNext()) {
-            final Document collection = iter.next();
-            for (final StringElement nameElement : collection.find(
-                    StringElement.class, "name")) {
-                final String name = nameElement.getValue();
-                if ((name.indexOf('$') >= 0) && (name.indexOf(".oplog.$") < 0)) {
-                    continue;
-                }
 
-                names.add(name.substring(myName.length() + 1));
+        final MongoIterator<Document> iter = listCollections(ListCollections
+                .builder());
+        try {
+            while (iter.hasNext()) {
+                final Document collection = iter.next();
+                final StringElement nameElement = collection.findFirst(
+                        StringElement.class, "name");
+                if (nameElement != null) {
+                    names.add(nameElement.getValue());
+                }
             }
+        }
+        finally {
+            iter.close();
         }
 
         return names;
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to query the system.namespace collection for the names of all
-     * of the collections.
-     * </p>
-     *
-     * @see MongoDatabase#listCollectionNames()
-     */
-    @Override
-    @Deprecated
-    public List<String> listCollections() {
-        return listCollectionNames();
     }
 
     /**
@@ -887,5 +865,192 @@ public class MongoDatabaseImpl
         }
 
         return myAdminDatabase;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #listCollectionsAsync(ListCollections)}.
+     * </p>
+     */
+    @Override
+    public MongoIterator<Document> listCollections(
+            ListCollections listCollections) throws MongoDbException {
+        return FutureUtils.unwrap(listCollectionsAsync(listCollections));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #listCollections(ListCollections)}.
+     * </p>
+     */
+    @Override
+    public MongoIterator<Document> listCollections(
+            ListCollections.Builder listCollections) throws MongoDbException {
+        return listCollections(listCollections.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #listCollectionsAsync(Callback, ListCollections.Builder)}.
+     * </p>
+     */
+    @Override
+    public ListenableFuture<MongoIterator<Document>> listCollectionsAsync(
+            ListCollections listCollections) throws MongoDbException {
+        FutureCallback<MongoIterator<Document>> future = new FutureCallback<MongoIterator<Document>>(
+                getLockType());
+
+        listCollectionsAsync(future, listCollections);
+
+        return future;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #listCollectionsAsync(ListCollections)}.
+     * </p>
+     */
+    @Override
+    public ListenableFuture<MongoIterator<Document>> listCollectionsAsync(
+            ListCollections.Builder listCollections) throws MongoDbException {
+        return listCollectionsAsync(listCollections.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to create the {@link ListCollectionsCommand} and send it to
+     * the client.
+     * </p>
+     */
+    @Override
+    public void listCollectionsAsync(Callback<MongoIterator<Document>> results,
+            ListCollections listCollections) throws MongoDbException {
+
+        ReadPreference readPreference = listCollections.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        final ListCollectionsCommand command = new ListCollectionsCommand(
+                getName(), listCollections, readPreference, myClient
+                        .getClusterType().isSharded());
+
+        final CursorCallback callback = new CursorCallback(myClient, command,
+                true, results);
+
+        myClient.send(command, callback);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #listCollectionsAsync(Callback, ListCollections)}.
+     * </p>
+     */
+    @Override
+    public void listCollectionsAsync(Callback<MongoIterator<Document>> results,
+            ListCollections.Builder listCollections) throws MongoDbException {
+        listCollectionsAsync(results, listCollections.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #listCollectionsAsync(LambdaCallback, ListCollections)}.
+     * </p>
+     */
+    @Override
+    public void listCollectionsAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListCollections.Builder listCollections) throws MongoDbException {
+        listCollectionsAsync(results, listCollections.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call
+     * {@link #listCollectionsAsync(Callback, ListCollections)}.
+     * </p>
+     */
+    @Override
+    public void listCollectionsAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListCollections listCollections) throws MongoDbException {
+        listCollectionsAsync(
+                new LambdaCallbackAdapter<MongoIterator<Document>>(results),
+                listCollections);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #stream(LambdaCallback, ListCollections)}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListCollections.Builder listCollections) throws MongoDbException {
+        return stream(results, listCollections.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #stream(StreamCallback, ListCollections)}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListCollections listCollections) throws MongoDbException {
+        return stream(new LambdaCallbackAdapter<Document>(results),
+                listCollections);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to initiate the streaming of the collection messages and
+     * return the {@link MongoCursorControl} for the stream.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListCollections listCollections) throws MongoDbException {
+        ReadPreference readPreference = listCollections.getReadPreference();
+        if (readPreference == null) {
+            readPreference = getReadPreference();
+        }
+
+        final ListCollectionsCommand commandMsg = new ListCollectionsCommand(
+                getName(), listCollections, readPreference, myClient
+                        .getClusterType().isSharded());
+
+        final CursorStreamingCallback callback = new CursorStreamingCallback(
+                myClient, commandMsg, true, results);
+
+        myClient.send(commandMsg, callback);
+
+        return callback;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call {@link #stream(StreamCallback, ListCollections)}.
+     * </p>
+     */
+    @Override
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListCollections.Builder listCollections) throws MongoDbException {
+        return stream(results, listCollections.build());
     }
 }

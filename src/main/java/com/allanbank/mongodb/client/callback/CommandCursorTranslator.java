@@ -202,8 +202,7 @@ import com.allanbank.mongodb.client.message.Reply;
             final ArrayElement resultArray = replyDoc.get(ArrayElement.class,
                     "result");
             if (resultArray != null) {
-                resultDocs = replyDoc.find(DocumentElement.class, "result",
-                        ".*");
+                resultDocs = resultArray.find(DocumentElement.class, ".*");
                 results = Collections.singletonList(translate(reply, 0L,
                         resultDocs));
             }

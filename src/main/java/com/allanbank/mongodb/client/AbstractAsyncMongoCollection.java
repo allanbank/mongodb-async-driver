@@ -46,6 +46,7 @@ import com.allanbank.mongodb.builder.Distinct;
 import com.allanbank.mongodb.builder.Find;
 import com.allanbank.mongodb.builder.FindAndModify;
 import com.allanbank.mongodb.builder.GroupBy;
+import com.allanbank.mongodb.builder.ListIndexes;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.ParallelScan;
 
@@ -1426,6 +1427,70 @@ public abstract class AbstractAsyncMongoCollection
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to call the {@link #listIndexesAsync(Callback, ListIndexes)}.
+     * </p>
+     */
+    public void listIndexesAsync(Callback<MongoIterator<Document>> results,
+            ListIndexes.Builder listIndexes) throws MongoDbException {
+        listIndexesAsync(results, listIndexes.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #listIndexesAsync(Callback, ListIndexes)}.
+     * </p>
+     */
+    public void listIndexesAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListIndexes listIndexes) throws MongoDbException {
+        listIndexesAsync(new LambdaCallbackAdapter<MongoIterator<Document>>(
+                results), listIndexes);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the
+     * {@link #listIndexesAsync(LambdaCallback, ListIndexes)}.
+     * </p>
+     */
+    public void listIndexesAsync(
+            LambdaCallback<MongoIterator<Document>> results,
+            ListIndexes.Builder listIndexes) throws MongoDbException {
+        listIndexesAsync(results, listIndexes.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #listIndexesAsync(Callback, ListIndexes)}.
+     * </p>
+     */
+    public ListenableFuture<MongoIterator<Document>> listIndexesAsync(
+            ListIndexes listIndexes) throws MongoDbException {
+        FutureCallback<MongoIterator<Document>> callback = new FutureCallback<MongoIterator<Document>>(
+                getLockType());
+
+        listIndexesAsync(callback, listIndexes);
+
+        return callback;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #listIndexesAsync(ListIndexes)}.
+     * </p>
+     */
+    public ListenableFuture<MongoIterator<Document>> listIndexesAsync(
+            ListIndexes.Builder listIndexes) throws MongoDbException {
+        return listIndexesAsync(listIndexes.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to call the {@link #mapReduceAsync(Callback,MapReduce)}.
      * </p>
      */
@@ -1732,6 +1797,43 @@ public abstract class AbstractAsyncMongoCollection
     public MongoCursorControl stream(final StreamCallback<Document> results,
             final Find.Builder query) throws MongoDbException {
         return streamingFind(results, query.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(LambdaCallback, ListIndexes)}
+     * method.
+     * </p>
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListIndexes.Builder listCollections) throws MongoDbException {
+        return stream(results, listCollections.build());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(StreamCallback, ListIndexes)}
+     * method.
+     * </p>
+     */
+    public MongoCursorControl stream(LambdaCallback<Document> results,
+            ListIndexes listCollections) throws MongoDbException {
+        return stream(new LambdaCallbackAdapter<Document>(results),
+                listCollections);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the {@link #stream(StreamCallback, ListIndexes)}
+     * method.
+     * </p>
+     */
+    public MongoCursorControl stream(StreamCallback<Document> results,
+            ListIndexes.Builder listCollections) throws MongoDbException {
+        return stream(results, listCollections.build());
     }
 
     /**
