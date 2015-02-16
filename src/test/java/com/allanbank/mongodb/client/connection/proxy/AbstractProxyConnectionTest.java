@@ -44,15 +44,19 @@ import org.easymock.Capture;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Durability;
+import com.allanbank.mongodb.MongoClientConfiguration;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
+import com.allanbank.mongodb.client.ClusterType;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
 import com.allanbank.mongodb.client.message.Delete;
 import com.allanbank.mongodb.client.message.GetLastError;
+import com.allanbank.mongodb.client.state.Cluster;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -402,7 +406,7 @@ public class AbstractProxyConnectionTest {
     }
 
     /**
-     * Test method for {@link AbstractProxyConnection#getServerName}.
+     * Test method for {@link AbstractProxyConnection#getServer}.
      *
      * @throws IOException
      *             On a failure setting up the mocks for the test.
@@ -410,10 +414,14 @@ public class AbstractProxyConnectionTest {
     @Test
     public void testGetServerName() throws IOException {
 
+        Cluster cluster = new Cluster(new MongoClientConfiguration(),
+                ClusterType.STAND_ALONE);
+        Server server = cluster.add("foo");
+
         final Connection mockConnetion = createMock(Connection.class);
 
         // Message.
-        expect(mockConnetion.getServerName()).andReturn("foo");
+        expect(mockConnetion.getServer()).andReturn(server);
 
         mockConnetion.close();
         expectLastCall();
@@ -423,7 +431,7 @@ public class AbstractProxyConnectionTest {
         final TestProxiedConnection conn = new TestProxiedConnection(
                 mockConnetion);
 
-        assertThat(conn.getServerName(), is("foo"));
+        assertThat(conn.getServer(), is(server));
 
         IOUtils.close(conn);
 

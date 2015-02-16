@@ -27,12 +27,14 @@ import java.util.regex.Pattern;
 import com.allanbank.mongodb.ReadPreference;
 import com.allanbank.mongodb.Version;
 import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.bson.impl.EmptyDocument;
 import com.allanbank.mongodb.builder.ListCollections;
 import com.allanbank.mongodb.client.Message;
+import com.allanbank.mongodb.client.Transform;
 import com.allanbank.mongodb.client.VersionRange;
 import com.allanbank.mongodb.error.ServerVersionException;
 
@@ -51,6 +53,18 @@ import com.allanbank.mongodb.error.ServerVersionException;
 public class ListCollectionsCommand
         extends Command
         implements CursorableMessage {
+
+    /**
+     * Creates a transformer to fix full name space names into just collection
+     * names.
+     * 
+     * @param databaseName
+     *            The name of the database to be removed.
+     * @return The transformer.
+     */
+    public static Transform<Document, Document> transformer(String databaseName) {
+        return new Transformer(databaseName);
+    }
 
     /**
      * The first version of MongoDB to support the {@code listCollections}
@@ -123,7 +137,7 @@ public class ListCollectionsCommand
     public ListCollectionsCommand(final String databaseName,
             final ListCollections request, final ReadPreference readPreference,
             final boolean shardedCluster) {
-        super(databaseName, Command.COMMAND_COLLECTION, createCommand(request,
+        super(databaseName, "system.namespaces", createCommand(request,
                 readPreference, shardedCluster), readPreference);
         myRequest = request;
         myShardedCluster = shardedCluster;
@@ -207,15 +221,21 @@ public class ListCollectionsCommand
 
             // Add the max time constraint.
             if (myRequest.getMaximumTimeMilliseconds() > 0) {
+                Document query = adaptedFilter.build();
+                adaptedFilter.reset();
+                adaptedFilter.add("$query", query);
                 adaptedFilter.add("$maxTimeMS",
                         myRequest.getMaximumTimeMilliseconds());
+                if (myShardedCluster && !getReadPreference().isLegacy()) {
+                    adaptedFilter.add(ReadPreference.FIELD_NAME,
+                            getReadPreference().asDocument());
+                }
             }
-
-            if (myShardedCluster) {
+            else if (myShardedCluster) {
                 updateReadPreference(adaptedFilter, getReadPreference());
             }
 
-            result = new Query(myDatabaseName, "system.namespaces",
+            result = new Query(myDatabaseName, getCollectionName(),
                     adaptedFilter.build(),
                     /* fields= */null, getBatchSize(), getLimit(),
                     /* numberToSkip= */0,
@@ -225,5 +245,58 @@ public class ListCollectionsCommand
         }
 
         return result;
+    }
+
+    /**
+     * Transformer provides the ability to transform the returned documents to
+     * remove the database name from each name.
+     * 
+     * @copyright 2014, Allanbank Consulting, Inc., All Rights Reserved
+     */
+    /* package */static class Transformer
+            implements Transform<Document, Document> {
+
+        /**
+         * The prefix to remove from each document's name. This is the database
+         * name plus a {@code .} (period).
+         */
+        private final String myPrefix;
+
+        /**
+         * Creates a new Transformer.
+         * 
+         * @param databaseName
+         *            The name of the database.
+         */
+        /* package */Transformer(String databaseName) {
+            myPrefix = databaseName + ".";
+        }
+
+        /**
+         * {@inheritDoc}
+         * <p>
+         * Overridden to remove the database name prefix from the document's
+         * {@code name} element.
+         * </p>
+         * 
+         * @see Transform#transform
+         */
+        @Override
+        public Document transform(Document input) {
+            Element element = input.findFirst("name");
+            if (element != null) {
+                final String ns = element.getValueAsString();
+                if (ns.startsWith(myPrefix)) {
+
+                    DocumentBuilder b = BuilderFactory.start(input);
+
+                    b.remove("name");
+                    b.add("name", ns.substring(myPrefix.length()));
+
+                    return b.build();
+                }
+            }
+            return input;
+        }
     }
 }

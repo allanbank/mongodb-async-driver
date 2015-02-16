@@ -88,11 +88,12 @@ public class ShardedConnection
      * </p>
      */
     @Override
-    public String getServerName() {
-        if (myMainKey != null) {
-            return myMainKey.getCanonicalName();
+    public Server getServer() {
+        Server server = myMainKey;
+        if (server != null) {
+            return server;
         }
-        return "UNKNOWN";
+        return myCluster.getServers().get(0);
     }
 
     /**

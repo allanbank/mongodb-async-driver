@@ -19,6 +19,8 @@
  */
 package com.allanbank.mongodb.client;
 
+import static com.allanbank.mongodb.client.IdentityTransform.identity;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +38,7 @@ import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.callback.FutureReplyCallback;
+import com.allanbank.mongodb.client.callback.ReplyErrorHandler;
 import com.allanbank.mongodb.client.message.CursorableMessage;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.KillCursors;
@@ -87,6 +90,9 @@ public class MongoIteratorImpl
     /** The read preference to subsequent requests. */
     private final ReadPreference myReadPerference;
 
+    /** The transformer for each document returned. */
+    private final Transform<Document, Document> myTransformer;
+
     /**
      * Flag to shutdown this iterator gracefully without closing the cursor on
      * the server.
@@ -107,6 +113,26 @@ public class MongoIteratorImpl
      */
     public MongoIteratorImpl(final CursorableMessage originalQuery,
             final Client client, final String server, final Reply reply) {
+        this(originalQuery, client, server, reply, identity(Document.DOCUMENT_CLASS));
+    }
+
+    /**
+     * Create a new MongoDBInterator.
+     *
+     * @param originalQuery
+     *            The original query being iterated over.
+     * @param client
+     *            The client for issuing more requests.
+     * @param server
+     *            The server that received the original query request.
+     * @param reply
+     *            The initial results of the query that are available.
+     * @param transform
+     *            The transformer for each document returned.
+     */
+    public MongoIteratorImpl(final CursorableMessage originalQuery,
+            final Client client, final String server, final Reply reply,
+            Transform<Document, Document> transform) {
         myNextReply = new FutureReplyCallback();
         myNextReply.callback(reply);
 
@@ -118,7 +144,7 @@ public class MongoIteratorImpl
         myLimit = originalQuery.getLimit();
         myDatabaseName = originalQuery.getDatabaseName();
         myCollectionName = originalQuery.getCollectionName();
-
+        myTransformer = transform;
     }
 
     /**
@@ -132,6 +158,22 @@ public class MongoIteratorImpl
      * @see MongoIteratorImpl#asDocument()
      */
     public MongoIteratorImpl(final Document cursorDocument, final Client client) {
+        this(cursorDocument, client, identity(Document.DOCUMENT_CLASS));
+    }
+
+    /**
+     * Create a new MongoIteratorImpl from a cursor document.
+     *
+     * @param client
+     *            The client interface to the server.
+     * @param cursorDocument
+     *            The original query.
+     * @param transform
+     *            The transformer for each document returned.
+     * @see MongoIteratorImpl#asDocument()
+     */
+    public MongoIteratorImpl(final Document cursorDocument,
+            final Client client, Transform<Document, Document> transform) {
         final String ns = cursorDocument.get(StringElement.class,
                 NAME_SPACE_FIELD).getValue();
         String db = ns;
@@ -153,6 +195,7 @@ public class MongoIteratorImpl
                 .get(NumericElement.class, BATCH_SIZE_FIELD).getIntValue();
         myReadPerference = ReadPreference.server(cursorDocument.get(
                 StringElement.class, SERVER_FIELD).getValue());
+        myTransformer = transform;
     }
 
     /**
@@ -271,7 +314,7 @@ public class MongoIteratorImpl
     @Override
     public Document next() {
         if (hasNext()) {
-            return myCurrentIterator.next();
+            return myTransformer.transform(myCurrentIterator.next());
         }
         throw new NoSuchElementException("No more documents.");
     }
@@ -464,7 +507,12 @@ public class MongoIteratorImpl
         try {
             // Pull the reply from the future. Hopefully it is already there!
             final Reply reply = myNextReply.get();
-            if (reply.isCursorNotFound() || reply.isQueryFailed()) {
+            if (reply.isQueryFailed()) {
+                ReplyErrorHandler handler = new ReplyErrorHandler();
+
+                throw handler.asException(reply, true);
+            }
+            else if (reply.isCursorNotFound()) {
                 final long cursorid = myCursorId;
                 myCursorId = 0;
                 throw new CursorNotFoundException(reply, "Cursor id ("

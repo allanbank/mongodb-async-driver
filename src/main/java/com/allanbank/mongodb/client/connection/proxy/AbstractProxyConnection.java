@@ -29,6 +29,7 @@ import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
 import com.allanbank.mongodb.client.connection.Connection;
+import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 
 /**
@@ -129,8 +130,8 @@ public abstract class AbstractProxyConnection
      * </p>
      */
     @Override
-    public String getServerName() {
-        return getProxiedConnection().getServerName();
+    public Server getServer() {
+        return getProxiedConnection().getServer();
     }
 
     /**

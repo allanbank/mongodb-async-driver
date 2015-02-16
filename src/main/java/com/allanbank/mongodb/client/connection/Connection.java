@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 import com.allanbank.mongodb.MongoDbException;
 import com.allanbank.mongodb.client.Message;
 import com.allanbank.mongodb.client.callback.ReplyCallback;
+import com.allanbank.mongodb.client.state.Server;
 
 /**
  * Provides the lowest level interface for interacting with a MongoDB server.
@@ -65,11 +66,11 @@ public interface Connection
     public int getPendingCount();
 
     /**
-     * Returns the name of a server the connection is currently connected to.
+     * Returns the server the connection is connected to.
      *
-     * @return The name of a server the connection is currently connected to.
+     * @return The server the connection is connected to.
      */
-    public String getServerName();
+    public Server getServer();
 
     /**
      * Returns true if the connection is open and not shutting down, false

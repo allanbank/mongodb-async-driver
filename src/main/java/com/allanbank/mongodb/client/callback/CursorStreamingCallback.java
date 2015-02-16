@@ -20,6 +20,8 @@
 
 package com.allanbank.mongodb.client.callback;
 
+import static com.allanbank.mongodb.client.IdentityTransform.identity;
+
 import java.util.List;
 
 import com.allanbank.mongodb.MongoCursorControl;
@@ -33,6 +35,7 @@ import com.allanbank.mongodb.bson.builder.DocumentBuilder;
 import com.allanbank.mongodb.bson.element.StringElement;
 import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.MongoIteratorImpl;
+import com.allanbank.mongodb.client.Transform;
 import com.allanbank.mongodb.client.message.CursorableMessage;
 import com.allanbank.mongodb.client.message.GetMore;
 import com.allanbank.mongodb.client.message.KillCursors;
@@ -99,6 +102,9 @@ public final class CursorStreamingCallback
      */
     private boolean myShutdown = false;
 
+    /** The transformer for each document returned. */
+    private final Transform<Document, Document> myTransformer;
+
     /**
      * Create a new CursorCallback.
      *
@@ -115,6 +121,29 @@ public final class CursorStreamingCallback
     public CursorStreamingCallback(final Client client,
             final CursorableMessage originalMessage, final boolean command,
             final StreamCallback<Document> results) {
+        this(client, originalMessage, command, results,
+                identity(Document.DOCUMENT_CLASS));
+    }
+
+    /**
+     * Create a new CursorCallback.
+     *
+     * @param client
+     *            The client interface to the server.
+     * @param originalMessage
+     *            The original message.
+     * @param command
+     *            If true then the callback should expect a command formated
+     *            cursor reply.
+     * @param results
+     *            The callback to update with each document.
+     * @param transform
+     *            The transformer for each document returned.
+     */
+    public CursorStreamingCallback(final Client client,
+            final CursorableMessage originalMessage, final boolean command,
+            final StreamCallback<Document> results,
+            Transform<Document, Document> transform) {
 
         myClient = client;
         myDatabaseName = originalMessage.getDatabaseName();
@@ -124,6 +153,7 @@ public final class CursorStreamingCallback
         myCommand = command;
         myForwardCallback = results;
         myLimit = originalMessage.getLimit();
+        myTransformer = transform;
     }
 
     /**
@@ -135,12 +165,31 @@ public final class CursorStreamingCallback
      *            The original query.
      * @param results
      *            The callback to update with each document.
-     *
      * @see MongoIteratorImpl#asDocument()
      */
     public CursorStreamingCallback(final Client client,
             final Document cursorDocument,
             final StreamCallback<Document> results) {
+        this(client, cursorDocument, results, identity(Document.DOCUMENT_CLASS));
+    }
+
+    /**
+     * Create a new CursorCallback from a cursor document.
+     *
+     * @param client
+     *            The client interface to the server.
+     * @param cursorDocument
+     *            The original query.
+     * @param results
+     *            The callback to update with each document.
+     * @param transform
+     *            The transformer for each document returned.
+     * @see MongoIteratorImpl#asDocument()
+     */
+    public CursorStreamingCallback(final Client client,
+            final Document cursorDocument,
+            final StreamCallback<Document> results,
+            Transform<Document, Document> transform) {
 
         final String ns = cursorDocument.get(StringElement.class,
                 NAME_SPACE_FIELD).getValue();
@@ -166,6 +215,7 @@ public final class CursorStreamingCallback
                 .get(NumericElement.class, BATCH_SIZE_FIELD).getIntValue();
         myAddress = cursorDocument.get(StringElement.class, SERVER_FIELD)
                 .getValue();
+        myTransformer = transform;
     }
 
     /**
@@ -495,7 +545,8 @@ public final class CursorStreamingCallback
             else {
                 try {
                     for (final Document document : loadDocuments(reply)) {
-                        myForwardCallback.callback(document);
+                        myForwardCallback.callback(myTransformer
+                                .transform(document));
                     }
                     if (myCursorId == 0) {
                         // Signal the end of the results.

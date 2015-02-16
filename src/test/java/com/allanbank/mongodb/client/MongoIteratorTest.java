@@ -61,6 +61,7 @@ import com.allanbank.mongodb.client.message.KillCursors;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
 import com.allanbank.mongodb.error.CursorNotFoundException;
+import com.allanbank.mongodb.error.QueryFailedException;
 
 /**
  * MongoIteratorTest provides tests for the {@link MongoIteratorImpl} class.
@@ -396,6 +397,9 @@ public class MongoIteratorTest {
                 false);
         mockClient.send(anyObject(GetMore.class), cb(reply2));
         expectLastCall();
+        mockClient.send(anyObject(KillCursors.class),
+                isNull(ReplyCallback.class));
+        expectLastCall();
 
         replay(mockClient);
 
@@ -417,8 +421,8 @@ public class MongoIteratorTest {
             iter.hasNext();
             fail("Should have thrown a CursorNotFound.");
         }
-        catch (final CursorNotFoundException good) {
-            assertThat(good.getMessage(), containsString("10"));
+        catch (final QueryFailedException good) {
+            assertThat(good.getMessage(), containsString("Unknown Error"));
         }
 
         iter.close();

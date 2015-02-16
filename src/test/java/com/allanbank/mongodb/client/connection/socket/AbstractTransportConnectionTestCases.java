@@ -263,8 +263,7 @@ public abstract class AbstractTransportConnectionTestCases {
         config.setReadTimeout(100);
         connect(config);
 
-        assertThat(myTestConnection.getServerName(),
-                is(myTestServer.getCanonicalName()));
+        assertThat(myTestConnection.getServer(), is(myTestServer));
         assertTrue("Should have connected to the server.",
                 ourServer.waitForClient(TimeUnit.SECONDS.toMillis(10)));
 

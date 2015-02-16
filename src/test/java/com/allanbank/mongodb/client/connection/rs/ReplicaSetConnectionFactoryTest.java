@@ -69,6 +69,7 @@ import com.allanbank.mongodb.client.connection.proxy.ProxiedConnectionFactory;
 import com.allanbank.mongodb.client.connection.socket.SocketConnectionFactory;
 import com.allanbank.mongodb.client.message.IsMaster;
 import com.allanbank.mongodb.client.message.ReplicaSetStatus;
+import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -503,8 +504,10 @@ public class ReplicaSetConnectionFactoryTest {
         replStatusBuilder.pushArray("hosts").addString(serverName);
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
+        final Cluster cluster = new Cluster(config, ClusterType.REPLICA_SET);
+        final Server server = cluster.add(serverName);
         config.addServer(serverName);
-
+        
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final Connection mockConnection = createMock(Connection.class);
 
@@ -612,7 +615,7 @@ public class ReplicaSetConnectionFactoryTest {
         expectLastCall();
         mockConnection.send(eq(new IsMaster()), cb(replStatusBuilder));
         expectLastCall();
-        expect(mockConnection.getServerName()).andReturn(serverName);
+        expect(mockConnection.getServer()).andReturn(server);
 
         // A clean close.
         mockConnection

@@ -20,6 +20,8 @@
 
 package com.allanbank.mongodb.client.callback;
 
+import static com.allanbank.mongodb.client.IdentityTransform.identity;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.allanbank.mongodb.Callback;
@@ -28,6 +30,7 @@ import com.allanbank.mongodb.MongoIterator;
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.client.Client;
 import com.allanbank.mongodb.client.MongoIteratorImpl;
+import com.allanbank.mongodb.client.Transform;
 import com.allanbank.mongodb.client.message.CursorableMessage;
 import com.allanbank.mongodb.client.message.Query;
 import com.allanbank.mongodb.client.message.Reply;
@@ -65,6 +68,9 @@ public final class CursorCallback
      */
     private final AtomicBoolean mySetOther;
 
+    /** The transformer for each document returned. */
+    private final Transform<Document, Document> myTransformer;
+
     /**
      * Create a new CursorCallback.
      *
@@ -82,12 +88,36 @@ public final class CursorCallback
     public CursorCallback(final Client client, final CursorableMessage message,
             final boolean command,
             final Callback<MongoIterator<Document>> results) {
+        this(client, message, command, results, identity(Document.DOCUMENT_CLASS));
+    }
+
+    /**
+     * Create a new CursorCallback.
+     *
+     * @param client
+     *            The client interface to the server.
+     * @param message
+     *            The original query.
+     * @param command
+     *            If true then the callback should expect a command formated
+     *            cursor reply.
+     * @param results
+     *            The callback to update once the first set of results are
+     *            ready.
+     * @param transform
+     *            The transformer for each document returned.
+     */
+    public CursorCallback(final Client client, final CursorableMessage message,
+            final boolean command,
+            final Callback<MongoIterator<Document>> results,
+            Transform<Document, Document> transform) {
 
         super(results);
 
         myClient = client;
         myMessage = message;
         myCommand = command;
+        myTransformer = transform;
 
         mySetOther = new AtomicBoolean(false);
     }
@@ -143,7 +173,8 @@ public final class CursorCallback
         if (isCommand()) {
             result = CommandCursorTranslator.translate(reply);
         }
-        return new MongoIteratorImpl(myMessage, myClient, myAddress, result);
+        return new MongoIteratorImpl(myMessage, myClient, myAddress, result,
+                myTransformer);
     }
 
     /**

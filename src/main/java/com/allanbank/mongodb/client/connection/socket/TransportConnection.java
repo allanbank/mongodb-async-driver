@@ -205,8 +205,8 @@ public class TransportConnection
      * </p>
      */
     @Override
-    public String getServerName() {
-        return myServer.getCanonicalName();
+    public Server getServer() {
+        return myServer;
     }
 
     /**
@@ -304,10 +304,10 @@ public class TransportConnection
 
                 final String messageType = (message != null) ? message
                         .getOperationName() : "null";
-                        raiseErrors(new ConnectionLostException(
-                                new StreamCorruptedException(
-                                        "Received a non-reply message: " + messageType)));
-                        shutdown(true);
+                raiseErrors(new ConnectionLostException(
+                        new StreamCorruptedException(
+                                "Received a non-reply message: " + messageType)));
+                shutdown(true);
             }
         }
         catch (final IOException e) {
@@ -323,16 +323,21 @@ public class TransportConnection
     public void send(final Message message1, final Message message2,
             final ReplyCallback replyCallback) throws MongoDbException {
 
-        validate(message1, message2);
+        final Version serverVersion = myServer.getVersion();
+        final Message toSend1 = message1.transformFor(serverVersion);
+        final Message toSend2 = (message2 == null) ? null : message2
+                .transformFor(serverVersion);
+
+        validate(toSend1, toSend2);
 
         if (replyCallback instanceof AddressAware) {
             ((AddressAware) replyCallback).setAddress(myServer
                     .getCanonicalName());
         }
 
-        final int count = (message2 == null) ? 1 : 2;
-        final int size = (message2 == null) ? message1.size() : message1.size()
-                + message2.size();
+        final int count = (toSend2 == null) ? 1 : 2;
+        final int size = (toSend2 == null) ? toSend1.size() : toSend1.size()
+                + toSend2.size();
         final long seq = mySendSequence.reserve(count);
         final long end = seq + count;
 
@@ -345,12 +350,12 @@ public class TransportConnection
             final TransportOutputBuffer out = myTransport
                     .createSendBuffer(size);
 
-            pending.set((int) (seq & 0xFFFFFF), message1, replyCallback);
-            out.write((int) (seq & 0xFFFFFF), message1, replyCallback);
-            if (message2 != null) {
-                pending.set((int) ((seq + 1) & 0xFFFFFF), message2,
+            pending.set((int) (seq & 0xFFFFFF), toSend1, replyCallback);
+            out.write((int) (seq & 0xFFFFFF), toSend1, replyCallback);
+            if (toSend2 != null) {
+                pending.set((int) ((seq + 1) & 0xFFFFFF), toSend2,
                         replyCallback);
-                out.write((int) ((seq + 1) & 0xFFFFFF), message2, replyCallback);
+                out.write((int) ((seq + 1) & 0xFFFFFF), toSend2, replyCallback);
             }
 
             // Now stand in line.
@@ -409,11 +414,11 @@ public class TransportConnection
             }
             else {
                 // Count the messages as sent.
-                myListener.sent(getServerName(), (int) (seq & 0xFFFFFF),
-                        message1);
-                if (message2 != null) {
-                    myListener.sent(getServerName(),
-                            (int) ((seq + 1) & 0xFFFFFF), message2);
+                myListener.sent(getServer().getCanonicalName(),
+                        (int) (seq & 0xFFFFFF), toSend1);
+                if (toSend2 != null) {
+                    myListener.sent(getServer().getCanonicalName(),
+                            (int) ((seq + 1) & 0xFFFFFF), toSend2);
                 }
             }
 
@@ -612,8 +617,9 @@ public class TransportConnection
 
         final long latency = pendingMessage.latency();
 
-        myListener.receive(getServerName(), reply.getResponseToId(),
-                pendingMessage.getMessage(), reply, latency);
+        myListener.receive(getServer().getCanonicalName(),
+                reply.getResponseToId(), pendingMessage.getMessage(), reply,
+                latency);
 
         final ReplyCallback callback = pendingMessage.getReplyCallback();
         ReplyHandler.reply(this, reply, callback, getExecutor());

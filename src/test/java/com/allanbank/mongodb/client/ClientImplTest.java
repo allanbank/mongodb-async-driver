@@ -771,8 +771,7 @@ public class ClientImplTest {
                 strategy);
 
         // Try the straight connect back - but fail to connect.
-        expect(mockConnection.getServerName()).andReturn(
-                server.getCanonicalName());
+        expect(mockConnection.getServer()).andReturn(server);
         expect(myMockConnectionFactory.connect(server, myConfig)).andThrow(
                 new IOException("Injected"));
 

@@ -80,7 +80,7 @@ public class SimpleReconnectStrategyTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
 
-        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockOldConnection.getServer()).andReturn(server);
         expect(mockFactory.connect(server, config)).andThrow(
                 new IOException("Inject"));
 
@@ -128,7 +128,7 @@ public class SimpleReconnectStrategyTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
 
-        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockOldConnection.getServer()).andReturn(server);
         expect(mockFactory.connect(server, config))
                 .andReturn(mockNewConnection);
         mockNewConnection.send(anyObject(IsMaster.class),
@@ -166,7 +166,7 @@ public class SimpleReconnectStrategyTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
 
-        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockOldConnection.getServer()).andReturn(server);
         expect(mockFactory.connect(server, config)).andThrow(
                 new IOException("Inject"));
 
@@ -206,7 +206,7 @@ public class SimpleReconnectStrategyTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
 
-        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockOldConnection.getServer()).andReturn(server);
 
         expect(mockFactory.connect(server, config)).andThrow(
                 new IOException("Inject"));
@@ -258,7 +258,7 @@ public class SimpleReconnectStrategyTest {
         final ProxiedConnectionFactory mockFactory = createMock(ProxiedConnectionFactory.class);
         final ServerSelector mockSelector = createMock(ServerSelector.class);
 
-        expect(mockOldConnection.getServerName()).andReturn("foo:27017");
+        expect(mockOldConnection.getServer()).andReturn(server);
         expect(mockFactory.connect(server, config)).andThrow(
                 new IOException("Inject"));
 

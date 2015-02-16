@@ -74,7 +74,7 @@ public class ListCollectionsCommandTest {
                 request, ReadPreference.PREFER_PRIMARY, false);
 
         assertThat(cmd.getBatchSize(), is(101));
-        assertThat(cmd.getCollectionName(), is(Command.COMMAND_COLLECTION));
+        assertThat(cmd.getCollectionName(), is("system.namespaces"));
         assertThat(cmd.getCommand(), is(expectedCommand.build()));
         assertThat(cmd.getDatabaseName(), is("db"));
         assertThat(cmd.getLimit(), is(202));
@@ -101,7 +101,7 @@ public class ListCollectionsCommandTest {
                 request, ReadPreference.PRIMARY, false);
 
         assertThat(cmd.getBatchSize(), is(0));
-        assertThat(cmd.getCollectionName(), is(Command.COMMAND_COLLECTION));
+        assertThat(cmd.getCollectionName(), is("system.namespaces"));
         assertThat(cmd.getCommand(), is(expectedCommand.build()));
         assertThat(cmd.getDatabaseName(), is("db"));
         assertThat(cmd.getLimit(), is(0));
@@ -162,7 +162,8 @@ public class ListCollectionsCommandTest {
     public void testTransformForPre277NoNameInQuery() {
         final Document query = Find.ALL;
         final DocumentBuilder expectedQuery = BuilderFactory.start();
-        expectedQuery.add("name", ListCollectionsCommand.NON_INDEX_REGEX);
+        expectedQuery.push("$query").add("name",
+                ListCollectionsCommand.NON_INDEX_REGEX);
         expectedQuery.add("$maxTimeMS", 123L);
 
         final ListCollections request = ListCollections.builder()
@@ -192,9 +193,9 @@ public class ListCollectionsCommandTest {
     public void testTransformForPre277NoNameInQuerySharded() {
         final Document query = Find.ALL;
         final DocumentBuilder expectedQuery = BuilderFactory.start();
-        expectedQuery.push("$query")
-                .add("name", ListCollectionsCommand.NON_INDEX_REGEX)
-                .add("$maxTimeMS", 123L);
+        expectedQuery.push("$query").add("name",
+                ListCollectionsCommand.NON_INDEX_REGEX);
+        expectedQuery.add("$maxTimeMS", 123L);
         expectedQuery.add(ReadPreference.FIELD_NAME,
                 ReadPreference.PREFER_PRIMARY.asDocument());
 
@@ -225,8 +226,9 @@ public class ListCollectionsCommandTest {
     public void testTransformForPre277NoNameInQueryShardedPrimary() {
         final Document query = Find.ALL;
         final DocumentBuilder expectedQuery = BuilderFactory.start();
-        expectedQuery.add("name", ListCollectionsCommand.NON_INDEX_REGEX).add(
-                "$maxTimeMS", 123L);
+        expectedQuery.push("$query").add("name",
+                ListCollectionsCommand.NON_INDEX_REGEX);
+        expectedQuery.add("$maxTimeMS", 123L);
 
         final ListCollections request = ListCollections.builder()
                 .batchSize(101).limit(202)
@@ -258,6 +260,7 @@ public class ListCollectionsCommandTest {
 
         final DocumentBuilder expectedQuery = BuilderFactory.start();
         expectedQuery
+                .push("$query")
                 .pushArray("$and")
                 .add(queryWithDb)
                 .add(where("name").matches(

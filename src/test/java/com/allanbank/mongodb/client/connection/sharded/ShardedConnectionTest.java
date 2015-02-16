@@ -479,7 +479,7 @@ public class ShardedConnectionTest {
     }
 
     /**
-     * Test method for {@link ShardedConnection#getServerName()}.
+     * Test method for {@link ShardedConnection#getServer()}.
      *
      * @throws IOException
      *             On a test failure.
@@ -504,7 +504,7 @@ public class ShardedConnectionTest {
         final ShardedConnection conn = new ShardedConnection(mockConnection,
                 server, cluster, mockSelector, mockFactory, config);
 
-        assertThat(conn.getServerName(), is("localhost:27017"));
+        assertThat(conn.getServer(), is(server));
 
         verify(mockConnection, mockSelector, mockFactory);
 

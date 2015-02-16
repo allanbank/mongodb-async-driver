@@ -486,8 +486,12 @@ public class MongoDatabaseImplTest {
 
         final Document result1 = BuilderFactory.start()
                 .addString("name", "test.collection").build();
+        final Document result1a = BuilderFactory.start()
+                .addString("name", "collection").build();
         final Document result2 = BuilderFactory.start()
                 .addString("name", "test.1.oplog.$").build();
+        final Document result2a = BuilderFactory.start()
+                .addString("name", "1.oplog.$").build();
 
         ListCollections.Builder cmd = ListCollections.builder().readPreference(
                 ReadPreference.PRIMARY);
@@ -504,9 +508,9 @@ public class MongoDatabaseImplTest {
 
         MongoIterator<Document> iter = myTestInstance.listCollections(cmd);
         assertThat(iter.hasNext(), is(true));
-        assertThat(iter.next(), is(result1));
+        assertThat(iter.next(), is(result1a));
         assertThat(iter.hasNext(), is(true));
-        assertThat(iter.next(), is(result2));
+        assertThat(iter.next(), is(result2a));
         assertThat(iter.hasNext(), is(false));
 
         verify();
@@ -521,8 +525,12 @@ public class MongoDatabaseImplTest {
 
         final Document result1 = BuilderFactory.start()
                 .addString("name", "test.collection").build();
+        final Document result1a = BuilderFactory.start()
+                .addString("name", "collection").build();
         final Document result2 = BuilderFactory.start()
                 .addString("name", "test.1.oplog.$").build();
+        final Document result2a = BuilderFactory.start()
+                .addString("name", "1.oplog.$").build();
 
         ListCollections.Builder cmd = ListCollections.builder().readPreference(
                 ReadPreference.PRIMARY);
@@ -541,9 +549,9 @@ public class MongoDatabaseImplTest {
             MongoIterator<Document> iter = myTestInstance.listCollectionsAsync(
                     cmd).get();
             assertThat(iter.hasNext(), is(true));
-            assertThat(iter.next(), is(result1));
+            assertThat(iter.next(), is(result1a));
             assertThat(iter.hasNext(), is(true));
-            assertThat(iter.next(), is(result2));
+            assertThat(iter.next(), is(result2a));
             assertThat(iter.hasNext(), is(false));
         }
         catch (InterruptedException e) {
@@ -566,8 +574,12 @@ public class MongoDatabaseImplTest {
 
         final Document result1 = BuilderFactory.start()
                 .addString("name", "test.collection").build();
+        final Document result1a = BuilderFactory.start()
+                .addString("name", "collection").build();
         final Document result2 = BuilderFactory.start()
                 .addString("name", "test.1.oplog.$").build();
+        final Document result2a = BuilderFactory.start()
+                .addString("name", "1.oplog.$").build();
 
         ListCollections.Builder cmd = ListCollections.builder().readPreference(
                 ReadPreference.PRIMARY);
@@ -587,9 +599,9 @@ public class MongoDatabaseImplTest {
             myTestInstance.listCollectionsAsync(cb, cmd);
             MongoIterator<Document> iter = cb.get();
             assertThat(iter.hasNext(), is(true));
-            assertThat(iter.next(), is(result1));
+            assertThat(iter.next(), is(result1a));
             assertThat(iter.hasNext(), is(true));
-            assertThat(iter.next(), is(result2));
+            assertThat(iter.next(), is(result2a));
             assertThat(iter.hasNext(), is(false));
         }
         catch (InterruptedException e) {
@@ -612,8 +624,12 @@ public class MongoDatabaseImplTest {
 
         final Document result1 = BuilderFactory.start()
                 .addString("name", "test.collection").build();
+        final Document result1a = BuilderFactory.start()
+                .addString("name", "collection").build();
         final Document result2 = BuilderFactory.start()
                 .addString("name", "test.1.oplog.$").build();
+        final Document result2a = BuilderFactory.start()
+                .addString("name", "1.oplog.$").build();
 
         ListCollections.Builder cmd = ListCollections.builder().readPreference(
                 ReadPreference.PRIMARY);
@@ -627,9 +643,9 @@ public class MongoDatabaseImplTest {
         myMockClient.send(eq(msg), callback(reply(result1, result2)));
         expectLastCall();
 
-        mockCallback.callback(result1);
+        mockCallback.callback(result1a);
         expectLastCall();
-        mockCallback.callback(result2);
+        mockCallback.callback(result2a);
         expectLastCall();
         mockCallback.done();
         expectLastCall();
@@ -651,8 +667,12 @@ public class MongoDatabaseImplTest {
 
         final Document result1 = BuilderFactory.start()
                 .addString("name", "test.collection").build();
+        final Document result1a = BuilderFactory.start()
+                .addString("name", "collection").build();
         final Document result2 = BuilderFactory.start()
                 .addString("name", "test.1.oplog.$").build();
+        final Document result2a = BuilderFactory.start()
+                .addString("name", "1.oplog.$").build();
 
         ListCollections.Builder cmd = ListCollections.builder().readPreference(
                 ReadPreference.PRIMARY);
@@ -666,9 +686,9 @@ public class MongoDatabaseImplTest {
         myMockClient.send(eq(msg), callback(reply(result1, result2)));
         expectLastCall();
 
-        mockCallback.accept(isNull(Throwable.class), eq(result1));
+        mockCallback.accept(isNull(Throwable.class), eq(result1a));
         expectLastCall();
-        mockCallback.accept(isNull(Throwable.class), eq(result2));
+        mockCallback.accept(isNull(Throwable.class), eq(result2a));
         expectLastCall();
         mockCallback.accept(isNull(Throwable.class), isNull(Document.class));
         expectLastCall();
@@ -690,8 +710,12 @@ public class MongoDatabaseImplTest {
 
         final Document result1 = BuilderFactory.start()
                 .addString("name", "test.collection").build();
+        final Document result1a = BuilderFactory.start()
+                .addString("name", "collection").build();
         final Document result2 = BuilderFactory.start()
                 .addString("name", "test.1.oplog.$").build();
+        final Document result2a = BuilderFactory.start()
+                .addString("name", "1.oplog.$").build();
 
         final ListCollections.Builder cmd = ListCollections.builder()
                 .readPreference(ReadPreference.PRIMARY);
@@ -715,9 +739,9 @@ public class MongoDatabaseImplTest {
 
         MongoIterator<Document> iter = capture.getValue();
         assertThat(iter.hasNext(), is(true));
-        assertThat(iter.next(), is(result1));
+        assertThat(iter.next(), is(result1a));
         assertThat(iter.hasNext(), is(true));
-        assertThat(iter.next(), is(result2));
+        assertThat(iter.next(), is(result2a));
         assertThat(iter.hasNext(), is(false));
     }
 

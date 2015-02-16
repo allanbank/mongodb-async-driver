@@ -36,6 +36,8 @@ import static com.allanbank.mongodb.builder.expression.Expressions.set;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.either;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -131,6 +133,8 @@ import com.allanbank.mongodb.builder.GeoJson;
 import com.allanbank.mongodb.builder.GeospatialOperator;
 import com.allanbank.mongodb.builder.GroupBy;
 import com.allanbank.mongodb.builder.Index;
+import com.allanbank.mongodb.builder.ListCollections;
+import com.allanbank.mongodb.builder.ListIndexes;
 import com.allanbank.mongodb.builder.MapReduce;
 import com.allanbank.mongodb.builder.MiscellaneousOperator;
 import com.allanbank.mongodb.builder.ParallelScan;
@@ -166,7 +170,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class BasicAcceptanceTestCases
-        extends ServerTestDriverSupport {
+extends ServerTestDriverSupport {
 
     /** The name of the test collection to use. */
     public static final String GEO_TEST_COLLECTION_NAME = "geo";
@@ -279,10 +283,10 @@ public abstract class BasicAcceptanceTestCases
             // Turn off the balancer - Can confuse the test counts.
             final boolean upsert = true;
             mongoClient
-                    .getDatabase("config")
-                    .getCollection("settings")
-                    .update(where("_id").equals("balancer"),
-                            d(e("$set", d(e("stopped", true)))), false, upsert);
+            .getDatabase("config")
+            .getCollection("settings")
+            .update(where("_id").equals("balancer"),
+                    d(e("$set", d(e("stopped", true)))), false, upsert);
         }
         finally {
             IOUtils.close(mongoClient);
@@ -394,11 +398,11 @@ public abstract class BasicAcceptanceTestCases
      * import static {@link com.allanbank.mongodb.builder.expression.Expressions#constant com.allanbank.mongodb.builder.expression.Expressions.constant};
      * import static {@link com.allanbank.mongodb.builder.expression.Expressions#field com.allanbank.mongodb.builder.expression.Expressions.field};
      * import static {@link com.allanbank.mongodb.builder.expression.Expressions#set com.allanbank.mongodb.builder.expression.Expressions.set};
-     * 
+     *
      * DocumentBuilder b1 = BuilderFactory.start();
      * DocumentBuilder b2 = BuilderFactory.start();
      * Aggregate.Builder builder = new Aggregate.Builder();
-     * 
+     *
      * builder.match(where("state").notEqualTo("NZ"))
      *         .group(id().addField("state").addField("city"),
      *                 set("pop").sum("pop"))
@@ -512,7 +516,7 @@ public abstract class BasicAcceptanceTestCases
 
         // > db.things.insert( { state : "NZ", city : "big", pop : 1000 } );
         doc.addString("state", "NZ").addString("city", "big")
-                .addInteger("pop", 1000);
+        .addInteger("pop", 1000);
         aggregate.insert(doc);
         doc.reset();
 
@@ -520,15 +524,15 @@ public abstract class BasicAcceptanceTestCases
         // > db.things.insert( { state : "MD", city : "medium", pop : 10 } );
         // > db.things.insert( { state : "MD", city : "small", pop : 1 } );
         doc.addString("state", "MD").addString("city", "big")
-                .addInteger("pop", 1000);
+        .addInteger("pop", 1000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "MD").addString("city", "medium")
-                .addInteger("pop", 10);
+        .addInteger("pop", 10);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "MD").addString("city", "small")
-                .addInteger("pop", 1);
+        .addInteger("pop", 1);
         aggregate.insert(doc);
         doc.reset();
 
@@ -536,15 +540,15 @@ public abstract class BasicAcceptanceTestCases
         // > db.things.insert( { state : "CA", city : "medium", pop : 11 } );
         // > db.things.insert( { state : "CA", city : "small", pop : 10 } );
         doc.addString("state", "CA").addString("city", "big")
-                .addInteger("pop", 10000);
+        .addInteger("pop", 10000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "CA").addString("city", "small")
-                .addInteger("pop", 11);
+        .addInteger("pop", 11);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "CA").addString("city", "small")
-                .addInteger("pop", 10);
+        .addInteger("pop", 10);
         aggregate.insert(doc);
         doc.reset();
 
@@ -552,15 +556,15 @@ public abstract class BasicAcceptanceTestCases
         // > db.things.insert( { state : "NY", city : "small", pop : 20 } );
         // > db.things.insert( { state : "NY", city : "small", pop : 5 } );
         doc.addString("state", "NY").addString("city", "big")
-                .addInteger("pop", 100000);
+        .addInteger("pop", 100000);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "NY").addString("city", "small")
-                .addInteger("pop", 20);
+        .addInteger("pop", 20);
         aggregate.insert(doc);
         doc.reset();
         doc.addString("state", "NY").addString("city", "small")
-                .addInteger("pop", 5);
+        .addInteger("pop", 5);
         aggregate.insert(doc);
         doc.reset();
 
@@ -569,44 +573,44 @@ public abstract class BasicAcceptanceTestCases
         final Aggregate.Builder builder = new Aggregate.Builder();
 
         builder.match(where("state").notEqualTo("NZ"))
-                .group(id().addField("state").addField("city"),
-                        set("pop").sum("pop"))
+        .group(id().addField("state").addField("city"),
+                set("pop").sum("pop"))
                 .sort(asc("pop"))
                 .group(id("_id.state"), set("biggestcity").last("_id.city"),
                         set("biggestpop").last("pop"),
                         set("smallestcity").first("_id.city"),
                         set("smallestpop").first("pop"))
-                .project(
-                        includeWithoutId(),
-                        set("state", field("_id")),
-                        set("biggestCity",
-                                b1.add(set("name", field("biggestcity"))).add(
-                                        set("pop", field("biggestpop")))),
-                        set("smallestCity",
-                                b2.add(set("name", field("smallestcity"))).add(
-                                        set("pop", field("smallestpop")))))
-                .sort(desc("biggestCity.pop"));
+                        .project(
+                                includeWithoutId(),
+                                set("state", field("_id")),
+                                set("biggestCity",
+                                        b1.add(set("name", field("biggestcity"))).add(
+                                                set("pop", field("biggestpop")))),
+                                                set("smallestCity",
+                                                        b2.add(set("name", field("smallestcity"))).add(
+                                                                set("pop", field("smallestpop")))))
+                                                                .sort(desc("biggestCity.pop"));
 
         final DocumentBuilder expected1 = BuilderFactory.start();
         expected1.addString("state", "NY");
         expected1.push("biggestCity").addString("name", "big")
-                .addInteger("pop", 100000);
+        .addInteger("pop", 100000);
         expected1.push("smallestCity").addString("name", "small")
-                .addInteger("pop", 25);
+        .addInteger("pop", 25);
 
         final DocumentBuilder expected2 = BuilderFactory.start();
         expected2.addString("state", "CA");
         expected2.push("biggestCity").addString("name", "big")
-                .addInteger("pop", 10000);
+        .addInteger("pop", 10000);
         expected2.push("smallestCity").addString("name", "small")
-                .addInteger("pop", 21);
+        .addInteger("pop", 21);
 
         final DocumentBuilder expected3 = BuilderFactory.start();
         expected3.addString("state", "MD");
         expected3.push("biggestCity").addString("name", "big")
-                .addInteger("pop", 1000);
+        .addInteger("pop", 1000);
         expected3.push("smallestCity").addString("name", "small")
-                .addInteger("pop", 1);
+        .addInteger("pop", 1);
 
         final List<Document> expected = new ArrayList<Document>();
         expected.add(expected1.build());
@@ -689,23 +693,23 @@ public abstract class BasicAcceptanceTestCases
         final Aggregate.Builder builder = new Aggregate.Builder();
 
         builder.match(where("state").notEqualTo("NZ"))
-                .group(id().addField("state").addField("city"),
-                        set("pop").sum("pop"))
+        .group(id().addField("state").addField("city"),
+                set("pop").sum("pop"))
                 .sort(asc("pop"))
                 .group(id("_id.state"), set("biggestcity").last("_id.city"),
                         set("biggestpop").last("pop"),
                         set("smallestcity").first("_id.city"),
                         set("smallestpop").first("pop"))
-                .project(
-                        includeWithoutId(),
-                        set("state", field("_id")),
-                        set("biggestCity",
-                                b1.add(set("name", field("biggestcity"))).add(
-                                        set("pop", field("biggestpop")))),
-                        set("smallestCity",
-                                b2.add(set("name", field("smallestcity"))).add(
-                                        set("pop", field("smallestpop")))))
-                .sort(desc("biggestCity.pop"));
+                        .project(
+                                includeWithoutId(),
+                                set("state", field("_id")),
+                                set("biggestCity",
+                                        b1.add(set("name", field("biggestcity"))).add(
+                                                set("pop", field("biggestpop")))),
+                                                set("smallestCity",
+                                                        b2.add(set("name", field("smallestcity"))).add(
+                                                                set("pop", field("smallestpop")))))
+                                                                .sort(desc("biggestCity.pop"));
 
         try {
             final Document explanation = aggregate.explain(builder.build());
@@ -809,7 +813,7 @@ public abstract class BasicAcceptanceTestCases
     @Test
     public void testAggregateWithAllowDiskUsage() {
         myConfig.setDefaultDurability(Durability.ACK);
-        
+
         final int limit = 100;
 
         final MongoCollection collection = largeCollection(ourMongo);
@@ -836,7 +840,8 @@ public abstract class BasicAcceptanceTestCases
         catch (final ServerVersionException sve) {
             // Check if we are talking to a recent MongoDB instance
             // That supports the allowDiskUse attribute.
-            assumeThat(sve.getActualVersion(),
+            assumeThat(
+                    sve.getActualVersion(),
                     greaterThanOrEqualTo(Aggregate.ALLOW_DISK_USAGE_REQUIRED_VERSION));
 
             // Humm - Should have worked. Rethrow the error.
@@ -876,7 +881,7 @@ public abstract class BasicAcceptanceTestCases
             iter = getGeoCollection().aggregate(
                     Aggregate.builder().geoNear(
                             AggregationGeoNear.builder().location(p(x, y))
-                                    .distanceField("d")));
+                            .distanceField("d")));
             while (iter.hasNext()) {
                 docs.add(iter.next());
             }
@@ -917,7 +922,7 @@ public abstract class BasicAcceptanceTestCases
      */
     @Test
     public void testBatchedOperations() throws IllegalArgumentException,
-            InterruptedException, ExecutionException {
+    InterruptedException, ExecutionException {
         final List<Future<Integer>> insertResults = new ArrayList<Future<Integer>>();
         Future<Document> found = null;
         Future<Long> update = null;
@@ -1022,9 +1027,9 @@ public abstract class BasicAcceptanceTestCases
         final DocumentBuilder builder = BuilderFactory.start();
         for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
             builder.reset()
-                    .add("_id", i)
-                    .add("t",
-                            "Now is the time for all good men to come to the aid.");
+            .add("_id", i)
+            .add("t",
+                    "Now is the time for all good men to come to the aid.");
 
             write.insert(builder);
         }
@@ -1078,9 +1083,9 @@ public abstract class BasicAcceptanceTestCases
         final DocumentBuilder builder = BuilderFactory.start();
         for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
             builder.reset()
-                    .add("_id", i)
-                    .add("t",
-                            "Now is the time for all good men to come to the aid.");
+            .add("_id", i)
+            .add("t",
+                    "Now is the time for all good men to come to the aid.");
 
             write.insert(builder);
         }
@@ -1125,9 +1130,9 @@ public abstract class BasicAcceptanceTestCases
         final DocumentBuilder builder = BuilderFactory.start();
         for (int i = 0; i < count; ++i) {
             builder.reset()
-                    .add("_id", i)
-                    .add("t",
-                            "Now is the time for all good men to come to the aid.");
+            .add("_id", i)
+            .add("t",
+                    "Now is the time for all good men to come to the aid.");
 
             write.insert(builder);
         }
@@ -1261,7 +1266,7 @@ public abstract class BasicAcceptanceTestCases
      */
     @Test
     public void testCountTimeout() throws ExecutionException,
-            InterruptedException {
+    InterruptedException {
 
         final Count.Builder builder = new Count.Builder();
         // Need a query do it does not use an index of the collection meta-data.
@@ -1461,7 +1466,7 @@ public abstract class BasicAcceptanceTestCases
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 10010})
      * db.addresses.insert({"zip-code": 99701})
-     * 
+     *
      * db.addresses.distinct("zip-code");
      * [ 10010, 99701 ]
      * </code>
@@ -1588,13 +1593,13 @@ public abstract class BasicAcceptanceTestCases
 
         Document found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
-                        .addRegularExpression("name", ".*foo.*", "").build());
+                .addRegularExpression("name", ".*foo.*", "").build());
         assertNotNull(found);
 
         myCollection.dropIndex(Index.asc("foo"), Index.asc("bar"));
         found = myDb.getCollection("system.indexes").findOne(
                 BuilderFactory.start()
-                        .addRegularExpression("name", ".*foo.*", "").build());
+                .addRegularExpression("name", ".*foo.*", "").build());
         assertNull(found);
     }
 
@@ -1612,12 +1617,26 @@ public abstract class BasicAcceptanceTestCases
 
         Document result = myCollection.explain(QueryBuilder.where("a")
                 .equals(3).and("b").equals(5));
-        assertEquals(new StringElement("cursor", "BtreeCursor a_1_b_1"),
-                result.get("cursor"));
+
+        if (result.contains("cursor")) {
+            assertEquals(new StringElement("cursor", "BtreeCursor a_1_b_1"),
+                    result.get("cursor"));
+        }
+        else {
+            assertEquals(new StringElement("stage", "IXSCAN"),
+                    result.findFirst("queryPlanner", "winningPlan",
+                            "inputStage", "stage"));
+        }
 
         result = myCollection.explain(QueryBuilder.where("f").equals(42));
-        assertEquals(new StringElement("cursor", "BasicCursor"),
-                result.get("cursor"));
+        if (result.contains("cursor")) {
+            assertEquals(new StringElement("cursor", "BasicCursor"),
+                    result.get("cursor"));
+        }
+        else {
+            assertEquals(new StringElement("stage", "COLLSCAN"),
+                    result.findFirst("queryPlanner", "winningPlan", "stage"));
+        }
     }
 
     /**
@@ -2124,7 +2143,7 @@ public abstract class BasicAcceptanceTestCases
             for (int i = 0; i < 10; ++i) {
                 query.reset().add(GridFs.CHUNK_NUMBER_FIELD, i);
                 update.reset().push("$set")
-                        .add(GridFs.CHUNK_NUMBER_FIELD, myRandom.nextInt());
+                .add(GridFs.CHUNK_NUMBER_FIELD, myRandom.nextInt());
                 chunks.update(query, update, true, false);
             }
 
@@ -2238,7 +2257,7 @@ public abstract class BasicAcceptanceTestCases
      * , response_time: 0.05
      * , http_action: "GET /display/DOCS/Aggregate"
      * }
-     * 
+     *
      * db.test.group(
      *    { cond: {"invoked_at.d": {$gte: "2009-11", $lt: "2009-12"}}
      *    , key: {http_action: true}
@@ -2246,7 +2265,7 @@ public abstract class BasicAcceptanceTestCases
      *    , reduce: function(doc, out){ out.count++; out.total_time+=doc.response_time }
      *    , finalize: function(out){ out.avg_time = out.total_time / out.count }
      *    } );
-     * 
+     *
      * [
      *   {
      *     "http_action" : "GET /display/DOCS/Aggregate",
@@ -2255,7 +2274,7 @@ public abstract class BasicAcceptanceTestCases
      *     "avg_time" : 0.05
      *   }
      * ]
-     * 
+     *
      * </code>
      * </pre>
      *
@@ -2266,7 +2285,7 @@ public abstract class BasicAcceptanceTestCases
         final DocumentBuilder doc = BuilderFactory.start();
         doc.addString("domain", "www.mongodb.org");
         doc.push("invoked_at").addString("d", "2009-11-03")
-                .addString("t", "17:14:05");
+        .addString("t", "17:14:05");
         doc.addDouble("response_time", 0.05);
         doc.addString("http_action", "GET /display/DOCS/Aggregate");
 
@@ -2274,7 +2293,7 @@ public abstract class BasicAcceptanceTestCases
 
         final DocumentBuilder query = BuilderFactory.start();
         query.push("invoked_at.d").addString("$gte", "2009-11")
-                .addString("$lt", "2009-12");
+        .addString("$lt", "2009-12");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("http_action"));
@@ -2309,7 +2328,7 @@ public abstract class BasicAcceptanceTestCases
 
         final DocumentBuilder query = BuilderFactory.start();
         query.push("invoked_at.d").addString("$gte", "2009-11")
-                .addString("$lt", "2009-12");
+        .addString("$lt", "2009-12");
 
         final GroupBy.Builder builder = new GroupBy.Builder();
         builder.setKeys(Collections.singleton("http_action"));
@@ -2443,7 +2462,7 @@ public abstract class BasicAcceptanceTestCases
      */
     @Test
     public void testIteratorAsync() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         // Adjust the configuration to keep the connection count down
         // and let the inserts happen asynchronously.
         myConfig.setDefaultDurability(Durability.ACK);
@@ -2485,7 +2504,7 @@ public abstract class BasicAcceptanceTestCases
      */
     @Test
     public void testIteratorAsyncRead() throws InterruptedException,
-            ExecutionException {
+    ExecutionException {
         // Adjust the configuration to keep the connection count down
         // and let the inserts happen asynchronously.
         myConfig.setDefaultDurability(Durability.ACK);
@@ -2535,7 +2554,7 @@ public abstract class BasicAcceptanceTestCases
                             + "does not have journaling enabled"),
                             containsString("journaling not enabled on this "
                                     + "server"),
-                            containsString("timed out waiting for slaves")));
+                                    containsString("timed out waiting for slaves")));
         }
     }
 
@@ -2544,7 +2563,7 @@ public abstract class BasicAcceptanceTestCases
      * server.
      */
     @Test
-    public void testListCollections() {
+    public void testListCollectionNames() {
         // Make sure the collection/db exist.
         myCollection.insert(Durability.ACK, BuilderFactory.start().build());
 
@@ -2552,6 +2571,164 @@ public abstract class BasicAcceptanceTestCases
 
         assertTrue(names.contains(myCollection.getName()));
         assertTrue(names.contains("system.indexes"));
+    }
+
+    /**
+     * Verifies the ability to list the collections for a database on the
+     * server.
+     */
+    @Test
+    public void testListCollectionsOnSecondary() {
+        final int numCollections = 1000;
+        MongoIterator<Document> docsIter = null;
+        // Make sure the collection/db exist.
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
+        for (int i = 0; i < numCollections; ++i) {
+            myDb.getCollection("listCollections_" + i).insert(Durability.ACK,
+                    BuilderFactory.start());
+        }
+
+        try {
+            docsIter = myDb.listCollections(ListCollections.builder()
+                    .readPreference(ReadPreference.PREFER_SECONDARY));
+            int count = 0;
+            while (docsIter.hasNext()) {
+                docsIter.next();
+                count += 1;
+            }
+
+            assertThat(count, greaterThan(numCollections + 1));
+        }
+        finally {
+            IOUtils.close(docsIter);
+            for (int i = 0; i < 1000; ++i) {
+                myDb.getCollection("listCollections_" + i).drop();
+            }
+        }
+    }
+
+    /**
+     * Verifies the ability to list the collections for a database on the
+     * server.
+     */
+    @Test
+    public void testListCollectionsTimeout() {
+        final int numCollections = 1000;
+        MongoIterator<Document> docsIter = null;
+        // Make sure the collection/db exist.
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
+        for (int i = 0; i < numCollections; ++i) {
+            myDb.getCollection("listCollections_" + i).insert(Durability.ACK,
+                    BuilderFactory.start());
+        }
+
+        try {
+            final long before = System.currentTimeMillis();
+
+            docsIter = myDb.listCollections(ListCollections.builder()
+                    .maximumTime(1, TimeUnit.MILLISECONDS));
+            int count = 0;
+            while (docsIter.hasNext()) {
+                docsIter.next();
+                count += 1;
+            }
+
+            assertThat(count, greaterThan(numCollections + 1));
+
+            final long after = System.currentTimeMillis();
+            assertThat("Should have thrown a timeout exception. Elapsed time: "
+                    + (after - before) + " ms", after - before, lessThan(50L));
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Find.MAX_TIMEOUT_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        finally {
+            IOUtils.close(docsIter);
+            for (int i = 0; i < 1000; ++i) {
+                myDb.getCollection("listCollections_" + i).drop();
+            }
+        }
+    }
+
+    /**
+     * Verifies the ability to list the collections for a database on the
+     * server.
+     */
+    @Test
+    public void testListCollectionsWithCursor() {
+        myConfig.setMaxConnectionCount(1);
+
+        final int numCollections = 1000;
+        MongoIterator<Document> docsIter = null;
+        try {
+            // Make sure the collection/db exist.
+            myCollection.insert(Durability.ACK, BuilderFactory.start().build());
+            for (int i = 0; i < numCollections; ++i) {
+                myDb.getCollection("listCollections_" + i).insert(
+                        Durability.ACK, BuilderFactory.start());
+            }
+
+            docsIter = myDb.listCollections(ListCollections.builder()
+                    .batchSize(10));
+            int count = 0;
+            while (docsIter.hasNext()) {
+                docsIter.next();
+                count += 1;
+            }
+
+            assertThat(count, greaterThan(numCollections + 1));
+        }
+        finally {
+            IOUtils.close(docsIter);
+            for (int i = 0; i < 1000; ++i) {
+                myDb.getCollection("listCollections_" + i).drop();
+            }
+        }
+    }
+
+    /**
+     * Verifies the ability to list the collections for a database on the
+     * server.
+     */
+    @Test
+    public void testListCollectionsWithFilter() {
+        final int numCollections = 1000;
+        MongoIterator<Document> docsIter = null;
+        try {
+            // Make sure the collection/db exist.
+            myCollection.insert(Durability.ACK, BuilderFactory.start().build());
+            for (int i = 0; i < numCollections; ++i) {
+                myDb.getCollection("listCollections_" + i).insert(
+                        Durability.ACK, BuilderFactory.start());
+            }
+
+            final int randIndex = new Random(System.currentTimeMillis())
+            .nextInt(numCollections);
+            docsIter = myDb.listCollections(ListCollections.builder().query(
+                    where("name").equals("listCollections_" + randIndex)));
+            int count = 0;
+            while (docsIter.hasNext()) {
+                docsIter.next();
+                count += 1;
+            }
+
+            assertThat(count, is(1));
+        }
+        finally {
+            IOUtils.close(docsIter);
+            for (int i = 0; i < 1000; ++i) {
+                myDb.getCollection("listCollections_" + i).drop();
+            }
+        }
     }
 
     /**
@@ -2570,6 +2747,122 @@ public abstract class BasicAcceptanceTestCases
     }
 
     /**
+     * Verifies the ability to list the indexes for a collection on the server.
+     */
+    @Test
+    public void testListIndexesOnSecondary() {
+        final int numIndexes = 60; // Maximum number of indexes is 64!
+        MongoIterator<Document> docsIter = null;
+        // Make sure the collection/db exist.
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
+        for (int i = 0; i < numIndexes; ++i) {
+            myCollection.createIndex(Index.asc(String.valueOf(i)));
+        }
+
+        try {
+            docsIter = myCollection.listIndexes(ListIndexes.builder()
+                    .readPreference(ReadPreference.PREFER_SECONDARY));
+            int count = 0;
+            while (docsIter.hasNext()) {
+                docsIter.next();
+                count += 1;
+            }
+
+            assertThat(count, greaterThanOrEqualTo(numIndexes + 1));
+        }
+        finally {
+            IOUtils.close(docsIter);
+            for (int i = 0; i < 1000; ++i) {
+                myDb.getCollection("listCollections_" + i).drop();
+            }
+        }
+    }
+
+    /**
+     * Verifies the ability to list the indexes for a collection on the server.
+     */
+    @Test
+    public void testListIndexesTimeout() {
+        final int numIndexes = 60; // Maximum number of indexes is 64!
+        MongoIterator<Document> docsIter = null;
+        // Make sure the collection/db exist.
+        myCollection.insert(Durability.ACK, BuilderFactory.start().build());
+        for (int i = 0; i < numIndexes; ++i) {
+            myCollection.createIndex(Index.asc(String.valueOf(i)));
+        }
+
+        try {
+            final long before = System.currentTimeMillis();
+
+            docsIter = myCollection.listIndexes(ListIndexes.builder()
+                    .maximumTime(1, TimeUnit.MILLISECONDS));
+            int count = 0;
+            while (docsIter.hasNext()) {
+                docsIter.next();
+                count += 1;
+            }
+            final long after = System.currentTimeMillis();
+
+            assertThat(count, greaterThanOrEqualTo(numIndexes + 1));
+
+            assertThat("Should have thrown a timeout exception. Elapsed time: "
+                    + (after - before) + " ms", after - before, lessThan(10L));
+        }
+        catch (final MaximumTimeLimitExceededException expected) {
+            // Good.
+        }
+        catch (final ServerVersionException sve) {
+            // Check if we are talking to a recent MongoDB instance
+            // That supports the maximum time attribute.
+            assumeThat(sve.getActualVersion(),
+                    greaterThanOrEqualTo(Find.MAX_TIMEOUT_VERSION));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw sve;
+        }
+        finally {
+            IOUtils.close(docsIter);
+            for (int i = 0; i < 1000; ++i) {
+                myDb.getCollection("listCollections_" + i).drop();
+            }
+        }
+    }
+
+    /**
+     * Verifies the ability to list the indexes for a collection on the server.
+     */
+    @Test
+    public void testListIndexesWithCursor() {
+        myConfig.setMaxConnectionCount(1);
+
+        final int numIndexes = 60; // Maximum number of indexes is 64!
+        MongoIterator<Document> docsIter = null;
+        try {
+            // Make sure the collection/db exist.
+            myCollection.insert(Durability.ACK, BuilderFactory.start().build());
+            for (int i = 0; i < numIndexes; ++i) {
+                myCollection.createIndex(Index.asc(String.valueOf(i)));
+            }
+
+            docsIter = myCollection.listIndexes(ListIndexes.builder()
+                    .batchSize(5));
+            int count = 0;
+            while (docsIter.hasNext()) {
+                docsIter.next();
+                count += 1;
+            }
+
+            assertThat(count, greaterThanOrEqualTo(numIndexes + 1));
+        }
+        finally {
+            IOUtils.close(docsIter);
+            for (int i = 0; i < 1000; ++i) {
+                myDb.getCollection("listCollections_" + i).drop();
+            }
+        }
+    }
+
+    /**
      * Verifies the function of MapReduce via a sample Map/Reduce <blockquote>
      *
      * <pre>
@@ -2578,7 +2871,7 @@ public abstract class BasicAcceptanceTestCases
      * > db.things.insert( { _id : 2, tags : ['cat'] } );
      * > db.things.insert( { _id : 3, tags : ['mouse', 'cat', 'dog'] } );
      * > db.things.insert( { _id : 4, tags : []  } );
-     * 
+     *
      * > // map function
      * > m = function(){
      * ...    this.tags.forEach(
@@ -2587,7 +2880,7 @@ public abstract class BasicAcceptanceTestCases
      * ...        }
      * ...    );
      * ...};
-     * 
+     *
      * > // reduce function
      * > r = function( key , values ){
      * ...    var total = 0;
@@ -2595,7 +2888,7 @@ public abstract class BasicAcceptanceTestCases
      * ...        total += values[i].count;
      * ...    return { count : total };
      * ...};
-     * 
+     *
      * > res = db.things.mapReduce(m, r, { out : "myoutput" } );
      * > res
      * {
@@ -2632,7 +2925,7 @@ public abstract class BasicAcceptanceTestCases
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addInteger("_id", 3);
         doc3.pushArray("tags").addString("mouse").addString("dog")
-                .addString("cat");
+        .addString("cat");
 
         final DocumentBuilder doc4 = BuilderFactory.start();
         doc4.addInteger("_id", 4);
@@ -3477,13 +3770,15 @@ public abstract class BasicAcceptanceTestCases
             // Bug in MongoDB? - Scope is being ignored.
             final Set<Document> expected = new HashSet<Document>();
             expected.add(doc1.build());
-            expected.add(doc4.build());
 
             final Set<Document> received = new HashSet<Document>();
             assertTrue(iter.hasNext());
             received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
+            if (iter.hasNext()) {
+                // Scope check fixed in 2.7.X
+                received.add(iter.next());
+                expected.add(doc4.build());
+            }
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
@@ -3735,11 +4030,19 @@ public abstract class BasicAcceptanceTestCases
         MongoIterator<Document> iter = null;
         try {
             iter = myCollection.find(where("a").equalsMongoTimestamp(v1));
-            iter.hasNext();
-            fail("Expected to throw."); // But not in 1.8.
+
+            final Set<Document> expected = new HashSet<Document>();
+            expected.add(doc1.build());
+
+            final Set<Document> received = new HashSet<Document>();
+            assertTrue(iter.hasNext());
+            received.add(iter.next());
+            assertFalse(iter.hasNext());
+
+            assertEquals(expected, received);
         }
         catch (final QueryFailedException expected) {
-            // Bug in MongoDB 2.2.0
+            // Bug in MongoDB 2.2.0 to 2.6.0
             assertThat(expected.getMessage(),
                     containsString("wrong type for field (a) 17 != 9"));
         }
@@ -4023,13 +4326,18 @@ public abstract class BasicAcceptanceTestCases
         try {
             final Set<Document> expected = new HashSet<Document>();
             expected.add(doc1.build());
-            expected.add(doc4.build());
 
             final Set<Document> received = new HashSet<Document>();
             assertTrue(iter.hasNext());
             received.add(iter.next());
-            assertTrue(iter.hasNext());
-            received.add(iter.next());
+
+            // Changed in 2.7.X - Timestamp and MongoTimestamp no longer
+            // comparable.
+            if (iter.hasNext()) {
+                received.add(iter.next());
+                expected.add(doc4.build());
+            }
+
             assertFalse(iter.hasNext());
 
             assertEquals(expected, received);
@@ -6716,7 +7024,11 @@ public abstract class BasicAcceptanceTestCases
         iter = myCollection.find(where("a").notEqualToJavaScript(v1, d2));
         try {
             // Bug in MongoDB? - Scope is being ignored.
-            assertFalse(iter.hasNext());
+            if (iter.hasNext()) {
+                // Fixed in 2.7.X
+                assertEquals(doc1.build(), iter.next());
+                assertFalse(iter.hasNext());
+            }
         }
         finally {
             iter.close();
@@ -7177,12 +7489,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7538,12 +7850,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7604,12 +7916,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7811,12 +8123,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addInteger(minx).addInteger(miny);
         ab.pushArray().addInteger(minx + (deltax / 2))
-                .addInteger(miny + (deltay / 2));
+        .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addInteger(minx + (deltax / 2))
-                .addInteger(miny + (deltay / 2));
+        .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -7877,12 +8189,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addInteger(minx).addInteger(miny);
         ab.pushArray().addInteger(minx + (deltax / 2))
-                .addInteger(miny + (deltay / 2));
+        .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addInteger(minx + (deltax / 2))
-                .addInteger(miny + (deltay / 2));
+        .addInteger(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -8085,12 +8397,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addLong(minx).addLong(miny);
         ab.pushArray().addLong(minx + (deltax / 2))
-                .addLong(miny + (deltay / 2));
+        .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addLong(minx + (deltax / 2))
-                .addLong(miny + (deltay / 2));
+        .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -8151,12 +8463,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addLong(minx).addLong(miny);
         ab.pushArray().addLong(minx + (deltax / 2))
-                .addLong(miny + (deltay / 2));
+        .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addLong(minx + (deltax / 2))
-                .addLong(miny + (deltay / 2));
+        .addLong(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -8686,12 +8998,12 @@ public abstract class BasicAcceptanceTestCases
         final ArrayBuilder ab = doc1.pushArray("p");
         ab.pushArray().addDouble(minx).addDouble(miny);
         ab.pushArray().addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc2 = BuilderFactory.start();
         doc2.addObjectId("_id", new ObjectId());
         doc2.pushArray("p").addDouble(minx + (deltax / 2))
-                .addDouble(miny + (deltay / 2));
+        .addDouble(miny + (deltay / 2));
 
         final DocumentBuilder doc3 = BuilderFactory.start();
         doc3.addObjectId("_id", new ObjectId());
@@ -9018,6 +9330,13 @@ public abstract class BasicAcceptanceTestCases
 
             // Humm - Should have worked. Rethrow the error.
             throw sve;
+        }
+        catch (final ReplyException re) {
+            // Text command was removed in 2.7.X
+            assumeThat(re.getMessage(), not(equalTo("no such command: text")));
+
+            // Humm - Should have worked. Rethrow the error.
+            throw re;
         }
 
         assertThat(results.size(), is(2));
@@ -9464,7 +9783,7 @@ public abstract class BasicAcceptanceTestCases
             if (!Index.hashed(shardKey.getName()).equals(shardKey)) {
                 // Add some splits/chunks.
                 options.reset().push("middle")
-                        .add(shardKey.getName(), new ObjectId());
+                .add(shardKey.getName(), new ObjectId());
                 myDb.runAdminCommand("split", fullName, options);
                 options.reset().push("middle").add(shardKey.getName(), "a");
                 myDb.runAdminCommand("split", fullName, options);
@@ -9475,7 +9794,7 @@ public abstract class BasicAcceptanceTestCases
                         .getCollection("shards");
                 for (final Document shard : shards.find(BuilderFactory.start())) {
                     options.reset().push("middle")
-                            .add(shardKey.getName(), index);
+                    .add(shardKey.getName(), index);
                     myDb.runAdminCommand("split", fullName, options);
 
                     options.reset();
@@ -9495,7 +9814,7 @@ public abstract class BasicAcceptanceTestCases
      * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     public static final class DocumentCallback
-            implements StreamCallback<Document> {
+    implements StreamCallback<Document> {
 
         /** The number of documents received. */
         private int myCount = 0;
@@ -9626,7 +9945,7 @@ public abstract class BasicAcceptanceTestCases
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     static class TestIterateInAsyncCallback
-            implements Callback<MongoIterator<Document>> {
+    implements Callback<MongoIterator<Document>> {
 
         /** The number of times the callback methods have been invoked. */
         private int myCalls = 0;
@@ -9702,7 +10021,7 @@ public abstract class BasicAcceptanceTestCases
      * @copyright 2013, Allanbank Consulting, Inc., All Rights Reserved
      */
     static class TestIteratorAsyncCallback
-            implements Callback<MongoIterator<Document>> {
+    implements Callback<MongoIterator<Document>> {
 
         /** The number of times the callback methods have been invoked. */
         private int myCalls = 0;

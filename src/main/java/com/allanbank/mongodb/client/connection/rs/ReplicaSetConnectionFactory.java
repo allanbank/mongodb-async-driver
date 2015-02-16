@@ -272,7 +272,7 @@ public class ReplicaSetConnectionFactory
                         "primary");
                 if (primaryName != null) {
                     return (primaryName.getValue().equals(connection
-                            .getServerName()));
+                            .getServer().getCanonicalName()));
                 }
             }
         }

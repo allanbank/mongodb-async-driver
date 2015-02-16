@@ -942,7 +942,7 @@ public class MongoDatabaseImpl
                         .getClusterType().isSharded());
 
         final CursorCallback callback = new CursorCallback(myClient, command,
-                true, results);
+                true, results, ListCollectionsCommand.transformer(myName));
 
         myClient.send(command, callback);
     }
@@ -1035,7 +1035,8 @@ public class MongoDatabaseImpl
                         .getClusterType().isSharded());
 
         final CursorStreamingCallback callback = new CursorStreamingCallback(
-                myClient, commandMsg, true, results);
+                myClient, commandMsg, true, results,
+                ListCollectionsCommand.transformer(myName));
 
         myClient.send(commandMsg, callback);
 

@@ -64,8 +64,7 @@ public class SimpleReconnectStrategy
         try {
             // First try and connect back to the original server. This will
             // hopefully re-enable the state.
-            final Server origServer = myState
-                    .get(oldConnection.getServerName());
+            final Server origServer = oldConnection.getServer();
             Connection newConn = tryConnect(origServer);
             if (newConn != null) {
                 return newConn;
