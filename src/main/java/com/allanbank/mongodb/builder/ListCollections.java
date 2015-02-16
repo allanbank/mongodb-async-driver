@@ -130,11 +130,16 @@ public class ListCollections {
     /**
      * Returns the maximum amount of time to allow the command to run on the
      * Server before it is aborted.
-     *
+     * <p>
+     * <em>Note:</em> See <a
+     * href="https://jira.mongodb.org/browse/SERVER-17298">SERVER-17298</a> for
+     * details on server implementation issues.
+     * </p>
+     * 
      * @return The maximum amount of time to allow the command to run on the
      *         Server before it is aborted.
      *
-     * @since MongoDB 2.6
+     * @since MongoDB 2.7.7
      */
     public long getMaximumTimeMilliseconds() {
         return myMaximumTimeMilliseconds;
@@ -254,6 +259,11 @@ public class ListCollections {
          * This method equivalent to {@link #setMaximumTimeMilliseconds(long)
          * setMaximumTimeMilliseconds(timeLimitUnits.toMillis(timeLimit)}.
          * </p>
+         * <p>
+         * <em>Note:</em> See <a
+         * href="https://jira.mongodb.org/browse/SERVER-17298">SERVER-17298</a>
+         * for details on server implementation issues.
+         * </p>
          *
          * @param timeLimit
          *            The new maximum amount of time to allow the command to
@@ -348,6 +358,11 @@ public class ListCollections {
         /**
          * Sets the maximum number of milliseconds to allow the command to run
          * before aborting the request on the server.
+         * <p>
+         * <em>Note:</em> See <a
+         * href="https://jira.mongodb.org/browse/SERVER-17298">SERVER-17298</a>
+         * for details on server implementation issues.
+         * </p>
          *
          * @param maximumTimeMilliseconds
          *            The new maximum number of milliseconds to allow the
