@@ -41,6 +41,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class NullElement
         extends AbstractElement {
 
+    /**
+     * The {@link NullElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<NullElement> NULL_CLASS = NullElement.class;
+
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.NULL;
 

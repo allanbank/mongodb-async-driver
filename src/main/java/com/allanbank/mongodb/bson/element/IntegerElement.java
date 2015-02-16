@@ -43,6 +43,12 @@ public class IntegerElement
         extends AbstractElement
         implements NumericElement {
 
+    /**
+     * The {@link IntegerElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<IntegerElement> INTEGER_CLASS = IntegerElement.class;
+
     /** The BSON type for a integer. */
     public static final ElementType TYPE = ElementType.INTEGER;
 

@@ -45,6 +45,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class RegularExpressionElement
         extends AbstractElement {
 
+    /**
+     * The {@link RegularExpressionElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<RegularExpressionElement> REGEX_CLASS = RegularExpressionElement.class;
+
     /** Option for case insensitive matching. */
     public static final int CASE_INSENSITIVE;
 

@@ -50,6 +50,12 @@ import com.allanbank.mongodb.util.PatternUtils;
 public class ArrayElement
         extends AbstractElement {
 
+    /**
+     * The {@link ArrayElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<ArrayElement> ARRAY_CLASS = ArrayElement.class;
+
     /** The BSON type for an array. */
     public static final ElementType TYPE = ElementType.ARRAY;
 

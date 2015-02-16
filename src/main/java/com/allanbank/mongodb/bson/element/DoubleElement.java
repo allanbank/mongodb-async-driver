@@ -43,6 +43,12 @@ public class DoubleElement
         extends AbstractElement
         implements NumericElement {
 
+    /**
+     * The {@link DoubleElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<DoubleElement> DOUBLE_CLASS = DoubleElement.class;
+
     /** The BSON type for a double. */
     public static final ElementType TYPE = ElementType.DOUBLE;
 

@@ -43,6 +43,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class SymbolElement
         extends AbstractElement {
 
+    /**
+     * The {@link SymbolElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<SymbolElement> SYMBOL_CLASS = SymbolElement.class;
+
     /** The BSON type for a symbol. */
     public static final ElementType TYPE = ElementType.SYMBOL;
 

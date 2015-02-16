@@ -46,6 +46,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class DBPointerElement
         extends AbstractElement {
 
+    /**
+     * The {@link DBPointerElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<DBPointerElement> DB_POINTER_CLASS = DBPointerElement.class;
+
     /** The BSON type for a Object Id. */
     public static final ElementType TYPE = ElementType.DB_POINTER;
 

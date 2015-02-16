@@ -41,6 +41,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class MaxKeyElement
         extends AbstractElement {
 
+    /**
+     * The {@link MaxKeyElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<MaxKeyElement> MAX_KEY_CLASS = MaxKeyElement.class;
+
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.MAX_KEY;
 

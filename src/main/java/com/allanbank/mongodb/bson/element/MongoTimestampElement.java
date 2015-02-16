@@ -42,6 +42,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class MongoTimestampElement
         extends AbstractElement {
 
+    /**
+     * The {@link MongoTimestampElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<MongoTimestampElement> MONGO_TS_CLASS = MongoTimestampElement.class;
+
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.MONGO_TIMESTAMP;
 

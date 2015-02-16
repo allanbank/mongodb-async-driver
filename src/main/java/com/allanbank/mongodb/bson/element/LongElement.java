@@ -43,6 +43,12 @@ public class LongElement
         extends AbstractElement
         implements NumericElement {
 
+    /**
+     * The {@link LongElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<LongElement> LONG_CLASS = LongElement.class;
+
     /** The BSON type for a long. */
     public static final ElementType TYPE = ElementType.LONG;
 

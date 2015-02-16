@@ -47,6 +47,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class BinaryElement
         extends AbstractElement {
 
+    /**
+     * The {@link BinaryElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<BinaryElement> BINARY_CLASS = BinaryElement.class;
+
     /** The sub type used when no sub type is specified. */
     public static final byte DEFAULT_SUB_TYPE = 0;
 

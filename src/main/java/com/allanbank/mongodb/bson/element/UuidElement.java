@@ -53,6 +53,12 @@ public class UuidElement
         extends BinaryElement {
 
     /**
+     * The {@link UuidElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<UuidElement> UUID_CLASS = UuidElement.class;
+
+    /**
      * The legacy (reverse byte order for high and low long values) subtype for
      * the UUID.
      */

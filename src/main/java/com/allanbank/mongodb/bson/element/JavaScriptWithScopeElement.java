@@ -48,6 +48,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class JavaScriptWithScopeElement
         extends JavaScriptElement {
 
+    /**
+     * The {@link JavaScriptWithScopeElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<JavaScriptWithScopeElement> JS_WITH_SCOPE_CLASS = JavaScriptWithScopeElement.class;
+
     /** The BSON type for a string. */
     @SuppressWarnings("hiding")
     public static final ElementType TYPE = ElementType.JAVA_SCRIPT_WITH_SCOPE;

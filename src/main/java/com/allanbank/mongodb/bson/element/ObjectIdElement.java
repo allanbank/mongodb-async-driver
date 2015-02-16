@@ -43,6 +43,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class ObjectIdElement
         extends AbstractElement {
 
+    /**
+     * The {@link ObjectIdElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<ObjectIdElement> OBJECT_ID_CLASS = ObjectIdElement.class;
+
     /** The BSON type for a Object Id. */
     public static final String DEFAULT_NAME = "_id";
 

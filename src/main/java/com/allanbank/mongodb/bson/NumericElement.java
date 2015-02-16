@@ -38,6 +38,12 @@ public interface NumericElement
         extends Element {
 
     /**
+     * The {@link NumericElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<NumericElement> NUMERIC_CLASS = NumericElement.class;
+
+    /**
      * Returns the value cast to a double.
      * <p>
      * <em>Note</em>: There may be a loss of precision using this method if the

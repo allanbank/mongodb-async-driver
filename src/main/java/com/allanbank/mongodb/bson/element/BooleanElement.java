@@ -41,6 +41,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class BooleanElement
         extends AbstractElement {
 
+    /**
+     * The {@link BooleanElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<BooleanElement> BOOLEAN_CLASS = BooleanElement.class;
+
     /** The BSON type for a Object Id. */
     public static final ElementType TYPE = ElementType.BOOLEAN;
 

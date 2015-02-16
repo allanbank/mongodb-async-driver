@@ -44,6 +44,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class JavaScriptElement
         extends AbstractElement {
 
+    /**
+     * The {@link JavaScriptElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<JavaScriptElement> JS_CLASS = JavaScriptElement.class;
+
     /** The BSON type for a string. */
     public static final ElementType TYPE = ElementType.JAVA_SCRIPT;
 

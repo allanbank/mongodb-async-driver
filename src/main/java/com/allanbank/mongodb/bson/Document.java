@@ -36,6 +36,11 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public interface Document
         extends Iterable<Element>, DocumentAssignable, Serializable {
+    /**
+     * The {@link Document}'s class to avoid the {@link Class#forName(String)
+     * Class.forName(...)} overhead.
+     */
+    public static final Class<Document> DOCUMENT_CLASS = Document.class;
 
     /**
      * Accepts the visitor and calls the appropriate method on the visitor based

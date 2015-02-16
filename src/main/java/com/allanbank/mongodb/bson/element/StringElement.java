@@ -43,6 +43,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class StringElement
         extends AbstractElement {
 
+    /**
+     * The {@link StringElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<StringElement> STRING_CLASS = StringElement.class;
+
     /** The BSON type for a string. */
     public static final ElementType TYPE = ElementType.STRING;
 

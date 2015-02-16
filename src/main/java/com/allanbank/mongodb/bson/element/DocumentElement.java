@@ -61,6 +61,12 @@ public class DocumentElement
         extends AbstractElement
         implements Document {
 
+    /**
+     * The {@link DocumentElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<DocumentElement> DOCUMENT_CLASS = DocumentElement.class;
+
     /** The empty list of elements. */
     public static final List<Element> EMPTY_ELEMENTS = Collections.emptyList();
 

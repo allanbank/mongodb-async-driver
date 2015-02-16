@@ -41,6 +41,12 @@ import com.allanbank.mongodb.bson.io.StringEncoder;
 public class MinKeyElement
         extends AbstractElement {
 
+    /**
+     * The {@link MinKeyElement}'s class to avoid the
+     * {@link Class#forName(String) Class.forName(...)} overhead.
+     */
+    public static final Class<MinKeyElement> MIN_KEY_CLASS = MinKeyElement.class;
+
     /** The BSON type for a binary. */
     public static final ElementType TYPE = ElementType.MIN_KEY;
 
