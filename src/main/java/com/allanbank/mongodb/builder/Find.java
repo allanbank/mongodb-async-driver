@@ -525,6 +525,33 @@ public class Find {
         return myQuery;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Find{");
+        sb.append("AwaitData=").append(myAwaitData);
+        sb.append(", BatchSize=").append(myBatchSize);
+        sb.append(", Hint=").append(myHint);
+        sb.append(", HintName='").append(myHintName).append('\'');
+        sb.append(", ImmortalCursor=").append(myImmortalCursor);
+        sb.append(", Limit=").append(myLimit);
+        sb.append(", MaximumDocumentsToScan=").append(myMaximumDocumentsToScan);
+        sb.append(", MaximumRange=").append(myMaximumRange);
+        sb.append(", MaximumTimeMilliseconds=").append(myMaximumTimeMilliseconds);
+        sb.append(", MinimumRange=").append(myMinimumRange);
+        sb.append(", NumberToSkip=").append(myNumberToSkip);
+        sb.append(", PartialOk=").append(myPartialOk);
+        sb.append(", Projection=").append(myProjection);
+        sb.append(", Query=").append(myQuery);
+        sb.append(", ReadPreference=").append(myReadPreference);
+        sb.append(", ReturnIndexKeysOnly=").append(myReturnIndexKeysOnly);
+        sb.append(", ShowDiskLocation=").append(myShowDiskLocation);
+        sb.append(", Snapshot=").append(mySnapshot);
+        sb.append(", Sort=").append(mySort);
+        sb.append(", Tailable=").append(myTailable);
+        sb.append('}');
+        return sb.toString();
+    }
+
     /**
      * Helper for creating immutable {@link Find} queries.
      *
