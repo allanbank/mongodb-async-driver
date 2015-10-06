@@ -525,6 +525,33 @@ public class Find {
         return myQuery;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Find{");
+        sb.append(", filter=").append(myQuery);
+        sb.append(", sort=").append(mySort);
+        sb.append(", projection=").append(myProjection);
+        sb.append(", hint=").append(myHint);
+        sb.append(", skip=").append(myNumberToSkip);
+        sb.append(", limit=").append(myLimit);
+        sb.append(", batchSize=").append(myBatchSize);
+//        sb.append(", HintName='").append(myHintName).append('\'');
+//        sb.append(", ImmortalCursor=").append(myImmortalCursor);
+        sb.append(", maxScan=").append(myMaximumDocumentsToScan);
+        sb.append(", maxTimeMS=").append(myMaximumTimeMilliseconds);
+        sb.append(", max=").append(myMaximumRange);
+        sb.append(", min=").append(myMinimumRange);
+        sb.append(", returnKey=").append(myReturnIndexKeysOnly);
+//        sb.append(", ShowDiskLocation=").append(myShowDiskLocation);
+        sb.append(", snapshot=").append(mySnapshot);
+        sb.append(", tailable=").append(myTailable);
+        sb.append("awaitData=").append(myAwaitData);
+        sb.append(", allowPartialResults=").append(myPartialOk);
+        sb.append(", readConcern=").append(myReadPreference);
+        sb.append('}');
+        return sb.toString();
+    }
+
     /**
      * Helper for creating immutable {@link Find} queries.
      *
@@ -619,6 +646,34 @@ public class Find {
 
         /** If set to true the cursor returned from the query will be tailable. */
         protected boolean myTailable;
+
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("Find.Builder{");
+            sb.append(", filter=").append(myQuery);
+            sb.append(", sort=").append(mySort);
+            sb.append(", projection=").append(myProjection);
+            sb.append(", hint=").append(myHint);
+            sb.append(", skip=").append(myNumberToSkip);
+            sb.append(", limit=").append(myLimit);
+            sb.append(", batchSize=").append(myBatchSize);
+//        sb.append(", HintName='").append(myHintName).append('\'');
+//        sb.append(", ImmortalCursor=").append(myImmortalCursor);
+            sb.append(", maxScan=").append(myMaximumDocumentsToScan);
+            sb.append(", maxTimeMS=").append(myMaximumTimeMilliseconds);
+            sb.append(", max=").append(myMaximumRange);
+            sb.append(", min=").append(myMinimumRange);
+            sb.append(", returnKey=").append(myReturnIndexKeysOnly);
+//        sb.append(", ShowDiskLocation=").append(myShowDiskLocation);
+            sb.append(", snapshot=").append(mySnapshot);
+            sb.append(", tailable=").append(myTailable);
+            sb.append("awaitData=").append(myAwaitData);
+            sb.append(", allowPartialResults=").append(myPartialOk);
+            sb.append(", readConcern=").append(myReadPreference);
+            sb.append('}');
+            return sb.toString();
+        }
 
         /**
          * Creates a new Builder.
