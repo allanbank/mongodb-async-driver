@@ -78,9 +78,9 @@ public class Durability
 
     /**
      * Built in replication mode indicating that more than 50% of the MongoDB
-     * replica set servers have received a write.
+     * replica set servers have received a write with timeout of 1 second.
      */
-    public final static String MAJORITY_MODE = "majority";
+    public final static Durability MAJORITY_MODE = replicaDurable("majority", 1000);
 
     /** The durability that says no durability is required. */
     public final static Durability NONE = new Durability(false, false, false,
