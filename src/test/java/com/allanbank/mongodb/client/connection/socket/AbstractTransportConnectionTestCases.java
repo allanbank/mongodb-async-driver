@@ -65,11 +65,7 @@ import javax.net.SocketFactory;
 
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import com.allanbank.mongodb.Callback;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -114,6 +110,7 @@ import com.allanbank.mongodb.client.transport.TransportFactory;
 import com.allanbank.mongodb.error.ConnectionLostException;
 import com.allanbank.mongodb.error.DocumentToLargeException;
 import com.allanbank.mongodb.error.ServerVersionException;
+import org.junit.rules.TestName;
 
 /**
  * AbstractTransportConnectionTestCases provides tests cases for the
@@ -123,6 +120,10 @@ import com.allanbank.mongodb.error.ServerVersionException;
  * @copyright 2011-2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class AbstractTransportConnectionTestCases {
+
+    @Rule
+    public TestName name = new TestName();
+
     /** Update document with the "build info". */
     private static final Document BUILD_INFO;
 
@@ -175,6 +176,8 @@ public abstract class AbstractTransportConnectionTestCases {
      */
     @Before
     public void setUp() {
+        System.out.println("Running " + name.getMethodName() );
+
         myCollector = new BasicConnectionMetrics(new BasicMongoClientMetrics());
         myTestServer = new Cluster(new MongoClientConfiguration(),
                 ClusterType.STAND_ALONE).add(ourServer.getInetSocketAddress());
@@ -198,6 +201,7 @@ public abstract class AbstractTransportConnectionTestCases {
         myTestServer = null;
         ourServer.clear();
         ourServer.waitForDisconnect(60000);
+        System.out.println("Finished " + name.getMethodName() );
     }
 
     /**
