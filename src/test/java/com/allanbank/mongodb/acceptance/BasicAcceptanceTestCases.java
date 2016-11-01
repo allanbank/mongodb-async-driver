@@ -356,7 +356,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Before
     public void connect() {
-        System.out.println("Running " + name.getMethodName() );
+        System.out.println("Running " + name.getMethodName() + " of class " + this.getClass().getSimpleName());
         initConfig().addServer(createAddress());
 
         if (ourMongo == null) {
@@ -2750,7 +2750,6 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             int count = 0;
             while (docsIter.hasNext()) {
                 Document next = docsIter.next();
-                System.out.println(next);
                 count += 1;
             }
 
