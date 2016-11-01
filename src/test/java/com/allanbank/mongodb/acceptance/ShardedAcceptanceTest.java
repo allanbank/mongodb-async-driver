@@ -59,6 +59,7 @@ public class ShardedAcceptanceTest
      */
     @AfterClass
     public static void stopServer() {
+        System.out.println("@AfterClass " + ShardedAcceptanceTest.class);
         stopSharded();
     }
 

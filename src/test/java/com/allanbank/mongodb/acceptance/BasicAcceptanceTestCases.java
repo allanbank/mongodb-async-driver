@@ -200,6 +200,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @AfterClass
     public static void closeClient() {
+
         if (ourMongo != null) {
             try {
                 ourMongo.close();

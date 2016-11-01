@@ -86,6 +86,7 @@ public class ReplicaSetAcceptanceTest
      */
     @AfterClass
     public static void stopServer() {
+        System.out.println("@AfterClass " + ReplicaSetAcceptanceTest.class);
         stopReplicaSet();
     }
 

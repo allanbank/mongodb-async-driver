@@ -70,6 +70,7 @@ public class StandAloneAcceptanceTest
      */
     @AfterClass
     public static void stopServer() {
+        System.out.println("@AfterClass " + StandAloneAcceptanceTest.class);
         stopStandAlone();
     }
 

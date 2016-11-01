@@ -110,6 +110,7 @@ public class ShardedReplicaSetsAcceptanceTest
      */
     @AfterClass
     public static void stopServer() {
+        System.out.println("@AfterClass " + ShardedReplicaSetsAcceptanceTest.class);
         stopShardedReplicaSets();
     }
 
