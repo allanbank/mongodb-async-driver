@@ -1679,7 +1679,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     result.get("cursor"));
         }
         else {
-            assertEquals(new StringElement("stage", "IXSCAN"),
+            assertEquals("response: " + result ,new StringElement("stage", "IXSCAN"),
                     result.findFirst("queryPlanner", "winningPlan", "shards", "[0]",
                             "winningPlan", "inputStage", "stage"));
         }
