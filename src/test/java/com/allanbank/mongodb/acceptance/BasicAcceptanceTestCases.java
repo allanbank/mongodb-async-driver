@@ -153,6 +153,7 @@ import com.allanbank.mongodb.error.ServerVersionException;
 import com.allanbank.mongodb.gridfs.GridFs;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
+import org.junit.rules.TestName;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -167,6 +168,8 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
+
+    @Rule public TestName name = new TestName();
 
     /** The name of the test collection to use. */
     public static final String GEO_TEST_COLLECTION_NAME = "geo";
@@ -353,6 +356,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Before
     public void connect() {
+        System.out.println("Running " + name.getMethodName() );
         initConfig().addServer(createAddress());
 
         if (ourMongo == null) {
@@ -371,6 +375,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @After
     public void disconnect() {
+        System.out.println("Finished " + name.getMethodName() );
         try {
             if (myCollection != null) {
                 myCollection.drop();
