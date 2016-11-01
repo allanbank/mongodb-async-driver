@@ -155,6 +155,7 @@ public class ReplyErrorHandler {
                     errorMessage, message, reply);
         }
         else if ((errorNumber == 50) || // Standard
+                (errorNumber == 11601) || // errmsg : 'operation was interrupted', code : 11601
                 (errorNumber == 13475) || // M/R 2.5-ish
                 (errorNumber == 16711)) { // GroupBy 2.5-ish
             return new MaximumTimeLimitExceededException(okValue, errorNumber,

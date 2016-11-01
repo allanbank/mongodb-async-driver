@@ -116,8 +116,7 @@ public class DurabilityEditor
             setValue(Durability.journalDurable(DEFAULT_WAIT_TIME_MS));
         }
         else if ("MAJORITY".equalsIgnoreCase(durabilityString)) {
-            setValue(Durability.replicaDurable(Durability.MAJORITY_MODE,
-                    DEFAULT_WAIT_TIME_MS));
+            setValue(Durability.replicaDurable(Durability.MAJORITY_MODE_STRING, DEFAULT_WAIT_TIME_MS));
         }
         else if (MongoDbUri.isUri(durabilityString)) {
             final MongoDbUri uri = new MongoDbUri(durabilityString);

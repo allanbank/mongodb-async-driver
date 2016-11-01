@@ -55,7 +55,7 @@ import com.allanbank.mongodb.bson.builder.impl.DocumentBuilderImpl;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class DocumentElementTest {
-
+    String ls = System.getProperty("line.separator");
     /**
      * Test method for
      * {@link DocumentElement#accept(com.allanbank.mongodb.bson.Visitor)}.
@@ -988,7 +988,10 @@ public class DocumentElementTest {
         final DocumentElement element = new DocumentElement("foo", subElement,
                 subElement2);
 
-        assertEquals("foo : {\n  '1' : false,\n  '2' : false\n}",
+
+
+
+        assertEquals("foo : {"+ls+"  '1' : false,"+ls+"  '2' : false"+ls+"}",
                 element.toString());
     }
 
@@ -1016,7 +1019,7 @@ public class DocumentElementTest {
         final DocumentElement element = new DocumentElement("foo", subElement,
                 subElement2);
 
-        assertEquals("{\n  '1' : false,\n  '2' : false\n}",
+        assertEquals("{" + ls + "  '1' : false," + ls + "  '2' : false" + ls + "}",
                 element.getValueAsString());
     }
 

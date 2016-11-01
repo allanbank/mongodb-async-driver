@@ -19,12 +19,6 @@
  */
 package com.allanbank.mongodb;
 
-import java.io.Serializable;
-import java.io.StringWriter;
-
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.NumericElement;
@@ -36,6 +30,11 @@ import com.allanbank.mongodb.bson.element.SymbolElement;
 import com.allanbank.mongodb.bson.impl.ImmutableDocument;
 import com.allanbank.mongodb.bson.json.Json;
 import com.allanbank.mongodb.error.JsonParseException;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.ThreadSafe;
+import java.io.Serializable;
+import java.io.StringWriter;
 
 /**
  * Represents the required durability of writes (inserts, updates, and deletes)
@@ -59,20 +58,22 @@ import com.allanbank.mongodb.error.JsonParseException;
  * Generally, increasing the level of durability decreases performance.
  * </p>
  *
- * @see <a href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
- *      Center Awareness</a>
  * @api.yes This class is part of the driver's API. Public and protected members
- *          will be deprecated for at least 1 non-bugfix release (version
- *          numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
- *          removed or modified.
+ * will be deprecated for at least 1 non-bugfix release (version
+ * numbers are &lt;major&gt;.&lt;minor&gt;.&lt;bugfix&gt;) before being
+ * removed or modified.
  * @copyright 2011-2013, Allanbank Consulting, Inc., All Rights Reserved
+ * @see <a href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
+ * Center Awareness</a>
  */
 @Immutable
 @ThreadSafe
 public class Durability
         implements Serializable {
 
-    /** The durability that says no durability is required. */
+    /**
+     * The durability that says no durability is required.
+     */
     public final static Durability ACK = new Durability(true, false, false, 1,
             null, 0);
 
@@ -80,13 +81,18 @@ public class Durability
      * Built in replication mode indicating that more than 50% of the MongoDB
      * replica set servers have received a write with timeout of 1 second.
      */
-    public final static Durability MAJORITY_MODE = replicaDurable("majority", 1000);
+    public final static String MAJORITY_MODE_STRING = "majority";
+    public final static Durability MAJORITY_MODE = replicaDurable(MAJORITY_MODE_STRING, 1000);
 
-    /** The durability that says no durability is required. */
+    /**
+     * The durability that says no durability is required.
+     */
     public final static Durability NONE = new Durability(false, false, false,
             0, null, 0);
 
-    /** Serialization version for the class. */
+    /**
+     * Serialization version for the class.
+     */
     private static final long serialVersionUID = -6474266523435876385L;
 
     /**
@@ -97,11 +103,10 @@ public class Durability
      * been sync'd to disk. If running without journaling enabled then will wait
      * for all data files to be sync'd to disk.
      *
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param waitTimeoutMillis The number of milliseconds to wait for the durability
+     *                          requirements to be satisfied.
      * @return A durability that will ensure that the data has been fsync()'d to
-     *         the server's disk.
+     * the server's disk.
      */
     public static Durability fsyncDurable(final int waitTimeoutMillis) {
         return new Durability(true, false, 0, waitTimeoutMillis);
@@ -116,11 +121,10 @@ public class Durability
      * to MongoDB 2.6 this mode would silently degrade to {@link #ACK}.
      * </p>
      *
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param waitTimeoutMillis The number of milliseconds to wait for the durability
+     *                          requirements to be satisfied.
      * @return A durability that will ensure the data is written to the server's
-     *         journal before returning.
+     * journal before returning.
      */
     public static Durability journalDurable(final int waitTimeoutMillis) {
         return new Durability(false, true, 0, waitTimeoutMillis);
@@ -129,19 +133,16 @@ public class Durability
     /**
      * Creates a multiple replica durability.
      *
-     * @param ensureJournaled
-     *            If true then ensure that the write has been committed to the
-     *            journal in addition to replicated.
-     * @param minimumReplicas
-     *            The minimum number of replicas to wait for.
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param ensureJournaled   If true then ensure that the write has been committed to the
+     *                          journal in addition to replicated.
+     * @param minimumReplicas   The minimum number of replicas to wait for.
+     * @param waitTimeoutMillis The number of milliseconds to wait for the durability
+     *                          requirements to be satisfied.
      * @return A durability that will ensure the data is written to at least
-     *         <tt>minimumReplicas</tt> of server's replicas before returning.
+     * <tt>minimumReplicas</tt> of server's replicas before returning.
      */
     public static Durability replicaDurable(final boolean ensureJournaled,
-            final int minimumReplicas, final int waitTimeoutMillis) {
+                                            final int minimumReplicas, final int waitTimeoutMillis) {
         return new Durability(false, ensureJournaled, minimumReplicas,
                 waitTimeoutMillis);
     }
@@ -149,21 +150,18 @@ public class Durability
     /**
      * Creates a multiple replica durability.
      *
-     * @param ensureJournaled
-     *            If true then ensure that the write has been committed to the
-     *            journal in addition to replicated.
-     * @param waitForReplicasByMode
-     *            If the value is non-<code>null</code> then wait for the
-     *            specified replication mode configured on the server. A
-     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param ensureJournaled       If true then ensure that the write has been committed to the
+     *                              journal in addition to replicated.
+     * @param waitForReplicasByMode If the value is non-<code>null</code> then wait for the
+     *                              specified replication mode configured on the server. A
+     *                              built-in mode of {@link #MAJORITY_MODE} is also supported.
+     * @param waitTimeoutMillis     The number of milliseconds to wait for the durability
+     *                              requirements to be satisfied.
      * @return A durability that will ensure the data is written to at least
-     *         <tt>minimumReplicas</tt> of server's replicas before returning.
+     * <tt>minimumReplicas</tt> of server's replicas before returning.
      */
     public static Durability replicaDurable(final boolean ensureJournaled,
-            final String waitForReplicasByMode, final int waitTimeoutMillis) {
+                                            final String waitForReplicasByMode, final int waitTimeoutMillis) {
         return new Durability(false, ensureJournaled, waitForReplicasByMode,
                 waitTimeoutMillis);
     }
@@ -171,11 +169,10 @@ public class Durability
     /**
      * Creates a single replica durability. This is a 'w' value of 2.
      *
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param waitTimeoutMillis The number of milliseconds to wait for the durability
+     *                          requirements to be satisfied.
      * @return A durability that will ensure the data is written to at least one
-     *         of server's replicas before returning.
+     * of server's replicas before returning.
      */
     public static Durability replicaDurable(final int waitTimeoutMillis) {
         return new Durability(false, false, 2, waitTimeoutMillis);
@@ -184,34 +181,30 @@ public class Durability
     /**
      * Creates a multiple replica durability.
      *
-     * @param minimumReplicas
-     *            The minimum number of replicas to wait for.
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param minimumReplicas   The minimum number of replicas to wait for.
+     * @param waitTimeoutMillis The number of milliseconds to wait for the durability
+     *                          requirements to be satisfied.
      * @return A durability that will ensure the data is written to at least
-     *         <tt>minimumReplicas</tt> of server's replicas before returning.
+     * <tt>minimumReplicas</tt> of server's replicas before returning.
      */
     public static Durability replicaDurable(final int minimumReplicas,
-            final int waitTimeoutMillis) {
+                                            final int waitTimeoutMillis) {
         return new Durability(false, false, minimumReplicas, waitTimeoutMillis);
     }
 
     /**
      * Creates a multiple replica durability.
      *
-     * @param waitForReplicasByMode
-     *            If the value is non-<code>null</code> then wait for the
-     *            specified replication mode configured on the server. A
-     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param waitForReplicasByMode If the value is non-<code>null</code> then wait for the
+     *                              specified replication mode configured on the server. A
+     *                              built-in mode of {@link #MAJORITY_MODE} is also supported.
+     * @param waitTimeoutMillis     The number of milliseconds to wait for the durability
+     *                              requirements to be satisfied.
      * @return A durability that will ensure the data is written to at least
-     *         <tt>minimumReplicas</tt> of server's replicas before returning.
+     * <tt>minimumReplicas</tt> of server's replicas before returning.
      */
     public static Durability replicaDurable(final String waitForReplicasByMode,
-            final int waitTimeoutMillis) {
+                                            final int waitTimeoutMillis) {
         return new Durability(false, false, waitForReplicasByMode,
                 waitTimeoutMillis);
     }
@@ -241,13 +234,13 @@ public class Durability
      * </ul>
      * If present the {@code getlasterror} field is ignored. An example JSON
      * document might look like: <blockquote>
-     *
+     * <p>
      * <pre>
      * <code>
      * { w : 'majority', wtimeout : 10000 }
      * </code>
      * </pre>
-     *
+     * <p>
      * <blockquote></li>
      * </ul>
      * </p>
@@ -256,8 +249,7 @@ public class Durability
      * returned.
      * </p>
      *
-     * @param value
-     *            The string representation of the Durability.
+     * @param value The string representation of the Durability.
      * @return The Durability represented by the string.
      */
     public static Durability valueOf(final String value) {
@@ -266,11 +258,9 @@ public class Durability
 
         if ("ACK".equalsIgnoreCase(value) || "SAFE".equalsIgnoreCase(value)) {
             result = ACK;
-        }
-        else if ("NONE".equalsIgnoreCase(value)) {
+        } else if ("NONE".equalsIgnoreCase(value)) {
             result = NONE;
-        }
-        else {
+        } else {
             // Try and parse as JSON.
             try {
                 boolean waitForReply = false;
@@ -289,39 +279,31 @@ public class Durability
                             if (e instanceof NumericElement) {
                                 waitForReplicas = ((NumericElement) e)
                                         .getIntValue();
-                            }
-                            else if (e instanceof StringElement) {
+                            } else if (e instanceof StringElement) {
                                 waitForReplicasByMode = ((StringElement) e)
                                         .getValue();
-                            }
-                            else if (e instanceof SymbolElement) {
+                            } else if (e instanceof SymbolElement) {
                                 waitForReplicasByMode = ((SymbolElement) e)
                                         .getSymbol();
-                            }
-                            else {
+                            } else {
                                 // Unknown 'w' value type.
                                 return null;
                             }
-                        }
-                        else if ("wtimeout".equalsIgnoreCase(e.getName())) {
+                        } else if ("wtimeout".equalsIgnoreCase(e.getName())) {
                             if (e instanceof NumericElement) {
                                 waitTimeoutMillis = ((NumericElement) e)
                                         .getIntValue();
-                            }
-                            else {
+                            } else {
                                 // Unknown 'wtimeout' value type.
                                 return null;
                             }
-                        }
-                        else if ("fsync".equalsIgnoreCase(e.getName())) {
+                        } else if ("fsync".equalsIgnoreCase(e.getName())) {
                             waitForReply = true;
                             waitForFsync = true;
-                        }
-                        else if ("j".equalsIgnoreCase(e.getName())) {
+                        } else if ("j".equalsIgnoreCase(e.getName())) {
                             waitForReply = true;
                             waitForJournal = true;
-                        }
-                        else {
+                        } else {
                             // Unknown field.
                             return null;
                         }
@@ -331,8 +313,7 @@ public class Durability
                 result = new Durability(waitForReply, waitForFsync,
                         waitForJournal, waitForReplicas, waitForReplicasByMode,
                         waitTimeoutMillis);
-            }
-            catch (final JsonParseException error) {
+            } catch (final JsonParseException error) {
                 // Ignore and return null.
                 error.getCause(); // Shhh PMD.
             }
@@ -341,7 +322,9 @@ public class Durability
         return result;
     }
 
-    /** The durability in document form. */
+    /**
+     * The durability in document form.
+     */
     private Document myAsDocument;
 
     /**
@@ -369,8 +352,8 @@ public class Durability
      * {@link #MAJORITY_MODE} is also supported.
      *
      * @see <a
-     *      href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
-     *      Center Awareness</a>
+     * href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
+     * Center Awareness</a>
      */
     private final String myWaitForReplicasByMode;
 
@@ -389,24 +372,20 @@ public class Durability
     /**
      * Create a new Durability.
      *
-     * @param waitForFsync
-     *            True if the durability requires that the response wait for an
-     *            fsync() of the data to complete, false otherwise.
-     * @param waitForJournal
-     *            True if if the durability requires that the response wait for
-     *            the data to be written to the server's journal, false
-     *            otherwise.
-     * @param waitForReplicas
-     *            If the value is value greater than zero the durability
-     *            requires that the response wait for the data to be received by
-     *            a replica and the number of replicas of the data to wait for.
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param waitForFsync      True if the durability requires that the response wait for an
+     *                          fsync() of the data to complete, false otherwise.
+     * @param waitForJournal    True if if the durability requires that the response wait for
+     *                          the data to be written to the server's journal, false
+     *                          otherwise.
+     * @param waitForReplicas   If the value is value greater than zero the durability
+     *                          requires that the response wait for the data to be received by
+     *                          a replica and the number of replicas of the data to wait for.
+     * @param waitTimeoutMillis The number of milliseconds to wait for the durability
+     *                          requirements to be satisfied.
      */
     protected Durability(final boolean waitForFsync,
-            final boolean waitForJournal, final int waitForReplicas,
-            final int waitTimeoutMillis) {
+                         final boolean waitForJournal, final int waitForReplicas,
+                         final int waitTimeoutMillis) {
         this(true, waitForFsync, waitForJournal, waitForReplicas, null,
                 waitTimeoutMillis);
     }
@@ -414,24 +393,20 @@ public class Durability
     /**
      * Create a new Durability.
      *
-     * @param waitForFsync
-     *            True if the durability requires that the response wait for an
-     *            fsync() of the data to complete, false otherwise.
-     * @param waitForJournal
-     *            True if if the durability requires that the response wait for
-     *            the data to be written to the server's journal, false
-     *            otherwise.
-     * @param waitForReplicasByMode
-     *            If the value is non-<code>null</code> then wait for the
-     *            specified replication mode configured on the server. A
-     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param waitForFsync          True if the durability requires that the response wait for an
+     *                              fsync() of the data to complete, false otherwise.
+     * @param waitForJournal        True if if the durability requires that the response wait for
+     *                              the data to be written to the server's journal, false
+     *                              otherwise.
+     * @param waitForReplicasByMode If the value is non-<code>null</code> then wait for the
+     *                              specified replication mode configured on the server. A
+     *                              built-in mode of {@link #MAJORITY_MODE} is also supported.
+     * @param waitTimeoutMillis     The number of milliseconds to wait for the durability
+     *                              requirements to be satisfied.
      */
     protected Durability(final boolean waitForFsync,
-            final boolean waitForJournal, final String waitForReplicasByMode,
-            final int waitTimeoutMillis) {
+                         final boolean waitForJournal, final String waitForReplicasByMode,
+                         final int waitTimeoutMillis) {
         this(true, waitForFsync, waitForJournal, 0, waitForReplicasByMode,
                 waitTimeoutMillis);
     }
@@ -439,30 +414,24 @@ public class Durability
     /**
      * Create a new Durability.
      *
-     * @param waitForReply
-     *            True if the durability requires a reply from the server.
-     * @param waitForFsync
-     *            True if the durability requires that the response wait for an
-     *            fsync() of the data to complete, false otherwise.
-     * @param waitForJournal
-     *            True if if the durability requires that the response wait for
-     *            the data to be written to the server's journal, false
-     *            otherwise.
-     * @param waitForReplicas
-     *            If the value is value greater than zero the durability
-     *            requires that the response wait for the data to be received by
-     *            a replica and the number of replicas of the data to wait for.
-     * @param waitForReplicasByMode
-     *            If the value is non-<code>null</code> then wait for the
-     *            specified replication mode configured on the server. A
-     *            built-in mode of {@link #MAJORITY_MODE} is also supported.
-     * @param waitTimeoutMillis
-     *            The number of milliseconds to wait for the durability
-     *            requirements to be satisfied.
+     * @param waitForReply          True if the durability requires a reply from the server.
+     * @param waitForFsync          True if the durability requires that the response wait for an
+     *                              fsync() of the data to complete, false otherwise.
+     * @param waitForJournal        True if if the durability requires that the response wait for
+     *                              the data to be written to the server's journal, false
+     *                              otherwise.
+     * @param waitForReplicas       If the value is value greater than zero the durability
+     *                              requires that the response wait for the data to be received by
+     *                              a replica and the number of replicas of the data to wait for.
+     * @param waitForReplicasByMode If the value is non-<code>null</code> then wait for the
+     *                              specified replication mode configured on the server. A
+     *                              built-in mode of {@link #MAJORITY_MODE} is also supported.
+     * @param waitTimeoutMillis     The number of milliseconds to wait for the durability
+     *                              requirements to be satisfied.
      */
     private Durability(final boolean waitForReply, final boolean waitForFsync,
-            final boolean waitForJournal, final int waitForReplicas,
-            final String waitForReplicasByMode, final int waitTimeoutMillis) {
+                       final boolean waitForJournal, final int waitForReplicas,
+                       final String waitForReplicasByMode, final int waitTimeoutMillis) {
         myWaitForReply = waitForReply;
         myWaitForFsync = waitForFsync;
         myWaitForJournal = waitForJournal;
@@ -492,8 +461,7 @@ public class Durability
 
             if (getWaitForReplicas() >= 1) {
                 builder.addInteger("w", getWaitForReplicas());
-            }
-            else if (getWaitForReplicasByMode() != null) {
+            } else if (getWaitForReplicasByMode() != null) {
                 builder.addString("w", getWaitForReplicasByMode());
             }
 
@@ -506,9 +474,7 @@ public class Durability
      * Determines if the passed object is of this same type as this object and
      * if so that its fields are equal.
      *
-     * @param object
-     *            The object to compare to.
-     *
+     * @param object The object to compare to.
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -516,8 +482,7 @@ public class Durability
         boolean result = false;
         if (this == object) {
             result = true;
-        }
-        else if ((object != null) && (getClass() == object.getClass())) {
+        } else if ((object != null) && (getClass() == object.getClass())) {
             final Durability other = (Durability) object;
 
             result = (myWaitForReply == other.myWaitForReply)
@@ -526,7 +491,7 @@ public class Durability
                     && (myWaitForReplicas == other.myWaitForReplicas)
                     && (myWaitTimeoutMillis == other.myWaitTimeoutMillis)
                     && nullSafeEquals(myWaitForReplicasByMode,
-                            other.myWaitForReplicasByMode);
+                    other.myWaitForReplicasByMode);
         }
         return result;
     }
@@ -537,8 +502,8 @@ public class Durability
      * replicas of the data to wait for.
      *
      * @return If (value greater than zero) the durability requires that the
-     *         response wait for the data to be received by a replica and the
-     *         number of replicas of the data to wait for.
+     * response wait for the data to be received by a replica and the
+     * number of replicas of the data to wait for.
      */
     public int getWaitForReplicas() {
         return myWaitForReplicas;
@@ -550,10 +515,10 @@ public class Durability
      * {@link #MAJORITY_MODE} is also supported.
      *
      * @return If the value is non-null then wait for the specified replication
-     *         mode configured on the server.
+     * mode configured on the server.
      * @see <a
-     *      href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
-     *      Center Awareness</a>
+     * href="http://www.mongodb.org/display/DOCS/Data+Center+Awareness">Data
+     * Center Awareness</a>
      */
     public String getWaitForReplicasByMode() {
         return myWaitForReplicasByMode;
@@ -564,7 +529,7 @@ public class Durability
      * requirements to be satisfied.
      *
      * @return The number of milliseconds to wait for the durability
-     *         requirements to be satisfied.
+     * requirements to be satisfied.
      */
     public int getWaitTimeoutMillis() {
         return myWaitTimeoutMillis;
@@ -583,7 +548,7 @@ public class Durability
         result = (31 * result) + (myWaitForJournal ? 1 : 3);
         result = (31 * result)
                 + ((myWaitForReplicasByMode != null) ? myWaitForReplicasByMode
-                        .hashCode() : 3);
+                .hashCode() : 3);
         result = (31 * result) + myWaitForReplicas;
         result = (31 * result) + myWaitTimeoutMillis;
         return result;
@@ -594,7 +559,7 @@ public class Durability
      * of the data on the server to complete.
      *
      * @return True if the durability requires that the response wait for an
-     *         fsync() of the data to complete, false otherwise.
+     * fsync() of the data to complete, false otherwise.
      */
     public boolean isWaitForFsync() {
         return myWaitForFsync;
@@ -605,7 +570,7 @@ public class Durability
      * be written to the server's journal.
      *
      * @return True if if the durability requires that the response wait for the
-     *         data to be written to the server's journal, false otherwise.
+     * data to be written to the server's journal, false otherwise.
      */
     public boolean isWaitForJournal() {
         return myWaitForJournal;
@@ -616,8 +581,8 @@ public class Durability
      * from the server but potentially no special server processing.
      *
      * @return True if the durability requires that the response wait for a
-     *         reply from the server but potentially no special server
-     *         processing.
+     * reply from the server but potentially no special server
+     * processing.
      */
     public boolean isWaitForReply() {
         return myWaitForReply;
@@ -634,11 +599,9 @@ public class Durability
         String result;
         if (NONE.equals(this)) {
             result = "NONE";
-        }
-        else if (ACK.equals(this)) {
+        } else if (ACK.equals(this)) {
             result = "ACK";
-        }
-        else {
+        } else {
             // Render as a JSON Document on a single line.
             final StringWriter sink = new StringWriter();
             final JsonSerializationVisitor visitor = new JsonSerializationVisitor(
@@ -653,12 +616,10 @@ public class Durability
     /**
      * Does a null safe equals comparison.
      *
-     * @param rhs
-     *            The right-hand-side of the comparison.
-     * @param lhs
-     *            The left-hand-side of the comparison.
+     * @param rhs The right-hand-side of the comparison.
+     * @param lhs The left-hand-side of the comparison.
      * @return True if the rhs equals the lhs. Note: nullSafeEquals(null, null)
-     *         returns true.
+     * returns true.
      */
     protected boolean nullSafeEquals(final Object rhs, final Object lhs) {
         return (rhs == lhs) || ((rhs != null) && rhs.equals(lhs));
@@ -669,17 +630,15 @@ public class Durability
      * {@link #ACK} or {@link #NONE} instance as appropriate.
      *
      * @return Either the {@link #ACK} or {@link #NONE} instance if
-     *         <tt>this</tt> instance equals one of those instances otherwise
-     *         <tt>this</tt> instance.
+     * <tt>this</tt> instance equals one of those instances otherwise
+     * <tt>this</tt> instance.
      */
     private Object readResolve() {
         if (this.equals(ACK)) {
             return ACK;
-        }
-        else if (this.equals(NONE)) {
+        } else if (this.equals(NONE)) {
             return NONE;
-        }
-        else {
+        } else {
             return this;
         }
     }

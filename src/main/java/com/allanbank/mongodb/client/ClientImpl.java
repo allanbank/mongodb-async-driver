@@ -366,6 +366,14 @@ public class ClientImpl
     @Override
     protected Connection findConnection(final Message message1,
             final Message message2) throws MongoDbException {
+        if (myConnections.size() > 0 && !myConnections.get(0).isAvailable()){
+            synchronized (myConnectionFactory) {
+                final Connection conn = myConnections.remove(0);
+                myConnectionsToClose.add(conn);
+                conn.shutdown(false);
+            }
+        }
+
         // Make sure we shrink connections when the max changes.
         final int limit = Math.max(1, myConfig.getMaxConnectionCount());
         if (limit < myConnections.size()) {
@@ -391,7 +399,7 @@ public class ClientImpl
 
         if (conn == null) {
             throw new CannotConnectException(
-                    "Could not create a connection to the server.");
+                    "Could not create a connection to the server. message1: " + message1 + " message2: " + message2);
         }
 
         return conn;

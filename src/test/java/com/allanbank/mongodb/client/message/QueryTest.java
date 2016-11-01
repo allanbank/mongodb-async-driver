@@ -297,7 +297,7 @@ public class QueryTest {
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
-        assertEquals(-4, message.getNumberToReturn());
+        assertEquals(4, message.getNumberToReturn());
 
     }
 
@@ -453,7 +453,7 @@ public class QueryTest {
 
         assertEquals(batchSize, message.getBatchSize());
         assertEquals(limit, message.getLimit());
-        assertEquals(-5, message.getNumberToReturn());
+        assertEquals(5, message.getNumberToReturn());
 
     }
 

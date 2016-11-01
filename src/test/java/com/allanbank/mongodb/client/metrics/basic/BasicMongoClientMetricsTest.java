@@ -102,6 +102,7 @@ public class BasicMongoClientMetricsTest {
 
         verify(mockSentMessage, mockReply);
     }
+    String ls = System.getProperty("line.separator");
 
     /**
      * Test method for
@@ -129,15 +130,15 @@ public class BasicMongoClientMetricsTest {
         assertThat(
                 metrics.toString(),
                 is("Global[sentBytes=202, sentCount=2, receivedBytes=0, "
-                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]\n"
+                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]" + ls
                         + "Database[db: sentBytes=202, sentCount=2, receivedBytes=0, "
-                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]\n"
+                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]" + ls
                         + "Collection[collection: sentBytes=202, sentCount=2, receivedBytes=0, "
-                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]\n"
+                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]" + ls
                         + "Operation[operation: sentBytes=202, sentCount=2, receivedBytes=0, "
-                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]\n"
+                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]" + ls
                         + "Server[server1: sentBytes=101, sentCount=1, receivedBytes=0, "
-                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]\n"
+                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]" + ls
                         + "Server[server2: sentBytes=101, sentCount=1, receivedBytes=0, "
                         + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]"));
 
@@ -171,7 +172,7 @@ public class BasicMongoClientMetricsTest {
         assertThat(
                 metrics.toString(),
                 is("Global[sentBytes=0, sentCount=0, receivedBytes=0, "
-                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]\n\n\n"));
+                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]" + ls + ls + ls));
 
         metrics.close();
     }

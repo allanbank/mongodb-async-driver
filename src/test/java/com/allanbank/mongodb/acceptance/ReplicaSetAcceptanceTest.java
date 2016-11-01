@@ -75,8 +75,10 @@ public class ReplicaSetAcceptanceTest
      */
     @BeforeClass
     public static void startServer() {
+        System.out.println("Running @BeforeClass " + ReplicaSetAcceptanceTest.class);
         startReplicaSet();
         buildLargeCollection();
+        System.out.println("Finished @BeforeClass " + ReplicaSetAcceptanceTest.class);
     }
 
     /**
@@ -293,7 +295,7 @@ public class ReplicaSetAcceptanceTest
     @Test
     public void testStillQuerySecondariesWhenNoPrimary()
             throws InterruptedException {
-        final int stepUpSeconds = 15;
+        final int stepUpSeconds = 30;
         final int deferSeconds = (stepUpSeconds * PORTS.length) * 2;
         final Find.Builder query = Find.builder().query(Find.ALL);
 
@@ -310,6 +312,7 @@ public class ReplicaSetAcceptanceTest
         query.readPreference(ReadPreference.PRIMARY);
         final int servers = PORTS.length;
         for (int i = 0; i < servers; ++i) {
+            System.out.println("====>\tstep down server number: " + i);
             // Make sure we have a connection to the primary.
             assertThat(myCollection.findOne(query),
                     notNullValue(Document.class));
@@ -317,7 +320,8 @@ public class ReplicaSetAcceptanceTest
             stepDownPrimary(deferSeconds);
 
             // Pause a beat to make sure the driver sees the stepdown.
-            TimeUnit.MILLISECONDS.sleep(100);
+//            TimeUnit.MILLISECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(10);
         }
 
         // Now do a query to a secondary (which is everyone).
@@ -351,10 +355,18 @@ public class ReplicaSetAcceptanceTest
 
         try {
             // Stop the main shard.
-            final ProcessBuilder builder = new ProcessBuilder("pkill", "-f",
-                    "27018");
+            ProcessBuilder builder = null;
+
+            if (System.getProperty("os.name").contains("Windows")) {
+                //wmic Path win32_process Where "CommandLine Like '%27018%'" Call Terminate
+                builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27018%'", "Call", "Terminate");
+            } else {
+                builder = new ProcessBuilder("pkill", "-f",
+                        "27018");
+            }
+
             final Process kill = builder.start();
-            kill.waitFor();
+//            kill.waitFor();
 
             // Quick command that should then fail.
             ourMongo.listDatabaseNames();
@@ -362,6 +374,7 @@ public class ReplicaSetAcceptanceTest
             // ... but its OK if it misses getting out before the Process dies.
         }
         catch (final ConnectionLostException cle) {
+            System.out.println("===>\tthis exception is ok: " + cle.toString());
             // Good.
         }
         catch (final Exception e) {
@@ -371,7 +384,7 @@ public class ReplicaSetAcceptanceTest
         }
 
         try {
-            Thread.sleep(1000);
+           TimeUnit.SECONDS.sleep(10);
 
             // Should switch to the other shards.
             ourMongo.listDatabaseNames();

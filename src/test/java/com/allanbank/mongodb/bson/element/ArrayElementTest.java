@@ -20,34 +20,18 @@
 
 package com.allanbank.mongodb.bson.element;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
-import org.junit.Test;
-
 import com.allanbank.mongodb.bson.Element;
 import com.allanbank.mongodb.bson.ElementType;
 import com.allanbank.mongodb.bson.Visitor;
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
 import com.allanbank.mongodb.bson.builder.impl.ArrayBuilderImpl;
+import org.junit.Test;
+
+import java.util.*;
+
+import static org.easymock.EasyMock.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
 
 /**
  * ArrayElementTest provides tests for the {@link ArrayElement} class.
@@ -203,66 +187,66 @@ public class ArrayElementTest {
             for (int i = 0; i < count; ++i) {
                 final ElementType type = types[rand.nextInt(types.length)];
                 switch (type) {
-                case ARRAY:
-                    builder.pushArray().addBoolean(rand.nextBoolean());
-                    break;
-                case BINARY:
-                    final byte[] bytes = new byte[rand.nextInt(17)];
-                    rand.nextBytes(bytes);
-                    builder.addBinary(bytes);
-                    break;
-                case BOOLEAN:
-                    builder.addBoolean(rand.nextBoolean());
-                    break;
-                case DB_POINTER:
-                    builder.addDBPointer("foo", "bar", new ObjectId());
-                    break;
-                case DOCUMENT:
-                    builder.push().addBoolean("boolean", rand.nextBoolean());
-                    break;
-                case DOUBLE:
-                    builder.addDouble(rand.nextDouble());
-                    break;
-                case INTEGER:
-                    builder.addInteger(rand.nextInt());
-                    break;
-                case JAVA_SCRIPT:
-                    builder.addJavaScript("function foo() { }");
-                    break;
-                case JAVA_SCRIPT_WITH_SCOPE:
-                    builder.addJavaScript("function bar() {}", BuilderFactory
-                            .start().build());
-                    break;
-                case LONG:
-                    builder.addLong(rand.nextLong());
-                    break;
-                case MAX_KEY:
-                    builder.addMaxKey();
-                    break;
-                case MIN_KEY:
-                    builder.addMinKey();
-                    break;
-                case MONGO_TIMESTAMP:
-                    builder.addMongoTimestamp(System.currentTimeMillis());
-                    break;
-                case NULL:
-                    builder.addNull();
-                    break;
-                case OBJECT_ID:
-                    builder.addObjectId(new ObjectId());
-                    break;
-                case REGEX:
-                    builder.addRegularExpression(".*", "");
-                    break;
-                case STRING:
-                    builder.addString("" + rand.nextInt());
-                    break;
-                case SYMBOL:
-                    builder.addSymbol("" + rand.nextInt());
-                    break;
-                case UTC_TIMESTAMP:
-                    builder.addTimestamp(System.currentTimeMillis());
-                    break;
+                    case ARRAY:
+                        builder.pushArray().addBoolean(rand.nextBoolean());
+                        break;
+                    case BINARY:
+                        final byte[] bytes = new byte[rand.nextInt(17)];
+                        rand.nextBytes(bytes);
+                        builder.addBinary(bytes);
+                        break;
+                    case BOOLEAN:
+                        builder.addBoolean(rand.nextBoolean());
+                        break;
+                    case DB_POINTER:
+                        builder.addDBPointer("foo", "bar", new ObjectId());
+                        break;
+                    case DOCUMENT:
+                        builder.push().addBoolean("boolean", rand.nextBoolean());
+                        break;
+                    case DOUBLE:
+                        builder.addDouble(rand.nextDouble());
+                        break;
+                    case INTEGER:
+                        builder.addInteger(rand.nextInt());
+                        break;
+                    case JAVA_SCRIPT:
+                        builder.addJavaScript("function foo() { }");
+                        break;
+                    case JAVA_SCRIPT_WITH_SCOPE:
+                        builder.addJavaScript("function bar() {}", BuilderFactory
+                                .start().build());
+                        break;
+                    case LONG:
+                        builder.addLong(rand.nextLong());
+                        break;
+                    case MAX_KEY:
+                        builder.addMaxKey();
+                        break;
+                    case MIN_KEY:
+                        builder.addMinKey();
+                        break;
+                    case MONGO_TIMESTAMP:
+                        builder.addMongoTimestamp(System.currentTimeMillis());
+                        break;
+                    case NULL:
+                        builder.addNull();
+                        break;
+                    case OBJECT_ID:
+                        builder.addObjectId(new ObjectId());
+                        break;
+                    case REGEX:
+                        builder.addRegularExpression(".*", "");
+                        break;
+                    case STRING:
+                        builder.addString("" + rand.nextInt());
+                        break;
+                    case SYMBOL:
+                        builder.addSymbol("" + rand.nextInt());
+                        break;
+                    case UTC_TIMESTAMP:
+                        builder.addTimestamp(System.currentTimeMillis());
+                        break;
 
                 }
             }
@@ -552,17 +536,19 @@ public class ArrayElementTest {
     public void testToString() {
         final BooleanElement subElement = new BooleanElement("1", false);
 
+        String ls = System.getProperty("line.separator");
+
         ArrayElement element = new ArrayElement("foo", subElement, subElement);
-        assertEquals("foo : [\n  false, \n  false\n]", element.toString());
+        assertEquals("foo : [" + ls + "  false, " + ls + "  false" + ls + "]", element.toString());
 
         element = new ArrayElement("foo", subElement);
         assertEquals("foo : [ false ]", element.toString());
 
         element = new ArrayElement("foo", new ArrayElement("0"));
-        assertEquals("foo : [\n  []\n]", element.toString());
+        assertEquals("foo : [" + ls + "  []" + ls + "]", element.toString());
 
         element = new ArrayElement("foo", new DocumentElement("0"));
-        assertEquals("foo : [\n  {}\n]", element.toString());
+        assertEquals("foo : [" + ls + "  {}" + ls + "]", element.toString());
     }
 
     /**
@@ -574,19 +560,19 @@ public class ArrayElementTest {
 
         ArrayElement element = new ArrayElement("foo", subElement, subElement);
         assertArrayEquals(
-                new Element[] { subElement, subElement.withName("1") },
+                new Element[]{subElement, subElement.withName("1")},
                 element.getValueAsObject());
 
         element = new ArrayElement("foo", subElement);
-        assertArrayEquals(new Element[] { subElement },
+        assertArrayEquals(new Element[]{subElement},
                 element.getValueAsObject());
 
         element = new ArrayElement("foo", new ArrayElement("0"));
-        assertArrayEquals(new Element[] { new ArrayElement("0") },
+        assertArrayEquals(new Element[]{new ArrayElement("0")},
                 element.getValueAsObject());
 
         element = new ArrayElement("foo", new DocumentElement("0"));
-        assertArrayEquals(new Element[] { new DocumentElement("0") },
+        assertArrayEquals(new Element[]{new DocumentElement("0")},
                 element.getValueAsObject());
     }
 
@@ -596,18 +582,19 @@ public class ArrayElementTest {
     @Test
     public void testValueAsString() {
         final BooleanElement subElement = new BooleanElement("0", false);
+        String ls = System.getProperty("line.separator");
 
         ArrayElement element = new ArrayElement("foo", subElement, subElement);
-        assertEquals("[\n  false, \n  false\n]", element.getValueAsString());
+        assertEquals("[" + ls + "  false, " + ls + "  false" + ls + "]", element.getValueAsString());
 
         element = new ArrayElement("foo", subElement);
         assertEquals("[ false ]", element.getValueAsString());
 
         element = new ArrayElement("foo", new ArrayElement("0"));
-        assertEquals("[\n  []\n]", element.getValueAsString());
+        assertEquals("[" + ls + "  []" + ls + "]", element.getValueAsString());
 
         element = new ArrayElement("foo", new DocumentElement("0"));
-        assertEquals("[\n  {}\n]", element.getValueAsString());
+        assertEquals("[" + ls + "  {}" + ls + "]", element.getValueAsString());
     }
 
     /**

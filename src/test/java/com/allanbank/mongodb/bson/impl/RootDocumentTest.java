@@ -547,6 +547,8 @@ public class RootDocumentTest {
         assertFalse(iter.hasNext());
     }
 
+    String ls = System.getProperty("line.separator");
+
     /**
      * Test method for {@link RootDocument#toString()}.
      */
@@ -557,7 +559,7 @@ public class RootDocumentTest {
 
         AbstractDocument element = new RootDocument(Arrays.asList(subElement,
                 subElement2));
-        assertEquals("{\n  '1' : false,\n  '2' : false\n}", element.toString());
+        assertEquals("{" + ls + "  '1' : false," + ls + "  '2' : false" + ls + "}", element.toString());
 
         element = new RootDocument(Arrays.asList(subElement));
         assertEquals("{ '1' : false }", element.toString());
@@ -566,13 +568,13 @@ public class RootDocumentTest {
         assertEquals("{}", element.toString());
 
         element = new RootDocument(new DocumentElement("f"));
-        assertEquals("{\n  f : {}\n}", element.toString());
+        assertEquals("{" + ls + "  f : {}" + ls + "}", element.toString());
 
         element = new RootDocument(new ArrayElement("f"));
-        assertEquals("{\n  f : []\n}", element.toString());
+        assertEquals("{" + ls + "  f : []" + ls + "}", element.toString());
 
         element = new RootDocument(new ArrayElement("f", new BooleanElement(
                 "0", true)));
-        assertEquals("{\n  f : [ true ]\n}", element.toString());
+        assertEquals("{" + ls + "  f : [ true ]" + ls + "}", element.toString());
     }
 }

@@ -263,10 +263,15 @@ public class Update
         emit(builder, myMultiUpdate, "multi");
         emit(builder, myUpsert, "upsert");
 
-        builder.append("query=");
-        myQuery.accept(visitor);
-        builder.append(",update=");
-        myUpdate.accept(visitor);
+        if (myQuery != null) {
+            builder.append("query=");
+            myQuery.accept(visitor);
+        }
+
+        if (myUpdate != null) {
+            builder.append(",update=");
+            myUpdate.accept(visitor);
+        }
         builder.append(")");
 
         return builder.toString();

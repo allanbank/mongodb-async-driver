@@ -36,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -48,6 +49,7 @@ import com.allanbank.mongodb.util.ServerNameUtils;
  * @deprecated See {@link MongoDbConfiguration} deprecation.
  */
 @Deprecated
+@Ignore
 public class MongoDbConfigurationTest {
 
     /**

@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
 
+import com.allanbank.mongodb.builder.Find;
 import org.junit.AfterClass;
 
 import com.allanbank.mongodb.bson.builder.BuilderFactory;
@@ -108,6 +109,7 @@ public class ServerTestDriverSupport {
         try {
             startStandAlone();
 
+
             // Use the authenticator to compute the hash.
             final MongoDbAuthenticator authenticator = new MongoDbAuthenticator();
 
@@ -123,12 +125,17 @@ public class ServerTestDriverSupport {
 
             mongo = MongoFactory.createClient(config);
             MongoDatabase db = mongo.getDatabase("admin");
+            db.getCollection("system.version").find(BuilderFactory.start());
             MongoCollection collection = db.getCollection("system.users");
 
             DocumentBuilder docBuilder = BuilderFactory.start();
+//            docBuilder.addString("_id", "admin." + ADMIN_USER_NAME);
             docBuilder.addString("user", ADMIN_USER_NAME);
             docBuilder.addString("pwd", adminHash);
-            docBuilder.addBoolean("readOnly", false);
+//            docBuilder.addString("pwd", "password");
+            String[] roles = { "readWrite" };
+            docBuilder.add("roles", roles);
+//            docBuilder.addBoolean("readOnly", false);
             try {
                 collection.insert(Durability.ACK, docBuilder.build());
             }
@@ -156,14 +163,14 @@ public class ServerTestDriverSupport {
 
             // Again - Authenticator does the hash for us.
             final Credential userCredentials = Credential.builder()
-                    .userName(USER_NAME).password(PASSWORD).database("any")
+                    .userName(USER_NAME).password(PASSWORD).database(USER_DB)
                     .authenticationType(Credential.MONGODB_CR).build();
 
             docBuilder = BuilderFactory.start();
             docBuilder.addString("user", USER_NAME);
-            docBuilder.addString("pwd",
-                    authenticator.passwordHash(userCredentials));
-            docBuilder.addBoolean("readOnly", false);
+            docBuilder.addString("pwd", authenticator.passwordHash(userCredentials));
+            docBuilder.add("roles", roles);
+//            docBuilder.addBoolean("readOnly", false);
 
             collection.insert(Durability.ACK, docBuilder.build());
         }

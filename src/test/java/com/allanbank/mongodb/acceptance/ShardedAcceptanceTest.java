@@ -79,8 +79,18 @@ public class ShardedAcceptanceTest
 
         try {
             // Stop the main mongos.
-            final ProcessBuilder builder = new ProcessBuilder("pkill", "-f",
-                    "27017");
+
+            ProcessBuilder builder = null;
+
+            if (System.getProperty("os.name").contains("Windows")) {
+                builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27017%'", "Call", "Terminate");
+            } else {
+                builder = new ProcessBuilder("pkill", "-f",
+                        "27017");
+            }
+
+//            final ProcessBuilder builder = new ProcessBuilder("pkill", "-f",
+//                    "27017");
             final Process kill = builder.start();
             kill.waitFor();
 
