@@ -825,7 +825,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
         builder.match(where("state").notEqualTo("NZ"));
 
         try {
-            collection.aggregate(builder.build());
+            MongoIterator<Document> aggregate = collection.aggregate(builder.build());
             fail("Should have thrown a timeout exception.");
         }
         catch (final MaximumTimeLimitExceededException expected) {
@@ -1743,7 +1743,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
 
         try {
             final long before = System.currentTimeMillis();
-            largeCollection(ourMongo).findAndModify(builder.build());
+            largeCollection(ourMongo, false).findAndModify(builder.build());
             final long after = System.currentTimeMillis();
             assertThat("Should have thrown a timeout exception. Elapsed time: "
                     + (after - before) + " ms", after - before, lessThan(50L));
