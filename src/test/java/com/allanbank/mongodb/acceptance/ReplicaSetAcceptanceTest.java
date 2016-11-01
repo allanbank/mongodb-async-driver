@@ -332,6 +332,7 @@ public class ReplicaSetAcceptanceTest
         query.readPreference(ReadPreference.PREFER_PRIMARY);
         assertThat(myCollection.findOne(query), notNullValue(Document.class));
 
+        System.out.println("Wait for a primary again. Repair blocks until there is a primary.");
         // Wait for a primary again. Repair blocks until there is a primary.
         repairReplicaSet();
 

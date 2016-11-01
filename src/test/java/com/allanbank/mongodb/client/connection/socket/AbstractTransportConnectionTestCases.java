@@ -433,7 +433,7 @@ public abstract class AbstractTransportConnectionTestCases {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
@@ -489,7 +489,7 @@ public abstract class AbstractTransportConnectionTestCases {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
@@ -546,7 +546,7 @@ public abstract class AbstractTransportConnectionTestCases {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
@@ -605,7 +605,7 @@ public abstract class AbstractTransportConnectionTestCases {
                 Arrays.copyOfRange(request, 20, 28));
         assertEquals("Number to skip not expected.", 0,
                 EndianUtils.swap(asInts.get(7)));
-        assertEquals("Number to return not expected.", 1,
+        assertEquals("Number to return not expected.", -1,
                 EndianUtils.swap(asInts.get(8)));
 
         final BsonInputStream reader = new BsonInputStream(
