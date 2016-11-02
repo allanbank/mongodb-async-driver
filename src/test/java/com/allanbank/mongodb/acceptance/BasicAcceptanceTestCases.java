@@ -1679,7 +1679,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     result.get("cursor"));
         }
         else {
-             if (this instanceof ShardedAcceptanceTest) {
+             if (this instanceof ShardedAcceptanceTest || this instanceof ShardedReplicaSetsAcceptanceTest) {
                  assertEquals("response: " + result, new StringElement("stage", "IXSCAN"),
                          result.findFirst("queryPlanner", "winningPlan", "shards", "[0]",
                                  "winningPlan", "inputStage", "stage"));
@@ -1695,7 +1695,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     result.get("cursor"));
         }
         else {
-            if (this instanceof ShardedAcceptanceTest) {
+            if (this instanceof ShardedAcceptanceTest || this instanceof ShardedReplicaSetsAcceptanceTest) {
                 assertEquals("response: " + result, new StringElement("stage", "COLLSCAN"),
                         result.findFirst("queryPlanner", "winningPlan", "shards", "[0]", "winningPlan", "stage"));
             } else {
