@@ -1679,8 +1679,14 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     result.get("cursor"));
         }
         else {
-            assertEquals("response: " + result, new StringElement("stage", "IXSCAN"),
-                    result.findFirst("queryPlanner", "winningPlan", "inputStage", "stage"));
+             if (this instanceof ShardedAcceptanceTest) {
+                 assertEquals("response: " + result, new StringElement("stage", "IXSCAN"),
+                         result.findFirst("queryPlanner", "winningPlan", "shards", "[0]",
+                                 "winningPlan", "inputStage", "stage"));
+             } else {
+                         assertEquals("response: " + result, new StringElement("stage", "IXSCAN"),
+                                 result.findFirst("queryPlanner", "winningPlan", "inputStage", "stage"));
+             }
         }
 
         result = myCollection.explain(QueryBuilder.where("f").equals(42));
@@ -1689,8 +1695,13 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     result.get("cursor"));
         }
         else {
-            assertEquals("response: " + result, new StringElement("stage", "COLLSCAN"),
-                    result.findFirst("queryPlanner", "winningPlan", "shards", "[0]", "winningPlan", "stage"));
+            if (this instanceof ShardedAcceptanceTest) {
+                assertEquals("response: " + result, new StringElement("stage", "COLLSCAN"),
+                        result.findFirst("queryPlanner", "winningPlan", "shards", "[0]", "winningPlan", "stage"));
+            } else {
+                assertEquals(new StringElement("stage", "COLLSCAN"),
+                        result.findFirst("queryPlanner", "winningPlan", "stage"));
+            }
         }
     }
 
