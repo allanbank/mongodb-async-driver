@@ -340,6 +340,7 @@ public class ReplicaSetAcceptanceTest
         // And we can query the primary again.
         query.readPreference(ReadPreference.PRIMARY);
         assertThat(myCollection.findOne(query), notNullValue(Document.class));
+        System.out.println("Finished repairing cluster! And we can query the primary again.");
     }
 
     /**
