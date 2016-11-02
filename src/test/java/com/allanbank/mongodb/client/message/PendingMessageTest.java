@@ -107,6 +107,6 @@ public class PendingMessageTest {
 
         final long delta = pm.latency();
         assertTrue(0 < delta);
-        assertTrue(delta < TimeUnit.MILLISECONDS.toNanos(2));
+        assertTrue("delta should be less then " + TimeUnit.MILLISECONDS.toNanos(2) + " but was " + delta, delta < TimeUnit.MILLISECONDS.toNanos(2));
     }
 }
