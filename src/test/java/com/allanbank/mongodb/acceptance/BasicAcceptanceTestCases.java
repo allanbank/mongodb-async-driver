@@ -1679,9 +1679,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     result.get("cursor"));
         }
         else {
-            assertEquals("response: " + result ,new StringElement("stage", "IXSCAN"),
-                    result.findFirst("queryPlanner", "winningPlan", "shards", "[0]",
-                            "winningPlan", "inputStage", "stage"));
+            assertEquals("response: " + result, new StringElement("stage", "IXSCAN"),
+                    result.findFirst("queryPlanner", "winningPlan", "inputStage", "stage"));
         }
 
         result = myCollection.explain(QueryBuilder.where("f").equals(42));
@@ -1690,7 +1689,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
                     result.get("cursor"));
         }
         else {
-            assertEquals(new StringElement("stage", "COLLSCAN"),
+            assertEquals("response: " + result, new StringElement("stage", "COLLSCAN"),
                     result.findFirst("queryPlanner", "winningPlan", "shards", "[0]", "winningPlan", "stage"));
         }
     }
