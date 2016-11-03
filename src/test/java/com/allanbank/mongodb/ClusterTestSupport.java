@@ -79,6 +79,10 @@ public class ClusterTestSupport {
     /** The working directory for the cluster. */
     private File myWorkingDirectory;
 
+    public File getWorkingDirectory() {
+        return myWorkingDirectory;
+    }
+
     /**
      * Creates a new ClusterTestSupport.
      */
@@ -353,6 +357,23 @@ public class ClusterTestSupport {
         }
         catch (final IOException ioe) {
             fail(ioe.getMessage(), ioe);
+        }
+    }
+
+    /**
+     * Starts a MongoDB instance running in a standalone mode. Below is the role
+     * and port allocation.
+     * <ul>
+     * <li>27017 - mongod</li>
+     * </ul>
+     */
+    public void startStandAloneWithWD(File wd) {
+            startStandAlone(wd, DEFAULT_PORT);
+    }
+
+    public void stopAllWithoutDeleteDirectories() {
+        for (final ManagedProcess process : myProcesses) {
+            process.close();
         }
     }
 

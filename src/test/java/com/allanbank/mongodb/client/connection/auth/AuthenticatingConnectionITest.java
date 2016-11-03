@@ -52,7 +52,6 @@ import com.allanbank.mongodb.util.IOUtils;
  *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
-@Ignore
 public class AuthenticatingConnectionITest
         extends ServerTestDriverSupport {
 

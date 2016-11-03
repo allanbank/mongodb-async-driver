@@ -22,9 +22,12 @@ package com.allanbank.mongodb;
 
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
 
+import com.allanbank.mongodb.bson.Document;
+import com.allanbank.mongodb.bson.element.ObjectId;
 import com.allanbank.mongodb.builder.Find;
 import org.junit.AfterClass;
 
@@ -51,10 +54,12 @@ public class ServerTestDriverSupport {
     public static final char[] PASSWORD = "password".toCharArray();
 
     /** A test admin user name. */
-    public static final String USER_DB = "db";
+    public static final String USER_DB = "user_db";
 
     /** A test user name. */
     public static final String USER_NAME = "user";
+
+    private static File latestWorkingDirectory = null;
 
     /** Support for spinning up clusters. */
     protected static final ClusterTestSupport ourClusterTestSupport = new ClusterTestSupport();
@@ -91,6 +96,12 @@ public class ServerTestDriverSupport {
         ourClusterTestSupport.stopAll();
     }
 
+    public static void stopAllWithoutDeleteDirectories() {
+        ourClusterTestSupport.stopAllWithoutDeleteDirectories();
+    }
+
+
+
     /**
      * Repairs a MongoDB instance running in a replica set mode. This verifies
      * all of the members are running and that there is a primary.
@@ -125,17 +136,24 @@ public class ServerTestDriverSupport {
 
             mongo = MongoFactory.createClient(config);
             MongoDatabase db = mongo.getDatabase("admin");
-            db.getCollection("system.version").find(BuilderFactory.start());
+            db.getCollection("system.version").insert(BuilderFactory.start().add("_id","authSchema").add("currentVersion" , 3));
+
+            stopAllWithoutDeleteDirectories();
+
+            System.out.println("restart mongo server.");
+
+            startStandAloneLatestWorkingDirectory();
+
+            MongoIterator<Document> documents = db.getCollection("system.version").find(BuilderFactory.start());
             MongoCollection collection = db.getCollection("system.users");
 
             DocumentBuilder docBuilder = BuilderFactory.start();
-//            docBuilder.addString("_id", "admin." + ADMIN_USER_NAME);
+            docBuilder.add("_id", "admin." + ADMIN_USER_NAME);
             docBuilder.addString("user", ADMIN_USER_NAME);
-            docBuilder.addString("pwd", adminHash);
-//            docBuilder.addString("pwd", "password");
-            String[] roles = { "readWrite" };
+            docBuilder.addString("db", "admin");
+            docBuilder.add("credentials", BuilderFactory.start().add("MONGODB-CR", adminHash).build());
+            DocumentBuilder[] roles = { BuilderFactory.start().add("role", "readWrite").add("db", "admin") };
             docBuilder.add("roles", roles);
-//            docBuilder.addBoolean("readOnly", false);
             try {
                 collection.insert(Durability.ACK, docBuilder.build());
             }
@@ -158,7 +176,7 @@ public class ServerTestDriverSupport {
             adminConfig.addServer(new InetSocketAddress("127.0.0.1", 27017));
 
             mongo = MongoFactory.createClient(adminConfig);
-            db = mongo.getDatabase(USER_DB);
+            db = mongo.getDatabase("admin");
             collection = db.getCollection("system.users");
 
             // Again - Authenticator does the hash for us.
@@ -166,10 +184,21 @@ public class ServerTestDriverSupport {
                     .userName(USER_NAME).password(PASSWORD).database(USER_DB)
                     .authenticationType(Credential.MONGODB_CR).build();
 
+            //////
             docBuilder = BuilderFactory.start();
+            docBuilder.add("_id", USER_DB + "." + USER_NAME);
             docBuilder.addString("user", USER_NAME);
-            docBuilder.addString("pwd", authenticator.passwordHash(userCredentials));
-            docBuilder.add("roles", roles);
+            docBuilder.addString("db", USER_DB);
+            docBuilder.add("credentials", BuilderFactory.start().add("MONGODB-CR", authenticator.passwordHash(userCredentials)).build());
+            DocumentBuilder[] roles1 = { BuilderFactory.start().add("role", "readWrite").add("db", USER_DB) };
+            docBuilder.add("roles", roles1);
+            /////
+
+
+//            docBuilder = BuilderFactory.start();
+//            docBuilder.addString("user", USER_NAME);
+//            docBuilder.addString("pwd", authenticator.passwordHash(userCredentials));
+//            docBuilder.add("roles", roles);
 //            docBuilder.addBoolean("readOnly", false);
 
             collection.insert(Durability.ACK, docBuilder.build());
@@ -219,5 +248,15 @@ public class ServerTestDriverSupport {
      */
     protected static void startStandAlone() {
         ourClusterTestSupport.startStandAlone();
+        latestWorkingDirectory = ourClusterTestSupport.getWorkingDirectory();
+    }
+
+    /**
+     * Starts a MongoDB instance running in a standalone mode.
+     *
+     * @see ClusterTestSupport#startStandAlone
+     */
+    protected static void startStandAloneLatestWorkingDirectory() {
+        ourClusterTestSupport.startStandAloneWithWD(latestWorkingDirectory);
     }
 }
