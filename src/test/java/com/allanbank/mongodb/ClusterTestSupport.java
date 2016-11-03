@@ -45,7 +45,6 @@ import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
-import sun.reflect.misc.FieldUtil;
 
 /**
  * ClusterTestSupport provides a class to manage a cluster.
