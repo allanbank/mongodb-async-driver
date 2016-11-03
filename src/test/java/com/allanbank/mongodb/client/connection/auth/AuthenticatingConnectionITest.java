@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Credential;
@@ -51,6 +52,7 @@ import com.allanbank.mongodb.util.IOUtils;
  *
  * @copyright 2012-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
+@Ignore
 public class AuthenticatingConnectionITest
         extends ServerTestDriverSupport {
 

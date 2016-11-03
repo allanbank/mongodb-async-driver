@@ -46,10 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -565,6 +562,7 @@ public class ShardedReplicaSetsAcceptanceTest
      * </blockquote>
      */
     @Test
+    @Ignore
     public void testMapReduceOnSecondaries() {
         shardCollection("mr");
         final MongoCollection mr = myDb.getCollection("mr");
