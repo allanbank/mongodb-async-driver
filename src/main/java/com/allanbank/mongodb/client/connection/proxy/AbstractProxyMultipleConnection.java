@@ -197,7 +197,10 @@ public abstract class AbstractProxyMultipleConnection<K>
     public int getPendingCount() {
         if (myLastUsedConnection == null)
             return 0;
-        return myLastUsedConnection.get().getPendingCount();
+        Connection connection = myLastUsedConnection.get();
+        if (connection == null)
+            return 0;
+        return connection.getPendingCount();
     }
 
     /**
