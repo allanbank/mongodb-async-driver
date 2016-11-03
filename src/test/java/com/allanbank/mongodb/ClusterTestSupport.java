@@ -145,7 +145,7 @@ public class ClusterTestSupport {
         if (((supports == null) || supports.booleanValue())
                 && ("mongod".equals(executable) || "mongos".equals(executable))) {
             augmentedArgs = new ArrayList<String>(origArgs);
-            augmentedArgs.add("--setParameter");
+//            augmentedArgs.add("--setParameter");
 //            augmentedArgs.add("textSearchEnabled=1");
         }
 
