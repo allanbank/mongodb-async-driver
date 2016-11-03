@@ -45,6 +45,7 @@ import com.allanbank.mongodb.client.state.Cluster;
 import com.allanbank.mongodb.client.state.Server;
 import com.allanbank.mongodb.client.state.ServerUpdateCallback;
 import com.allanbank.mongodb.util.IOUtils;
+import sun.reflect.misc.FieldUtil;
 
 /**
  * ClusterTestSupport provides a class to manage a cluster.
@@ -147,7 +148,7 @@ public class ClusterTestSupport {
                 && ("mongod".equals(executable) || "mongos".equals(executable))) {
             augmentedArgs = new ArrayList<String>(origArgs);
             augmentedArgs.add("--setParameter");
-            augmentedArgs.add("textSearchEnabled=1");
+//            augmentedArgs.add("textSearchEnabled=1");
         }
 
         String app = executable;
@@ -368,7 +369,13 @@ public class ClusterTestSupport {
      * </ul>
      */
     public void startStandAloneWithWD(File wd) {
-            startStandAlone(wd, DEFAULT_PORT);
+        try {
+            Files.delete(Paths.get(wd.getAbsolutePath(), "mongod.lock"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        startStandAlone(wd, DEFAULT_PORT);
     }
 
     public void stopAllWithoutDeleteDirectories() {
