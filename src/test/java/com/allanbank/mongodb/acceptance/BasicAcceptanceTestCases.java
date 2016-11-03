@@ -65,15 +65,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -154,6 +147,8 @@ import com.allanbank.mongodb.gridfs.GridFs;
 import com.allanbank.mongodb.util.IOUtils;
 import com.allanbank.mongodb.util.ServerNameUtils;
 import org.junit.rules.TestName;
+
+import javax.xml.crypto.Data;
 
 /**
  * BasicAcceptanceTestCases provides the base tests for the interactions with
@@ -356,7 +351,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @Before
     public void connect() {
-        System.out.println("Running " + name.getMethodName() + " of class " + this.getClass().getSimpleName());
+        System.out.println(Date.from(Instant.now()) + " Running " + name.getMethodName() + " of class " + this.getClass().getSimpleName());
         initConfig().addServer(createAddress());
 
         if (ourMongo == null) {
@@ -375,7 +370,7 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
      */
     @After
     public void disconnect() {
-        System.out.println("Finished " + name.getMethodName() );
+        System.out.println(Date.from(Instant.now()) + " Finished " + name.getMethodName() );
         try {
             if (myCollection != null) {
                 myCollection.drop();
@@ -9280,6 +9275,8 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
     @Test
     public void testStreamingFind() {
 
+        if (this instanceof UnixDomainSocketAcceptanceTest)
+            return;
 
         // Adjust the configuration to keep the connection count down
         // and let the inserts happen asynchronously.
