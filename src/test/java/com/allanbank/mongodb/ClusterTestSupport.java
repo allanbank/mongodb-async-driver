@@ -478,7 +478,7 @@ public class ClusterTestSupport {
                             "mongod", "--port", String.valueOf(port),
                             "--dbpath", db.getAbsolutePath(), "--smallfiles",
                             "--replSet", "rs-" + startPort, "--noprealloc",
-                            /*"--nojournal",*/ "--oplogSize", "512");
+                            /*"--nojournal",*/ "--oplogSize", "512", "--slowms", "500");
                     myProcesses.add(process);
                 }
                 finally {
@@ -549,7 +549,7 @@ public class ClusterTestSupport {
             arbiter = run(workingDirectory, "mongod", "--port",
                     String.valueOf(port), "--dbpath", db.getAbsolutePath(),
                     "--smallfiles", "--replSet", "rs-" + startPort,
-                    "--noprealloc", /*"--nojournal",*/ "--oplogSize", "512");
+                    "--noprealloc", /*"--nojournal",*/ "--oplogSize", "512", "--slowms", "500");
             reconfigWriter
                     .write("config.members.push({ _id: 0, host: \"localhost:"
                             + port + "\", arbiterOnly:true })\n");
@@ -566,7 +566,7 @@ public class ClusterTestSupport {
                         "--port", String.valueOf(port), "--dbpath",
                         db.getAbsolutePath(), "--smallfiles", "--replSet",
                         "rs-" + startPort, "--noprealloc", /*"--nojournal",*/
-                        "--oplogSize", "512");
+                        "--oplogSize", "512", "--slowms", "500");
                 myProcesses.add(member);
 
                 if (members.isEmpty()) {
@@ -683,7 +683,7 @@ public class ClusterTestSupport {
                 final ManagedProcess shard = run(workingDirectory, "mongod",
                         "--shardsvr", "--port", String.valueOf(port),
                         "--dbpath", db.getAbsolutePath(), "--smallfiles",
-                        "--noprealloc"/*, "--nojournal"*/);
+                        "--noprealloc"/*, "--nojournal"*/, "--slowms", "500");
                 myProcesses.add(shard);
                 shard.waitFor(port, TimeUnit.SECONDS.toMillis(30));
                 writer.write("db.runCommand( { addshard : \"localhost:" + port
@@ -741,7 +741,7 @@ public class ClusterTestSupport {
 
             final ManagedProcess config = run(workingDirectory, "mongod",
                     "--configsvr", "--port", String.valueOf(configPort),
-                    "--dbpath", configDb.getAbsolutePath()/*, "--nojournal"*/);
+                    "--dbpath", configDb.getAbsolutePath()/*, "--nojournal"*/, "--slowms", "500");
             myProcesses.add(config);
 
             config.waitFor(configPort, TimeUnit.SECONDS.toMillis(30));
@@ -803,7 +803,7 @@ public class ClusterTestSupport {
 
         final ManagedProcess standalone = run(workingDirectory, "mongod",
                 "--port", String.valueOf(port), "--dbpath",
-                db.getAbsolutePath(), "--smallfiles", "--noprealloc"
+                db.getAbsolutePath(), "--smallfiles", "--noprealloc", "--slowms", "500"
                 /*, "--nojournal"*/);
         myProcesses.add(standalone);
 
