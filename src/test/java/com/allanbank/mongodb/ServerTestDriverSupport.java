@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.TimeUnit;
 
 import com.allanbank.mongodb.bson.Document;
 import com.allanbank.mongodb.bson.element.ObjectId;
@@ -140,7 +141,12 @@ public class ServerTestDriverSupport {
 
             stopAllWithoutDeleteDirectories();
 
-            System.out.println("restart mongo server.");
+            System.out.println("===> restart mongo server.");
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             startStandAloneLatestWorkingDirectory();
 
