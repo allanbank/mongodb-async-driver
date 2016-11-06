@@ -368,6 +368,7 @@ public class ClusterTestSupport {
      */
     public void startStandAloneWithWD(File wd) {
         try {
+            System.out.println("delete file: " + wd.getAbsolutePath() + "/" + "mongod.lock");
             Files.delete(Paths.get(wd.getAbsolutePath(), "mongod.lock"));
         } catch (IOException e) {
             e.printStackTrace();
