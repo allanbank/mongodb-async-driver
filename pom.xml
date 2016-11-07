@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.allanbank</groupId>
 	<artifactId>mongodb-async-driver</artifactId>
-	<version>2.1.0-CISCO</version>
+	<version>2.1.0.CISCO</version>
 
 	<name>mongodb-async-driver</name>
 	<description>Asynchronous driver for connecting to MongoDB from Java.</description>
@@ -267,12 +267,13 @@
 						</goals>
 						<configuration>
 							<reuseForks>false</reuseForks>
+							<runOrder>alphabetical</runOrder>
 							<includes>
 								<include>**/*ITest.java</include>
 								<include>**/*AcceptanceTest.java</include>
 							</includes>
 							<summaryFile>target/failsafe-reports/failsafe-summary.xml</summaryFile>
-                            <argLine>-Dwrite.mongodb.output=true</argLine>
+                            <!--<argLine>-Dwrite.mongodb.output=true</argLine>-->
 							<systemProperties>
 								<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
 							</systemProperties>
