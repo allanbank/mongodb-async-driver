@@ -322,7 +322,7 @@ public class ReplicaSetAcceptanceTest
 
             // Pause a beat to make sure the driver sees the stepdown.
 //            TimeUnit.MILLISECONDS.sleep(10);
-            TimeUnit.SECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(15);
         }
 
         // Now do a query to a secondary (which is everyone).
