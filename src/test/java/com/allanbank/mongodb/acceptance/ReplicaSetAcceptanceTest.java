@@ -146,6 +146,20 @@ public class ReplicaSetAcceptanceTest
         disconnect();
         Thread.sleep(5000);
         connect();
+
+        // Now apply some load.
+        final DocumentBuilder builder = BuilderFactory.start();
+        for (int i = 0; i < count; ++i) {
+            builder.reset();
+            builder.add("_id", i);
+            builder.add("foo", -i);
+            builder.add("bar", i);
+            builder.add("baz", String.valueOf(i));
+
+            myCollection.insertAsync(builder);
+        }
+
+
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(5);
         myConfig.setDefaultReadPreference(ReadPreference.preferSecondary());
@@ -184,17 +198,17 @@ public class ReplicaSetAcceptanceTest
             beforeCommand[i] = extractOpCounter(doc, "command");
         }
 
-        // Now apply some load.
-        final DocumentBuilder builder = BuilderFactory.start();
-        for (int i = 0; i < count; ++i) {
-            builder.reset();
-            builder.add("_id", i);
-            builder.add("foo", -i);
-            builder.add("bar", i);
-            builder.add("baz", String.valueOf(i));
-
-            myCollection.insertAsync(builder);
-        }
+//        // Now apply some load.
+//        final DocumentBuilder builder = BuilderFactory.start();
+//        for (int i = 0; i < count; ++i) {
+//            builder.reset();
+//            builder.add("_id", i);
+//            builder.add("foo", -i);
+//            builder.add("bar", i);
+//            builder.add("baz", String.valueOf(i));
+//
+//            myCollection.insertAsync(builder);
+//        }
 
         // Now go find them all -- Spin very fast until they are all found.
         final int[] afterInsert = new int[PORTS.length];
