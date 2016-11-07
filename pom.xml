@@ -251,7 +251,7 @@
 						<exclude>**/*AcceptanceTest.java</exclude>
 					</excludes>
 					<systemProperties>
-						<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
+						<java.util.logging.config.file>src/test/resources/jul_logging_off.props</java.util.logging.config.file>
 					</systemProperties>
 				</configuration>
 			</plugin>
