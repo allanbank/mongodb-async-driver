@@ -388,6 +388,8 @@ public class ClusterTestSupport {
      */
     public void stopAll() {
 
+
+
         for (final ManagedProcess process : myProcesses) {
             process.close();
         }
@@ -400,6 +402,16 @@ public class ClusterTestSupport {
             for (final File child : parent
                     .listFiles(new TestDirectoryFilenameFilter())) {
                 delete(child);
+            }
+        }
+
+        if (System.getProperty("os.name").contains("Windows")) {
+//            builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27017%'", "Call", "Terminate");
+        } else {
+            try {
+                new ProcessBuilder("pkill", "mongod").start();
+                new ProcessBuilder("pkill", "mongos").start();
+            } catch (IOException e) {
             }
         }
 
