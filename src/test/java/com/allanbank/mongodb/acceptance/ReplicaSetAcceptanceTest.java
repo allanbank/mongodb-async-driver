@@ -106,7 +106,7 @@ public class ReplicaSetAcceptanceTest
         stepDownPrimary(15);
 
         try {
-            TimeUnit.MILLISECONDS.sleep(100);
+            TimeUnit.SECONDS.sleep(15);
 
             // Should switch to the other shards.
             ourMongo.listDatabaseNames();
