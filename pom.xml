@@ -270,7 +270,7 @@
 							<runOrder>alphabetical</runOrder>
 							<includes>
 								<include>**/*ITest.java</include>
-								<include>**/*AcceptanceTest.java</include>
+								<include>**/ReplicaSetAcceptanceTest.java</include>
 							</includes>
 							<summaryFile>target/failsafe-reports/failsafe-summary.xml</summaryFile>
                             <!--<argLine>-Dwrite.mongodb.output=true</argLine>-->
