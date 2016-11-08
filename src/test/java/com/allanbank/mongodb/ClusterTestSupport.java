@@ -52,7 +52,12 @@ import com.allanbank.mongodb.util.IOUtils;
  */
 public class ClusterTestSupport {
 
-    public static final String db_home = System.getProperty("DB_HOME");
+    public static String db_home = System.getProperty("DB_HOME");
+
+    static {
+        if (db_home == null)
+            db_home = System.getenv("DB_HOME");
+    }
 
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
@@ -561,7 +566,7 @@ public class ClusterTestSupport {
             arbiter = run(workingDirectory, "mongod", "--port",
                     String.valueOf(port), "--dbpath", db.getAbsolutePath(),
                     "--smallfiles", "--replSet", "rs-" + startPort,
-                    "--noprealloc", /*"--nojournal",*/ "--oplogSize", "512", "--slowms", "500");
+                    /*"--noprealloc", "--nojournal",*/ "--oplogSize", "512", "--slowms", "500");
             reconfigWriter
                     .write("config.members.push({ _id: 0, host: \"localhost:"
                             + port + "\", arbiterOnly:true })\n");
@@ -577,7 +582,7 @@ public class ClusterTestSupport {
                 final ManagedProcess member = run(workingDirectory, "mongod",
                         "--port", String.valueOf(port), "--dbpath",
                         db.getAbsolutePath(), "--smallfiles", "--replSet",
-                        "rs-" + startPort, "--noprealloc", /*"--nojournal",*/
+                        "rs-" + startPort, /*"--noprealloc", "--nojournal",*/
                         "--oplogSize", "512", "--slowms", "500");
                 myProcesses.add(member);
 
