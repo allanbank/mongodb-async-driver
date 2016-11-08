@@ -273,7 +273,7 @@
 								<include>**/ReplicaSetAcceptanceTest.java</include>
 							</includes>
 							<summaryFile>target/failsafe-reports/failsafe-summary.xml</summaryFile>
-                            <!--<argLine>-Dwrite.mongodb.output=true</argLine>-->
+                            <argLine>-Dwrite.mongodb.output=true</argLine>
 							<systemProperties>
 								<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
 							</systemProperties>
