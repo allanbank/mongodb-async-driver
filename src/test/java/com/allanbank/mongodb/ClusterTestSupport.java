@@ -393,7 +393,7 @@ public class ClusterTestSupport {
      */
     public void stopAll() {
 
-
+        System.out.println("start stopAll");
 
         for (final ManagedProcess process : myProcesses) {
             process.close();
@@ -421,6 +421,7 @@ public class ClusterTestSupport {
         }
 
         myWorkingDirectory = null;
+        System.out.println("finish stopAll");
     }
 
     /**

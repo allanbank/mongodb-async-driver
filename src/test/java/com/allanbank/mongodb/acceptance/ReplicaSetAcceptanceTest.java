@@ -90,7 +90,7 @@ public class ReplicaSetAcceptanceTest
         stopReplicaSet();
     }
 
-    public static void restartServer() {
+    private void restartServer() {
         System.out.println("Running @restartServer " + ReplicaSetAcceptanceTest.class);
         stopReplicaSet();
         startReplicaSet();
@@ -418,6 +418,7 @@ public class ReplicaSetAcceptanceTest
             ourMongo.listDatabaseNames();
         }
         catch (final Exception e) {
+            System.out.println("test fail: " + e.toString());
             final AssertionError error = new AssertionError(e.getMessage());
             error.initCause(e);
             throw error;
