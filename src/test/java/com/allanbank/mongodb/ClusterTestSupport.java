@@ -414,8 +414,8 @@ public class ClusterTestSupport {
 //            builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27017%'", "Call", "Terminate");
         } else {
             try {
-                new ProcessBuilder("pkill", "mongod").start();
-                new ProcessBuilder("pkill", "mongos").start();
+                new ProcessBuilder("pkill", "-signal", "9", "mongod").start();
+                new ProcessBuilder("pkill", "-signal", "9", "mongos").start();
             } catch (IOException e) {
             }
         }
