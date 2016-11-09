@@ -225,19 +225,19 @@ public abstract class BasicAcceptanceTestCases extends ServerTestDriverSupport {
             final MongoCollection collection = largeCollection(mongoClient);
 
             // Use the Future delayed strategy.
-            final BlockingQueue<Future<Integer>> sent = new ArrayBlockingQueue<Future<Integer>>(
-                    50000);
+            final BlockingQueue<Future<Integer>> sent = new ArrayBlockingQueue<Future<Integer>>(50000);
 
             for (int i = 0; i < LARGE_COLLECTION_COUNT; ++i) {
                 final DocumentBuilder builder = BuilderFactory.start();
                 builder.addInteger("_id", i);
 
-                final Future<Integer> result = collection.insertAsync(builder
-                        .build());
+                final Future<Integer> result = collection.insertAsync(builder.build());
+
                 while (!sent.offer(result)) {
                     sent.take().get();
                 }
             }
+
             for (final Future<Integer> result : sent) {
                 result.get();
             }

@@ -90,14 +90,6 @@ public class ReplicaSetAcceptanceTest
         stopReplicaSet();
     }
 
-    private void restartServer() {
-        System.out.println("Running @restartServer " + ReplicaSetAcceptanceTest.class);
-        stopReplicaSet();
-        startReplicaSet();
-        buildLargeCollection();
-        System.out.println("Finished @restartServer " + ReplicaSetAcceptanceTest.class);
-    }
-
     /**
      * Tests recovery from a graceful step-down of a server.
      */
@@ -125,9 +117,8 @@ public class ReplicaSetAcceptanceTest
             throw error;
         }
         finally {
-            restartServer();
             // Make sure the server is restarted for the other tests.
-//            repairReplicaSet();
+            repairReplicaSet();
         }
     }
 
@@ -359,8 +350,8 @@ public class ReplicaSetAcceptanceTest
         System.out.println("Wait for a primary again. Repair blocks until there is a primary.");
         // Wait for a primary again. Repair blocks until there is a primary.
 
-        restartServer();
-//        repairReplicaSet();
+//        restartServer();
+        repairReplicaSet();
 
         // And we can query the primary again.
         query.readPreference(ReadPreference.PRIMARY);
@@ -425,8 +416,7 @@ public class ReplicaSetAcceptanceTest
         }
         finally {
             // Make sure the server is restarted for the other tests.
-            restartServer();
-//            repairReplicaSet();
+            repairReplicaSet();
         }
     }
 

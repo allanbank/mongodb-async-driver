@@ -406,6 +406,16 @@ public class ClusterTestSupport {
 
         System.out.println("start stopAll");
 
+        if (System.getProperty("os.name").contains("Windows")) {
+//            builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27017%'", "Call", "Terminate");
+        } else {
+            try {
+                new ProcessBuilder("pkill", "-signal", "9", "mongod").start();
+                new ProcessBuilder("pkill", "-signal", "9", "mongos").start();
+            } catch (IOException e) {
+            }
+        }
+
         for (final ManagedProcess process : myProcesses) {
             process.close();
         }
@@ -421,15 +431,7 @@ public class ClusterTestSupport {
             }
         }
 
-        if (System.getProperty("os.name").contains("Windows")) {
-//            builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27017%'", "Call", "Terminate");
-        } else {
-            try {
-                new ProcessBuilder("pkill", "-signal", "9", "mongod").start();
-                new ProcessBuilder("pkill", "-signal", "9", "mongos").start();
-            } catch (IOException e) {
-            }
-        }
+
 
         myWorkingDirectory = null;
         System.out.println("finish stopAll");
@@ -561,8 +563,8 @@ public class ClusterTestSupport {
 
         final File initialConfig = new File(workingDirectory, "config-"
                 + startPort + ".js");
-        final File reconfig = new File(workingDirectory, "reconfig-"
-                + startPort + ".js");
+//        final File reconfig = new File(workingDirectory, "reconfig-"
+//                + startPort + ".js");
 
         FileWriter initialConfigWriter = null;
         FileWriter reconfigWriter = null;
@@ -572,8 +574,19 @@ public class ClusterTestSupport {
             initialConfigWriter.write("rs.initiate({ _id: \"rs-" + startPort
                     + "\", members: [\n");
 
-            reconfigWriter = new FileWriter(reconfig);
-            reconfigWriter.write("var config = rs.conf();\n");
+//            reconfigWriter = new FileWriter(reconfig);
+//            reconfigWriter.write("var config = rs.conf();\n");
+
+            /*
+            rs.initiate({ _id: "rs-27017", members: [
+                  { _id: 1, host: "localhost:27017", arbiterOnly:true },
+                  { _id: 2, host: "localhost:27018" },
+  { _id: 3, host: "localhost:27019" },
+  { _id: 4, host: "localhost:27020" }
+] })
+
+             */
+
 
             // Arbiter.
             int port = startPort;
@@ -583,13 +596,16 @@ public class ClusterTestSupport {
                     String.valueOf(port), "--dbpath", db.getAbsolutePath(),
                     "--smallfiles", "--replSet", "rs-" + startPort,
                     /*"--noprealloc",*/ "--nojournal", "--oplogSize", "512", "--slowms", "500");
-            reconfigWriter
-                    .write("config.members.push({ _id: 0, host: \"localhost:"
-                            + port + "\", arbiterOnly:true })\n");
+//            reconfigWriter
+//                    .write("config.members.push({ _id: 0, host: \"localhost:"
+//                            + port + "\", arbiterOnly:true })\n");
             myProcesses.add(arbiter);
 
             final List<ManagedProcess> members = new ArrayList<ManagedProcess>(
                     replicas);
+
+            StringBuilder membersString = new StringBuilder("  { _id: 0, host: \"localhost:"
+                    + port + "\", arbiterOnly:true },");
             for (int i = 0; i < replicas; ++i) {
                 port = startPort + i + 1;
                 db = new File(workingDirectory, "mongod-" + port);
@@ -602,21 +618,29 @@ public class ClusterTestSupport {
                         "--oplogSize", "512", "--slowms", "500");
                 myProcesses.add(member);
 
-                if (members.isEmpty()) {
-                    initialConfigWriter.write("  { _id: 1, host: \"localhost:"
-                            + port + "\" }");
-                }
-                else {
-                    reconfigWriter.write("config.members.push({ _id: "
-                            + (i + 1) + ", host: \"localhost:" + port
-                            + "\" });\n");
-                }
+
+                membersString.append("  { _id: " + (i + 1)  + ", host: \"localhost:"
+                            + port + "\" },");
+
+
+
+//                if (members.isEmpty()) {
+//                    initialConfigWriter.write("  { _id: 1, host: \"localhost:"
+//                            + port + "\" }");
+//                }
+//                else {
+//                    reconfigWriter.write("config.members.push({ _id: "
+//                            + (i + 1) + ", host: \"localhost:" + port
+//                            + "\" });\n");
+//                }
                 members.add(member);
             }
+            membersString.deleteCharAt(membersString.length() -1);
+            initialConfigWriter.write(membersString.toString());
             initialConfigWriter.write("\n] })");
             IOUtils.close(initialConfigWriter);
-            reconfigWriter.write("rs.reconfig(config);\n");
-            IOUtils.close(reconfigWriter);
+//            reconfigWriter.write("rs.reconfig(config);\n");
+//            IOUtils.close(reconfigWriter);
 
             // Make sure the ports are open (should be by now...)
             arbiter.waitFor(startPort, TimeUnit.SECONDS.toMillis(60));
@@ -639,10 +663,10 @@ public class ClusterTestSupport {
                     TimeUnit.MINUTES.toMillis(10));
 
             // Now add the other members.
-            final ManagedProcess config2 = run(workingDirectory, "mongo",
-                    "localhost:" + String.valueOf(startPort + 1) + "/admin",
-                    reconfig.getAbsolutePath());
-            config2.waitFor();
+//            final ManagedProcess config2 = run(workingDirectory, "mongo",
+//                    "localhost:" + String.valueOf(startPort + 1) + "/admin",
+//                    reconfig.getAbsolutePath());
+//            config2.waitFor();
 
             // Use the Arbiter to tell when everyone is in the right state.
             arbiter.waitFor(
