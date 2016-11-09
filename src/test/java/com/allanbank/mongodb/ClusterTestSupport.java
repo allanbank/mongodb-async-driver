@@ -594,7 +594,7 @@ public class ClusterTestSupport {
             db.mkdir();
             arbiter = run(workingDirectory, "mongod", "--port",
                     String.valueOf(port), "--dbpath", db.getAbsolutePath(),
-                    "--smallfiles", "--replSet", "rs-" + startPort,
+                    /*"--smallfiles",*/ "--replSet", "rs-" + startPort,
                     /*"--noprealloc",*/ "--nojournal", "--oplogSize", "512", "--slowms", "500");
 //            reconfigWriter
 //                    .write("config.members.push({ _id: 0, host: \"localhost:"
@@ -613,7 +613,7 @@ public class ClusterTestSupport {
 
                 final ManagedProcess member = run(workingDirectory, "mongod",
                         "--port", String.valueOf(port), "--dbpath",
-                        db.getAbsolutePath(), "--smallfiles", "--replSet",
+                        db.getAbsolutePath(), /*"--smallfiles",*/ "--replSet",
                         "rs-" + startPort, /*"--noprealloc",*/ "--nojournal",
                         "--oplogSize", "512", "--slowms", "500");
                 myProcesses.add(member);
@@ -650,10 +650,10 @@ public class ClusterTestSupport {
                 if (i == 0) {
 
                     // Tell the first node the initial config.
-                    final ManagedProcess config = run(workingDirectory,
+                    ManagedProcess config = run(workingDirectory,
                             "mongo",
                             "localhost:" + String.valueOf(startPort + 1)
-                                    + "/admin", initialConfig.getAbsolutePath());
+                                    , initialConfig.getAbsolutePath());
                     config.waitFor();
                 }
             }
