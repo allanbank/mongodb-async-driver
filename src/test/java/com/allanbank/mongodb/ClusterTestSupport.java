@@ -156,6 +156,11 @@ public class ClusterTestSupport {
 //            augmentedArgs.add("textSearchEnabled=1");
         }
 
+        if ("mongod".equals(executable)){
+            augmentedArgs.add("--bind_ip");
+            augmentedArgs.add("127.0.0.1");
+        }
+
         String app = executable;
         final String mongodbHome = System.getenv("MONGODB_HOME");
         if (mongodbHome != null) {
