@@ -142,9 +142,11 @@ public class ClusterTestSupport {
             final String executable, final String... args)
             throws AssertionError {
 
+
         // Need a parameter to turn on text search in 2.4.
         final List<String> origArgs = Arrays.asList(args);
         List<String> augmentedArgs = origArgs;
+        System.out.println("Going to start " + executable + " " + origArgs);
 
         final Boolean supports = ourSupportsText;
         if (((supports == null) || supports.booleanValue())
@@ -495,8 +497,8 @@ public class ClusterTestSupport {
                     final ManagedProcess process = run(workingDirectory,
                             "mongod", "--port", String.valueOf(port),
                             "--dbpath", db.getAbsolutePath(), "--smallfiles",
-                            "--replSet", "rs-" + startPort, "--noprealloc",
-                            /*"--nojournal",*/ "--oplogSize", "512", "--slowms", "500");
+                            "--replSet", "rs-" + startPort, /*"--noprealloc",*/
+                            "--nojournal", "--oplogSize", "512", "--slowms", "500");
                     myProcesses.add(process);
                 }
                 finally {
@@ -543,6 +545,10 @@ public class ClusterTestSupport {
      */
     protected void startReplicaSet(final File workingDirectory,
             final int startPort, final int replicas) throws AssertionError {
+
+        System.out.println("=======================================================");
+        System.out.println("=== startReplicaSet                                ====");
+        System.out.println("=======================================================");
 
         final File initialConfig = new File(workingDirectory, "config-"
                 + startPort + ".js");
@@ -645,6 +651,10 @@ public class ClusterTestSupport {
         finally {
             IOUtils.close(initialConfigWriter);
             IOUtils.close(reconfigWriter);
+
+            System.out.println("=======================================================");
+            System.out.println("=== finished startReplicaSet                       ====");
+            System.out.println("=======================================================");
         }
     }
 
@@ -701,7 +711,7 @@ public class ClusterTestSupport {
                 final ManagedProcess shard = run(workingDirectory, "mongod",
                         "--shardsvr", "--port", String.valueOf(port),
                         "--dbpath", db.getAbsolutePath(), "--smallfiles",
-                        "--noprealloc", "--nojournal", "--slowms", "500");
+                        /*"--noprealloc",*/ "--nojournal", "--slowms", "500");
                 myProcesses.add(shard);
                 shard.waitFor(port, TimeUnit.SECONDS.toMillis(30));
                 writer.write("db.runCommand( { addshard : \"localhost:" + port
@@ -821,7 +831,7 @@ public class ClusterTestSupport {
 
         final ManagedProcess standalone = run(workingDirectory, "mongod",
                 "--port", String.valueOf(port), "--dbpath",
-                db.getAbsolutePath(), "--smallfiles", "--noprealloc", "--slowms", "500"
+                db.getAbsolutePath(), "--smallfiles", /*"--noprealloc",*/ "--slowms", "500"
                 , "--nojournal");
         myProcesses.add(standalone);
 
