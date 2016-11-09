@@ -191,7 +191,16 @@ public class ClusterTestSupport {
 
         final BufferedReader r = null;
         try {
-            ManagedProcess mp = new ManagedProcess(executable, b.start());
+
+            String portNumber = "";
+            for (int i =0; i< origArgs.size(); i++) {
+                if (origArgs.get(i).endsWith("port")) {
+                    portNumber = origArgs.get(i + 1);
+                    break;
+                }
+            }
+
+            ManagedProcess mp = new ManagedProcess(executable, b.start(), portNumber);
 
             // If we tried to turn on text search in 2.3 it will fail...
             if (origArgs != augmentedArgs) {
@@ -209,7 +218,7 @@ public class ClusterTestSupport {
                         command.addAll(origArgs);
                         b.command(command);
 
-                        mp = new ManagedProcess(executable, b.start());
+                        mp = new ManagedProcess(executable, b.start(), portNumber);
                     }
                     else {
                         ourSupportsText = Boolean.TRUE;

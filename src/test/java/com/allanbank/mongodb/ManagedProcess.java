@@ -63,6 +63,8 @@ public class ManagedProcess {
     /** The process being managed. */
     private final Process myProcess;
 
+    private final String myPortNumber;
+
     /**
      * Creates a new ClusterTestSupport.ManagedProcess.
      *
@@ -71,7 +73,8 @@ public class ManagedProcess {
      * @param process
      *            The process to manage.
      */
-    public ManagedProcess(final String executable, final Process process) {
+    public ManagedProcess(final String executable, final Process process, String portNumber) {
+        myPortNumber = portNumber;
         myProcess = process;
         myOutput = new StringBuilder();
 
@@ -99,7 +102,8 @@ public class ManagedProcess {
     public String getOutput() {
         myLock.lock();
         try {
-            return myOutput.toString();
+            String output = myOutput.toString();
+            return output;
         }
         finally {
             myLock.unlock();
@@ -276,10 +280,11 @@ public class ManagedProcess {
         @Override
         public void run() {
 
-            String prefix = "[" + Thread.currentThread().getId()+ "] ";
+            String prefix = "[" + Thread.currentThread().getId()+ "] [" + myPortNumber + "]";
             try {
                 final char[] buffer = new char[1024];
                 while (true) {
+                    myReader.readLine();
                     final int read = myReader.read(buffer);
                     if (read > 0) {
                         myLock.lock();
