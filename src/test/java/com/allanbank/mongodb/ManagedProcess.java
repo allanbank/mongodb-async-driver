@@ -275,6 +275,8 @@ public class ManagedProcess {
          */
         @Override
         public void run() {
+
+            String prefix = "[" + Thread.currentThread().getId()+ "] ";
             try {
                 final char[] buffer = new char[1024];
                 while (true) {
@@ -283,7 +285,7 @@ public class ManagedProcess {
                         myLock.lock();
                         try {
                             if (ourWriteMongoDbOutput) {
-                                System.out.print(new String(buffer, 0, read));
+                                System.out.print(prefix + new String(buffer, 0, read));
                             }
                             myOutput.append(buffer, 0, read);
                             myLogUpdated.signalAll();
