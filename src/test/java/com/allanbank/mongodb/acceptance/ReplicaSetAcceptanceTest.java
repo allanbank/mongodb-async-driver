@@ -76,6 +76,7 @@ public class ReplicaSetAcceptanceTest
     @BeforeClass
     public static void startServer() {
         System.out.println("Running @BeforeClass " + ReplicaSetAcceptanceTest.class);
+        stopReplicaSet();
         startReplicaSet();
         buildLargeCollection();
         System.out.println("Finished @BeforeClass " + ReplicaSetAcceptanceTest.class);

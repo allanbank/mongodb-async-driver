@@ -647,15 +647,15 @@ public class ClusterTestSupport {
             for (int i = 0; i < replicas; ++i) {
                 port = startPort + i + 1;
                 members.get(i).waitFor(port, TimeUnit.SECONDS.toMillis(60));
-                if (i == 0) {
+//                if (i == 0) {
 
                     // Tell the first node the initial config.
                     ManagedProcess config = run(workingDirectory,
                             "mongo",
-                            "localhost:" + String.valueOf(startPort + 1)
+                            "localhost:" + String.valueOf(port)
                                     , initialConfig.getAbsolutePath());
                     config.waitFor();
-                }
+//                }
             }
 
             // Wait for the first node to become primary.
