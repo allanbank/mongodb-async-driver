@@ -280,11 +280,10 @@ public class ManagedProcess {
         @Override
         public void run() {
 
-            String prefix = "[" + Thread.currentThread().getId()+ "] [" + myPortNumber + "]";
+            String prefix = "[" + Thread.currentThread().getId()+ "] [" + myPortNumber + "] ";
             try {
                 final char[] buffer = new char[1024];
                 while (true) {
-                    myReader.readLine();
                     final int read = myReader.read(buffer);
                     if (read > 0) {
                         myLock.lock();
