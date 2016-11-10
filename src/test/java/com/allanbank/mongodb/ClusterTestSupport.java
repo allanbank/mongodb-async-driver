@@ -664,7 +664,7 @@ public class ClusterTestSupport {
             }
 
             // Wait for the first node to become primary.
-            members.get(0).waitFor("replSet PRIMARY|transition to primary complete",
+            members.get(0).waitFor("replSet PRIMARY|transition to primary complete|is now in state PRIMARY",
                     TimeUnit.MINUTES.toMillis(10));
 
             // Now add the other members.
