@@ -158,7 +158,7 @@ public class ClusterTestSupport {
 
         if ("mongod".equals(executable)){
             augmentedArgs.add("--bind_ip");
-            augmentedArgs.add("127.0.0.1");
+            augmentedArgs.add("0.0.0.0");
         }
 
         String app = executable;
@@ -869,7 +869,7 @@ public class ClusterTestSupport {
 
         final ManagedProcess standalone = run(workingDirectory, "mongod",
                 "--port", String.valueOf(port), "--dbpath",
-                db.getAbsolutePath(), "--smallfiles", /*"--noprealloc",*/ "--slowms", "500"
+                db.getAbsolutePath(), /*"--smallfiles", "--noprealloc",*/ "--slowms", "500"
                 , "--nojournal");
         myProcesses.add(standalone);
 
