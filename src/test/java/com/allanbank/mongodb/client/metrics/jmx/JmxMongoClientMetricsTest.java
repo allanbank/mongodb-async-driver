@@ -138,7 +138,7 @@ public class JmxMongoClientMetricsTest {
 
         verify(mockSupport);
     }
-
+    String ls = System.getProperty("line.separator");
     /**
      * Test method for {@link JmxMongoClientMetrics#writeTo(PrintWriter)}.
      */
@@ -157,7 +157,7 @@ public class JmxMongoClientMetricsTest {
         assertThat(
                 metrics.toString(),
                 is("Global[sentBytes=0, sentCount=0, receivedBytes=0, "
-                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]\n\n\n\n"
+                        + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]" + ls + ls + ls + ls
                         + "Note: Realtime metrics also available via JMX."));
 
         metrics.close();

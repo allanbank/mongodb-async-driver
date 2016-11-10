@@ -22,6 +22,7 @@ package com.allanbank.mongodb.builder;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.element.IntegerElement;
@@ -57,6 +58,7 @@ public class SortTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testGeo2d() {
         assertEquals(new StringElement("h", "2d"), Sort.geo2d("h"));
     }

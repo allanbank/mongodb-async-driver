@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.bson.Document;
@@ -1103,6 +1104,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testGeoWithinUnique() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -4015,6 +4017,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinBooleanPoint2DPoint2DPoint2DPoint2DArray() {
         final ConditionBuilder b = QueryBuilder.where("f");
 
@@ -4092,6 +4095,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinDocumentAssignableBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -4155,6 +4159,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinDoubleDoubleDoubleBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -4217,6 +4222,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinDoubleDoubleDoubleDoubleBoolean() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4279,6 +4285,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinIntIntIntBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -4341,6 +4348,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinIntIntIntIntBoolean() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4403,6 +4411,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinLongLongLongBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -4434,6 +4443,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinLongLongLongLong() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4466,6 +4476,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinLongLongLongLongBoolean() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4530,6 +4541,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinOnSphereDoubleDoubleDoubleBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -4562,6 +4574,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinOnSphereIntIntInt() {
 
         final ConditionBuilder b = QueryBuilder.where("foo");
@@ -4594,6 +4607,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinOnSphereIntIntIntBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 
@@ -4657,6 +4671,7 @@ public class ConditionBuilderTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testWithinOnSphereLongLongLongBoolean() {
         final ConditionBuilder b = QueryBuilder.where("foo");
 

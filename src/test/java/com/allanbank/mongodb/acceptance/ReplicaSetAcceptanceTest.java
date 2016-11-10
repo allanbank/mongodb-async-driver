@@ -75,8 +75,11 @@ public class ReplicaSetAcceptanceTest
      */
     @BeforeClass
     public static void startServer() {
+        System.out.println("Running @BeforeClass " + ReplicaSetAcceptanceTest.class);
+        stopReplicaSet();
         startReplicaSet();
         buildLargeCollection();
+        System.out.println("Finished @BeforeClass " + ReplicaSetAcceptanceTest.class);
     }
 
     /**
@@ -84,6 +87,7 @@ public class ReplicaSetAcceptanceTest
      */
     @AfterClass
     public static void stopServer() {
+        System.out.println("@AfterClass " + ReplicaSetAcceptanceTest.class);
         stopReplicaSet();
     }
 
@@ -103,7 +107,7 @@ public class ReplicaSetAcceptanceTest
         stepDownPrimary(15);
 
         try {
-            TimeUnit.MILLISECONDS.sleep(100);
+            TimeUnit.SECONDS.sleep(15);
 
             // Should switch to the other shards.
             ourMongo.listDatabaseNames();
@@ -143,6 +147,20 @@ public class ReplicaSetAcceptanceTest
         disconnect();
         Thread.sleep(5000);
         connect();
+
+        // Now apply some load.
+        final DocumentBuilder builder = BuilderFactory.start();
+        for (int i = 0; i < count; ++i) {
+            builder.reset();
+            builder.add("_id", i);
+            builder.add("foo", -i);
+            builder.add("bar", i);
+            builder.add("baz", String.valueOf(i));
+
+            myCollection.insertAsync(builder);
+        }
+
+
         myConfig.setAutoDiscoverServers(true);
         myConfig.setMaxConnectionCount(5);
         myConfig.setDefaultReadPreference(ReadPreference.preferSecondary());
@@ -181,17 +199,17 @@ public class ReplicaSetAcceptanceTest
             beforeCommand[i] = extractOpCounter(doc, "command");
         }
 
-        // Now apply some load.
-        final DocumentBuilder builder = BuilderFactory.start();
-        for (int i = 0; i < count; ++i) {
-            builder.reset();
-            builder.add("_id", i);
-            builder.add("foo", -i);
-            builder.add("bar", i);
-            builder.add("baz", String.valueOf(i));
-
-            myCollection.insertAsync(builder);
-        }
+//        // Now apply some load.
+//        final DocumentBuilder builder = BuilderFactory.start();
+//        for (int i = 0; i < count; ++i) {
+//            builder.reset();
+//            builder.add("_id", i);
+//            builder.add("foo", -i);
+//            builder.add("bar", i);
+//            builder.add("baz", String.valueOf(i));
+//
+//            myCollection.insertAsync(builder);
+//        }
 
         // Now go find them all -- Spin very fast until they are all found.
         final int[] afterInsert = new int[PORTS.length];
@@ -293,7 +311,7 @@ public class ReplicaSetAcceptanceTest
     @Test
     public void testStillQuerySecondariesWhenNoPrimary()
             throws InterruptedException {
-        final int stepUpSeconds = 15;
+        final int stepUpSeconds = 30;
         final int deferSeconds = (stepUpSeconds * PORTS.length) * 2;
         final Find.Builder query = Find.builder().query(Find.ALL);
 
@@ -310,6 +328,7 @@ public class ReplicaSetAcceptanceTest
         query.readPreference(ReadPreference.PRIMARY);
         final int servers = PORTS.length;
         for (int i = 0; i < servers; ++i) {
+            System.out.println("====>\tstep down server number: " + i);
             // Make sure we have a connection to the primary.
             assertThat(myCollection.findOne(query),
                     notNullValue(Document.class));
@@ -317,7 +336,8 @@ public class ReplicaSetAcceptanceTest
             stepDownPrimary(deferSeconds);
 
             // Pause a beat to make sure the driver sees the stepdown.
-            TimeUnit.MILLISECONDS.sleep(100);
+//            TimeUnit.MILLISECONDS.sleep(10);
+            TimeUnit.SECONDS.sleep(15);
         }
 
         // Now do a query to a secondary (which is everyone).
@@ -328,12 +348,16 @@ public class ReplicaSetAcceptanceTest
         query.readPreference(ReadPreference.PREFER_PRIMARY);
         assertThat(myCollection.findOne(query), notNullValue(Document.class));
 
+        System.out.println("Wait for a primary again. Repair blocks until there is a primary.");
         // Wait for a primary again. Repair blocks until there is a primary.
+
+//        restartServer();
         repairReplicaSet();
 
         // And we can query the primary again.
         query.readPreference(ReadPreference.PRIMARY);
         assertThat(myCollection.findOne(query), notNullValue(Document.class));
+        System.out.println("Finished repairing cluster! And we can query the primary again.");
     }
 
     /**
@@ -351,10 +375,18 @@ public class ReplicaSetAcceptanceTest
 
         try {
             // Stop the main shard.
-            final ProcessBuilder builder = new ProcessBuilder("pkill", "-f",
-                    "27018");
+            ProcessBuilder builder = null;
+
+            if (System.getProperty("os.name").contains("Windows")) {
+                //wmic Path win32_process Where "CommandLine Like '%27018%'" Call Terminate
+                builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27018%'", "Call", "Terminate");
+            } else {
+                builder = new ProcessBuilder("pkill", "-f",
+                        "27018");
+            }
+
             final Process kill = builder.start();
-            kill.waitFor();
+//            kill.waitFor();
 
             // Quick command that should then fail.
             ourMongo.listDatabaseNames();
@@ -362,6 +394,7 @@ public class ReplicaSetAcceptanceTest
             // ... but its OK if it misses getting out before the Process dies.
         }
         catch (final ConnectionLostException cle) {
+            System.out.println("===>\tthis exception is ok: " + cle.toString());
             // Good.
         }
         catch (final Exception e) {
@@ -371,12 +404,13 @@ public class ReplicaSetAcceptanceTest
         }
 
         try {
-            Thread.sleep(1000);
+           TimeUnit.SECONDS.sleep(10);
 
             // Should switch to the other shards.
             ourMongo.listDatabaseNames();
         }
         catch (final Exception e) {
+            System.out.println("test fail: " + e.toString());
             final AssertionError error = new AssertionError(e.getMessage());
             error.initCause(e);
             throw error;

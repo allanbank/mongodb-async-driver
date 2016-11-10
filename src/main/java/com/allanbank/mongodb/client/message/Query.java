@@ -234,14 +234,14 @@ public class Query
 
         if (isBatchSizeSet()) {
             if (isLimitSet() && (myLimit <= myBatchSize)) {
-                myNumberToReturn = -myLimit;
+                myNumberToReturn = myLimit;
             }
             else {
                 myNumberToReturn = myBatchSize;
             }
         }
         else if (isLimitSet() && (myLimit <= DEFAULT_BATCH_SIZE)) {
-            myNumberToReturn = -myLimit;
+            myNumberToReturn = myLimit;
         }
         else {
             myNumberToReturn = 0;

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertSame;
 
 import java.util.Collections;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -70,6 +71,7 @@ public class MongoFactoryTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testCreateMongoDbConfiguration() {
         final MongoDbConfiguration config = new MongoDbConfiguration();
 
@@ -83,6 +85,7 @@ public class MongoFactoryTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testCreateString() {
 
         final Mongo mongo = MongoFactory.create("mongodb://localhost");

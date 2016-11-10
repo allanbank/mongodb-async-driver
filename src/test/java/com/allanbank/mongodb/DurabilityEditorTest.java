@@ -101,7 +101,7 @@ public class DurabilityEditorTest {
 
         editor.setAsText("MAJORITy");
         assertThat(editor.getValue(),
-                is((Object) Durability.replicaDurable(Durability.MAJORITY_MODE,
+                is((Object) Durability.replicaDurable(Durability.MAJORITY_MODE_STRING,
                         DurabilityEditor.DEFAULT_WAIT_TIME_MS)));
     }
 

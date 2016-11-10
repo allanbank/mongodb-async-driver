@@ -79,6 +79,8 @@ public class BasicLogicalMetricsListenerTest {
         verify(mockSentMessage, mockReply);
     }
 
+    String ls = System.getProperty("line.separator");
+
     /**
      * Test method for
      * {@link BasicLogicalMetricsListener#sent(String, long, Message)} .
@@ -107,7 +109,7 @@ public class BasicLogicalMetricsListenerTest {
         assertThat(
                 metrics.toString(),
                 is("Database[db: sentBytes=202, sentCount=2, receivedBytes=0, receivedCount=0, "
-                        + "lastLatency=0 ms, totalLatency=0 ms]\n"
+                        + "lastLatency=0 ms, totalLatency=0 ms]" + ls
                         + "Collection[collection: sentBytes=202, sentCount=2, receivedBytes=0, "
                         + "receivedCount=0, lastLatency=0 ms, totalLatency=0 ms]"));
 

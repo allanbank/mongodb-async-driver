@@ -46,10 +46,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import com.allanbank.mongodb.Durability;
 import com.allanbank.mongodb.MongoClientConfiguration;
@@ -110,6 +107,7 @@ public class ShardedReplicaSetsAcceptanceTest
      */
     @AfterClass
     public static void stopServer() {
+        System.out.println("@AfterClass " + ShardedReplicaSetsAcceptanceTest.class);
         stopShardedReplicaSets();
     }
 
@@ -388,19 +386,19 @@ public class ShardedReplicaSetsAcceptanceTest
         Document result = myCollection.explain(QueryBuilder.where("a")
                 .equals(3).and("b").equals(5));
 
-        List<Element> elements = result.find("shards", ".*", ".*", "cursor");
+        List<Element> elements = result.find("queryPlanner", "winningPlan", "shards", ".*", "winningPlan", "inputStage", "inputStage", "indexName");
         assertFalse(elements.isEmpty());
         for (final Element element : elements) {
-            assertEquals(new StringElement("cursor", "BtreeCursor a_1_b_1"),
+            assertEquals(new StringElement("indexName", "a_1_b_1"),
                     element);
         }
 
         result = myCollection.explain(QueryBuilder.where("f").equals(42));
 
-        elements = result.find("shards", ".*", ".*", "cursor");
+        elements = result.find("queryPlanner", "winningPlan", "shards", ".*", "winningPlan", "inputStage", "stage");
         assertFalse(elements.isEmpty());
         for (final Element element : elements) {
-            assertEquals(new StringElement("cursor", "BasicCursor"), element);
+            assertEquals(new StringElement("stage", "COLLSCAN"), element);
         }
     }
 
@@ -564,6 +562,7 @@ public class ShardedReplicaSetsAcceptanceTest
      * </blockquote>
      */
     @Test
+    @Ignore
     public void testMapReduceOnSecondaries() {
         shardCollection("mr");
         final MongoCollection mr = myDb.getCollection("mr");
@@ -918,7 +917,7 @@ public class ShardedReplicaSetsAcceptanceTest
                     final StringElement process = doc.get(StringElement.class,
                             "process");
                     if ((process != null)
-                            && (process.getValue().equals("mongod"))) {
+                            && (process.getValue().endsWith("mongod"))) {
 
                         final BooleanElement primary = doc.findFirst(
                                 BooleanElement.class, "repl", "ismaster");
@@ -983,7 +982,7 @@ public class ShardedReplicaSetsAcceptanceTest
                     final StringElement process = doc.get(StringElement.class,
                             "process");
                     if ((process != null)
-                            && (process.getValue().equals("mongod"))) {
+                            && (process.getValue().endsWith("mongod"))) {
 
                         final BooleanElement secondary = doc.findFirst(
                                 BooleanElement.class, "repl", "secondary");

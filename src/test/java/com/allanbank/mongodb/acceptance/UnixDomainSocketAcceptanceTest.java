@@ -100,7 +100,7 @@ public class UnixDomainSocketAcceptanceTest
             if (TAR_FILE.exists()) {
                 TAR_FILE.delete();
             }
-            final URL url = new URL("http://junixsocket.googlecode.com/files/"
+            final URL url = new URL("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/junixsocket/"
                     + LAST_JUNIXSOCKET_RELEASE_FILE);
             out = new FileOutputStream(TAR_FILE);
             in = url.openStream();

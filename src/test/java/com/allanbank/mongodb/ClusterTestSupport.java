@@ -27,6 +27,8 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +51,13 @@ import com.allanbank.mongodb.util.IOUtils;
  * @copyright 2012-2013, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class ClusterTestSupport {
+
+    public static String db_home = System.getProperty("DB_HOME");
+
+    static {
+        if (db_home == null)
+            db_home = System.getenv("DB_HOME");
+    }
 
     /** The default MongoDB port. */
     public static final int DEFAULT_PORT = 27017;
@@ -73,6 +82,10 @@ public class ClusterTestSupport {
 
     /** The working directory for the cluster. */
     private File myWorkingDirectory;
+
+    public File getWorkingDirectory() {
+        return myWorkingDirectory;
+    }
 
     /**
      * Creates a new ClusterTestSupport.
@@ -129,16 +142,23 @@ public class ClusterTestSupport {
             final String executable, final String... args)
             throws AssertionError {
 
+
         // Need a parameter to turn on text search in 2.4.
         final List<String> origArgs = Arrays.asList(args);
         List<String> augmentedArgs = origArgs;
+        System.out.println("Going to start " + executable + " " + origArgs);
 
         final Boolean supports = ourSupportsText;
         if (((supports == null) || supports.booleanValue())
                 && ("mongod".equals(executable) || "mongos".equals(executable))) {
             augmentedArgs = new ArrayList<String>(origArgs);
-            augmentedArgs.add("--setParameter");
-            augmentedArgs.add("textSearchEnabled=1");
+//            augmentedArgs.add("--setParameter");
+//            augmentedArgs.add("textSearchEnabled=1");
+        }
+
+        if ("mongod".equals(executable)){
+            augmentedArgs.add("--bind_ip");
+            augmentedArgs.add("0.0.0.0");
         }
 
         String app = executable;
@@ -176,7 +196,16 @@ public class ClusterTestSupport {
 
         final BufferedReader r = null;
         try {
-            ManagedProcess mp = new ManagedProcess(executable, b.start());
+
+            String portNumber = "";
+            for (int i =0; i< origArgs.size(); i++) {
+                if (origArgs.get(i).endsWith("port")) {
+                    portNumber = origArgs.get(i + 1);
+                    break;
+                }
+            }
+
+            ManagedProcess mp = new ManagedProcess(executable, b.start(), portNumber);
 
             // If we tried to turn on text search in 2.3 it will fail...
             if (origArgs != augmentedArgs) {
@@ -194,7 +223,7 @@ public class ClusterTestSupport {
                         command.addAll(origArgs);
                         b.command(command);
 
-                        mp = new ManagedProcess(executable, b.start());
+                        mp = new ManagedProcess(executable, b.start(), portNumber);
                     }
                     else {
                         ourSupportsText = Boolean.TRUE;
@@ -231,12 +260,15 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile(REPLICA_SET_ROOT,
-                    DIR_SUFFIX);
-            myWorkingDirectory.delete();
-            myWorkingDirectory.mkdir();
-
-            startReplicaSet(myWorkingDirectory, DEFAULT_PORT, 3);
+            if (db_home != null){
+                myWorkingDirectory = Files.createFile(Paths.get(db_home, REPLICA_SET_ROOT + System.currentTimeMillis() + DIR_SUFFIX)).toFile();
+            } else {
+                myWorkingDirectory = File.createTempFile(REPLICA_SET_ROOT,
+                        DIR_SUFFIX);
+            }
+             myWorkingDirectory.delete();
+             myWorkingDirectory.mkdir();
+             startReplicaSet(myWorkingDirectory, DEFAULT_PORT, 3);
         }
         catch (final IOException ioe) {
             fail(ioe.getMessage(), ioe);
@@ -261,7 +293,14 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile(SHARDED_ROOT, DIR_SUFFIX);
+
+            if (db_home != null){
+                myWorkingDirectory = Files.createFile(Paths.get(db_home, SHARDED_ROOT + System.currentTimeMillis() + DIR_SUFFIX)).toFile();
+            } else {
+                myWorkingDirectory = File.createTempFile(SHARDED_ROOT,
+                        DIR_SUFFIX);
+            }
+//            myWorkingDirectory = File.createTempFile(SHARDED_ROOT, DIR_SUFFIX);
             myWorkingDirectory.delete();
             myWorkingDirectory.mkdir();
 
@@ -293,7 +332,13 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile(SHARDED_ROOT, DIR_SUFFIX);
+            if (db_home != null){
+                myWorkingDirectory = Files.createFile(Paths.get(db_home, SHARDED_ROOT + System.currentTimeMillis() + DIR_SUFFIX)).toFile();
+            } else {
+                myWorkingDirectory = File.createTempFile(SHARDED_ROOT,
+                        DIR_SUFFIX);
+            }
+//            myWorkingDirectory = File.createTempFile(SHARDED_ROOT, DIR_SUFFIX);
             myWorkingDirectory.delete();
             myWorkingDirectory.mkdir();
 
@@ -317,8 +362,14 @@ public class ClusterTestSupport {
         }
 
         try {
-            myWorkingDirectory = File.createTempFile(STANDALONE_ROOT,
-                    DIR_SUFFIX);
+            if (db_home != null){
+                myWorkingDirectory = Files.createFile(Paths.get(db_home, STANDALONE_ROOT + System.currentTimeMillis() + DIR_SUFFIX)).toFile();
+            } else {
+                myWorkingDirectory = File.createTempFile(STANDALONE_ROOT,
+                        DIR_SUFFIX);
+            }
+//            myWorkingDirectory = File.createTempFile(STANDALONE_ROOT,
+//                    DIR_SUFFIX);
             myWorkingDirectory.delete();
             myWorkingDirectory.mkdir();
 
@@ -330,9 +381,45 @@ public class ClusterTestSupport {
     }
 
     /**
+     * Starts a MongoDB instance running in a standalone mode. Below is the role
+     * and port allocation.
+     * <ul>
+     * <li>27017 - mongod</li>
+     * </ul>
+     */
+    public void startStandAloneWithWD(File wd) {
+        try {
+            System.out.println("delete file: " + wd.getAbsolutePath() + "/mongod-" + DEFAULT_PORT + "/" + "mongod.lock");
+            Files.delete(Paths.get(wd.getAbsolutePath(), "mongod-" + DEFAULT_PORT,"mongod.lock"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        startStandAlone(wd, DEFAULT_PORT);
+    }
+
+    public void stopAllWithoutDeleteDirectories() {
+        for (final ManagedProcess process : myProcesses) {
+            process.close();
+        }
+    }
+
+    /**
      * Stops all of the running processes for the cluster.
      */
     public void stopAll() {
+
+        System.out.println("start stopAll");
+
+        if (System.getProperty("os.name").contains("Windows")) {
+//            builder = new ProcessBuilder("wmic", "Path", "win32_process", "Where", "CommandLine Like '%27017%'", "Call", "Terminate");
+        } else {
+            try {
+                new ProcessBuilder("pkill", "-signal", "9", "mongod").start().waitFor();
+                new ProcessBuilder("pkill", "-signal", "9", "mongos").start().waitFor();
+            } catch (Exception e) {
+            }
+        }
 
         for (final ManagedProcess process : myProcesses) {
             process.close();
@@ -349,7 +436,10 @@ public class ClusterTestSupport {
             }
         }
 
+
+
         myWorkingDirectory = null;
+        System.out.println("finish stopAll");
     }
 
     /**
@@ -423,8 +513,8 @@ public class ClusterTestSupport {
                     final ManagedProcess process = run(workingDirectory,
                             "mongod", "--port", String.valueOf(port),
                             "--dbpath", db.getAbsolutePath(), "--smallfiles",
-                            "--replSet", "rs-" + startPort, "--noprealloc",
-                            "--nojournal", "--oplogSize", "512");
+                            "--replSet", "rs-" + startPort, /*"--noprealloc",*/
+                            "--nojournal", "--oplogSize", "512", "--slowms", "500");
                     myProcesses.add(process);
                 }
                 finally {
@@ -472,10 +562,14 @@ public class ClusterTestSupport {
     protected void startReplicaSet(final File workingDirectory,
             final int startPort, final int replicas) throws AssertionError {
 
+        System.out.println("=======================================================");
+        System.out.println("=== startReplicaSet                                ====");
+        System.out.println("=======================================================");
+
         final File initialConfig = new File(workingDirectory, "config-"
                 + startPort + ".js");
-        final File reconfig = new File(workingDirectory, "reconfig-"
-                + startPort + ".js");
+//        final File reconfig = new File(workingDirectory, "reconfig-"
+//                + startPort + ".js");
 
         FileWriter initialConfigWriter = null;
         FileWriter reconfigWriter = null;
@@ -485,8 +579,19 @@ public class ClusterTestSupport {
             initialConfigWriter.write("rs.initiate({ _id: \"rs-" + startPort
                     + "\", members: [\n");
 
-            reconfigWriter = new FileWriter(reconfig);
-            reconfigWriter.write("var config = rs.conf();\n");
+//            reconfigWriter = new FileWriter(reconfig);
+//            reconfigWriter.write("var config = rs.conf();\n");
+
+            /*
+            rs.initiate({ _id: "rs-27017", members: [
+                  { _id: 1, host: "localhost:27017", arbiterOnly:true },
+                  { _id: 2, host: "localhost:27018" },
+  { _id: 3, host: "localhost:27019" },
+  { _id: 4, host: "localhost:27020" }
+] })
+
+             */
+
 
             // Arbiter.
             int port = startPort;
@@ -494,15 +599,18 @@ public class ClusterTestSupport {
             db.mkdir();
             arbiter = run(workingDirectory, "mongod", "--port",
                     String.valueOf(port), "--dbpath", db.getAbsolutePath(),
-                    "--smallfiles", "--replSet", "rs-" + startPort,
-                    "--noprealloc", "--nojournal", "--oplogSize", "512");
-            reconfigWriter
-                    .write("config.members.push({ _id: 0, host: \"localhost:"
-                            + port + "\", arbiterOnly:true })\n");
+                    /*"--smallfiles",*/ "--replSet", "rs-" + startPort,
+                    /*"--noprealloc",*/ "--nojournal", "--oplogSize", "512", "--slowms", "500");
+//            reconfigWriter
+//                    .write("config.members.push({ _id: 0, host: \"localhost:"
+//                            + port + "\", arbiterOnly:true })\n");
             myProcesses.add(arbiter);
 
             final List<ManagedProcess> members = new ArrayList<ManagedProcess>(
                     replicas);
+
+            StringBuilder membersString = new StringBuilder("  { _id: 0, host: \"localhost:"
+                    + port + "\", arbiterOnly:true },");
             for (int i = 0; i < replicas; ++i) {
                 port = startPort + i + 1;
                 db = new File(workingDirectory, "mongod-" + port);
@@ -510,62 +618,70 @@ public class ClusterTestSupport {
 
                 final ManagedProcess member = run(workingDirectory, "mongod",
                         "--port", String.valueOf(port), "--dbpath",
-                        db.getAbsolutePath(), "--smallfiles", "--replSet",
-                        "rs-" + startPort, "--noprealloc", "--nojournal",
-                        "--oplogSize", "512");
+                        db.getAbsolutePath(), /*"--smallfiles",*/ "--replSet",
+                        "rs-" + startPort, /*"--noprealloc",*/ "--nojournal",
+                        "--oplogSize", "512", "--slowms", "500");
                 myProcesses.add(member);
 
-                if (members.isEmpty()) {
-                    initialConfigWriter.write("  { _id: 1, host: \"localhost:"
-                            + port + "\" }");
-                }
-                else {
-                    reconfigWriter.write("config.members.push({ _id: "
-                            + (i + 1) + ", host: \"localhost:" + port
-                            + "\" });\n");
-                }
+
+                membersString.append("  { _id: " + (i + 1)  + ", host: \"localhost:"
+                            + port + "\" },");
+
+
+
+//                if (members.isEmpty()) {
+//                    initialConfigWriter.write("  { _id: 1, host: \"localhost:"
+//                            + port + "\" }");
+//                }
+//                else {
+//                    reconfigWriter.write("config.members.push({ _id: "
+//                            + (i + 1) + ", host: \"localhost:" + port
+//                            + "\" });\n");
+//                }
                 members.add(member);
             }
+            membersString.deleteCharAt(membersString.length() -1);
+            initialConfigWriter.write(membersString.toString());
             initialConfigWriter.write("\n] })");
             IOUtils.close(initialConfigWriter);
-            reconfigWriter.write("rs.reconfig(config);\n");
-            IOUtils.close(reconfigWriter);
+//            reconfigWriter.write("rs.reconfig(config);\n");
+//            IOUtils.close(reconfigWriter);
 
             // Make sure the ports are open (should be by now...)
-            arbiter.waitFor(startPort, TimeUnit.SECONDS.toMillis(30));
+            arbiter.waitFor(startPort, TimeUnit.SECONDS.toMillis(60));
             for (int i = 0; i < replicas; ++i) {
                 port = startPort + i + 1;
-                members.get(i).waitFor(port, TimeUnit.SECONDS.toMillis(30));
-                if (i == 0) {
+                members.get(i).waitFor(port, TimeUnit.SECONDS.toMillis(60));
+//                if (i == 0) {
 
                     // Tell the first node the initial config.
-                    final ManagedProcess config = run(workingDirectory,
+                    ManagedProcess config = run(workingDirectory,
                             "mongo",
-                            "localhost:" + String.valueOf(startPort + 1)
-                                    + "/admin", initialConfig.getAbsolutePath());
+                            "localhost:" + String.valueOf(port)
+                                    , initialConfig.getAbsolutePath());
                     config.waitFor();
-                }
+//                }
             }
 
             // Wait for the first node to become primary.
-            members.get(0).waitFor("replSet PRIMARY",
-                    TimeUnit.MINUTES.toMillis(3));
+            members.get(0).waitFor("replSet PRIMARY|transition to primary complete|is now in state PRIMARY",
+                    TimeUnit.MINUTES.toMillis(10));
 
             // Now add the other members.
-            final ManagedProcess config2 = run(workingDirectory, "mongo",
-                    "localhost:" + String.valueOf(startPort + 1) + "/admin",
-                    reconfig.getAbsolutePath());
-            config2.waitFor();
+//            final ManagedProcess config2 = run(workingDirectory, "mongo",
+//                    "localhost:" + String.valueOf(startPort + 1) + "/admin",
+//                    reconfig.getAbsolutePath());
+//            config2.waitFor();
 
             // Use the Arbiter to tell when everyone is in the right state.
             arbiter.waitFor(
                     "is now in state PRIMARY|replSet member .* PRIMARY",
-                    TimeUnit.MINUTES.toMillis(3));
+                    TimeUnit.MINUTES.toMillis(10));
 
             // Each replica will be a secondary at some point.
             arbiter.waitFor(
                     "is now in state SECONDARY|replSet member .* SECONDARY",
-                    replicas - 1, TimeUnit.MINUTES.toMillis(3));
+                    replicas - 1, TimeUnit.MINUTES.toMillis(10));
         }
         catch (final IOException ioe) {
             fail("Could not write the replica set config.", ioe);
@@ -573,6 +689,10 @@ public class ClusterTestSupport {
         finally {
             IOUtils.close(initialConfigWriter);
             IOUtils.close(reconfigWriter);
+
+            System.out.println("=======================================================");
+            System.out.println("=== finished startReplicaSet                       ====");
+            System.out.println("=======================================================");
         }
     }
 
@@ -607,9 +727,9 @@ public class ClusterTestSupport {
 
             final ManagedProcess config = run(workingDirectory, "mongod",
                     "--configsvr", "--port", String.valueOf(configPort),
-                    "--dbpath", configDb.getAbsolutePath(), "--nojournal");
+                    "--dbpath", configDb.getAbsolutePath()/*, "--nojournal"*/);
             myProcesses.add(config);
-            config.waitFor(configPort, TimeUnit.SECONDS.toMillis(30));
+            config.waitFor(configPort, TimeUnit.SECONDS.toMillis(60));
 
             for (int i = 0; i < mongos; ++i) {
                 final int port = startPort + i;
@@ -629,7 +749,7 @@ public class ClusterTestSupport {
                 final ManagedProcess shard = run(workingDirectory, "mongod",
                         "--shardsvr", "--port", String.valueOf(port),
                         "--dbpath", db.getAbsolutePath(), "--smallfiles",
-                        "--noprealloc", "--nojournal");
+                        /*"--noprealloc",*/ "--nojournal", "--slowms", "500");
                 myProcesses.add(shard);
                 shard.waitFor(port, TimeUnit.SECONDS.toMillis(30));
                 writer.write("db.runCommand( { addshard : \"localhost:" + port
@@ -687,7 +807,7 @@ public class ClusterTestSupport {
 
             final ManagedProcess config = run(workingDirectory, "mongod",
                     "--configsvr", "--port", String.valueOf(configPort),
-                    "--dbpath", configDb.getAbsolutePath(), "--nojournal");
+                    "--dbpath", configDb.getAbsolutePath()/*, "--nojournal"*/, "--slowms", "500");
             myProcesses.add(config);
 
             config.waitFor(configPort, TimeUnit.SECONDS.toMillis(30));
@@ -749,8 +869,8 @@ public class ClusterTestSupport {
 
         final ManagedProcess standalone = run(workingDirectory, "mongod",
                 "--port", String.valueOf(port), "--dbpath",
-                db.getAbsolutePath(), "--smallfiles", "--noprealloc",
-                "--nojournal");
+                db.getAbsolutePath(), /*"--smallfiles", "--noprealloc",*/ "--slowms", "500"
+                , "--nojournal");
         myProcesses.add(standalone);
 
         standalone.waitFor(port, TimeUnit.SECONDS.toMillis(30));

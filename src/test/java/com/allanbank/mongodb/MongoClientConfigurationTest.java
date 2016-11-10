@@ -54,6 +54,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.easymock.EasyMock;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.util.ServerNameUtils;
@@ -124,6 +125,7 @@ public class MongoClientConfigurationTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testAuthenticate() {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
@@ -151,6 +153,7 @@ public class MongoClientConfigurationTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testAuthenticateAsAdmin() {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();
@@ -178,6 +181,7 @@ public class MongoClientConfigurationTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testAuthenticateSetDBFirst() {
         final MongoClientConfiguration config = new MongoClientConfiguration();
 
@@ -207,6 +211,7 @@ public class MongoClientConfigurationTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testAuthenticateSetDBSecond() {
 
         final MongoClientConfiguration config = new MongoClientConfiguration();

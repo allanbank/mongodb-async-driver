@@ -52,6 +52,7 @@ import org.easymock.Capture;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Callback;
@@ -6689,6 +6690,7 @@ public class MongoCollectionImplTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testStreamingFindDocument() {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
@@ -6728,6 +6730,7 @@ public class MongoCollectionImplTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testStreamingFindFind() {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
@@ -6849,6 +6852,7 @@ public class MongoCollectionImplTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testStreamingFindWithAllOptions() throws Exception {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
@@ -6913,6 +6917,7 @@ public class MongoCollectionImplTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testStreamingFindWithAllOptionsNonSharded() throws Exception {
         final Document result1 = BuilderFactory.start().build();
         final Document result2 = BuilderFactory.start().build();
@@ -7418,6 +7423,7 @@ public class MongoCollectionImplTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testTextSearchFull() {
         final com.allanbank.mongodb.builder.Text command = com.allanbank.mongodb.builder.Text
                 .builder().searchTerm("bar").language("l").limit(10)
@@ -7472,6 +7478,7 @@ public class MongoCollectionImplTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testTextSearchMinimal() {
         final com.allanbank.mongodb.builder.Text command = com.allanbank.mongodb.builder.Text
                 .builder().searchTerm("foo").build();

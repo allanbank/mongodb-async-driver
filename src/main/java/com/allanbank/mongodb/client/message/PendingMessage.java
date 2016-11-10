@@ -43,7 +43,7 @@ public class PendingMessage {
     private ReplyCallback myReplyCallback;
 
     /** The timestamp of the message. */
-    private long myTimestamp;
+    private long myTimestamp = 0;
 
     /**
      * Create a new PendingMessage.
@@ -127,13 +127,10 @@ public class PendingMessage {
      * @return The current latency for the message.
      */
     public long latency() {
-        final long timestamp = myTimestamp;
-
-        if (timestamp == 0) {
+        if (myTimestamp == 0) {
             return 0;
         }
-
-        return System.nanoTime() - timestamp;
+        return System.nanoTime() - myTimestamp;
     }
 
     /**

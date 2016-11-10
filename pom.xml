@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.allanbank</groupId>
 	<artifactId>mongodb-async-driver</artifactId>
-	<version>2.1.0-SNAPSHOT</version>
+	<version>2.1.1.CISCO</version>
 
 	<name>mongodb-async-driver</name>
 	<description>Asynchronous driver for connecting to MongoDB from Java.</description>
@@ -137,7 +137,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-failsafe-plugin</artifactId>
-					<version>2.17</version>
+					<version>2.19.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -167,46 +167,14 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.17</version>
+					<version>2.19.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>cobertura-maven-plugin</artifactId>
 					<version>2.6</version>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											javacc-maven-plugin
-										</artifactId>
-										<versionRange>
-											[2.6,)
-										</versionRange>
-										<goals>
-											<goal>javacc</goal>
-											<goal>jjtree-javacc</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
+
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -235,8 +203,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<debuglevel>source,lines</debuglevel>
 					<!-- showDeprecation>true</showDeprecation -->
 					<showWarnings>true</showWarnings>
@@ -277,12 +245,13 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+                    <reuseForks>false</reuseForks>
 					<excludes>
 						<exclude>**/*ITest.java</exclude>
 						<exclude>**/*AcceptanceTest.java</exclude>
 					</excludes>
 					<systemProperties>
-						<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
+						<java.util.logging.config.file>src/test/resources/jul_logging_off.props</java.util.logging.config.file>
 					</systemProperties>
 				</configuration>
 			</plugin>
@@ -297,11 +266,14 @@
 							<goal>verify</goal>
 						</goals>
 						<configuration>
+							<reuseForks>false</reuseForks>
+							<runOrder>alphabetical</runOrder>
 							<includes>
 								<include>**/*ITest.java</include>
-								<include>**/*AcceptanceTest.java</include>
+								<include>**/ReplicaSetAcceptanceTest.java</include>
 							</includes>
 							<summaryFile>target/failsafe-reports/failsafe-summary.xml</summaryFile>
+                            <argLine>-Dwrite.mongodb.output=true</argLine>
 							<systemProperties>
 								<java.util.logging.config.file>src/test/resources/jul_logging.props</java.util.logging.config.file>
 							</systemProperties>
@@ -486,7 +458,7 @@
 				<artifactId>maven-pmd-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<targetJdk>1.6</targetJdk>
+					<targetJdk>1.8</targetJdk>
 					<linkXRef>false</linkXRef>
 					<rulesets>
 						<ruleset>src/pmd-ruleset.xml</ruleset>

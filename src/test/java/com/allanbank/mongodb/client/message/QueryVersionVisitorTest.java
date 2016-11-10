@@ -24,6 +24,7 @@ import static com.allanbank.mongodb.builder.QueryBuilder.where;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.Version;
@@ -101,6 +102,7 @@ public class QueryVersionVisitorTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testVersionWithRemovedIntersects() {
         assertThat(QueryVersionVisitor.version(where("a").geoWithin(
                 GeoJson.multiPoint(GeoJson.p(1, 1), GeoJson.p(1, 1)), true)

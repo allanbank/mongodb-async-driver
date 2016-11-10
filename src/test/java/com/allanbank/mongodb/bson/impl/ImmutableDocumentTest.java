@@ -518,6 +518,8 @@ public class ImmutableDocumentTest {
         assertFalse(iter.hasNext());
     }
 
+    String ls = System.getProperty("line.separator");
+
     /**
      * Test method for {@link ImmutableDocument#toString()}.
      */
@@ -528,7 +530,7 @@ public class ImmutableDocumentTest {
 
         ImmutableDocument element = new ImmutableDocument(new RootDocument(
                 Arrays.asList(subElement, subElement2)));
-        assertEquals("{\n  '1' : false,\n  '2' : false\n}", element.toString());
+        assertEquals("{" + ls + "  '1' : false," + ls + "  '2' : false" + ls + "}", element.toString());
 
         element = new ImmutableDocument(new RootDocument(
                 Arrays.asList(subElement)));
@@ -539,13 +541,13 @@ public class ImmutableDocumentTest {
 
         element = new ImmutableDocument(new RootDocument(new DocumentElement(
                 "f")));
-        assertEquals("{\n  f : {}\n}", element.toString());
+        assertEquals("{" + ls + "  f : {}" + ls + "}", element.toString());
 
         element = new ImmutableDocument(new RootDocument(new ArrayElement("f")));
-        assertEquals("{\n  f : []\n}", element.toString());
+        assertEquals("{" + ls + "  f : []" + ls + "}", element.toString());
 
         element = new ImmutableDocument(new RootDocument(new ArrayElement("f",
                 new BooleanElement("0", true))));
-        assertEquals("{\n  f : [ true ]\n}", element.toString());
+        assertEquals("{" + ls + "  f : [ true ]" + ls + "}", element.toString());
     }
 }

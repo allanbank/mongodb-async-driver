@@ -386,7 +386,7 @@ import com.allanbank.mongodb.util.IOUtils;
             final int length = string.length();
             final char first = string.charAt(0);
             final char last = string.charAt(length - 1);
-            if ((first == last) && ((first == '"') || (first == '\u005c''))) {
+            if ((first == last) && ((first == '"') || (first == '\''))) {
                 return string.substring(1, length - 1);
             }
         }

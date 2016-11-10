@@ -44,6 +44,7 @@ import org.easymock.EasyMock;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.allanbank.mongodb.LambdaCallback;
@@ -268,6 +269,7 @@ public class MongoClientImplTest {
      */
     @Deprecated
     @Test
+    @Ignore
     public void testListDatabases() {
         final DocumentBuilder reply = BuilderFactory.start();
         final ArrayBuilder dbEntry = reply.pushArray("databases");
